@@ -32,10 +32,10 @@ class ValidationException extends AppException {
   final Map<String, List<String>> errors;
 
   const ValidationException({
-    required String message,
+    required super.message,
     required this.errors,
     super.statusCode = 422,
-  }) : super(message: message);
+  });
 
   @override
   String toString() => 'ValidationException: $message, errors: $errors';

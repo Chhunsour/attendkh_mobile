@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mpg_hr_mobile_app/core/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/core/storage/secure_storage.dart';
-import 'package:mpg_hr_mobile_app/core/network/exceptions.dart';
 
 class DioClient {
   static Dio? _dio;
@@ -10,7 +9,7 @@ class DioClient {
   static void init() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: 'https://api.mpg-hr.test/api/v1',
+        baseUrl: 'http://localhost:8000/api',
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
         sendTimeout: const Duration(seconds: 15),
@@ -43,7 +42,7 @@ class DioClient {
   static Dio createDio({String? baseUrl}) {
     return Dio(
       BaseOptions(
-        baseUrl: baseUrl ?? 'https://api.mpg-hr.test/api/v1',
+        baseUrl: baseUrl ?? 'http://localhost:8000/api',
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
         headers: {

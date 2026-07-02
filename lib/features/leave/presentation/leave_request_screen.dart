@@ -52,7 +52,7 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
             const Text('Leave Type', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _leaveType,
+              initialValue: _leaveType,
               decoration: const InputDecoration(prefixIcon: Icon(Icons.category)),
               items: const [
                 DropdownMenuItem(value: 'annual', child: Text('Annual Leave')),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/features/expense/data/expense_repository.dart';
 import 'package:mpg_hr_mobile_app/features/expense/presentation/expense_provider.dart';
 import 'package:mpg_hr_mobile_app/shared/widgets/loading_indicator.dart';
 
@@ -23,7 +22,7 @@ class ExpenseScreen extends ConsumerWidget {
             : ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: expenses.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (context, i) {
                   final e = expenses[i];
                   final statusColor = e.status == 'approved' ? AppColors.success : e.status == 'rejected' ? AppColors.danger : AppColors.warning;

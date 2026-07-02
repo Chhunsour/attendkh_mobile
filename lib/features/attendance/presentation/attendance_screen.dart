@@ -174,11 +174,13 @@ class AttendanceScreen extends ConsumerWidget {
       final repo = ref.read(attendanceRepositoryProvider);
       await repo.clockIn();
       ref.invalidate(todayAttendanceProvider);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: const Text('✅ Clocked in successfully'), backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
       );
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('❌ ${e.toString()}'), backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
@@ -191,11 +193,13 @@ class AttendanceScreen extends ConsumerWidget {
       final repo = ref.read(attendanceRepositoryProvider);
       await repo.clockOut();
       ref.invalidate(todayAttendanceProvider);
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: const Text('✅ Clocked out successfully'), backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
       );
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('❌ ${e.toString()}'), backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),

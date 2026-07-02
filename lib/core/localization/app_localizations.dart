@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/localization/app_localizations_en.dart';
 import 'package:mpg_hr_mobile_app/core/localization/app_localizations_km.dart';
-import 'package:mpg_hr_mobile_app/core/storage/secure_storage.dart';
 
 /// Locale provider - manages app language
 final localeProvider = StateProvider<Locale>((ref) => const Locale('en'));

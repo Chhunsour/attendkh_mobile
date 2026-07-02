@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
 
 /// A consistent full-screen scaffold with optional app bar and bottom navigation offset
 class AppScaffold extends StatelessWidget {

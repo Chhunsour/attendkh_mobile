@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/features/directory/data/directory_repository.dart';
 import 'package:mpg_hr_mobile_app/features/directory/presentation/directory_provider.dart';
 import 'package:mpg_hr_mobile_app/shared/widgets/loading_indicator.dart';
 
@@ -20,7 +19,7 @@ class DirectoryScreen extends ConsumerWidget {
             : ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: employees.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (context, i) {
                   final e = employees[i];
                   return Container(

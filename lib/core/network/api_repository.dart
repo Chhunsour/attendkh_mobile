@@ -65,6 +65,14 @@ class ApiRepository {
     try {
       AppLogger.i('POST $path');
       final response = await _dio.post(path, data: data);
+
+      if (response.data is! Map<String, dynamic>) {
+        throw AppException(
+          message: 'Unexpected response format from server',
+          statusCode: response.statusCode,
+        );
+      }
+
       final json = response.data as Map<String, dynamic>;
 
       if (json['status'] == null && json['data'] == null) {
@@ -72,6 +80,8 @@ class ApiRepository {
       }
 
       return ApiResponse.fromJson(json, fromData);
+    } on AppException {
+      rethrow;
     } on DioException catch (e) {
       AppLogger.e('POST $path failed', e.message);
       throw mapDioException(e);

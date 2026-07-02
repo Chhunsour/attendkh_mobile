@@ -59,7 +59,7 @@ class LeaveListScreen extends ConsumerWidget {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: balances.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
                 itemBuilder: (context, i) => _LeaveBalanceCard(balance: balances[i]),
               ),
             ),
@@ -78,7 +78,7 @@ class LeaveListScreen extends ConsumerWidget {
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: requests.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, i) => _LeaveRequestCard(request: requests[i]),
                   ),
             loading: () => const LoadingIndicator(message: 'Loading history...'),
@@ -112,7 +112,7 @@ class _LeaveBalanceCard extends StatelessWidget {
         children: [
           Text(balance.typeName, style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 6),
-          Text('${remaining.toStringAsFixed(1)}', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color)),
+          Text(remaining.toStringAsFixed(1), style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color)),
           Text('/ ${total.toStringAsFixed(1)} days', style: const TextStyle(fontSize: 11, color: AppColors.grey400)),
           const SizedBox(height: 8),
           LinearProgressIndicator(

@@ -125,8 +125,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await storage.setAccessToken(result.accessToken);
       await storage.setUserId(result.userId.toString());
       await storage.setUserName(result.userName);
-      await storage.setCompanyId(result.companyId.toString());
-      if (result.companyName != null) {
+      if (result.companyId > 0) {
+        await storage.setCompanyId(result.companyId.toString());
+      }
+      if (result.companyName != null && result.companyName!.isNotEmpty) {
         await storage.setCompanyName(result.companyName!);
       }
 
@@ -137,7 +139,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         userId: result.userId.toString(),
         userName: result.userName,
         userEmail: result.userEmail,
-        companyId: result.companyId.toString(),
+        companyId: result.companyId > 0 ? result.companyId.toString() : null,
         companyName: result.companyName,
         roles: result.roles,
       );
@@ -173,8 +175,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await Future.wait([
       storage.setUserId(user.id.toString()),
       storage.setUserName(user.name),
-      storage.setCompanyId(user.companyId.toString()),
-      if (user.companyName != null) storage.setCompanyName(user.companyName!),
+      if (user.companyId > 0) storage.setCompanyId(user.companyId.toString()),
+      if (user.companyName != null && user.companyName!.isNotEmpty)
+        storage.setCompanyName(user.companyName!),
     ]);
   }
 }

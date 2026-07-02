@@ -19,7 +19,7 @@ class AdminAuditLogsScreen extends StatelessWidget {
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: 8,
-        separatorBuilder: (_, __) => const SizedBox(height: 4),
+        separatorBuilder: (_, _) => const SizedBox(height: 4),
         itemBuilder: (context, index) {
           final actions = ['login', 'update_company', 'create_user', 'delete_announcement', 'update_settings', 'suspend_company', 'approve_ticket', 'login'];
           final users = ['super_admin', 'super_admin', 'admin@co1', 'super_admin', 'super_admin', 'super_admin', 'super_admin', 'admin@co3'];

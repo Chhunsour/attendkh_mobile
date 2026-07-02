@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
 
 class CompanySelectScreen extends StatelessWidget {
   const CompanySelectScreen({super.key});

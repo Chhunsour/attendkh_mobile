@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/features/payslip/data/payslip_repository.dart';
 import 'package:mpg_hr_mobile_app/features/payslip/presentation/payslip_provider.dart';
 import 'package:mpg_hr_mobile_app/shared/widgets/loading_indicator.dart';
 
@@ -20,7 +19,7 @@ class PayslipScreen extends ConsumerWidget {
             : ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: payslips.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (context, i) {
                   final p = payslips[i];
                   return Container(

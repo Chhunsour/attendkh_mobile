@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/core/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/features/splash/presentation/splash_screen.dart';
 import 'package:mpg_hr_mobile_app/features/auth/presentation/login_screen.dart';
+import 'package:mpg_hr_mobile_app/features/auth/presentation/register_company_screen.dart';
 import 'package:mpg_hr_mobile_app/features/auth/presentation/company_select_screen.dart';
 import 'package:mpg_hr_mobile_app/features/main/presentation/main_shell.dart';
 import 'package:mpg_hr_mobile_app/features/dashboard/presentation/dashboard_screen.dart';
@@ -31,6 +32,7 @@ import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_settings_scr
 class AppRoutes {
   static const splash = '/';
   static const login = '/login';
+  static const register = '/register';
   static const companySelect = '/company-select';
 
   // Company-side
@@ -57,32 +59,60 @@ class AppRoutes {
   static const adminSettings = '/admin/settings';
 }
 
-/// Go Router provider
+/// ChangeNotifier that listens to auth state — used as GoRouter refreshListenable.
+/// This keeps the GoRouter instance stable (never recreated) while still
+/// triggering redirect re-evaluation when auth changes.
+class _RouterNotifier extends ChangeNotifier {
+  _RouterNotifier(Ref ref) {
+    ref.listen<AuthState>(authProvider, (_, _) => notifyListeners());
+  }
+}
+
+/// Single stable GoRouter provider — never recreated.
+/// Uses refreshListenable so redirect re-runs on auth changes without
+/// rebuilding the GoRouter instance.
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  final notifier = _RouterNotifier(ref);
 
   return GoRouter(
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
+    refreshListenable: notifier,
     redirect: (context, state) {
-      final isLoggedIn = authState.isAuthenticated;
-      final isAuthPage = state.matchedLocation == AppRoutes.splash ||
-          state.matchedLocation == AppRoutes.login ||
-          state.matchedLocation == AppRoutes.companySelect;
+      // Read current auth state (don't watch — that would rebuild the provider)
+      final authState = ref.read(authProvider);
+      final location = state.matchedLocation;
 
-      // Show splash first, always
-      if (state.matchedLocation == AppRoutes.splash) {
-        return null;
-      }
+      final isOnSplash = location == AppRoutes.splash;
+      final isOnAuthPage = location == AppRoutes.login ||
+          location == AppRoutes.register ||
+          location == AppRoutes.companySelect;
 
-      // Not logged in -> redirect to login
-      if (!isLoggedIn && !isAuthPage) {
+      // Always stay on splash while auth check is in progress
+      if (isOnSplash && authState.isLoading) return null;
+
+      // Splash done — redirect based on auth result
+      if (isOnSplash && !authState.isLoading) {
+        if (authState.isAuthenticated) {
+          return authState.isSuperAdmin
+              ? AppRoutes.adminDashboard
+              : AppRoutes.dashboard;
+        }
         return AppRoutes.login;
       }
 
-      // Logged in but on auth page -> go to main
-      if (isLoggedIn && isAuthPage) {
-        return AppRoutes.dashboard;
+      // Not logged in — guard protected routes
+      if (!authState.isAuthenticated && !isOnAuthPage) {
+        return AppRoutes.login;
+      }
+
+      // Logged in but sitting on an auth page — push into the app
+      if (authState.isAuthenticated && isOnAuthPage) {
+        final target = authState.isSuperAdmin
+            ? AppRoutes.adminDashboard
+            : AppRoutes.dashboard;
+        debugPrint('🔀 GoRouter redirect: isSuperAdmin=${authState.isSuperAdmin}, roles=${authState.roles}, → $target');
+        return target;
       }
 
       return null;
@@ -95,6 +125,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterCompanyScreen(),
       ),
       GoRoute(
         path: AppRoutes.companySelect,

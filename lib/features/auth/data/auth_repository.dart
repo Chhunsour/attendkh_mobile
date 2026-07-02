@@ -25,13 +25,14 @@ class LoginResult {
   factory LoginResult.fromJson(Map<String, dynamic> json) {
     final user = json['user'] as Map<String, dynamic>;
     final company = user['company'] as Map<String, dynamic>?;
+    final companyIdRaw = user['company_id'];
     return LoginResult(
       accessToken: json['access_token'] as String,
       tokenType: json['token_type'] as String? ?? 'Bearer',
       userId: user['id'] as int,
       userName: user['name'] as String,
       userEmail: user['email'] as String?,
-      companyId: user['company_id'] as int,
+      companyId: companyIdRaw is int ? companyIdRaw : 0,
       companyName: company?['name'] as String?,
       roles: (user['roles'] as List<dynamic>?)?.cast<String>() ?? [],
     );
@@ -58,11 +59,12 @@ class CurrentUser {
 
   factory CurrentUser.fromJson(Map<String, dynamic> json) {
     final company = json['company'] as Map<String, dynamic>?;
+    final companyIdRaw = json['company_id'];
     return CurrentUser(
       id: json['id'] as int,
       name: json['name'] as String,
       email: json['email'] as String?,
-      companyId: json['company_id'] as int,
+      companyId: companyIdRaw is int ? companyIdRaw : 0,
       companyName: company?['name'] as String?,
       roles: (json['roles'] as List<dynamic>?)?.cast<String>() ?? [],
     );

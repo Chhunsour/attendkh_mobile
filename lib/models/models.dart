@@ -1,4 +1,5 @@
 /// Re-export all model classes for convenient imports
+library;
 export 'user.dart';
 export 'attendance.dart';
 export 'leave.dart';
