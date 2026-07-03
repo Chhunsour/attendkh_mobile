@@ -127,7 +127,7 @@ class _LeaveBalanceCard extends StatelessWidget {
   }
 }
 
-class _LeaveRequestCard extends StatelessWidget {
+class _LeaveRequestCard extends ConsumerWidget {
   final LeaveRequest request;
   const _LeaveRequestCard({required this.request});
 
@@ -141,7 +141,7 @@ class _LeaveRequestCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -167,6 +167,13 @@ class _LeaveRequestCard extends StatelessWidget {
               ],
             ),
           ),
+          if (request.status == 'pending')
+            IconButton(
+              icon: const Icon(Icons.close, size: 20, color: AppColors.danger),
+              tooltip: 'Cancel request',
+              onPressed: () => _cancelRequest(context, ref),
+            ),
+          const SizedBox(width: 4),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(color: _statusColor.withAlpha(26), borderRadius: BorderRadius.circular(6)),
@@ -178,5 +185,37 @@ class _LeaveRequestCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _cancelRequest(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cancel Request'),
+        content: const Text('Are you sure you want to cancel this leave request?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Yes, cancel')),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        final repo = LeaveRepository();
+        await repo.cancelRequest(request.id);
+        ref.invalidate(leaveBalancesProvider);
+        ref.invalidate(leaveRequestsProvider);
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ Leave request cancelled'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+        );
+      } catch (e) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ ${e.toString()}'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
   }
 }

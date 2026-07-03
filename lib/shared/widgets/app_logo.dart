@@ -1,0 +1,55 @@
+import 'package:flutter/material.dart';
+
+/// Circular logo widget used on login / splash screens.
+///
+/// Displays the MPG logo image from assets inside a white-bordered circle
+/// with a primary gradient background and a soft glow shadow.
+class AppLogo extends StatelessWidget {
+  final double size;
+
+  const AppLogo({super.key, this.size = 120});
+
+  static const _primaryColor = Color(0xFF4F7DF3);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF4F7DF3), Color(0xFF1E3A5F)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: _primaryColor.withAlpha(120),
+            blurRadius: size * 0.35,
+            spreadRadius: size * 0.04,
+          ),
+        ],
+        border: Border.all(color: Colors.white, width: 3),
+      ),
+      child: ClipOval(
+        child: Image.asset(
+          'assets/images/logo.png',
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => const Center(
+            child: Text(
+              'MPG',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: 2.5,
+                fontFamily: 'Inter',
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

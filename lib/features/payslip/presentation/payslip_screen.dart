@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
+import 'package:mpg_hr_mobile_app/features/payslip/data/payslip_repository.dart';
 import 'package:mpg_hr_mobile_app/features/payslip/presentation/payslip_provider.dart';
 import 'package:mpg_hr_mobile_app/shared/widgets/loading_indicator.dart';
 
@@ -38,7 +39,11 @@ class PayslipScreen extends ConsumerWidget {
                         ),
                         Text('\$${p.netPay.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         const SizedBox(width: 8),
-                        const Icon(Icons.chevron_right, color: AppColors.grey400),
+                        IconButton(
+                          icon: const Icon(Icons.download_outlined, color: AppColors.primary, size: 22),
+                          tooltip: 'Download PDF',
+                          onPressed: () => _handleDownload(context, p.period),
+                        ),
                       ],
                     ),
                   );
@@ -48,5 +53,21 @@ class PayslipScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.error_outline, size: 48, color: AppColors.grey400), const SizedBox(height: 12), OutlinedButton.icon(onPressed: () => ref.invalidate(payslipsProvider), icon: const Icon(Icons.refresh), label: const Text('Retry'))])),
       ),
     );
+  }
+
+  Future<void> _handleDownload(BuildContext context, String period) async {
+    try {
+      final repo = PayslipRepository();
+      await repo.downloadPayslip(period);
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('📥 Downloading payslip...'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+      );
+    } catch (e) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ ${e.toString()}'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+      );
+    }
   }
 }

@@ -36,4 +36,8 @@ class PayslipRepository {
     }
     return [];
   }
+
+  Future<void> downloadPayslip(String period) async {
+    await _api.get('/company/payroll/export/$period');
+  }
 }

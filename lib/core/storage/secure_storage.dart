@@ -11,6 +11,8 @@ class SecureStorageService {
   static const _companyIdKey = 'company_id';
   static const _userIdKey = 'user_id';
   static const _userNameKey = 'user_name';
+  static const _userEmailKey = 'user_email';
+  static const _rolesKey = 'user_roles';
   static const _companyNameKey = 'company_name';
   static const _companyLogoKey = 'company_logo';
   static const _themeModeKey = 'theme_mode';
@@ -49,6 +51,17 @@ class SecureStorageService {
 
   Future<String?> get userName => _storage.read(key: _userNameKey);
   Future<void> setUserName(String name) => _storage.write(key: _userNameKey, value: name);
+
+  Future<String?> get userEmail => _storage.read(key: _userEmailKey);
+  Future<void> setUserEmail(String email) => _storage.write(key: _userEmailKey, value: email);
+
+  Future<List<String>> get roles async {
+    final raw = await _storage.read(key: _rolesKey);
+    if (raw == null || raw.isEmpty) return [];
+    return raw.split(',');
+  }
+  Future<void> setRoles(List<String> roles) =>
+      _storage.write(key: _rolesKey, value: roles.join(','));
 
   // Preferences
   Future<String?> get themeMode => _storage.read(key: _themeModeKey);

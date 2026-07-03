@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/core/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/core/network/api_repository.dart';
 
 class TodayAttendance {
@@ -70,12 +71,20 @@ class AttendanceRepository {
 
   /// GET /api/v1/company/attendance/today
   Future<TodayAttendance?> getToday() async {
-    final response = await _api.get('/company/attendance/today');
-    final data = response.data;
-    if (data is Map<String, dynamic> && data.isNotEmpty) {
-      return TodayAttendance.fromJson(data);
+    try {
+      final response = await _api.get('/company/attendance/today');
+      final data = response.data;
+      if (data is Map<String, dynamic> && data.isNotEmpty) {
+        if (data.containsKey('data') && data['data'] is Map<String, dynamic>) {
+          return TodayAttendance.fromJson(data['data'] as Map<String, dynamic>);
+        }
+        return TodayAttendance.fromJson(data);
+      }
+      return null;
+    } catch (e) {
+      AppLogger.w('Attendance today fetch failed — returning null', e);
+      return null;
     }
-    return null;
   }
 
   /// POST /api/v1/company/attendance/clock-in
@@ -93,7 +102,14 @@ class AttendanceRepository {
         'method': 'mobile',
       },
     );
-    return TodayAttendance.fromJson(response.data as Map<String, dynamic>);
+    final raw = response.data;
+    if (raw is Map<String, dynamic>) {
+      if (raw.containsKey('data') && raw['data'] is Map<String, dynamic>) {
+        return TodayAttendance.fromJson(raw['data'] as Map<String, dynamic>);
+      }
+      return TodayAttendance.fromJson(raw);
+    }
+    throw Exception('Invalid clock-in response');
   }
 
   /// POST /api/v1/company/attendance/clock-out
@@ -111,7 +127,14 @@ class AttendanceRepository {
         'method': 'mobile',
       },
     );
-    return TodayAttendance.fromJson(response.data as Map<String, dynamic>);
+    final raw = response.data;
+    if (raw is Map<String, dynamic>) {
+      if (raw.containsKey('data') && raw['data'] is Map<String, dynamic>) {
+        return TodayAttendance.fromJson(raw['data'] as Map<String, dynamic>);
+      }
+      return TodayAttendance.fromJson(raw);
+    }
+    throw Exception('Invalid clock-out response');
   }
 
   /// GET /api/v1/company/attendance/summary
@@ -120,6 +143,38 @@ class AttendanceRepository {
       '/company/attendance/summary',
       queryParameters: {'month': month},
     );
-    return AttendanceSummary.fromJson(response.data as Map<String, dynamic>);
+    final raw = response.data;
+    if (raw is Map<String, dynamic>) {
+      if (raw.containsKey('data') && raw['data'] is Map<String, dynamic>) {
+        return AttendanceSummary.fromJson(raw['data'] as Map<String, dynamic>);
+      }
+      return AttendanceSummary.fromJson(raw);
+    }
+    return const AttendanceSummary(present: 0, absent: 0, late: 0, halfDay: 0, totalDays: 0, totalHours: 0);
+  }
+
+  /// GET /api/v1/company/attendance — history of records
+  Future<List<TodayAttendance>> getHistory({String? month}) async {
+    final response = await _api.get(
+      '/company/attendance',
+      queryParameters: {'month': month},
+    );
+    final data = response.data;
+    if (data is List) {
+      return data.map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List).map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    return [];
+  }
+
+  /// POST /api/v1/company/attendance/corrections
+  Future<void> requestCorrection({required String date, required String type, required String reason}) async {
+    await _api.post('/company/attendance/corrections', data: {
+      'date': date,
+      'type': type,
+      'reason': reason,
+    });
   }
 }

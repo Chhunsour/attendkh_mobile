@@ -9,6 +9,6 @@ final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
 final dashboardProvider = FutureProvider<DashboardData>((ref) async {
   final repo = ref.watch(dashboardRepositoryProvider);
   final data = await repo.getDashboard();
-  AppLogger.i('Dashboard loaded — ${data.kpis.presentToday} present today');
+  AppLogger.i('Dashboard loaded — ${data.kpis.totalEmployees} employees');
   return data;
 });

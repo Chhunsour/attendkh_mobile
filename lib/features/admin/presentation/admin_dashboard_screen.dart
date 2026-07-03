@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/features/admin/data/admin_dashboard_repository.dart';
+import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_shell.dart';
 
 // ── Riverpod provider ──────────────────────────────────────────────────────
 final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((ref) {
@@ -20,18 +21,21 @@ class AdminDashboardScreen extends ConsumerWidget {
     final authState = ref.watch(authProvider);
     final dashAsync = ref.watch(adminDashboardProvider);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
-      appBar: _buildAppBar(context, authState.userName ?? 'Super Admin'),
-      body: RefreshIndicator(
-        color: AppColors.primary,
-        onRefresh: () async => ref.invalidate(adminDashboardProvider),
-        child: dashAsync.when(
-          loading: () => _buildLoading(),
-          error: (err, _) => _buildError(err, ref),
-          data: (data) => _buildContent(context, data, authState),
+    return Column(
+      children: [
+        _buildAppBar(context, authState.userName ?? 'Super Admin'),
+        Expanded(
+          child: RefreshIndicator(
+            color: AppColors.primary,
+            onRefresh: () async => ref.invalidate(adminDashboardProvider),
+            child: dashAsync.when(
+              loading: () => _buildLoading(),
+              error: (err, _) => _buildError(err, ref),
+              data: (data) => _buildContent(context, data, authState),
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -40,11 +44,9 @@ class AdminDashboardScreen extends ConsumerWidget {
     return AppBar(
       backgroundColor: const Color(0xFF0F172A),
       elevation: 0,
-      leading: Builder(
-        builder: (ctx) => IconButton(
-          icon: const Icon(Icons.menu_rounded, color: Colors.white),
-          onPressed: () => Scaffold.of(ctx).openDrawer(),
-        ),
+      leading: IconButton(
+        icon: const Icon(Icons.menu_rounded, color: Colors.white),
+        onPressed: () => AdminShell.scaffoldKey.currentState?.openDrawer(),
       ),
       title: Row(
         children: [
@@ -223,17 +225,6 @@ class AdminDashboardScreen extends ConsumerWidget {
                 icon: Icons.support_agent_rounded,
                 color: const Color(0xFFF59E0B),
                 bgColor: const Color(0xFFFFFBEB),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _KpiCard(
-                title: 'Revenue (MTD)',
-                value: stats.monthlyRevenue,
-                sub: 'Month to date',
-                icon: Icons.trending_up_rounded,
-                color: const Color(0xFFEC4899),
-                bgColor: const Color(0xFFFDF2F8),
               ),
             ),
           ],

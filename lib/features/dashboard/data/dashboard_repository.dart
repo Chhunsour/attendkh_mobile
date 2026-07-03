@@ -1,36 +1,37 @@
+import 'package:mpg_hr_mobile_app/core/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/core/network/api_repository.dart';
 
-/// Dashboard KPIs from API
+/// Dashboard KPIs from API (matches ReportService::dashboardKpis response)
 class DashboardKpis {
   final int totalEmployees;
-  final int presentToday;
-  final int lateToday;
-  final int absentToday;
-  final int onLeaveToday;
-  final int pendingLeaveRequests;
+  final int todayAttendance;
+  final int pendingLeaves;
   final int pendingExpenses;
+  final int openJobs;
+  final int totalAssets;
+  final int assignedAssets;
   final double? monthlyPayroll;
 
   const DashboardKpis({
     required this.totalEmployees,
-    required this.presentToday,
-    required this.lateToday,
-    required this.absentToday,
-    required this.onLeaveToday,
-    required this.pendingLeaveRequests,
+    required this.todayAttendance,
+    required this.pendingLeaves,
     required this.pendingExpenses,
+    required this.openJobs,
+    required this.totalAssets,
+    required this.assignedAssets,
     this.monthlyPayroll,
   });
 
   factory DashboardKpis.fromJson(Map<String, dynamic> json) {
     return DashboardKpis(
       totalEmployees: json['total_employees'] as int? ?? 0,
-      presentToday: json['present_today'] as int? ?? 0,
-      lateToday: json['late_today'] as int? ?? 0,
-      absentToday: json['absent_today'] as int? ?? 0,
-      onLeaveToday: json['on_leave_today'] as int? ?? 0,
-      pendingLeaveRequests: json['pending_leave_requests'] as int? ?? 0,
+      todayAttendance: json['today_attendance'] as int? ?? 0,
+      pendingLeaves: json['pending_leaves'] as int? ?? 0,
       pendingExpenses: json['pending_expenses'] as int? ?? 0,
+      openJobs: json['open_jobs'] as int? ?? 0,
+      totalAssets: json['total_assets'] as int? ?? 0,
+      assignedAssets: json['assigned_assets'] as int? ?? 0,
       monthlyPayroll: (json['monthly_payroll'] as num?)?.toDouble(),
     );
   }
@@ -76,12 +77,22 @@ class DashboardRepository {
 
   /// GET /api/v1/company/dashboard
   Future<DashboardData> getDashboard() async {
-    final response = await _api.get('/company/dashboard');
-
-    if (response.data == null) {
-      throw Exception('Dashboard data not available');
+    try {
+      final response = await _api.get('/company/dashboard');
+      final raw = response.data;
+      if (raw == null) {
+        throw Exception('Dashboard data not available');
+      }
+      if (raw is Map<String, dynamic>) {
+        if (raw.containsKey('data') && raw['data'] is Map<String, dynamic>) {
+          return DashboardData.fromJson(raw['data'] as Map<String, dynamic>);
+        }
+        return DashboardData.fromJson(raw);
+      }
+      throw Exception('Invalid dashboard response format: ${raw.runtimeType}');
+    } catch (e) {
+      AppLogger.e('Dashboard fetch failed', e);
+      rethrow;
     }
-
-    return DashboardData.fromJson(response.data as Map<String, dynamic>);
   }
 }

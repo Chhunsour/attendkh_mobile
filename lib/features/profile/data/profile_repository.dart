@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/core/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/core/network/api_repository.dart';
 
 class ProfileData {
@@ -18,13 +19,17 @@ class ProfileData {
   });
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
-    final user = json['user'] as Map<String, dynamic>;
+    final user = json['user'] as Map<String, dynamic>?;
+    if (user == null) {
+      return ProfileData(id: 0, name: 'Unknown', companyId: 0, roles: []);
+    }
     final company = json['company'] as Map<String, dynamic>?;
+    final companyIdRaw = user['company_id'];
     return ProfileData(
-      id: user['id'] as int,
-      name: user['name'] as String,
+      id: user['id'] as int? ?? 0,
+      name: user['name'] as String? ?? '',
       email: user['email'] as String?,
-      companyId: user['company_id'] as int,
+      companyId: companyIdRaw is int ? companyIdRaw : 0,
       companyName: company?['name'] as String?,
       roles: (user['roles'] as List<dynamic>?)?.cast<String>() ?? [],
     );
@@ -36,7 +41,34 @@ class ProfileRepository {
   ProfileRepository({ApiRepository? api}) : _api = api ?? ApiRepository();
 
   Future<ProfileData> getProfile() async {
-    final response = await _api.get('/company/profile');
-    return ProfileData.fromJson(response.data as Map<String, dynamic>);
+    try {
+      final response = await _api.get('/company/profile');
+      final raw = response.data;
+      if (raw is Map<String, dynamic>) {
+        return ProfileData.fromJson(raw);
+      }
+      AppLogger.w('Profile API returned unexpected format: ${raw.runtimeType}');
+      return const ProfileData(id: 0, name: 'Unknown', companyId: 0, roles: []);
+    } catch (e) {
+      AppLogger.e('Failed to load profile', e);
+      rethrow;
+    }
+  }
+
+  Future<ProfileData> updateProfile({String? name, String? email}) async {
+    try {
+      final response = await _api.put('/company/profile', data: {
+        'name': ?name,
+        'email': ?email,
+      });
+      final raw = response.data;
+      if (raw is Map<String, dynamic>) {
+        return ProfileData.fromJson(raw);
+      }
+      throw Exception('Invalid update profile response');
+    } catch (e) {
+      AppLogger.e('Failed to update profile', e);
+      rethrow;
+    }
   }
 }

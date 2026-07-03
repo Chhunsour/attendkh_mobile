@@ -13,7 +13,12 @@ final todayAttendanceProvider = FutureProvider.autoDispose<TodayAttendance?>((re
   return today;
 });
 
-final attendanceSummaryProvider = FutureProvider.autoDispose<AttendanceSummary>((ref) async {
+final attendanceSummaryProvider = FutureProvider.autoDispose.family<AttendanceSummary, String?>((ref, month) async {
   final repo = ref.watch(attendanceRepositoryProvider);
-  return repo.getSummary();
+  return repo.getSummary(month: month);
+});
+
+final attendanceHistoryProvider = FutureProvider.autoDispose.family<List<TodayAttendance>, String?>((ref, month) async {
+  final repo = ref.watch(attendanceRepositoryProvider);
+  return repo.getHistory(month: month);
 });

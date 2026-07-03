@@ -7,7 +7,6 @@ class AdminDashboardStats {
   final int activeCompanies;
   final int openTickets;
   final int publishedAnnouncements;
-  final String monthlyRevenue;
 
   const AdminDashboardStats({
     required this.totalCompanies,
@@ -15,7 +14,6 @@ class AdminDashboardStats {
     required this.activeCompanies,
     required this.openTickets,
     required this.publishedAnnouncements,
-    required this.monthlyRevenue,
   });
 
   factory AdminDashboardStats.fromJson(Map<String, dynamic> json) {
@@ -26,7 +24,6 @@ class AdminDashboardStats {
       activeCompanies: stats['active_companies'] as int? ?? 0,
       openTickets: stats['open_tickets'] as int? ?? 0,
       publishedAnnouncements: stats['published_announcements'] as int? ?? 0,
-      monthlyRevenue: stats['monthly_revenue'] as String? ?? '\$0',
     );
   }
 }

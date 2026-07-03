@@ -66,6 +66,15 @@ class ProfileScreen extends ConsumerWidget {
           _ProfileInfoCard(title: 'Company ID', value: data.companyId.toString(), icon: Icons.business_outlined),
           _ProfileInfoCard(title: 'Roles', value: data.roles.map((r) => r.replaceAll('_', ' ').replaceAllMapped(RegExp(r'\b\w'), (m) => m.group(0)!.toUpperCase())).join(', '), icon: Icons.shield_outlined),
           const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _showEditDialog(context, ref, data),
+              icon: const Icon(Icons.edit),
+              label: const Text('Edit Profile'),
+            ),
+          ),
+          const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () => ref.read(authProvider.notifier).logout(),
             style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)),
@@ -76,6 +85,59 @@ class ProfileScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _showEditDialog(BuildContext context, WidgetRef ref, ProfileData data) async {
+    final nameCtrl = TextEditingController(text: data.name);
+    final emailCtrl = TextEditingController(text: data.email ?? '');
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Edit Profile'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Name', prefixIcon: Icon(Icons.person_outline)),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: emailCtrl,
+              decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
+              keyboardType: TextInputType.emailAddress,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      try {
+        final repo = ProfileRepository();
+        final name = nameCtrl.text.trim();
+        final email = emailCtrl.text.trim();
+        await repo.updateProfile(
+          name: name.isNotEmpty ? name : null,
+          email: email.isNotEmpty ? email : null,
+        );
+        ref.invalidate(profileProvider);
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ Profile updated'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+        );
+      } catch (e) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ ${e.toString()}'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
   }
 
   String _initials(String name) {

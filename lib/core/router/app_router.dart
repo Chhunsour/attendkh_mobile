@@ -7,27 +7,22 @@ import 'package:mpg_hr_mobile_app/features/auth/presentation/login_screen.dart';
 import 'package:mpg_hr_mobile_app/features/auth/presentation/register_company_screen.dart';
 import 'package:mpg_hr_mobile_app/features/auth/presentation/company_select_screen.dart';
 import 'package:mpg_hr_mobile_app/features/main/presentation/main_shell.dart';
-import 'package:mpg_hr_mobile_app/features/dashboard/presentation/dashboard_screen.dart';
-import 'package:mpg_hr_mobile_app/features/attendance/presentation/attendance_screen.dart';
-import 'package:mpg_hr_mobile_app/features/leave/presentation/leave_list_screen.dart';
 import 'package:mpg_hr_mobile_app/features/leave/presentation/leave_request_screen.dart';
-import 'package:mpg_hr_mobile_app/features/payslip/presentation/payslip_screen.dart';
 import 'package:mpg_hr_mobile_app/features/expense/presentation/expense_screen.dart';
-import 'package:mpg_hr_mobile_app/features/profile/presentation/profile_screen.dart';
 import 'package:mpg_hr_mobile_app/features/directory/presentation/directory_screen.dart';
 import 'package:mpg_hr_mobile_app/features/documents/presentation/documents_screen.dart';
 import 'package:mpg_hr_mobile_app/features/announcements/presentation/announcements_screen.dart';
 import 'package:mpg_hr_mobile_app/features/chat/presentation/chat_screen.dart';
+import 'package:mpg_hr_mobile_app/features/notifications/presentation/notifications_screen.dart';
+import 'package:mpg_hr_mobile_app/features/policies/presentation/policies_screen.dart';
+import 'package:mpg_hr_mobile_app/features/holidays/presentation/holidays_screen.dart';
+import 'package:mpg_hr_mobile_app/features/shifts/presentation/shifts_screen.dart';
 
-// Admin imports
+// Super Admin imports
 import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_shell.dart';
-import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_dashboard_screen.dart';
-import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_companies_screen.dart';
-import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_announcements_screen.dart';
-import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_audit_logs_screen.dart';
-import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_support_tickets_screen.dart';
-import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_settings_screen.dart';
 
+// Company Admin imports
+import 'package:mpg_hr_mobile_app/features/company_admin/presentation/company_admin_shell.dart';
 /// Route paths
 class AppRoutes {
   static const splash = '/';
@@ -48,10 +43,17 @@ class AppRoutes {
   static const documents = '/main/documents';
   static const announcements = '/main/announcements';
   static const chat = '/main/chat';
+  static const notifications = '/main/notifications';
+  static const policies = '/main/policies';
+  static const holidays = '/main/holidays';
+  static const shifts = '/main/shifts';
 
   // Super Admin
   static const admin = '/admin';
   static const adminDashboard = '/admin/dashboard';
+
+  // Company Admin
+  static const companyAdmin = '/company-admin';
   static const adminCompanies = '/admin/companies';
   static const adminAnnouncements = '/admin/announcements';
   static const adminAuditLogs = '/admin/audit-logs';
@@ -136,85 +138,70 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
 
       // ---- Company-side (5-tab bottom nav) ----
-      ShellRoute(
-        builder: (context, state, child) => MainShell(child: child),
-        routes: [
-          GoRoute(
-            path: AppRoutes.dashboard,
-            builder: (context, state) => const DashboardScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.attendance,
-            builder: (context, state) => const AttendanceScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.leaveList,
-            builder: (context, state) => const LeaveListScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.leaveRequest,
-            builder: (context, state) => const LeaveRequestScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.payslip,
-            builder: (context, state) => const PayslipScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.expense,
-            builder: (context, state) => const ExpenseScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.profile,
-            builder: (context, state) => const ProfileScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.directory,
-            builder: (context, state) => const DirectoryScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.documents,
-            builder: (context, state) => const DocumentsScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.announcements,
-            builder: (context, state) => const AnnouncementsScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.chat,
-            builder: (context, state) => const ChatScreen(),
-          ),
-        ],
+      // Uses a single GoRoute (NOT ShellRoute) to avoid the Flutter
+      // semantics bug (!semantics.parentDataDirty) caused by ShellRoute's
+      // child-swap tearing down and rebuilding widget trees.
+      // MainShell manages tab switching internally with IndexedStack.
+      GoRoute(
+        path: AppRoutes.dashboard,
+        builder: (context, state) => const MainShell(),
+      ),
+      // Sub-screens navigable from within tabs (push/pop on top of MainShell)
+      GoRoute(
+        path: AppRoutes.leaveRequest,
+        builder: (context, state) => const LeaveRequestScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.expense,
+        builder: (context, state) => const ExpenseScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.directory,
+        builder: (context, state) => const DirectoryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.documents,
+        builder: (context, state) => const DocumentsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.announcements,
+        builder: (context, state) => const AnnouncementsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.chat,
+        builder: (context, state) => const ChatScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.notifications,
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.policies,
+        builder: (context, state) => const PoliciesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.holidays,
+        builder: (context, state) => const HolidaysScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.shifts,
+        builder: (context, state) => const ShiftsScreen(),
       ),
 
       // ---- Super Admin (drawer navigation) ----
-      ShellRoute(
-        builder: (context, state, child) => AdminShell(child: child),
-        routes: [
-          GoRoute(
-            path: AppRoutes.adminDashboard,
-            builder: (context, state) => const AdminDashboardScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.adminCompanies,
-            builder: (context, state) => const AdminCompaniesScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.adminAnnouncements,
-            builder: (context, state) => const AdminAnnouncementsScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.adminAuditLogs,
-            builder: (context, state) => const AdminAuditLogsScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.adminSupportTickets,
-            builder: (context, state) => const AdminSupportTicketsScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.adminSettings,
-            builder: (context, state) => const AdminSettingsScreen(),
-          ),
-        ],
+      // Uses a single GoRoute (NOT ShellRoute) to avoid the Flutter
+      // semantics bug (!semantics.parentDataDirty) caused by ShellRoute's
+      // child-swap tearing down and rebuilding widget trees.
+      // AdminShell manages tab switching internally with IndexedStack.
+      GoRoute(
+        path: AppRoutes.adminDashboard,
+        builder: (context, state) => const AdminShell(),
+      ),
+
+      // ---- Company Admin (drawer navigation for HR management) ----
+      GoRoute(
+        path: AppRoutes.companyAdmin,
+        builder: (context, state) => const CompanyAdminShell(),
       ),
     ],
   );

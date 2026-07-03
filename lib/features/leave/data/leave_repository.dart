@@ -125,4 +125,9 @@ class LeaveRepository {
     );
     return LeaveRequest.fromJson(response.data as Map<String, dynamic>);
   }
+
+  /// POST /api/v1/company/leave/requests/{id}/cancel
+  Future<void> cancelRequest(int id) async {
+    await _api.post('/company/leave/requests/$id/cancel');
+  }
 }
