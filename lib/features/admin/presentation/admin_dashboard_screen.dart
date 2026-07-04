@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/features/admin/data/admin_dashboard_repository.dart';
-import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_shell.dart';
 
 // ── Riverpod provider ──────────────────────────────────────────────────────
 final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((ref) {
@@ -42,12 +41,9 @@ class AdminDashboardScreen extends ConsumerWidget {
   // ── App Bar ────────────────────────────────────────────────────────────────
   AppBar _buildAppBar(BuildContext context, String name) {
     return AppBar(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.menu_rounded, color: Colors.white),
-        onPressed: () => AdminShell.scaffoldKey.currentState?.openDrawer(),
-      ),
       title: Row(
         children: [
           Container(
@@ -55,8 +51,7 @@ class AdminDashboardScreen extends ConsumerWidget {
             height: 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primary.withAlpha(40),
-              border: Border.all(color: AppColors.primary.withAlpha(80)),
+              color: AppColors.primary.withAlpha(20),
             ),
             child: const Icon(Icons.shield_rounded, color: AppColors.primary, size: 18),
           ),
@@ -64,7 +59,7 @@ class AdminDashboardScreen extends ConsumerWidget {
           const Text(
             'Platform Admin',
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black87,
               fontSize: 18,
               fontWeight: FontWeight.w700,
               fontFamily: 'Inter',
@@ -74,7 +69,7 @@ class AdminDashboardScreen extends ConsumerWidget {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+          icon: const Icon(Icons.notifications_outlined, color: Colors.black87),
           onPressed: () {},
         ),
         const SizedBox(width: 4),
@@ -267,19 +262,8 @@ class AdminDashboardScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0F172A), Color(0xFF1E3A5F)],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F172A).withAlpha(60),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
@@ -343,9 +327,7 @@ class AdminDashboardScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-        ),
+        color: const Color(0xFF6366F1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

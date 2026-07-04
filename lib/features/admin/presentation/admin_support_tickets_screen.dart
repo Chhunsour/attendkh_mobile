@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/features/admin/data/admin_support_tickets_repository.dart';
-import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_shell.dart';
 
 final adminSupportTicketsProvider =
     FutureProvider.autoDispose<List<AdminSupportTicket>>((ref) {
@@ -40,16 +39,13 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
     return Column(
       children: [
         AppBar(
-          backgroundColor: const Color(0xFF0F172A),
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.menu_rounded, color: Colors.white),
-            onPressed: () => AdminShell.scaffoldKey.currentState?.openDrawer(),
-          ),
           title: const Text(
             'Support Tickets',
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black87,
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),

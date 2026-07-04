@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/core/providers/auth_provider.dart';
+import 'package:mpg_hr_mobile_app/core/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/features/profile/data/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/features/profile/presentation/profile_provider.dart';
+import 'package:mpg_hr_mobile_app/shared/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/shared/widgets/loading_indicator.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -31,15 +34,28 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           const SizedBox(height: 16),
           Container(
-            width: 96, height: 96,
-            decoration: BoxDecoration(shape: BoxShape.circle, gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark])),
-            child: Center(child: Text(_initials(authState.userName ?? 'User'), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white))),
+            width: 104, height: 104,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.primaryLight,
+              border: Border.all(color: AppColors.primary.withAlpha(40), width: 4),
+            ),
+            child: Center(
+              child: Text(
+                _initials(authState.userName ?? 'User'),
+                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.primaryDark),
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
-          Text(authState.userName ?? 'Unknown', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(authState.companyName ?? '', style: const TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w600)),
           const SizedBox(height: 16),
+          Text(authState.userName ?? 'Unknown', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(color: AppColors.primaryLight.withAlpha(150), borderRadius: BorderRadius.circular(20)),
+            child: Text(authState.companyName ?? '', style: const TextStyle(fontSize: 13, color: AppColors.primaryDark, fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(height: 24),
           OutlinedButton.icon(onPressed: () => ref.invalidate(profileProvider), icon: const Icon(Icons.refresh), label: const Text('Retry')),
         ],
       ),
@@ -53,33 +69,79 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           const SizedBox(height: 16),
           Container(
-            width: 96, height: 96,
-            decoration: BoxDecoration(shape: BoxShape.circle, gradient: const LinearGradient(colors: [AppColors.primary, AppColors.primaryDark])),
-            child: Center(child: Text(_initials(data.name), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white))),
+            width: 104, height: 104,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.primaryLight,
+              border: Border.all(color: AppColors.primary.withAlpha(40), width: 4),
+            ),
+            child: Center(
+              child: Text(
+                _initials(data.name),
+                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.primaryDark),
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
-          Text(data.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+          const SizedBox(height: 16),
+          Text(data.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.grey900)),
           const SizedBox(height: 4),
-          Text(data.companyName ?? '', style: const TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(color: AppColors.primaryLight.withAlpha(150), borderRadius: BorderRadius.circular(20)),
+            child: Text(data.companyName ?? '', style: const TextStyle(fontSize: 13, color: AppColors.primaryDark, fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(height: 32),
           _ProfileInfoCard(title: 'Email', value: data.email ?? '—', icon: Icons.email_outlined),
           _ProfileInfoCard(title: 'Company ID', value: data.companyId.toString(), icon: Icons.business_outlined),
           _ProfileInfoCard(title: 'Roles', value: data.roles.map((r) => r.replaceAll('_', ' ').replaceAllMapped(RegExp(r'\b\w'), (m) => m.group(0)!.toUpperCase())).join(', '), icon: Icons.shield_outlined),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton.icon(
+            child: ElevatedButton.icon(
               onPressed: () => _showEditDialog(context, ref, data),
-              icon: const Icon(Icons.edit),
-              label: const Text('Edit Profile'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                elevation: 0,
+              ),
+              icon: const Icon(Icons.edit_rounded, size: 20),
+              label: const Text('Edit Profile', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
           ),
           const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () => ref.read(authProvider.notifier).logout(),
-            style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)),
-            icon: const Icon(Icons.logout),
-            label: const Text('Logout'),
+          if (ref.watch(authProvider).isSuperAdmin) ...[
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => context.go(AppRoutes.adminDashboard),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF6366F1),
+                  side: const BorderSide(color: Color(0xFF6366F1)),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                icon: const Icon(Icons.admin_panel_settings_rounded, size: 20),
+                label: const Text('Return to Admin Dashboard', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => showLogoutConfirmation(context, ref),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.danger,
+                side: const BorderSide(color: AppColors.dangerLight, width: 2),
+                backgroundColor: AppColors.dangerLight.withAlpha(80),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              icon: const Icon(Icons.logout_rounded, size: 20),
+              label: const Text('Log Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            ),
           ),
           const SizedBox(height: 32),
         ],
@@ -154,18 +216,40 @@ class _ProfileInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(10),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.grey500),
-          const SizedBox(width: 12),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title, style: const TextStyle(fontSize: 11, color: AppColors.grey400)),
-            const SizedBox(height: 2),
-            Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.grey800)),
-          ]),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight.withAlpha(150),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 22, color: AppColors.primary),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.grey500)),
+                const SizedBox(height: 4),
+                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.grey800)),
+              ],
+            ),
+          ),
         ],
       ),
     );

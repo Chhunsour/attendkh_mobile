@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/features/admin/data/admin_companies_repository.dart';
-import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_shell.dart';
 
 final adminCompaniesProvider =
     FutureProvider.autoDispose<List<AdminCompany>>((ref) {
@@ -22,23 +21,20 @@ class AdminCompaniesScreen extends ConsumerWidget {
     return Column(
       children: [
         AppBar(
-          backgroundColor: const Color(0xFF0F172A),
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
           elevation: 0,
           title: const Text(
             'Companies',
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black87,
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
           ),
-          leading: IconButton(
-            icon: const Icon(Icons.menu_rounded, color: Colors.white),
-            onPressed: () => AdminShell.scaffoldKey.currentState?.openDrawer(),
-          ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.add_rounded, color: Colors.white),
+              icon: const Icon(Icons.add_rounded, color: Colors.black87),
               onPressed: () => _showCreateEditDialog(context, ref),
             ),
           ],

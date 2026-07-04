@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/features/admin/data/admin_audit_logs_repository.dart';
-import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_shell.dart';
 
 final adminAuditLogsProvider =
     FutureProvider.autoDispose<List<AdminAuditLog>>((ref) {
@@ -44,16 +43,13 @@ class AdminAuditLogsScreen extends ConsumerWidget {
     return Column(
       children: [
         AppBar(
-          backgroundColor: const Color(0xFF0F172A),
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.menu_rounded, color: Colors.white),
-            onPressed: () => AdminShell.scaffoldKey.currentState?.openDrawer(),
-          ),
           title: const Text(
             'Audit Logs',
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black87,
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),

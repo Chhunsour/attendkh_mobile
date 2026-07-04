@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/network/api_repository.dart';
 import 'package:mpg_hr_mobile_app/core/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
+import 'package:mpg_hr_mobile_app/shared/dialogs/logout_dialog.dart';
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
   const VerifyEmailScreen({super.key});
@@ -63,7 +64,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              ref.read(authProvider.notifier).logout();
+              showLogoutConfirmation(context, ref);
             },
           ),
         ],

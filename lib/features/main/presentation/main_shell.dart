@@ -40,7 +40,12 @@ class _MainShellState extends ConsumerState<MainShell> {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _tabScreens,
+        children: _tabScreens.asMap().entries.map((e) {
+          return ExcludeSemantics(
+            excluding: e.key != _currentIndex,
+            child: e.value,
+          );
+        }).toList(),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

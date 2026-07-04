@@ -136,18 +136,22 @@ class _TodayTab extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton.icon(
-                onPressed: isClockedIn ? null : () => _handleClockIn(context, ref),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: AppColors.primary, padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                icon: const Icon(Icons.login),
-                label: const Text('Clock In'),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: isClockedIn ? null : () => _handleClockIn(context, ref),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: AppColors.primary, padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  icon: const Icon(Icons.login),
+                  label: const Text('Clock In', overflow: TextOverflow.ellipsis),
+                ),
               ),
               const SizedBox(width: 16),
-              OutlinedButton.icon(
-                onPressed: isClockedIn ? () => _handleClockOut(context, ref) : null,
-                style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white), padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                icon: const Icon(Icons.logout),
-                label: const Text('Clock Out'),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: isClockedIn ? () => _handleClockOut(context, ref) : null,
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white), padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Clock Out', overflow: TextOverflow.ellipsis),
+                ),
               ),
             ],
           ),

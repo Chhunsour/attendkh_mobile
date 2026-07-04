@@ -78,7 +78,12 @@ class _CompanyAdminShellState extends ConsumerState<CompanyAdminShell> {
       ),
       body: IndexedStack(
         index: _tabScreens.keys.toList().indexOf(_activeTab),
-        children: _tabScreens.values.toList(),
+        children: _tabScreens.entries.map((e) {
+          return ExcludeSemantics(
+            excluding: e.key != _activeTab,
+            child: e.value,
+          );
+        }).toList(),
       ),
       drawer: Drawer(
         shape: const RoundedRectangleBorder(
