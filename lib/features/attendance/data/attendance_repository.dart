@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:mpg_hr_mobile_app/core/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/core/network/api_repository.dart';
 
@@ -92,24 +93,37 @@ class AttendanceRepository {
     double? lat,
     double? lng,
     String? deviceId,
+    String? photoPath,
   }) async {
-    final response = await _api.post(
-      '/company/attendance/clock-in',
-      data: {
+    dynamic payload;
+
+    if (photoPath != null) {
+      payload = FormData.fromMap({
+        'lat': ?lat,
+        'lng': ?lng,
+        'device_id': ?deviceId,
+        'photo': await MultipartFile.fromFile(photoPath, filename: 'clock_in.jpg'),
+        'method': 'mobile',
+      });
+    } else {
+      payload = {
         'lat': lat,
         'lng': lng,
         'device_id': deviceId,
         'method': 'mobile',
-      },
-    );
-    final raw = response.data;
-    if (raw is Map<String, dynamic>) {
-      if (raw.containsKey('data') && raw['data'] is Map<String, dynamic>) {
-        return TodayAttendance.fromJson(raw['data'] as Map<String, dynamic>);
-      }
-      return TodayAttendance.fromJson(raw);
+      };
     }
-    throw Exception('Invalid clock-in response');
+
+    final response = await _api.post(
+      '/company/attendance/clock-in',
+      data: payload,
+    );
+
+    final data = response.data;
+    if (data is Map<String, dynamic> && data.containsKey('data')) {
+      return TodayAttendance.fromJson(data['data'] as Map<String, dynamic>);
+    }
+    return TodayAttendance.fromJson(data as Map<String, dynamic>);
   }
 
   /// POST /api/v1/company/attendance/clock-out
@@ -117,24 +131,37 @@ class AttendanceRepository {
     double? lat,
     double? lng,
     String? deviceId,
+    String? photoPath,
   }) async {
-    final response = await _api.post(
-      '/company/attendance/clock-out',
-      data: {
+    dynamic payload;
+
+    if (photoPath != null) {
+      payload = FormData.fromMap({
+        'lat': ?lat,
+        'lng': ?lng,
+        'device_id': ?deviceId,
+        'photo': await MultipartFile.fromFile(photoPath, filename: 'clock_out.jpg'),
+        'method': 'mobile',
+      });
+    } else {
+      payload = {
         'lat': lat,
         'lng': lng,
         'device_id': deviceId,
         'method': 'mobile',
-      },
-    );
-    final raw = response.data;
-    if (raw is Map<String, dynamic>) {
-      if (raw.containsKey('data') && raw['data'] is Map<String, dynamic>) {
-        return TodayAttendance.fromJson(raw['data'] as Map<String, dynamic>);
-      }
-      return TodayAttendance.fromJson(raw);
+      };
     }
-    throw Exception('Invalid clock-out response');
+
+    final response = await _api.post(
+      '/company/attendance/clock-out',
+      data: payload,
+    );
+
+    final data = response.data;
+    if (data is Map<String, dynamic> && data.containsKey('data')) {
+      return TodayAttendance.fromJson(data['data'] as Map<String, dynamic>);
+    }
+    return TodayAttendance.fromJson(data as Map<String, dynamic>);
   }
 
   /// GET /api/v1/company/attendance/summary

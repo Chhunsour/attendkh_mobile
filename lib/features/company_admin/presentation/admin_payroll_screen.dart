@@ -5,9 +5,57 @@ import 'package:mpg_hr_mobile_app/features/company_admin/presentation/admin_prov
 import 'package:mpg_hr_mobile_app/features/company_admin/data/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/shared/widgets/loading_indicator.dart';
 
-class AdminPayrollScreen extends ConsumerWidget {
+class AdminPayrollScreen extends ConsumerStatefulWidget {
   const AdminPayrollScreen({super.key});
 
+  @override
+  ConsumerState<AdminPayrollScreen> createState() => _AdminPayrollScreenState();
+}
+
+class _AdminPayrollScreenState extends ConsumerState<AdminPayrollScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          color: AppColors.surfaceLight,
+          child: TabBar(
+            controller: _tabController,
+            labelColor: AppColors.primary,
+            unselectedLabelColor: AppColors.grey500,
+            indicatorColor: AppColors.primary,
+            tabs: const [Tab(text: 'Runs'), Tab(text: 'Settings')],
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _PayrollRunsTab(),
+              _PayrollSettingsTab(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PayrollRunsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final runsAsync = ref.watch(payrollRunsProvider);
@@ -83,5 +131,101 @@ class AdminPayrollScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class _PayrollSettingsTab extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_PayrollSettingsTab> createState() => _PayrollSettingsTabState();
+}
+
+class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
+  final _periodCtrl = TextEditingController();
+  final _currencyCtrl = TextEditingController();
+  final _otMultiplierCtrl = TextEditingController();
+  final _lateDeductionCtrl = TextEditingController();
+  bool _otEnabled = false;
+  bool _lateEnabled = false;
+  bool _initialized = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final settingsAsync = ref.watch(payrollSettingsProvider);
+
+    return settingsAsync.when(
+      data: (settings) {
+        if (!_initialized) {
+          _periodCtrl.text = settings.payrollPeriod;
+          _currencyCtrl.text = settings.currency;
+          _otMultiplierCtrl.text = settings.overtimeMultiplier.toString();
+          _lateDeductionCtrl.text = settings.lateDeductionPerMinute.toString();
+          _otEnabled = settings.overtimeEnabled;
+          _lateEnabled = settings.lateDeductionEnabled;
+          _initialized = true;
+        }
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('General Settings', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              TextField(controller: _periodCtrl, decoration: const InputDecoration(labelText: 'Payroll Period (e.g. monthly)', border: OutlineInputBorder())),
+              const SizedBox(height: 12),
+              TextField(controller: _currencyCtrl, decoration: const InputDecoration(labelText: 'Currency (e.g. USD)', border: OutlineInputBorder())),
+              const SizedBox(height: 24),
+              const Text('Overtime Settings', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              SwitchListTile(
+                title: const Text('Enable Overtime Pay'),
+                value: _otEnabled,
+                onChanged: (val) => setState(() => _otEnabled = val),
+              ),
+              if (_otEnabled) ...[
+                const SizedBox(height: 12),
+                TextField(controller: _otMultiplierCtrl, decoration: const InputDecoration(labelText: 'Overtime Multiplier', border: OutlineInputBorder()), keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+              ],
+              const SizedBox(height: 24),
+              const Text('Late Deduction Settings', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              SwitchListTile(
+                title: const Text('Enable Late Deductions'),
+                value: _lateEnabled,
+                onChanged: (val) => setState(() => _lateEnabled = val),
+              ),
+              if (_lateEnabled) ...[
+                const SizedBox(height: 12),
+                TextField(controller: _lateDeductionCtrl, decoration: const InputDecoration(labelText: 'Late Deduction Per Minute', border: OutlineInputBorder()), keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+              ],
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: _saveSettings,
+                child: const Text('Save Settings'),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const LoadingIndicator(message: 'Loading settings...'),
+      error: (e, _) => Center(child: OutlinedButton.icon(onPressed: () => ref.invalidate(payrollSettingsProvider), icon: const Icon(Icons.refresh), label: const Text('Retry'))),
+    );
+  }
+
+  Future<void> _saveSettings() async {
+    try {
+      await AdminOperationsRepository().updatePayrollSettings({
+        'payroll_period': _periodCtrl.text,
+        'currency': _currencyCtrl.text,
+        'overtime_enabled': _otEnabled,
+        'overtime_multiplier': double.tryParse(_otMultiplierCtrl.text) ?? 1.5,
+        'late_deduction_enabled': _lateEnabled,
+        'late_deduction_per_minute': double.tryParse(_lateDeductionCtrl.text) ?? 0,
+      });
+      ref.invalidate(payrollSettingsProvider);
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Settings saved'), backgroundColor: AppColors.success));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
+    }
   }
 }

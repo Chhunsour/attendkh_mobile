@@ -32,6 +32,10 @@ final rolesProvider = FutureProvider.autoDispose<List<RoleData>>((ref) {
 });
 
 // ── Admin Operations Providers ──────────────────────────────────────────────
+final allAttendanceLogsProvider = FutureProvider.autoDispose<List<AdminAttendanceRecord>>((ref) {
+  return ref.watch(adminOpsRepositoryProvider).getAllAttendanceLogs();
+});
+
 final attendanceCorrectionsProvider = FutureProvider.autoDispose<List<AttendanceCorrectionData>>((ref) {
   return ref.watch(adminOpsRepositoryProvider).getAttendanceCorrections();
 });
@@ -42,6 +46,14 @@ final allLeaveRequestsProvider = FutureProvider.autoDispose<List<AdminLeaveReque
 
 final leaveTypesProvider = FutureProvider.autoDispose<List<LeaveTypeData>>((ref) {
   return ref.watch(adminOpsRepositoryProvider).getLeaveTypes();
+});
+
+final leaveBalancesProvider = FutureProvider.autoDispose<List<LeaveBalanceData>>((ref) {
+  return ref.watch(adminOpsRepositoryProvider).getLeaveBalances();
+});
+
+final shiftsProvider = FutureProvider.autoDispose<List<ShiftData>>((ref) {
+  return ref.watch(adminOpsRepositoryProvider).getShifts();
 });
 
 final shiftsAdminProvider = FutureProvider.autoDispose<List<ShiftData>>((ref) {
@@ -60,6 +72,10 @@ final jobPostingsProvider = FutureProvider.autoDispose<List<JobPostingData>>((re
   return ref.watch(adminOpsRepositoryProvider).getJobPostings();
 });
 
+final jobCandidatesProvider = FutureProvider.family.autoDispose<List<CandidateData>, int>((ref, jobId) {
+  return ref.watch(adminOpsRepositoryProvider).getCandidates(jobId);
+});
+
 final performanceReviewsProvider = FutureProvider.autoDispose<List<PerformanceReviewData>>((ref) {
   return ref.watch(adminOpsRepositoryProvider).getReviews();
 });
@@ -70,4 +86,8 @@ final trainingCoursesProvider = FutureProvider.autoDispose<List<TrainingCourseDa
 
 final payrollRunsProvider = FutureProvider.autoDispose<List<PayrollRunData>>((ref) {
   return ref.watch(adminOpsRepositoryProvider).getPayrollRuns();
+});
+
+final payrollSettingsProvider = FutureProvider.autoDispose<PayrollSettingsData>((ref) {
+  return ref.watch(adminOpsRepositoryProvider).getPayrollSettings();
 });

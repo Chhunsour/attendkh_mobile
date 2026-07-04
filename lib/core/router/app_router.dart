@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/features/splash/presentation/splash_screen.dar
 import 'package:mpg_hr_mobile_app/features/auth/presentation/login_screen.dart';
 import 'package:mpg_hr_mobile_app/features/auth/presentation/register_company_screen.dart';
 import 'package:mpg_hr_mobile_app/features/auth/presentation/company_select_screen.dart';
+import 'package:mpg_hr_mobile_app/features/auth/presentation/verify_email_screen.dart';
 import 'package:mpg_hr_mobile_app/features/main/presentation/main_shell.dart';
 import 'package:mpg_hr_mobile_app/features/leave/presentation/leave_request_screen.dart';
 import 'package:mpg_hr_mobile_app/features/expense/presentation/expense_screen.dart';
@@ -23,11 +24,16 @@ import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_shell.dart';
 
 // Company Admin imports
 import 'package:mpg_hr_mobile_app/features/company_admin/presentation/company_admin_shell.dart';
+import 'package:mpg_hr_mobile_app/features/company_admin/presentation/admin_employee_form_screen.dart';
+import 'package:mpg_hr_mobile_app/features/company_admin/presentation/admin_shift_form_screen.dart';
+import 'package:mpg_hr_mobile_app/features/company_admin/presentation/admin_send_notification_screen.dart';
+
 /// Route paths
 class AppRoutes {
   static const splash = '/';
   static const login = '/login';
   static const register = '/register';
+  static const verifyEmail = '/verify-email';
   static const companySelect = '/company-select';
 
   // Company-side
@@ -54,6 +60,9 @@ class AppRoutes {
 
   // Company Admin
   static const companyAdmin = '/company-admin';
+  static const adminEmployeeForm = '/company-admin/employee-form';
+  static const adminShiftForm = '/company-admin/shift-form';
+  static const adminSendNotification = '/company-admin/send-notification';
   static const adminCompanies = '/admin/companies';
   static const adminAnnouncements = '/admin/announcements';
   static const adminAuditLogs = '/admin/audit-logs';
@@ -108,13 +117,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return AppRoutes.login;
       }
 
-      // Logged in but sitting on an auth page — push into the app
-      if (authState.isAuthenticated && isOnAuthPage) {
-        final target = authState.isSuperAdmin
-            ? AppRoutes.adminDashboard
-            : AppRoutes.dashboard;
-        debugPrint('🔀 GoRouter redirect: isSuperAdmin=${authState.isSuperAdmin}, roles=${authState.roles}, → $target');
-        return target;
+      final isVerified = authState.emailVerifiedAt != null;
+      final isOnVerifyPage = location == AppRoutes.verifyEmail;
+
+      if (authState.isAuthenticated) {
+        // Needs verification but not on verify page
+        if (!isVerified && !isOnVerifyPage && !authState.isSuperAdmin) {
+          return AppRoutes.verifyEmail;
+        }
+
+        // Verified but sitting on verify page
+        if (isVerified && isOnVerifyPage) {
+          return authState.isSuperAdmin
+              ? AppRoutes.adminDashboard
+              : AppRoutes.dashboard;
+        }
+
+        // Logged in but sitting on an auth page — push into the app
+        if (isOnAuthPage) {
+          final target = authState.isSuperAdmin
+              ? AppRoutes.adminDashboard
+              : (!isVerified ? AppRoutes.verifyEmail : AppRoutes.dashboard);
+          debugPrint('🔀 GoRouter redirect: isSuperAdmin=${authState.isSuperAdmin}, roles=${authState.roles}, → $target');
+          return target;
+        }
       }
 
       return null;
@@ -135,6 +161,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.companySelect,
         builder: (context, state) => const CompanySelectScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.verifyEmail,
+        builder: (context, state) => const VerifyEmailScreen(),
       ),
 
       // ---- Company-side (5-tab bottom nav) ----
@@ -202,6 +232,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.companyAdmin,
         builder: (context, state) => const CompanyAdminShell(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminEmployeeForm,
+        builder: (context, state) => AdminEmployeeFormScreen(
+          employee: state.extra as dynamic,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.adminShiftForm,
+        builder: (context, state) => AdminShiftFormScreen(
+          shift: state.extra as dynamic,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.adminSendNotification,
+        builder: (context, state) => const AdminSendNotificationScreen(),
       ),
     ],
   );

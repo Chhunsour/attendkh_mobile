@@ -184,13 +184,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
             const SizedBox(height: 30),
 
-            // ── Phone Number Field ──
+            // ── Login Identity Field ──
             CustomTextField(
               controller: _loginController,
-              hintText: '010 123 456',
-              labelText: 'Phone Number',
-              prefixIcon: Icons.phone_rounded,
-              keyboardType: TextInputType.phone,
+              hintText: 'user@email.com, 010123456, or EMP01',
+              labelText: 'Email, Phone, or Employee ID',
+              prefixIcon: Icons.person_outline,
+              keyboardType: TextInputType.text,
               validator: (v) =>
                   v == null || v.trim().isEmpty ? 'This field is required' : null,
             ),

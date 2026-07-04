@@ -4,21 +4,43 @@ import 'package:mpg_hr_mobile_app/core/network/api_repository.dart';
 class BranchData {
   final int id;
   final String name;
+  final String? code;
   final String? address;
   final String? phone;
   final String? email;
+  final String? managerName;
   final int? employeesCount;
+  final double? latitude;
+  final double? longitude;
+  final int? allowedRadiusMeters;
 
-  const BranchData({required this.id, required this.name, this.address, this.phone, this.email, this.employeesCount});
+  const BranchData({
+    required this.id,
+    required this.name,
+    this.code,
+    this.address,
+    this.phone,
+    this.email,
+    this.managerName,
+    this.employeesCount,
+    this.latitude,
+    this.longitude,
+    this.allowedRadiusMeters,
+  });
 
   factory BranchData.fromJson(Map<String, dynamic> json) {
     return BranchData(
       id: json['id'] as int,
       name: json['name'] as String? ?? '',
+      code: json['code'] as String?,
       address: json['address'] as String?,
       phone: json['phone'] as String?,
       email: json['email'] as String?,
+      managerName: json['manager']?['name'] as String?,
       employeesCount: json['employees_count'] as int?,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      allowedRadiusMeters: json['allowed_radius_meters'] as int?,
     );
   }
 }
@@ -87,6 +109,9 @@ class TeamData {
 // ── Employee ────────────────────────────────────────────────────────────────
 class EmployeeData {
   final int id;
+  final int? userId;
+  final String? firstName;
+  final String? lastName;
   final String name;
   final String? email;
   final String? employeeId;
@@ -95,12 +120,21 @@ class EmployeeData {
   final String? branch;
   final String? phone;
   final String? status;
+  final String? employmentType;
+  final String? employmentStatus;
   final String? joinDate;
   final String? avatar;
+  final double? salary;
+  final int? departmentId;
+  final int? positionId;
+  final int? branchId;
 
   const EmployeeData({
     required this.id,
+    this.userId,
     required this.name,
+    this.firstName,
+    this.lastName,
     this.email,
     this.employeeId,
     this.department,
@@ -108,14 +142,23 @@ class EmployeeData {
     this.branch,
     this.phone,
     this.status,
+    this.employmentType,
+    this.employmentStatus,
     this.joinDate,
     this.avatar,
+    this.salary,
+    this.departmentId,
+    this.positionId,
+    this.branchId,
   });
 
   factory EmployeeData.fromJson(Map<String, dynamic> json) {
     return EmployeeData(
       id: json['id'] as int,
-      name: json['name'] as String? ?? '',
+      userId: json['user_id'] as int?,
+      firstName: json['first_name'] as String?,
+      lastName: json['last_name'] as String?,
+      name: json['name'] as String? ?? '${json['first_name'] ?? ''} ${json['last_name'] ?? ''}'.trim(),
       email: json['email'] as String?,
       employeeId: json['employee_id'] as String?,
       department: json['department']?['name'] as String? ?? json['department'] as String?,
@@ -123,8 +166,14 @@ class EmployeeData {
       branch: json['branch']?['name'] as String? ?? json['branch'] as String?,
       phone: json['phone'] as String?,
       status: json['status'] as String? ?? 'active',
-      joinDate: json['join_date'] as String? ?? json['hired_date'] as String?,
-      avatar: json['avatar'] as String?,
+      employmentType: json['employment_type'] as String?,
+      employmentStatus: json['employment_status'] as String?,
+      joinDate: json['hire_date'] as String? ?? json['join_date'] as String?,
+      avatar: json['avatar'] as String? ?? json['photo'] as String?,
+      salary: (json['salary'] as num?)?.toDouble(),
+      departmentId: json['department_id'] as int?,
+      positionId: json['position_id'] as int?,
+      branchId: json['branch_id'] as int?,
     );
   }
 }
@@ -161,13 +210,49 @@ class HrRepository {
     return _parseList(response.data, BranchData.fromJson);
   }
 
-  Future<BranchData> createBranch({required String name, String? address, String? phone, String? email}) async {
-    final response = await _api.post('/company/branches', data: {'name': name, 'address': ?address, 'phone': ?phone, 'email': ?email});
+  Future<BranchData> createBranch({
+    required String name,
+    String? code,
+    String? address,
+    String? phone,
+    String? email,
+    double? latitude,
+    double? longitude,
+    int? allowedRadiusMeters,
+  }) async {
+    final response = await _api.post('/company/branches', data: {
+      'name': name,
+      'code': code,
+      'address': address,
+      'phone': phone,
+      'email': email,
+      'latitude': latitude,
+      'longitude': longitude,
+      'allowed_radius_meters': allowedRadiusMeters,
+    });
     return BranchData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<BranchData> updateBranch(int id, {required String name, String? address, String? phone, String? email}) async {
-    final response = await _api.put('/company/branches/$id', data: {'name': name, 'address': ?address, 'phone': ?phone, 'email': ?email});
+  Future<BranchData> updateBranch(int id, {
+    String? name,
+    String? code,
+    String? address,
+    String? phone,
+    String? email,
+    double? latitude,
+    double? longitude,
+    int? allowedRadiusMeters,
+  }) async {
+    final response = await _api.put('/company/branches/$id', data: {
+      'name': name,
+      'code': code,
+      'address': address,
+      'phone': phone,
+      'email': email,
+      'latitude': latitude,
+      'longitude': longitude,
+      'allowed_radius_meters': allowedRadiusMeters,
+    });
     return BranchData.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -242,27 +327,60 @@ class HrRepository {
     return EmployeeData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<EmployeeData> createEmployee({required String name, required String email, int? departmentId, int? positionId, int? branchId, int? teamId, String? phone, String? joinDate}) async {
+  Future<EmployeeData> createEmployee({
+    required String firstName,
+    required String lastName,
+    required String employmentType,
+    required String employmentStatus,
+    required String hireDate,
+    String? email,
+    int? departmentId,
+    int? positionId,
+    int? branchId,
+    String? phone,
+    double? salary,
+  }) async {
     final response = await _api.post('/company/employees', data: {
-      'name': name, 'email': email,
+      'first_name': firstName,
+      'last_name': lastName,
+      'employment_type': employmentType,
+      'employment_status': employmentStatus,
+      'hire_date': hireDate,
+      'email': ?email,
       'department_id': ?departmentId,
       'position_id': ?positionId,
       'branch_id': ?branchId,
-      'team_id': ?teamId,
       'phone': ?phone,
-      'join_date': ?joinDate,
+      'salary': ?salary,
     });
     return EmployeeData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<EmployeeData> updateEmployee(int id, {String? name, String? email, int? departmentId, int? positionId, int? branchId, int? teamId, String? phone}) async {
+  Future<EmployeeData> updateEmployee(int id, {
+    String? firstName,
+    String? lastName,
+    String? employmentType,
+    String? employmentStatus,
+    String? hireDate,
+    String? email,
+    int? departmentId,
+    int? positionId,
+    int? branchId,
+    String? phone,
+    double? salary,
+  }) async {
     final response = await _api.put('/company/employees/$id', data: {
-      'name': ?name, 'email': ?email,
+      'first_name': ?firstName,
+      'last_name': ?lastName,
+      'employment_type': ?employmentType,
+      'employment_status': ?employmentStatus,
+      'hire_date': ?hireDate,
+      'email': ?email,
       'department_id': ?departmentId,
       'position_id': ?positionId,
       'branch_id': ?branchId,
-      'team_id': ?teamId,
       'phone': ?phone,
+      'salary': ?salary,
     });
     return EmployeeData.fromJson(response.data as Map<String, dynamic>);
   }

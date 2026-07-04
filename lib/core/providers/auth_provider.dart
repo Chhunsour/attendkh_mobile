@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/core/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/core/network/exceptions.dart';
 import 'package:mpg_hr_mobile_app/core/storage/secure_storage.dart';
+import 'package:mpg_hr_mobile_app/core/services/fcm_service.dart';
 import 'package:mpg_hr_mobile_app/features/auth/data/auth_repository.dart';
 
 /// Auth state
@@ -17,6 +18,8 @@ class AuthState {
   final String? companyName;
   final List<String> roles;
 
+  final String? emailVerifiedAt;
+
   const AuthState({
     this.isAuthenticated = false,
     this.isLoading = false,
@@ -25,6 +28,7 @@ class AuthState {
     this.userId,
     this.userName,
     this.userEmail,
+    this.emailVerifiedAt,
     this.companyId,
     this.companyName,
     this.roles = const [],
@@ -43,6 +47,7 @@ class AuthState {
     String? userId,
     String? userName,
     String? userEmail,
+    String? emailVerifiedAt,
     String? companyId,
     String? companyName,
     List<String>? roles,
@@ -56,6 +61,7 @@ class AuthState {
       userId: userId ?? this.userId,
       userName: userName ?? this.userName,
       userEmail: userEmail ?? this.userEmail,
+      emailVerifiedAt: emailVerifiedAt ?? this.emailVerifiedAt,
       companyId: companyId ?? this.companyId,
       companyName: companyName ?? this.companyName,
       roles: roles ?? this.roles,
@@ -103,12 +109,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
           userId: currentUser.id.toString(),
           userName: currentUser.name,
           userEmail: currentUser.email,
+          emailVerifiedAt: currentUser.emailVerifiedAt,
           companyId: currentUser.companyId > 0
               ? currentUser.companyId.toString()
               : null,
           companyName: currentUser.companyName,
           roles: currentUser.roles,
         );
+
+        // Sync FCM token
+        FcmService.instance.syncTokenWithBackend();
 
         AppLogger.i('Auth status checked — user: ${currentUser.name}');
         return;
@@ -159,10 +169,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
       userId: userId,
       userName: await storage.userName,
       userEmail: await storage.userEmail,
+      emailVerifiedAt: await storage.userEmailVerifiedAt,
       companyId: await storage.companyId,
       companyName: await storage.companyName,
       roles: await storage.roles,
     );
+
+    // Sync FCM token
+    FcmService.instance.syncTokenWithBackend();
 
     AppLogger.i('Session restored from local storage — userId: $userId');
   }
@@ -191,12 +205,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         userId: result.userId.toString(),
         userName: result.userName,
         userEmail: result.userEmail,
+        emailVerifiedAt: result.emailVerifiedAt,
         companyId: result.companyId > 0 ? result.companyId.toString() : null,
         companyName: result.companyName,
         roles: result.roles,
       );
 
-      AppLogger.i('Login success — user: ${result.userName}');
+      // Sync FCM token
+      FcmService.instance.syncTokenWithBackend();
+
+      AppLogger.i('User logged in successfully: ${result.userName}');
     } on AppException catch (e) {
       state = state.copyWith(isLoading: false, error: e.message);
     } catch (e) {
@@ -227,50 +245,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Persist login result to secure storage (all fields)
   Future<void> _persistLoginResult(LoginResult result) async {
     final storage = SecureStorageService.instance;
-    final futures = <Future<void>>[
+    await Future.wait([
       storage.setAccessToken(result.accessToken),
       storage.setUserId(result.userId.toString()),
       storage.setUserName(result.userName),
-    ];
-
-    if (result.userEmail != null && result.userEmail!.isNotEmpty) {
-      futures.add(storage.setUserEmail(result.userEmail!));
-    }
-    if (result.roles.isNotEmpty) {
-      futures.add(storage.setRoles(result.roles));
-    }
-    if (result.companyId > 0) {
-      futures.add(storage.setCompanyId(result.companyId.toString()));
-    }
-    if (result.companyName != null && result.companyName!.isNotEmpty) {
-      futures.add(storage.setCompanyName(result.companyName!));
-    }
-
-    await Future.wait(futures);
+      if (result.userEmail != null) storage.setUserEmail(result.userEmail!),
+      if (result.emailVerifiedAt != null) storage.setUserEmailVerifiedAt(result.emailVerifiedAt!),
+      storage.setCompanyId(result.companyId.toString()),
+      if (result.companyName != null) storage.setCompanyName(result.companyName!),
+      storage.setRoles(result.roles),
+    ]);
   }
 
   /// Persist current user data to secure storage (from GET /user)
   Future<void> _persistUserData(CurrentUser user) async {
     final storage = SecureStorageService.instance;
-    final futures = <Future<void>>[
+    await Future.wait([
       storage.setUserId(user.id.toString()),
       storage.setUserName(user.name),
-    ];
-
-    if (user.email != null && user.email!.isNotEmpty) {
-      futures.add(storage.setUserEmail(user.email!));
-    }
-    if (user.roles.isNotEmpty) {
-      futures.add(storage.setRoles(user.roles));
-    }
-    if (user.companyId > 0) {
-      futures.add(storage.setCompanyId(user.companyId.toString()));
-    }
-    if (user.companyName != null && user.companyName!.isNotEmpty) {
-      futures.add(storage.setCompanyName(user.companyName!));
-    }
-
-    await Future.wait(futures);
+      if (user.email != null) storage.setUserEmail(user.email!),
+      if (user.emailVerifiedAt != null) storage.setUserEmailVerifiedAt(user.emailVerifiedAt!),
+      storage.setCompanyId(user.companyId.toString()),
+      if (user.companyName != null) storage.setCompanyName(user.companyName!),
+      storage.setRoles(user.roles),
+    ]);
   }
 }
 

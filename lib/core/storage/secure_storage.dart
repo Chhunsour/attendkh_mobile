@@ -12,6 +12,7 @@ class SecureStorageService {
   static const _userIdKey = 'user_id';
   static const _userNameKey = 'user_name';
   static const _userEmailKey = 'user_email';
+  static const _userEmailVerifiedAtKey = 'user_email_verified_at';
   static const _rolesKey = 'user_roles';
   static const _companyNameKey = 'company_name';
   static const _companyLogoKey = 'company_logo';
@@ -54,6 +55,9 @@ class SecureStorageService {
 
   Future<String?> get userEmail => _storage.read(key: _userEmailKey);
   Future<void> setUserEmail(String email) => _storage.write(key: _userEmailKey, value: email);
+
+  Future<String?> get userEmailVerifiedAt => _storage.read(key: _userEmailVerifiedAtKey);
+  Future<void> setUserEmailVerifiedAt(String date) => _storage.write(key: _userEmailVerifiedAtKey, value: date);
 
   Future<List<String>> get roles async {
     final raw = await _storage.read(key: _rolesKey);

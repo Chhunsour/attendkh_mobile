@@ -15,6 +15,8 @@ import 'package:mpg_hr_mobile_app/features/company_admin/presentation/admin_perf
 import 'package:mpg_hr_mobile_app/features/company_admin/presentation/admin_reports_screen.dart';
 import 'package:mpg_hr_mobile_app/features/company_admin/presentation/admin_roles_screen.dart';
 import 'package:mpg_hr_mobile_app/features/company_admin/presentation/admin_resources_screen.dart';
+import 'package:mpg_hr_mobile_app/features/company_admin/presentation/admin_employees_screen.dart';
+import 'package:mpg_hr_mobile_app/features/company_admin/presentation/admin_shifts_screen.dart';
 
 /// Shell for Company Admin navigation — drawer-based.
 /// Provides access to all admin management features.
@@ -42,6 +44,8 @@ class _CompanyAdminShellState extends ConsumerState<CompanyAdminShell> {
     'performance': const AdminPerformanceScreen(),
     'reports': const AdminReportsScreen(),
     'roles': const AdminRolesScreen(),
+    'employees': const AdminEmployeesScreen(),
+    'shifts': const AdminShiftsScreen(),
     'resources': const AdminResourcesScreen(),
   };
 
@@ -155,10 +159,12 @@ class _CompanyAdminShellState extends ConsumerState<CompanyAdminShell> {
                   children: [
                     _sectionLabel('HR MANAGEMENT'),
                     _DrawerItem(icon: Icons.business_outlined, label: 'HR Structure', tab: 'hr_structure', isActive: _activeTab == 'hr_structure', onTap: () => _navigateTo('hr_structure')),
-                    _DrawerItem(icon: Icons.people_outline, label: 'Roles & Permissions', tab: 'roles', isActive: _activeTab == 'roles', onTap: () => _navigateTo('roles')),
+                    _DrawerItem(icon: Icons.people_alt_outlined, label: 'Employees', tab: 'employees', isActive: _activeTab == 'employees', onTap: () => _navigateTo('employees')),
+                    _DrawerItem(icon: Icons.shield_outlined, label: 'Roles & Permissions', tab: 'roles', isActive: _activeTab == 'roles', onTap: () => _navigateTo('roles')),
                     const SizedBox(height: 10),
                     _sectionLabel('OPERATIONS'),
                     _DrawerItem(icon: Icons.access_time_outlined, label: 'Attendance', tab: 'attendance', isActive: _activeTab == 'attendance', onTap: () => _navigateTo('attendance')),
+                    _DrawerItem(icon: Icons.schedule_outlined, label: 'Shifts', tab: 'shifts', isActive: _activeTab == 'shifts', onTap: () => _navigateTo('shifts')),
                     _DrawerItem(icon: Icons.event_note_outlined, label: 'Leave', tab: 'leave', isActive: _activeTab == 'leave', onTap: () => _navigateTo('leave')),
                     _DrawerItem(icon: Icons.receipt_long_outlined, label: 'Payroll', tab: 'payroll', isActive: _activeTab == 'payroll', onTap: () => _navigateTo('payroll')),
                     _DrawerItem(icon: Icons.receipt_outlined, label: 'Expenses', tab: 'expenses', isActive: _activeTab == 'expenses', onTap: () => _navigateTo('expenses')),
@@ -172,6 +178,16 @@ class _CompanyAdminShellState extends ConsumerState<CompanyAdminShell> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Divider(height: 1, thickness: 1, color: AppColors.grey400.withAlpha(60)),
+                    ),
+                    _DrawerItem(
+                      icon: Icons.send,
+                      label: 'Send Notification',
+                      tab: 'notification',
+                      isActive: false,
+                      onTap: () {
+                        Navigator.pop(context);
+                        context.push('/company-admin/send-notification');
+                      },
                     ),
                     _DrawerItem(
                       icon: Icons.arrow_back_rounded,

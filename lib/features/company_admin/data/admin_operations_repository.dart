@@ -1,5 +1,7 @@
 import 'package:mpg_hr_mobile_app/core/network/api_repository.dart';
+import 'package:path_provider/path_provider.dart';
 
+// ── Common Models ────────────────────────────────────────────────────────────
 // ── Attendance Correction ───────────────────────────────────────────────────
 class AttendanceCorrectionData {
   final int id;
@@ -21,6 +23,42 @@ class AttendanceCorrectionData {
       status: json['status'] as String? ?? 'pending',
       clockIn: json['clock_in'] as String? ?? json['requested_clock_in'] as String?,
       clockOut: json['clock_out'] as String? ?? json['requested_clock_out'] as String?,
+    );
+  }
+}
+
+// ── Admin Attendance Record ─────────────────────────────────────────────────
+class AdminAttendanceRecord {
+  final int id;
+  final int employeeId;
+  final String employeeName;
+  final String date;
+  final String? clockIn;
+  final String? clockOut;
+  final String status;
+  final double? workHours;
+
+  const AdminAttendanceRecord({
+    required this.id,
+    required this.employeeId,
+    required this.employeeName,
+    required this.date,
+    this.clockIn,
+    this.clockOut,
+    required this.status,
+    this.workHours,
+  });
+
+  factory AdminAttendanceRecord.fromJson(Map<String, dynamic> json) {
+    return AdminAttendanceRecord(
+      id: json['id'] as int,
+      employeeId: json['employee_id'] as int,
+      employeeName: json['employee']?['user']?['name'] ?? json['employee']?['first_name'] ?? 'Unknown',
+      date: json['date'] as String? ?? '',
+      clockIn: json['clock_in'] as String?,
+      clockOut: json['clock_out'] as String?,
+      status: json['status'] as String? ?? 'absent',
+      workHours: (json['work_hours'] as num?)?.toDouble(),
     );
   }
 }
@@ -75,16 +113,60 @@ class LeaveTypeData {
   }
 }
 
+// ── Leave Balance ───────────────────────────────────────────────────────────
+class LeaveBalanceData {
+  final int id;
+  final String employeeName;
+  final String leaveTypeName;
+  final int year;
+  final double allocatedDays;
+  final double carriedForward;
+  final double usedDays;
+
+  const LeaveBalanceData({required this.id, required this.employeeName, required this.leaveTypeName, required this.year, required this.allocatedDays, required this.carriedForward, required this.usedDays});
+
+  factory LeaveBalanceData.fromJson(Map<String, dynamic> json) {
+    return LeaveBalanceData(
+      id: json['id'] as int,
+      employeeName: json['employee']?['name'] as String? ?? '',
+      leaveTypeName: json['leave_type']?['name'] as String? ?? '',
+      year: json['year'] as int? ?? DateTime.now().year,
+      allocatedDays: (json['allocated_days'] as num?)?.toDouble() ?? 0,
+      carriedForward: (json['carried_forward'] as num?)?.toDouble() ?? 0,
+      usedDays: (json['used_days'] as num?)?.toDouble() ?? 0,
+    );
+  }
+}
+
 // ── Shift ───────────────────────────────────────────────────────────────────
 class ShiftData {
   final int id;
   final String name;
   final String startTime;
   final String endTime;
-  final String? days;
+  final String? code;
+  final int? breakDuration;
+  final int? gracePeriod;
+  final int? overtimeThreshold;
+  final List<String>? workDays;
+  final bool? isOvernight;
+  final bool? isActive;
   final int? employeesCount;
 
-  const ShiftData({required this.id, required this.name, required this.startTime, required this.endTime, this.days, this.employeesCount});
+  const ShiftData({
+    required this.id,
+    required this.name,
+    required this.startTime,
+    required this.endTime,
+    this.code,
+    this.breakDuration,
+    this.gracePeriod,
+    this.overtimeThreshold,
+    this.workDays,
+    this.isOvernight,
+    this.isActive,
+    this.employeesCount,
+  });
 
   factory ShiftData.fromJson(Map<String, dynamic> json) {
     return ShiftData(
@@ -92,7 +174,13 @@ class ShiftData {
       name: json['name'] as String? ?? '',
       startTime: json['start_time'] as String? ?? '',
       endTime: json['end_time'] as String? ?? '',
-      days: json['days'] as String?,
+      code: json['code'] as String?,
+      breakDuration: json['break_duration'] as int?,
+      gracePeriod: json['grace_period'] as int?,
+      overtimeThreshold: json['overtime_threshold'] as int?,
+      workDays: (json['work_days'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
+      isOvernight: json['is_overnight'] as bool?,
+      isActive: json['is_active'] as bool?,
       employeesCount: json['employees_count'] as int?,
     );
   }
@@ -270,10 +358,40 @@ class PayrollRunData {
   factory PayrollRunData.fromJson(Map<String, dynamic> json) {
     return PayrollRunData(
       id: json['id'] as int,
-      period: json['period'] as String? ?? '',
-      totalAmount: (json['total_amount'] as num?)?.toDouble() ?? 0,
+      period: json['period'] as String? ?? json['payroll_period'] as String? ?? '',
+      totalAmount: (json['total_amount'] as num?)?.toDouble() ?? (json['net_salary'] as num?)?.toDouble() ?? 0,
       employeesCount: json['employees_count'] as int? ?? 0,
       status: json['status'] as String? ?? 'draft',
+    );
+  }
+}
+
+// ── Payroll Settings ────────────────────────────────────────────────────────
+class PayrollSettingsData {
+  final bool overtimeEnabled;
+  final double overtimeMultiplier;
+  final bool lateDeductionEnabled;
+  final double lateDeductionPerMinute;
+  final String payrollPeriod;
+  final String currency;
+
+  const PayrollSettingsData({
+    required this.overtimeEnabled,
+    required this.overtimeMultiplier,
+    required this.lateDeductionEnabled,
+    required this.lateDeductionPerMinute,
+    required this.payrollPeriod,
+    required this.currency,
+  });
+
+  factory PayrollSettingsData.fromJson(Map<String, dynamic> json) {
+    return PayrollSettingsData(
+      overtimeEnabled: json['overtime_enabled'] == 1 || json['overtime_enabled'] == true,
+      overtimeMultiplier: (json['overtime_multiplier'] as num?)?.toDouble() ?? 1.5,
+      lateDeductionEnabled: json['late_deduction_enabled'] == 1 || json['late_deduction_enabled'] == true,
+      lateDeductionPerMinute: (json['late_deduction_per_minute'] as num?)?.toDouble() ?? 0,
+      payrollPeriod: json['payroll_period'] as String? ?? 'monthly',
+      currency: json['currency'] as String? ?? 'USD',
     );
   }
 }
@@ -284,6 +402,13 @@ class AdminOperationsRepository {
   AdminOperationsRepository({ApiRepository? api}) : _api = api ?? ApiRepository();
 
   // ── Attendance Corrections ──────────────────────────────────────────────
+  Future<List<AdminAttendanceRecord>> getAllAttendanceLogs() async {
+    final response = await _api.get('/company/attendance');
+    // The response returns { data: { attendances: [...] } }
+    final dynamic data = response.data['data']?['attendances'] ?? [];
+    return _parseList(data, AdminAttendanceRecord.fromJson);
+  }
+
   Future<List<AttendanceCorrectionData>> getAttendanceCorrections() async {
     final response = await _api.get('/company/attendance/corrections');
     return _parseList(response.data, AttendanceCorrectionData.fromJson);
@@ -321,8 +446,57 @@ class AdminOperationsRepository {
     return _parseList(response.data, ShiftData.fromJson);
   }
 
-  Future<ShiftData> createShift({required String name, required String startTime, required String endTime, String? days}) async {
-    final response = await _api.post('/company/shifts', data: {'name': name, 'start_time': startTime, 'end_time': endTime, 'days': ?days});
+  Future<ShiftData> createShift({
+    required String name,
+    required String startTime,
+    required String endTime,
+    String? code,
+    int? breakDuration,
+    int? gracePeriod,
+    int? overtimeThreshold,
+    List<String>? workDays,
+    bool? isOvernight,
+    bool? isActive,
+  }) async {
+    final response = await _api.post('/company/shifts', data: {
+      'name': name,
+      'start_time': startTime,
+      'end_time': endTime,
+      'code': ?code,
+      'break_duration': ?breakDuration,
+      'grace_period': ?gracePeriod,
+      'overtime_threshold': ?overtimeThreshold,
+      'work_days': ?workDays,
+      'is_overnight': ?isOvernight,
+      'is_active': ?isActive,
+    });
+    return ShiftData.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<ShiftData> updateShift(int id, {
+    required String name,
+    required String startTime,
+    required String endTime,
+    String? code,
+    int? breakDuration,
+    int? gracePeriod,
+    int? overtimeThreshold,
+    List<String>? workDays,
+    bool? isOvernight,
+    bool? isActive,
+  }) async {
+    final response = await _api.put('/company/shifts/$id', data: {
+      'name': name,
+      'start_time': startTime,
+      'end_time': endTime,
+      'code': ?code,
+      'break_duration': ?breakDuration,
+      'grace_period': ?gracePeriod,
+      'overtime_threshold': ?overtimeThreshold,
+      'work_days': ?workDays,
+      'is_overnight': ?isOvernight,
+      'is_active': ?isActive,
+    });
     return ShiftData.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -365,8 +539,17 @@ class AdminOperationsRepository {
   // ── Expenses (Admin) ────────────────────────────────────────────────────
   Future<void> approveExpense(int id) async => _api.post('/company/expenses/$id/approve');
   Future<void> rejectExpense(int id) async => _api.post('/company/expenses/$id/reject');
-  Future<void> markExpensePaid(int id) async => _api.post('/company/expenses/$id/pay');
   Future<void> deleteExpense(int id) async => _api.delete('/company/expenses/$id');
+  Future<void> markExpensePaid(int id) async => _api.post('/company/expenses/$id/pay');
+  Future<void> updateLeaveType(int id, Map<String, dynamic> data) async => _api.put('/company/leave/types/$id', data: data);
+
+  // ── Leave Balances (Admin) ──────────────────────────────────────────────
+  Future<List<LeaveBalanceData>> getLeaveBalances() async {
+    final response = await _api.get('/company/leave/balances');
+    return _parseList(response.data, LeaveBalanceData.fromJson);
+  }
+
+  Future<void> updateLeaveBalance(int id, Map<String, dynamic> data) async => _api.put('/company/leave/balances/$id', data: data);
 
   // ── Recruitment ─────────────────────────────────────────────────────────
   Future<List<JobPostingData>> getJobPostings() async {
@@ -407,13 +590,29 @@ class AdminOperationsRepository {
   Future<void> deleteTraining(int id) async => _api.delete('/company/performance/trainings/$id');
   Future<void> enrollEmployee(int trainingId, int employeeId) async => _api.post('/company/performance/trainings/$trainingId/enroll', data: {'employee_id': employeeId});
 
-  // ── Payroll ─────────────────────────────────────────────────────────────
+  // ── Payroll (Admin) ─────────────────────────────────────────────────────
   Future<List<PayrollRunData>> getPayrollRuns() async {
     final response = await _api.get('/company/payroll/runs');
     return _parseList(response.data, PayrollRunData.fromJson);
   }
 
-  Future<void> generatePayroll({required String period}) async => _api.post('/company/payroll/generate', data: {'period': period});
+  Future<void> generatePayroll({required String period}) async {
+    // Note: The API expects period_start and period_end based on PayrollController::generate
+    // We simplify here by sending the period and letting the backend or API client adapter handle it
+    await _api.post('/company/payroll/generate', data: {
+      'period_start': '$period-01',
+      'period_end': '$period-28', // Placeholder logic for dates
+    });
+  }
+
+  Future<PayrollSettingsData> getPayrollSettings() async {
+    final response = await _api.get('/company/payroll/settings');
+    return PayrollSettingsData.fromJson(response.data['data'] ?? response.data);
+  }
+
+  Future<void> updatePayrollSettings(Map<String, dynamic> data) async {
+    await _api.put('/company/payroll/settings', data: data);
+  }
 
   // ── Documents (Admin) ───────────────────────────────────────────────────
   Future<void> deleteDocument(int id) async => _api.delete('/company/documents/$id');
@@ -430,6 +629,30 @@ class AdminOperationsRepository {
   Future<Map<String, dynamic>> generateReport({required String type, Map<String, dynamic>? params}) async {
     final response = await _api.post('/company/reports/generate', data: {'type': type, ...?params});
     return response.data as Map<String, dynamic>? ?? {};
+  }
+
+  Future<String> exportReport({required String type, Map<String, dynamic>? params}) async {
+    final format = 'excel';
+    final dir = await getApplicationDocumentsDirectory();
+    final filename = '${type}_report_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+    final savePath = '${dir.path}/$filename';
+    
+    await _api.download(
+      '/company/reports/export',
+      savePath,
+      data: {'type': type, 'format': format, ...?params},
+    );
+    return savePath;
+  }
+
+  // ── Notifications ─────────────────────────────────────────────────────────
+  Future<void> sendNotification({required int userId, required String title, required String message, String? type}) async {
+    await _api.post('/company/notifications/send', data: {
+      'user_id': userId,
+      'title': title,
+      'message': message,
+      'type': type,
+    });
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────

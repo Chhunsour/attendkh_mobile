@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/features/attendance/data/attendance_repository.dart';
@@ -178,10 +180,66 @@ class _TodayTab extends ConsumerWidget {
     );
   }
 
+  Future<Map<String, dynamic>?> _captureAttendanceData(BuildContext context) async {
+    try {
+      // 1. Get GPS Location
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Location services are disabled. Please enable them.')));
+        return null;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Location permissions are denied. Cannot clock in/out.')));
+          return null;
+        }
+      }
+      
+      if (permission == LocationPermission.deniedForever) {
+        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Location permissions are permanently denied.')));
+        return null;
+      } 
+
+      final position = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
+
+      // 2. Take Selfie
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+        imageQuality: 50,
+      );
+
+      if (image == null) {
+        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Selfie is required to clock in/out.')));
+        return null;
+      }
+
+      return {
+        'lat': position.latitude,
+        'lng': position.longitude,
+        'photoPath': image.path,
+      };
+    } catch (e) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error getting location/camera: $e')));
+      return null;
+    }
+  }
+
   Future<void> _handleClockIn(BuildContext context, WidgetRef ref) async {
     try {
+      final data = await _captureAttendanceData(context);
+      if (data == null) return;
+
       final repo = ref.read(attendanceRepositoryProvider);
-      await repo.clockIn();
+      await repo.clockIn(
+        lat: data['lat'],
+        lng: data['lng'],
+        photoPath: data['photoPath'],
+      );
       ref.invalidate(todayAttendanceProvider);
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('✅ Clocked in successfully'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))));
@@ -193,8 +251,15 @@ class _TodayTab extends ConsumerWidget {
 
   Future<void> _handleClockOut(BuildContext context, WidgetRef ref) async {
     try {
+      final data = await _captureAttendanceData(context);
+      if (data == null) return;
+
       final repo = ref.read(attendanceRepositoryProvider);
-      await repo.clockOut();
+      await repo.clockOut(
+        lat: data['lat'],
+        lng: data['lng'],
+        photoPath: data['photoPath'],
+      );
       ref.invalidate(todayAttendanceProvider);
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('✅ Clocked out successfully'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))));

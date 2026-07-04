@@ -114,4 +114,20 @@ class ApiRepository {
       throw mapDioException(e);
     }
   }
+
+  /// DOWNLOAD request
+  Future<void> download(String path, String savePath, {dynamic data}) async {
+    try {
+      AppLogger.i('DOWNLOAD $path to $savePath');
+      await _dio.download(
+        path,
+        savePath,
+        data: data,
+        options: Options(method: 'POST'),
+      );
+    } on DioException catch (e) {
+      AppLogger.e('DOWNLOAD $path failed', e.message);
+      throw mapDioException(e);
+    }
+  }
 }

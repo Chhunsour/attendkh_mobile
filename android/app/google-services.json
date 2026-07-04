@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "689904991427",
+    "project_id": "mpg-hr",
+    "storage_bucket": "mpg-hr.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:689904991427:android:978617b1f7675946fc7676",
+        "android_client_info": {
+          "package_name": "com.example.mpg_hr_mobile_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDABa5r9DJMPa-k2v61q_1ZX-3k9lKrI_k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

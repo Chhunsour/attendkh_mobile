@@ -38,7 +38,7 @@ dependencies:
   # Device
   local_auth: ^2.3.0
   device_info_plus: ^11.3.0
-  image_picker: ^1.1.2
+  image_picker: ^1.2.3
   file_picker: ^8.1.7
   url_launcher: ^6.3.1
 
@@ -48,7 +48,7 @@ dependencies:
   firebase_messaging: ^15.2.4
 
   # Location & Camera
-  geolocator: ^13.0.2
+  geolocator: ^14.0.2
   geocoding: ^3.0.0
   camera: ^0.11.1
   qr_code_scanner: ^1.0.1
@@ -59,6 +59,9 @@ dependencies:
   json_annotation: ^4.9.0
   equatable: ^2.0.7
   logger: ^2.5.0
+  permission_handler: ^12.0.3
+  path_provider: ^2.1.6
+  open_filex: ^4.7.0
 
 dev_dependencies:
   flutter_test:

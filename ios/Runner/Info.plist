@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app requires access to your location to verify your check-in and check-out at the work site.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires access to your camera to take a selfie for check-in and check-out verification.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires access to your microphone for video recording if required.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

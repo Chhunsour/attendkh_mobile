@@ -7,6 +7,7 @@ class LoginResult {
   final int userId;
   final String userName;
   final String? userEmail;
+  final String? emailVerifiedAt;
   final int companyId;
   final String? companyName;
   final List<String> roles;
@@ -17,6 +18,7 @@ class LoginResult {
     required this.userId,
     required this.userName,
     this.userEmail,
+    this.emailVerifiedAt,
     required this.companyId,
     this.companyName,
     required this.roles,
@@ -32,6 +34,7 @@ class LoginResult {
       userId: user['id'] as int,
       userName: user['name'] as String,
       userEmail: user['email'] as String?,
+      emailVerifiedAt: user['email_verified_at'] as String?,
       companyId: companyIdRaw is int ? companyIdRaw : 0,
       companyName: company?['name'] as String?,
       roles: (user['roles'] as List<dynamic>?)?.cast<String>() ?? [],
@@ -44,6 +47,7 @@ class CurrentUser {
   final int id;
   final String name;
   final String? email;
+  final String? emailVerifiedAt;
   final int companyId;
   final List<String> roles;
   final String? companyName;
@@ -52,6 +56,7 @@ class CurrentUser {
     required this.id,
     required this.name,
     this.email,
+    this.emailVerifiedAt,
     required this.companyId,
     this.companyName,
     required this.roles,
@@ -64,6 +69,7 @@ class CurrentUser {
       id: json['id'] as int,
       name: json['name'] as String,
       email: json['email'] as String?,
+      emailVerifiedAt: json['email_verified_at'] as String?,
       companyId: companyIdRaw is int ? companyIdRaw : 0,
       companyName: company?['name'] as String?,
       roles: (json['roles'] as List<dynamic>?)?.cast<String>() ?? [],
