@@ -151,27 +151,41 @@ class _MoreMenuBottomSheet extends ConsumerWidget {
             // User Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppColors.primary.withAlpha(20),
-                    child: Text(
-                      initials.isNotEmpty ? initials : 'SA',
-                      style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    Navigator.pop(context); // close bottom sheet
+                    context.push(AppRoutes.adminProfile);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
                       children: [
-                        Text(userName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text('Platform Administrator', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor: AppColors.primary.withAlpha(20),
+                          child: Text(
+                            initials.isNotEmpty ? initials : 'SA',
+                            style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(userName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              Text('Platform Administrator', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right_rounded, color: AppColors.grey400),
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
             
@@ -215,7 +229,8 @@ class _MoreMenuBottomSheet extends ConsumerWidget {
               iconColor: AppColors.danger,
               textColor: AppColors.danger,
               onTap: () async {
-                Navigator.pop(context);
+                // DO NOT Navigator.pop(context) first, as it invalidates the context
+                // needed for showLogoutConfirmation's dialog.
                 await showLogoutConfirmation(context, ref);
               },
             ),

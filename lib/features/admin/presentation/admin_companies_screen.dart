@@ -1,8 +1,13 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:mpg_hr_mobile_app/core/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/features/admin/data/admin_companies_repository.dart';
 
@@ -146,16 +151,28 @@ class AdminCompaniesScreen extends ConsumerWidget {
                 Container(
                   width: 44,
                   height: 44,
+                  clipBehavior: Clip.hardEdge,
                   decoration: BoxDecoration(
                     color: isActive
                         ? const Color(0xFFEEF2FF)
                         : AppColors.dangerLight,
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.grey200),
                   ),
-                  child: Icon(
-                    Icons.business_rounded,
-                    color: isActive ? const Color(0xFF6366F1) : AppColors.danger,
-                  ),
+                  child: company.logo != null
+                      ? CachedNetworkImage(
+                          imageUrl: '${DioClient.instance.options.baseUrl.replaceAll('/api', '/storage/')}${company.logo}',
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Icon(Icons.image, color: AppColors.grey300),
+                          errorWidget: (context, url, error) => Icon(
+                            Icons.business_rounded,
+                            color: isActive ? const Color(0xFF6366F1) : AppColors.danger,
+                          ),
+                        )
+                      : Icon(
+                          Icons.business_rounded,
+                          color: isActive ? const Color(0xFF6366F1) : AppColors.danger,
+                        ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -447,13 +464,13 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
   late final TextEditingController _addressCtrl;
   late final TextEditingController _timezoneCtrl;
   late final TextEditingController _currencyCtrl;
-  late final TextEditingController _websiteCtrl;
-  late final TextEditingController _twitterCtrl;
-  late final TextEditingController _linkedinCtrl;
   String _status = 'active';
   bool _isSaving = false;
+  bool _isLoadingLocation = false;
   File? _logoFile;
   final _picker = ImagePicker();
+  
+  List<Map<String, String>> _socialMediaList = [];
 
   bool get _isEditing => widget.company != null;
 
@@ -468,10 +485,19 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     _addressCtrl = TextEditingController(text: c?.address ?? '');
     _timezoneCtrl = TextEditingController(text: c?.timezone ?? 'UTC+7');
     _currencyCtrl = TextEditingController(text: c?.currency ?? 'USD');
-    _websiteCtrl = TextEditingController(text: sm?['website'] as String? ?? '');
-    _twitterCtrl = TextEditingController(text: sm?['twitter'] as String? ?? '');
-    _linkedinCtrl = TextEditingController(text: sm?['linkedin'] as String? ?? '');
     _status = c?.status ?? 'active';
+
+    if (sm != null) {
+      _socialMediaList = sm.map((e) {
+        if (e is Map) {
+          return {
+            'platform': (e['platform'] ?? '').toString(),
+            'url': (e['url'] ?? '').toString(),
+          };
+        }
+        return {'platform': '', 'url': ''};
+      }).toList();
+    }
   }
 
   @override
@@ -482,16 +508,69 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     _addressCtrl.dispose();
     _timezoneCtrl.dispose();
     _currencyCtrl.dispose();
-    _websiteCtrl.dispose();
-    _twitterCtrl.dispose();
-    _linkedinCtrl.dispose();
     super.dispose();
   }
 
+  Future<void> _getCurrentLocation() async {
+    setState(() => _isLoadingLocation = true);
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception('Location permissions are denied');
+        }
+      }
+      
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception('Location permissions are permanently denied');
+      }
+
+      // ignore: deprecated_member_use
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        String address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
+        address = address.split(', ').where((part) => part.trim().isNotEmpty && part != 'null').join(', ');
+        setState(() {
+          _addressCtrl.text = address;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to get location: $e'), backgroundColor: AppColors.danger));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingLocation = false);
+    }
+  }
+
   Future<void> _pickLogo() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery, maxWidth: 1024);
+    final picked = await _picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
-      setState(() => _logoFile = File(picked.path));
+      try {
+        final tempDir = await getTemporaryDirectory();
+        final targetPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.webp';
+        
+        final compressedFile = await FlutterImageCompress.compressAndGetFile(
+          picked.path,
+          targetPath,
+          format: CompressFormat.webp,
+          quality: 80,
+          minWidth: 800,
+          minHeight: 800,
+        );
+        
+        if (compressedFile != null) {
+          setState(() => _logoFile = File(compressedFile.path));
+        } else {
+          setState(() => _logoFile = File(picked.path));
+        }
+      } catch (e) {
+        setState(() => _logoFile = File(picked.path));
+      }
     }
   }
 
@@ -501,12 +580,6 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     setState(() => _isSaving = true);
 
     try {
-      final socialMedia = <String, String>{
-        'website': _websiteCtrl.text.trim(),
-        'twitter': _twitterCtrl.text.trim(),
-        'linkedin': _linkedinCtrl.text.trim(),
-      };
-      // Only include social_media if at least one field is filled (keep empty map for PUT clarity)
       final data = <String, dynamic>{
         'name': _nameCtrl.text.trim(),
         'email': _emailCtrl.text.trim(),
@@ -514,7 +587,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
         'address': _addressCtrl.text.trim(),
         'timezone': _timezoneCtrl.text.trim(),
         'currency': _currencyCtrl.text.trim(),
-        'social_media': socialMedia,
+        'social_media': _socialMediaList,
         'status': _status,
       };
 
@@ -614,7 +687,36 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                     _buildField('Phone', _phoneCtrl,
                         keyboardType: TextInputType.phone),
                     const SizedBox(height: 14),
-                    _buildField('Address', _addressCtrl, maxLines: 2),
+                    // Address with location
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Address', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                            TextButton.icon(
+                              onPressed: _isLoadingLocation ? null : _getCurrentLocation,
+                              icon: _isLoadingLocation 
+                                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
+                                : const Icon(Icons.my_location_rounded, size: 16, color: AppColors.primary),
+                              label: Text(_isLoadingLocation ? 'Getting...' : 'Get Location', style: const TextStyle(fontSize: 12, color: AppColors.primary)),
+                              style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: _addressCtrl,
+                          maxLines: 2,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 14),
                     Row(
                       children: [
@@ -679,23 +781,76 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Social Media Links',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.grey800,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Social Media Links',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.grey800,
+                                ),
+                              ),
+                              TextButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    _socialMediaList.add({'platform': '', 'url': ''});
+                                  });
+                                },
+                                icon: const Icon(Icons.add_rounded, size: 16),
+                                label: const Text('Add', style: TextStyle(fontSize: 12)),
+                                style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 10),
-                          _buildField('Website', _websiteCtrl,
-                              keyboardType: TextInputType.url),
-                          const SizedBox(height: 10),
-                          _buildField('Twitter', _twitterCtrl,
-                              keyboardType: TextInputType.url),
-                          const SizedBox(height: 10),
-                          _buildField('LinkedIn', _linkedinCtrl,
-                              keyboardType: TextInputType.url),
+                          if (_socialMediaList.isEmpty)
+                            const Text('No social media links added.', style: TextStyle(color: AppColors.grey500, fontSize: 13)),
+                          ...List.generate(_socialMediaList.length, (index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: TextFormField(
+                                      initialValue: _socialMediaList[index]['platform'],
+                                      decoration: InputDecoration(
+                                        hintText: 'Platform',
+                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.grey200)),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                                      ),
+                                      onChanged: (val) => _socialMediaList[index]['platform'] = val,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    flex: 2,
+                                    child: TextFormField(
+                                      initialValue: _socialMediaList[index]['url'],
+                                      decoration: InputDecoration(
+                                        hintText: 'URL',
+                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.grey200)),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                                      ),
+                                      onChanged: (val) => _socialMediaList[index]['url'] = val,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.remove_circle_outline, color: AppColors.danger, size: 20),
+                                    onPressed: () {
+                                      setState(() {
+                                        _socialMediaList.removeAt(index);
+                                      });
+                                    },
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),

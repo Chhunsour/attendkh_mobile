@@ -21,6 +21,7 @@ import 'package:mpg_hr_mobile_app/features/shifts/presentation/shifts_screen.dar
 
 // Super Admin imports
 import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_shell.dart';
+import 'package:mpg_hr_mobile_app/features/admin/presentation/admin_profile_screen.dart';
 
 // Company Admin imports
 import 'package:mpg_hr_mobile_app/features/company_admin/presentation/company_admin_shell.dart';
@@ -57,6 +58,7 @@ class AppRoutes {
   // Super Admin
   static const admin = '/admin';
   static const adminDashboard = '/admin/dashboard';
+  static const adminProfile = '/admin/profile';
 
   // Company Admin
   static const companyAdmin = '/company-admin';
@@ -226,6 +228,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminDashboard,
         builder: (context, state) => const AdminShell(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminProfile,
+        builder: (context, state) => const AdminProfileScreen(),
       ),
 
       // ---- Company Admin (drawer navigation for HR management) ----

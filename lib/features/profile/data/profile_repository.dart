@@ -57,7 +57,7 @@ class ProfileRepository {
 
   Future<ProfileData> updateProfile({String? name, String? email}) async {
     try {
-      final response = await _api.put('/company/profile', data: {
+      final response = await _api.put('/profile', data: {
         'name': ?name,
         'email': ?email,
       });
@@ -68,6 +68,19 @@ class ProfileRepository {
       throw Exception('Invalid update profile response');
     } catch (e) {
       AppLogger.e('Failed to update profile', e);
+      rethrow;
+    }
+  }
+
+  Future<void> updatePassword({required String currentPassword, required String password, required String passwordConfirmation}) async {
+    try {
+      await _api.put('/profile/password', data: {
+        'current_password': currentPassword,
+        'password': password,
+        'password_confirmation': passwordConfirmation,
+      });
+    } catch (e) {
+      AppLogger.e('Failed to update password', e);
       rethrow;
     }
   }

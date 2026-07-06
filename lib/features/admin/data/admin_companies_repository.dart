@@ -9,7 +9,7 @@ class AdminCompany {
   final String? address;
   final String? timezone;
   final String? currency;
-  final Map<String, dynamic>? socialMedia;
+  final List<dynamic>? socialMedia;
   final String? status;
   final String? logo;
   final String? createdAt;
@@ -37,7 +37,7 @@ class AdminCompany {
       address: json['address'] as String?,
       timezone: json['timezone'] as String?,
       currency: json['currency'] as String?,
-      socialMedia: json['social_media'] as Map<String, dynamic>?,
+      socialMedia: json['social_media'] as List<dynamic>?,
       status: json['status'] as String? ?? 'active',
       logo: json['logo'] as String?,
       createdAt: json['created_at'] as String?,
