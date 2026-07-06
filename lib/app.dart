@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/core/providers/theme_provider.dart';
-import 'package:mpg_hr_mobile_app/core/router/app_router.dart';
-import 'package:mpg_hr_mobile_app/core/theme/theme.dart';
+import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
+import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 
 class MPGHRApp extends ConsumerWidget {
   const MPGHRApp({super.key});
