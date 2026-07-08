@@ -4,6 +4,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 
 class AdminLeaveScreen extends ConsumerStatefulWidget {
   const AdminLeaveScreen({super.key});
@@ -94,7 +95,7 @@ class _RequestsTab extends ConsumerWidget {
                           const SizedBox(width: 12),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text(r.employeeName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                            Text('${r.leaveType} · ${r.startDate} → ${r.endDate}', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                            Text(formatDateRange(r.startDate, r.endDate), style: TextStyle(fontSize: 12, color: AppColors.grey500)),
                           ])),
                           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                             Text('${r.days}d', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),

@@ -4,6 +4,8 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_employee_form_screen.dart';
+import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 
 class AdminEmployeeDetailScreen extends ConsumerStatefulWidget {
   final EmployeeData employee;
@@ -47,6 +49,28 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
             fontWeight: FontWeight.w700,
           ),
         ),
+        actions: [
+          detailAsync.whenData((emp) => IconButton(
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => AdminEmployeeFormScreen(employee: emp),
+                ),
+              );
+              // Refresh detail after returning from edit
+              ref.invalidate(employeeDetailProvider(widget.employee.id));
+            },
+            icon: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(20),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(Icons.edit_rounded, size: 18, color: AppColors.primary),
+            ),
+            tooltip: 'Edit Employee',
+          )).value ?? const SizedBox.shrink(),
+        ],
       ),
       body: detailAsync.when(
         data: (richEmployee) => _buildDetailContent(context, richEmployee),
@@ -157,7 +181,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
             _buildDetailRow('Employment Type', _capitalize(emp.employmentType ?? 'full_time')),
             _buildDetailRow('Status', _capitalize(emp.employmentStatus ?? 'active')),
             _buildDetailRow('Branch', emp.branch),
-            _buildDetailRow('Join Date', emp.joinDate),
+            _buildDetailRow('Join Date', formatDate(emp.joinDate)),
           ]),
           const SizedBox(height: 20),
           _buildSectionHeader('Personal details'),
@@ -165,7 +189,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
             _buildDetailRow('Email', emp.email),
             _buildDetailRow('Phone', emp.phone),
             _buildDetailRow('Gender', _capitalize(emp.gender ?? 'Not specified')),
-            _buildDetailRow('DOB', emp.dateOfBirth),
+            _buildDetailRow('DOB', formatDate(emp.dateOfBirth)),
             _buildDetailRow('Marital Status', _capitalize(emp.maritalStatus ?? 'Not specified')),
             _buildDetailRow('National ID', emp.nationalId),
             _buildDetailRow('Address', emp.address),
@@ -296,7 +320,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${req.startDate} to ${req.endDate}',
+                              formatDateRange(req.startDate, req.endDate),
                               style: TextStyle(fontSize: 12, color: AppColors.grey500),
                             ),
                           ],
@@ -345,7 +369,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              log.date,
+                              formatDate(log.date),
                               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 6),
@@ -354,14 +378,14 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
                                 Icon(Icons.login, size: 14, color: AppColors.grey400),
                                 const SizedBox(width: 4),
                                 Text(
-                                  log.clockIn ?? '--:--',
+                                  formatTime(log.clockIn),
                                   style: const TextStyle(fontSize: 13),
                                 ),
                                 const SizedBox(width: 16),
                                 Icon(Icons.logout, size: 14, color: AppColors.grey400),
                                 const SizedBox(width: 4),
                                 Text(
-                                  log.clockOut ?? '--:--',
+                                  formatTime(log.clockOut),
                                   style: const TextStyle(fontSize: 13),
                                 ),
                               ],

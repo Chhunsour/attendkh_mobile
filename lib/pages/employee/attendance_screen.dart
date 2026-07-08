@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/attendance_provider.dart';
 import 'package:mpg_hr_mobile_app/services/attendance_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 
 class AttendanceScreen extends ConsumerStatefulWidget {
   const AttendanceScreen({super.key});
@@ -243,15 +244,6 @@ class _HistoryCard extends StatelessWidget {
   final TodayAttendance record;
   const _HistoryCard({required this.record});
 
-  String _formatTime(String? timeStr) {
-    if (timeStr == null || timeStr.isEmpty) return '—';
-    try {
-      final dt = DateTime.parse(timeStr).toLocal();
-      return DateFormat('hh:mm a').format(dt);
-    } catch (_) {
-      return timeStr;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -297,16 +289,16 @@ class _HistoryCard extends StatelessWidget {
               children: [
                 Text(
                   record.date != null
-                      ? DateFormat('dd MMM yyyy').format(DateTime.parse(record.date!))
-                      : '—',
+                      ? formatDate(record.date)
+                      : 'Unknown date',
                   style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text('In: ${_formatTime(record.clockIn)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
+                    Text('In: ${formatTime(record.clockIn)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
                     const SizedBox(width: 12),
-                    Text('Out: ${_formatTime(record.clockOut)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
+                    Text('Out: ${formatTime(record.clockOut)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
                   ],
                 ),
               ],

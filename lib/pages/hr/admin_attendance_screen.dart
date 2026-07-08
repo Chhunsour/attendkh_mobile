@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 
 class AdminAttendanceScreen extends ConsumerStatefulWidget {
   const AdminAttendanceScreen({super.key});
@@ -83,7 +84,7 @@ class _DailyLogsTab extends ConsumerWidget {
                           const SizedBox(width: 12),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text(c.employeeName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                            Text(c.date, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                            Text(formatDate(c.date), style: TextStyle(fontSize: 12, color: AppColors.grey500)),
                           ])),
                           Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: statusColor.withAlpha(26), borderRadius: BorderRadius.circular(6)), child: Text(c.status.substring(0, 1).toUpperCase() + c.status.substring(1).replaceAll('_', ' '), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor))),
                         ],
@@ -91,9 +92,9 @@ class _DailyLogsTab extends ConsumerWidget {
                       if (c.clockIn != null || c.clockOut != null) ...[
                         const SizedBox(height: 8),
                         Row(children: [
-                          if (c.clockIn != null) Text('In: ${c.clockIn}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                          if (c.clockIn != null) Text('In: ${formatTime(c.clockIn)}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
                           if (c.clockIn != null && c.clockOut != null) const SizedBox(width: 16),
-                          if (c.clockOut != null) Text('Out: ${c.clockOut}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                          if (c.clockOut != null) Text('Out: ${formatTime(c.clockOut)}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
                         ]),
                       ],
                     ],
@@ -139,7 +140,7 @@ class _CorrectionsTab extends ConsumerWidget {
                           const SizedBox(width: 12),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text(c.employeeName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                            Text(c.date, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                            Text(formatDate(c.date), style: TextStyle(fontSize: 12, color: AppColors.grey500)),
                           ])),
                           Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: statusColor.withAlpha(26), borderRadius: BorderRadius.circular(6)), child: Text(c.status.substring(0, 1).toUpperCase() + c.status.substring(1), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor))),
                         ],
@@ -147,9 +148,9 @@ class _CorrectionsTab extends ConsumerWidget {
                       if (c.clockIn != null || c.clockOut != null) ...[
                         const SizedBox(height: 8),
                         Row(children: [
-                          if (c.clockIn != null) Text('In: ${c.clockIn}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                          if (c.clockIn != null) Text('In: ${formatTime(c.clockIn)}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
                           if (c.clockIn != null && c.clockOut != null) const SizedBox(width: 16),
-                          if (c.clockOut != null) Text('Out: ${c.clockOut}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                          if (c.clockOut != null) Text('Out: ${formatTime(c.clockOut)}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
                         ]),
                       ],
                       if (c.reason != null && c.reason!.isNotEmpty) ...[

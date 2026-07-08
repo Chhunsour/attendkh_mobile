@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_employee_detail_screen.dart';
 
 class AdminEmployeesScreen extends ConsumerWidget {
   const AdminEmployeesScreen({super.key});
@@ -73,46 +74,63 @@ class _EmployeeCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+    return Material(
+      color: AppColors.surfaceLight,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey200),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: AppColors.primary.withAlpha(26),
-            backgroundImage: employee.avatar != null ? NetworkImage(employee.avatar!) : null,
-            child: employee.avatar == null ? Text(employee.name.substring(0, 1).toUpperCase(), style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)) : null,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => AdminEmployeeDetailScreen(employee: employee),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(employee.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                const SizedBox(height: 4),
-                Text(employee.position ?? 'No Position', style: TextStyle(fontSize: 13, color: AppColors.grey600)),
-                const SizedBox(height: 2),
-                Text(employee.department ?? 'No Department', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
-              ],
-            ),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.grey200),
           ),
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
-            onPressed: () => context.push(AppRoutes.adminEmployeeForm, extra: employee),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: AppColors.primary.withAlpha(26),
+                backgroundImage: employee.avatar != null ? NetworkImage(employee.avatar!) : null,
+                child: employee.avatar == null
+                    ? Text(employee.name.substring(0, 1).toUpperCase(),
+                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))
+                    : null,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(employee.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                    const SizedBox(height: 4),
+                    Text(employee.position ?? 'No Position', style: TextStyle(fontSize: 13, color: AppColors.grey600)),
+                    const SizedBox(height: 2),
+                    Text(employee.department ?? 'No Department', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                  ],
+                ),
+              ),
+              // Chevron hint
+              Icon(Icons.chevron_right_rounded, color: AppColors.grey400, size: 20),
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
+                onPressed: () => context.push(AppRoutes.adminEmployeeForm, extra: employee),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: AppColors.danger),
+                onPressed: () => _delete(context, ref),
+              ),
+            ],
           ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, color: AppColors.danger),
-            onPressed: () => _delete(context, ref),
-          ),
-        ],
+        ),
       ),
     );
   }
+
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final confirm = await showDialog<bool>(

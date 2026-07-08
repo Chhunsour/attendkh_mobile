@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/leave_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/leave_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 
 class LeaveListScreen extends ConsumerWidget {
   const LeaveListScreen({super.key});
@@ -199,7 +200,7 @@ class _LeaveRequestCard extends ConsumerWidget {
               children: [
                 Text(request.leaveType, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.grey800)),
                 const SizedBox(height: 4),
-                Text('${request.startDate} → ${request.endDate}', style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
+                Text(formatDateRange(request.startDate, request.endDate), style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
               ],
             ),
           ),
