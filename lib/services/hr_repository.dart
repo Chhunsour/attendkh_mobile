@@ -364,14 +364,23 @@ class HrRepository {
   Future<void> deleteTeam(int id) async => _api.delete('/company/teams/$id');
 
   // ── Employees ───────────────────────────────────────────────────────────
-  Future<List<EmployeeData>> getEmployees({String? search, int? departmentId, int? branchId}) async {
+  Future<List<EmployeeData>> getEmployees({
+    String? search,
+    int? departmentId,
+    int? branchId,
+    String? employmentStatus,
+    String? employmentType,
+  }) async {
     final response = await _api.get('/company/employees', queryParameters: {
       if (search != null && search.isNotEmpty) 'search': search,
       'department_id': ?departmentId,
       'branch_id': ?branchId,
+      if (employmentStatus != null && employmentStatus.isNotEmpty) 'employment_status': employmentStatus,
+      if (employmentType != null && employmentType.isNotEmpty) 'employment_type': employmentType,
     });
     return _parseList(response.data, EmployeeData.fromJson);
   }
+
 
   Future<EmployeeData> getEmployee(int id) async {
     final response = await _api.get('/company/employees/$id');

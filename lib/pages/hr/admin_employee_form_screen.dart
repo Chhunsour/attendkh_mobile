@@ -205,7 +205,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
 
     try {
       final repo = ref.read(hrRepositoryProvider);
-      final dobStr = _dateOfBirth != null ? _dateOfBirth.toString().substring(0, 10) : null;
+      final dobStr = _dateOfBirth?.toString().substring(0, 10);
 
       if (widget.employee == null) {
         await repo.createEmployee(
@@ -617,7 +617,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     bool required = false,
   }) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       decoration: _fieldDecor(label),
       style: const TextStyle(fontSize: 14, color: Colors.black87),
       items: [
@@ -633,7 +633,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     final async = ref.watch(departmentsProvider);
     return async.when(
       data: (depts) => DropdownButtonFormField<int>(
-        value: _departmentId,
+        initialValue: _departmentId,
         decoration: _fieldDecor('Department', icon: Icons.business_outlined),
         style: const TextStyle(fontSize: 14, color: Colors.black87),
         items: [
@@ -651,7 +651,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     final async = ref.watch(positionsProvider);
     return async.when(
       data: (pos) => DropdownButtonFormField<int>(
-        value: _positionId,
+        initialValue: _positionId,
         decoration: _fieldDecor('Position', icon: Icons.work_outline),
         style: const TextStyle(fontSize: 14, color: Colors.black87),
         items: [
@@ -669,7 +669,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     final async = ref.watch(branchesProvider);
     return async.when(
       data: (branches) => DropdownButtonFormField<int>(
-        value: _branchId,
+        initialValue: _branchId,
         decoration: _fieldDecor('Branch', icon: Icons.location_city_outlined),
         style: const TextStyle(fontSize: 14, color: Colors.black87),
         items: [
@@ -687,7 +687,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     final async = ref.watch(teamsProvider);
     return async.when(
       data: (teams) => DropdownButtonFormField<int>(
-        value: _teamId,
+        initialValue: _teamId,
         decoration: _fieldDecor('Team', icon: Icons.group_outlined),
         style: const TextStyle(fontSize: 14, color: Colors.black87),
         items: [
@@ -705,7 +705,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     final async = ref.watch(employeesProvider);
     return async.when(
       data: (employees) => DropdownButtonFormField<int>(
-        value: _managerId,
+        initialValue: _managerId,
         decoration: _fieldDecor('Direct Manager', icon: Icons.manage_accounts_outlined),
         style: const TextStyle(fontSize: 14, color: Colors.black87),
         items: [

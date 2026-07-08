@@ -23,8 +23,71 @@ final teamsProvider = FutureProvider.autoDispose<List<TeamData>>((ref) {
   return ref.watch(hrRepositoryProvider).getTeams();
 });
 
-final employeesProvider = FutureProvider.autoDispose<List<EmployeeData>>((ref) {
-  return ref.watch(hrRepositoryProvider).getEmployees();
+// ── Employee Filter Model ────────────────────────────────────────────────────
+class EmployeeFilters {
+  final String search;
+  final int? departmentId;
+  final int? branchId;
+  final String employmentStatus;
+  final String employmentType;
+
+  const EmployeeFilters({
+    this.search = '',
+    this.departmentId,
+    this.branchId,
+    this.employmentStatus = '',
+    this.employmentType = '',
+  });
+
+  EmployeeFilters copyWith({
+    String? search,
+    Object? departmentId = _sentinel,
+    Object? branchId = _sentinel,
+    String? employmentStatus,
+    String? employmentType,
+  }) {
+    return EmployeeFilters(
+      search: search ?? this.search,
+      departmentId: departmentId == _sentinel ? this.departmentId : departmentId as int?,
+      branchId: branchId == _sentinel ? this.branchId : branchId as int?,
+      employmentStatus: employmentStatus ?? this.employmentStatus,
+      employmentType: employmentType ?? this.employmentType,
+    );
+  }
+
+  bool get hasActiveFilters =>
+      search.isNotEmpty ||
+      departmentId != null ||
+      branchId != null ||
+      employmentStatus.isNotEmpty ||
+      employmentType.isNotEmpty;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EmployeeFilters &&
+          search == other.search &&
+          departmentId == other.departmentId &&
+          branchId == other.branchId &&
+          employmentStatus == other.employmentStatus &&
+          employmentType == other.employmentType;
+
+  @override
+  int get hashCode => Object.hash(search, departmentId, branchId, employmentStatus, employmentType);
+}
+
+const _sentinel = Object();
+
+/// Family provider used by AdminEmployeesScreen (supports search + filters).
+/// Other screens use the simple `employeesProvider` from directory_provider.dart.
+final adminEmployeesProvider = FutureProvider.autoDispose.family<List<EmployeeData>, EmployeeFilters>((ref, filters) {
+  return ref.watch(hrRepositoryProvider).getEmployees(
+    search: filters.search.isEmpty ? null : filters.search,
+    departmentId: filters.departmentId,
+    branchId: filters.branchId,
+    employmentStatus: filters.employmentStatus.isEmpty ? null : filters.employmentStatus,
+    employmentType: filters.employmentType.isEmpty ? null : filters.employmentType,
+  );
 });
 
 final rolesProvider = FutureProvider.autoDispose<List<RoleData>>((ref) {
