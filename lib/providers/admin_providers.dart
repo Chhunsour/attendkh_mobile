@@ -78,8 +78,12 @@ class EmployeeFilters {
 
 const _sentinel = Object();
 
+/// Simple provider that fetches all employees without filters (used by dropdowns, e.g. manager picker).
+final allEmployeesProvider = FutureProvider.autoDispose<List<EmployeeData>>((ref) {
+  return ref.watch(hrRepositoryProvider).getEmployees();
+});
+
 /// Family provider used by AdminEmployeesScreen (supports search + filters).
-/// Other screens use the simple `employeesProvider` from directory_provider.dart.
 final adminEmployeesProvider = FutureProvider.autoDispose.family<List<EmployeeData>, EmployeeFilters>((ref, filters) {
   return ref.watch(hrRepositoryProvider).getEmployees(
     search: filters.search.isEmpty ? null : filters.search,

@@ -54,7 +54,7 @@ class _AdminSendNotificationScreenState extends ConsumerState<AdminSendNotificat
 
   @override
   Widget build(BuildContext context) {
-    final employeesAsync = ref.watch(employeesProvider);
+    final employeesAsync = ref.watch(allEmployeesProvider);
 
     return Scaffold(
       backgroundColor: AppColors.surfaceLight,

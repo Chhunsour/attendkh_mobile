@@ -9,22 +9,21 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employee_detail_screen.dart';
 
-// ── Constants matching web ────────────────────────────────────────────────────
-const _statusColors = {
-  'active':     Color(0xFF16A34A),
-  'inactive':   Color(0xFF6B7280),
-  'terminated': Color(0xFFDC2626),
-  'resigned':   Color(0xFFCA8A04),
-  'on_leave':   Color(0xFF2563EB),
+// ── Status config ────────────────────────────────────────────────────────────
+const _statusConfig = {
+  'active':     _StatusCfg(Color(0xFF16A34A), Color(0xFFDCFCE7), Icons.check_circle_rounded),
+  'inactive':   _StatusCfg(Color(0xFF6B7280), Color(0xFFF3F4F6), Icons.pause_circle_rounded),
+  'terminated': _StatusCfg(Color(0xFFDC2626), Color(0xFFFEE2E2), Icons.cancel_rounded),
+  'resigned':   _StatusCfg(Color(0xFFCA8A04), Color(0xFFFEF9C3), Icons.logout_rounded),
+  'on_leave':   _StatusCfg(Color(0xFF2563EB), Color(0xFFDBEAFE), Icons.beach_access_rounded),
 };
 
-const _statusBg = {
-  'active':     Color(0xFFDCFCE7),
-  'inactive':   Color(0xFFF3F4F6),
-  'terminated': Color(0xFFFEE2E2),
-  'resigned':   Color(0xFFFEF9C3),
-  'on_leave':   Color(0xFFDBEAFE),
-};
+class _StatusCfg {
+  final Color color;
+  final Color bg;
+  final IconData icon;
+  const _StatusCfg(this.color, this.bg, this.icon);
+}
 
 const _typeLabels = {
   'full_time': 'Full-time',
@@ -32,6 +31,22 @@ const _typeLabels = {
   'contract':  'Contract',
   'intern':    'Intern',
 };
+
+// Avatar background colors (cycling)
+const _avatarColors = [
+  Color(0xFFFFF7ED), // orange
+  Color(0xFFEFF6FF), // blue
+  Color(0xFFF0FDF4), // green
+  Color(0xFFFDF4FF), // purple
+  Color(0xFFFFFBEB), // amber
+];
+const _avatarFgColors = [
+  AppColors.primary,
+  AppColors.secondary,
+  Color(0xFF16A34A),
+  Color(0xFF7C3AED),
+  Color(0xFFD97706),
+];
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 class AdminEmployeesScreen extends ConsumerStatefulWidget {
@@ -44,7 +59,6 @@ class AdminEmployeesScreen extends ConsumerStatefulWidget {
 class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
   EmployeeFilters _filters = const EmployeeFilters();
   bool _showFilters = false;
-
   final _searchCtrl = TextEditingController();
   Timer? _debounce;
 
@@ -86,101 +100,154 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
     final branchesAsync = ref.watch(branchesProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
+      // ── App Bar ──────────────────────────────────────────────────────────
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Employee Directory',
-          style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700),
-        ),
+        centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: const Color(0xFFE5E7EB)),
+          child: Container(height: 1, color: AppColors.grey100),
         ),
+        title: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.primaryDark],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.people_alt_rounded, color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 10),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Employee Directory',
+                  style: TextStyle(color: AppColors.grey800, fontSize: 17, fontWeight: FontWeight.w700, height: 1.2),
+                ),
+                Text(
+                  'Manage your workforce',
+                  style: TextStyle(color: AppColors.grey400, fontSize: 11, fontWeight: FontWeight.w400),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: employeesAsync.maybeWhen(
+              data: (employees) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${employees.length} people',
+                  style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600, fontSize: 12),
+                ),
+              ),
+              orElse: () => const SizedBox.shrink(),
+            ),
+          ),
+        ],
       ),
+
       body: Column(
         children: [
-          // ── Search + Filter Bar ──────────────────────────────────────────
+          // ── Search + Filter Bar ────────────────────────────────────────────
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    // Search field
+                    // Search
                     Expanded(
                       child: Container(
-                        height: 42,
+                        height: 46,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF9FAFB),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                          color: AppColors.grey50,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: AppColors.grey200),
                         ),
                         child: TextField(
                           controller: _searchCtrl,
                           onChanged: _onSearchChanged,
-                          style: const TextStyle(fontSize: 14),
+                          style: const TextStyle(fontSize: 14, color: AppColors.grey800),
                           decoration: InputDecoration(
-                            hintText: 'Search employees...',
-                            hintStyle: TextStyle(fontSize: 14, color: Colors.grey[400]),
-                            prefixIcon: Icon(Icons.search_rounded, size: 18, color: Colors.grey[400]),
+                            hintText: 'Search by name, email, ID...',
+                            hintStyle: const TextStyle(fontSize: 13, color: AppColors.grey400),
+                            prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.grey400),
                             suffixIcon: _searchCtrl.text.isNotEmpty
-                                ? IconButton(
-                                    icon: Icon(Icons.close_rounded, size: 16, color: Colors.grey[400]),
-                                    onPressed: () {
+                                ? GestureDetector(
+                                    onTap: () {
                                       _searchCtrl.clear();
                                       setState(() => _filters = _filters.copyWith(search: ''));
                                     },
+                                    child: Container(
+                                      margin: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(color: AppColors.grey200, shape: BoxShape.circle),
+                                      child: const Icon(Icons.close_rounded, size: 14, color: AppColors.grey600),
+                                    ),
                                   )
                                 : null,
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 11),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 13),
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 10),
-                    // Filter toggle button
+                    // Filter button
                     GestureDetector(
                       onTap: () => setState(() => _showFilters = !_showFilters),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        height: 42,
+                        height: 46,
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                         decoration: BoxDecoration(
-                          color: _showFilters ? AppColors.primary.withAlpha(20) : const Color(0xFFF9FAFB),
-                          borderRadius: BorderRadius.circular(12),
+                          color: _showFilters ? AppColors.primaryLight : AppColors.grey50,
+                          borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: _showFilters ? AppColors.primary : const Color(0xFFE5E7EB),
+                            color: _showFilters ? AppColors.primary : AppColors.grey200,
+                            width: _showFilters ? 1.5 : 1,
                           ),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.tune_rounded, size: 17,
-                                color: _showFilters ? AppColors.primary : Colors.grey[600]),
+                            Icon(Icons.tune_rounded, size: 18, color: _showFilters ? AppColors.primary : AppColors.grey500),
                             const SizedBox(width: 6),
-                            Text('Filters',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: _showFilters ? AppColors.primary : Colors.grey[700],
-                                )),
+                            Text(
+                              'Filter',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: _showFilters ? AppColors.primary : AppColors.grey600,
+                              ),
+                            ),
                             if (_activeFilterCount > 0) ...[
                               const SizedBox(width: 6),
                               Container(
                                 width: 18,
                                 height: 18,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primary,
-                                  shape: BoxShape.circle,
-                                ),
+                                decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                                 alignment: Alignment.center,
-                                child: Text('$_activeFilterCount',
-                                    style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold)),
+                                child: Text(
+                                  '$_activeFilterCount',
+                                  style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ],
                           ],
@@ -190,16 +257,15 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                   ],
                 ),
 
-                // ── Filter Panel ─────────────────────────────────────────
+                // ── Filter Panel ──────────────────────────────────────────
                 AnimatedCrossFade(
-                  duration: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 220),
                   crossFadeState: _showFilters ? CrossFadeState.showSecond : CrossFadeState.showFirst,
                   firstChild: const SizedBox.shrink(),
                   secondChild: Padding(
-                    padding: const EdgeInsets.only(top: 12),
+                    padding: const EdgeInsets.only(top: 14),
                     child: Column(
                       children: [
-                        // Row 1: Department + Branch
                         Row(
                           children: [
                             Expanded(
@@ -208,13 +274,10 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                                 value: _filters.departmentId,
                                 hint: 'All Departments',
                                 items: departmentsAsync.maybeWhen(
-                                  data: (depts) => depts
-                                      .map((d) => DropdownMenuItem<int?>(value: d.id, child: Text(d.name)))
-                                      .toList(),
+                                  data: (depts) => depts.map((d) => DropdownMenuItem<int?>(value: d.id, child: Text(d.name))).toList(),
                                   orElse: () => [],
                                 ),
-                                onChanged: (v) => setState(() =>
-                                    _filters = _filters.copyWith(departmentId: v)),
+                                onChanged: (v) => setState(() => _filters = _filters.copyWith(departmentId: v)),
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -224,19 +287,15 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                                 value: _filters.branchId,
                                 hint: 'All Branches',
                                 items: branchesAsync.maybeWhen(
-                                  data: (branches) => branches
-                                      .map((b) => DropdownMenuItem<int?>(value: b.id, child: Text(b.name)))
-                                      .toList(),
+                                  data: (branches) => branches.map((b) => DropdownMenuItem<int?>(value: b.id, child: Text(b.name))).toList(),
                                   orElse: () => [],
                                 ),
-                                onChanged: (v) => setState(() =>
-                                    _filters = _filters.copyWith(branchId: v)),
+                                onChanged: (v) => setState(() => _filters = _filters.copyWith(branchId: v)),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 10),
-                        // Row 2: Status + Type
                         Row(
                           children: [
                             Expanded(
@@ -246,13 +305,12 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                                 hint: 'All Statuses',
                                 items: [
                                   const DropdownMenuItem(value: '', child: Text('All Statuses')),
-                                  ..._statusColors.keys.map((s) => DropdownMenuItem(
-                                      value: s,
-                                      child: Text(s.replaceAll('_', ' ').toUpperCase(),
-                                          style: const TextStyle(fontSize: 12)))),
+                                  ..._statusConfig.keys.map((s) => DropdownMenuItem(
+                                        value: s,
+                                        child: Text(s.replaceAll('_', ' ').toUpperCase(), style: const TextStyle(fontSize: 12)),
+                                      )),
                                 ],
-                                onChanged: (v) => setState(() =>
-                                    _filters = _filters.copyWith(employmentStatus: v ?? '')),
+                                onChanged: (v) => setState(() => _filters = _filters.copyWith(employmentStatus: v ?? '')),
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -263,35 +321,29 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                                 hint: 'All Types',
                                 items: [
                                   const DropdownMenuItem(value: '', child: Text('All Types')),
-                                  ..._typeLabels.entries.map((e) => DropdownMenuItem(
-                                      value: e.key, child: Text(e.value))),
+                                  ..._typeLabels.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))),
                                 ],
-                                onChanged: (v) => setState(() =>
-                                    _filters = _filters.copyWith(employmentType: v ?? '')),
+                                onChanged: (v) => setState(() => _filters = _filters.copyWith(employmentType: v ?? '')),
                               ),
                             ),
                           ],
                         ),
                         if (_filters.hasActiveFilters) ...[
                           const SizedBox(height: 10),
-                          GestureDetector(
-                            onTap: _clearFilters,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFEF2F2),
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: const Color(0xFFFCA5A5)),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: _clearFilters,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.danger,
+                                side: const BorderSide(color: AppColors.danger),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                minimumSize: Size.zero,
+                                textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                               ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.clear_rounded, size: 14, color: Color(0xFFDC2626)),
-                                  SizedBox(width: 6),
-                                  Text('Clear all filters',
-                                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFFDC2626))),
-                                ],
-                              ),
+                              icon: const Icon(Icons.clear_rounded, size: 15),
+                              label: const Text('Clear all filters'),
                             ),
                           ),
                         ],
@@ -303,60 +355,450 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
             ),
           ),
 
-          // ── Result count ─────────────────────────────────────────────────
+          // ── Result count bar ─────────────────────────────────────────────
           employeesAsync.maybeWhen(
             data: (employees) => Container(
-              color: const Color(0xFFF8FAFC),
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '${employees.length} employee${employees.length != 1 ? 's' : ''}',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.grey[500]),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+              child: Row(
+                children: [
+                  Text(
+                    '${employees.length} employee${employees.length != 1 ? 's' : ''}',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey500),
+                  ),
+                  if (_filters.hasActiveFilters) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Filtered',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             orElse: () => const SizedBox.shrink(),
           ),
 
-          // ── List ─────────────────────────────────────────────────────────
+          // ── Employee List ────────────────────────────────────────────────
           Expanded(
             child: employeesAsync.when(
               data: (employees) => employees.isEmpty
                   ? _EmptyState(hasFilters: _filters.hasActiveFilters, onClear: _clearFilters)
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(16, 6, 16, 80),
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
                       itemCount: employees.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 10),
-                      itemBuilder: (context, i) => _EmployeeCard(employee: employees[i]),
+                      itemBuilder: (context, i) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _EmployeeCard(employee: employees[i], colorIndex: i % _avatarColors.length),
+                      ),
                     ),
               loading: () => const LoadingIndicator(message: 'Loading employees...'),
-              error: (e, _) => Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.error_outline_rounded, size: 48, color: Colors.grey[300]),
-                    const SizedBox(height: 12),
-                    Text('Failed to load employees', style: TextStyle(color: Colors.grey[600])),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: () => ref.invalidate(adminEmployeesProvider(_filters)),
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
+              error: (e, _) => _ErrorState(onRetry: () => ref.invalidate(adminEmployeesProvider(_filters))),
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.adminEmployeeForm),
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Add Employee', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+
+      floatingActionButton: Material(
+        color: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withAlpha(100),
+                blurRadius: 18,
+                spreadRadius: 1,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => context.push(AppRoutes.adminEmployeeForm),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person_add_rounded, color: Colors.white, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Add Employee',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
+}
+
+// ── Employee Card ─────────────────────────────────────────────────────────────
+class _EmployeeCard extends ConsumerWidget {
+  final EmployeeData employee;
+  final int colorIndex;
+  const _EmployeeCard({required this.employee, required this.colorIndex});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final status = employee.employmentStatus ?? employee.status ?? 'active';
+    final type = employee.employmentType ?? '';
+    final cfg = _statusConfig[status] ?? const _StatusCfg(Color(0xFF6B7280), Color(0xFFF3F4F6), Icons.help_outline_rounded);
+    final typeLabel = _typeLabels[type] ?? type;
+    final avatarBg = _avatarColors[colorIndex];
+    final avatarFg = _avatarFgColors[colorIndex];
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => AdminEmployeeDetailScreen(employee: employee)),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: cfg.color.withAlpha(18),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+              BoxShadow(
+                color: Colors.black.withAlpha(8),
+                blurRadius: 6,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 18, 12, 18),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ── Avatar ───────────────────────────────────────────
+                    Stack(
+                      children: [
+                        Container(
+                          width: 58,
+                          height: 58,
+                          decoration: BoxDecoration(
+                            color: employee.avatar != null ? avatarBg : avatarBg,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: cfg.color.withAlpha(60), width: 2),
+                          ),
+                          child: employee.avatar != null
+                              ? ClipOval(child: Image.network(employee.avatar!, fit: BoxFit.cover))
+                              : Center(
+                                  child: Text(
+                                    _initials(employee),
+                                    style: TextStyle(
+                                      color: avatarFg,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                        // Status dot
+                        Positioned(
+                          bottom: 1,
+                          right: 1,
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: cfg.color,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 14),
+
+                    // ── Info ──────────────────────────────────────────────
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Name row
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  employee.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                    color: AppColors.grey800,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // Employee ID
+                          if (employee.employeeId != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              employee.employeeId!,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.grey400,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+
+                          // Status + type badges
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            children: [
+                              // Status badge with icon
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: cfg.bg,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: cfg.color.withAlpha(60)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(cfg.icon, size: 10, color: cfg.color),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      status.replaceAll('_', ' ').toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w800,
+                                        color: cfg.color,
+                                        letterSpacing: 0.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (typeLabel.isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.grey100,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    typeLabel,
+                                    style: const TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.grey600,
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Meta info
+                          if (employee.position != null)
+                            _MetaRow(icon: Icons.work_outline_rounded, text: employee.position!),
+                          if (employee.branch != null || employee.department != null)
+                            _MetaRow(
+                              icon: Icons.corporate_fare_rounded,
+                              text: [
+                                if (employee.branch != null) employee.branch!,
+                                if (employee.department != null) employee.department!,
+                              ].join(' · '),
+                            ),
+                          if (employee.email != null)
+                            _MetaRow(icon: Icons.mail_outline_rounded, text: employee.email!),
+                        ],
+                      ),
+                    ),
+
+                    // ── Action column ────────────────────────────────────
+                    Column(
+                      children: [
+                        _ActionBtn(
+                          icon: Icons.edit_rounded,
+                          color: AppColors.secondary,
+                          bg: AppColors.secondaryLight,
+                          onTap: () => context.push(AppRoutes.adminEmployeeForm, extra: employee),
+                        ),
+                        const SizedBox(height: 6),
+                        _ActionBtn(
+                          icon: Icons.delete_rounded,
+                          color: AppColors.danger,
+                          bg: AppColors.dangerLight,
+                          onTap: () => _delete(context, ref),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Bottom row: quick contact chips ───────────────────────
+              if (employee.phone != null || employee.email != null)
+                Container(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 1,
+                        width: 20,
+                        color: AppColors.grey100,
+                        margin: const EdgeInsets.only(right: 8),
+                      ),
+                      Expanded(
+                        child: Container(height: 1, color: AppColors.grey100),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _initials(EmployeeData e) {
+    if (e.firstName != null && e.lastName != null) {
+      final f = e.firstName!.trim();
+      final l = e.lastName!.trim();
+      return '${f.isNotEmpty ? f[0] : ''}${l.isNotEmpty ? l[0] : ''}'.toUpperCase();
+    }
+    final parts = e.name.trim().split(RegExp(r'\s+'));
+    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    return e.name.isNotEmpty ? e.name[0].toUpperCase() : '?';
+  }
+
+  Future<void> _delete(BuildContext context, WidgetRef ref) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: AppColors.danger),
+            SizedBox(width: 8),
+            Text('Delete Employee', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to permanently delete ${employee.name}? This cannot be undone.',
+          style: const TextStyle(color: AppColors.grey600, fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.grey500)),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await ref.read(hrRepositoryProvider).deleteEmployee(employee.id);
+        ref.invalidate(adminEmployeesProvider);
+        ref.invalidate(allEmployeesProvider);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('✅ ${employee.name} deleted'),
+            backgroundColor: AppColors.success,
+          ));
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('❌ Failed: $e'),
+            backgroundColor: AppColors.danger,
+          ));
+        }
+      }
+    }
+  }
+}
+
+// ── Small helpers ─────────────────────────────────────────────────────────────
+class _ActionBtn extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final Color bg;
+  final VoidCallback onTap;
+  const _ActionBtn({required this.icon, required this.color, required this.bg, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
+          child: Icon(icon, color: color, size: 17),
+        ),
+      );
+}
+
+class _MetaRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _MetaRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 3),
+        child: Row(
+          children: [
+            Icon(icon, size: 13, color: AppColors.grey400),
+            const SizedBox(width: 5),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(fontSize: 12, color: AppColors.grey600),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
 // ── Filter Dropdown ───────────────────────────────────────────────────────────
@@ -380,276 +822,32 @@ class _FilterDropdown<T> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label.toUpperCase(),
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF9CA3AF), letterSpacing: 0.6)),
+        Text(
+          label.toUpperCase(),
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.grey400, letterSpacing: 0.6),
+        ),
         const SizedBox(height: 5),
         Container(
-          height: 40,
+          height: 42,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFB),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            color: AppColors.grey50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.grey200),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<T>(
               value: value,
               isExpanded: true,
-              hint: Text(hint, style: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF))),
-              style: const TextStyle(fontSize: 13, color: Color(0xFF111827)),
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: Color(0xFF6B7280)),
+              hint: Text(hint, style: const TextStyle(fontSize: 13, color: AppColors.grey400)),
+              style: const TextStyle(fontSize: 13, color: AppColors.grey800),
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.grey500),
               items: items,
               onChanged: onChanged,
             ),
           ),
         ),
       ],
-    );
-  }
-}
-
-// ── Employee Card ─────────────────────────────────────────────────────────────
-class _EmployeeCard extends ConsumerWidget {
-  final EmployeeData employee;
-  const _EmployeeCard({required this.employee});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final status = employee.employmentStatus ?? employee.status ?? 'active';
-    final type = employee.employmentType ?? '';
-    final statusColor = _statusColors[status] ?? const Color(0xFF6B7280);
-    final statusBg = _statusBg[status] ?? const Color(0xFFF3F4F6);
-    final typeLabel = _typeLabels[type] ?? type;
-
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => AdminEmployeeDetailScreen(employee: employee)),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
-          ),
-          child: Column(
-            children: [
-              // Top accent bar
-              Container(
-                height: 3,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                  gradient: LinearGradient(
-                    colors: [statusColor.withAlpha(180), statusColor.withAlpha(80)],
-                  ),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.all(14),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Avatar
-                    CircleAvatar(
-                      radius: 26,
-                      backgroundColor: AppColors.primary.withAlpha(20),
-                      backgroundImage: employee.avatar != null ? NetworkImage(employee.avatar!) : null,
-                      child: employee.avatar == null
-                          ? Text(
-                              _initials(employee),
-                              style: const TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 12),
-
-                    // Details
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Name + badges row
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(employee.name,
-                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                                    overflow: TextOverflow.ellipsis),
-                              ),
-                            ],
-                          ),
-                          if (employee.employeeId != null) ...[
-                            const SizedBox(height: 2),
-                            Text(employee.employeeId!,
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600,
-                                    color: Color(0xFF9CA3AF), letterSpacing: 0.5)),
-                          ],
-                          const SizedBox(height: 6),
-
-                          // Status + Type badges
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
-                            children: [
-                              _Badge(label: status.replaceAll('_', ' ').toUpperCase(),
-                                  color: statusColor, bg: statusBg),
-                              if (typeLabel.isNotEmpty)
-                                _Badge(label: typeLabel,
-                                    color: const Color(0xFF4B5563), bg: const Color(0xFFF3F4F6)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-
-                          // Meta: position, branch/dept, email
-                          if (employee.position != null)
-                            _MetaRow(icon: Icons.work_outline_rounded, text: employee.position!),
-                          if (employee.branch != null || employee.department != null)
-                            _MetaRow(
-                              icon: Icons.location_on_outlined,
-                              text: [
-                                if (employee.branch != null) employee.branch!,
-                                if (employee.department != null) employee.department!,
-                              ].join(' • '),
-                            ),
-                          if (employee.email != null)
-                            _MetaRow(icon: Icons.mail_outline_rounded, text: employee.email!),
-                        ],
-                      ),
-                    ),
-
-                    // Action buttons column
-                    Column(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined, color: AppColors.primary, size: 20),
-                          onPressed: () => context.push(AppRoutes.adminEmployeeForm, extra: employee),
-                          tooltip: 'Edit',
-                          visualDensity: VisualDensity.compact,
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, color: AppColors.danger, size: 20),
-                          onPressed: () => _delete(context, ref),
-                          tooltip: 'Delete',
-                          visualDensity: VisualDensity.compact,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _initials(EmployeeData e) {
-    if (e.firstName != null && e.lastName != null) {
-      return '${e.firstName![0]}${e.lastName![0]}'.toUpperCase();
-    }
-    return e.name.isNotEmpty ? e.name[0].toUpperCase() : '?';
-  }
-
-  Future<void> _delete(BuildContext context, WidgetRef ref) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Employee', style: TextStyle(fontWeight: FontWeight.w700)),
-        content: Text('Are you sure you want to delete ${employee.name}?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.danger),
-            child: const Text('Delete', style: TextStyle(fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      try {
-        await ref.read(hrRepositoryProvider).deleteEmployee(employee.id);
-        // Invalidate all cached filter variants
-        ref.invalidate(adminEmployeesProvider);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('✅ ${employee.name} deleted successfully'),
-              backgroundColor: AppColors.success,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-          );
-        }
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('❌ Failed to delete: $e'),
-              backgroundColor: AppColors.danger,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-          );
-        }
-      }
-    }
-  }
-}
-
-// ── Small Badge ───────────────────────────────────────────────────────────────
-class _Badge extends StatelessWidget {
-  final String label;
-  final Color color;
-  final Color bg;
-  const _Badge({required this.label, required this.color, required this.bg});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withAlpha(60)),
-      ),
-      child: Text(label,
-          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color, letterSpacing: 0.3)),
-    );
-  }
-}
-
-// ── Meta Row ──────────────────────────────────────────────────────────────────
-class _MetaRow extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  const _MetaRow({required this.icon, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 3),
-      child: Row(
-        children: [
-          Icon(icon, size: 13, color: const Color(0xFF9CA3AF)),
-          const SizedBox(width: 5),
-          Expanded(
-            child: Text(text,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF4B5563)),
-                overflow: TextOverflow.ellipsis),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -663,42 +861,89 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: const Icon(Icons.people_alt_rounded, size: 40, color: AppColors.primary),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              hasFilters ? 'No results found' : 'No Employees Yet',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.grey800),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              hasFilters
+                  ? 'Try adjusting your search or filters to find what you\'re looking for.'
+                  : 'Start building your team by adding your first employee.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 14, color: AppColors.grey500),
+            ),
+            if (hasFilters) ...[
+              const SizedBox(height: 20),
+              OutlinedButton.icon(
+                onPressed: onClear,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  minimumSize: Size.zero,
+                ),
+                icon: const Icon(Icons.clear_rounded, size: 16),
+                label: const Text('Clear Filters', style: TextStyle(fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Error State ───────────────────────────────────────────────────────────────
+class _ErrorState extends StatelessWidget {
+  final VoidCallback onRetry;
+  const _ErrorState({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 72,
             height: 72,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF9FAFB),
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFE5E7EB)),
-            ),
-            child: const Icon(Icons.people_outline_rounded, size: 36, color: Color(0xFFD1D5DB)),
+            decoration: BoxDecoration(color: AppColors.dangerLight, borderRadius: BorderRadius.circular(20)),
+            child: const Icon(Icons.cloud_off_rounded, size: 36, color: AppColors.danger),
           ),
           const SizedBox(height: 16),
-          Text(
-            hasFilters ? 'No employees match your filters' : 'No employees found',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF374151)),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            hasFilters ? 'Try adjusting your search or filters.' : 'Add your first employee to get started.',
-            style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
-          ),
-          if (hasFilters) ...[
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: onClear,
-              icon: const Icon(Icons.clear_rounded, size: 16),
-              label: const Text('Clear Filters'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
+          const Text('Failed to load employees', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+          const SizedBox(height: 8),
+          const Text('Check your connection and try again.', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+          const SizedBox(height: 20),
+          OutlinedButton.icon(
+            onPressed: onRetry,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              minimumSize: Size.zero,
             ),
-          ],
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Try Again', style: TextStyle(fontWeight: FontWeight.w600)),
+          ),
         ],
       ),
     );

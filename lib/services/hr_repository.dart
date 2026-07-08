@@ -10,6 +10,8 @@ class BranchData {
   final String? phone;
   final String? email;
   final String? managerName;
+  final int? managerId;
+  final bool? isActive;
   final int? employeesCount;
   final double? latitude;
   final double? longitude;
@@ -23,6 +25,8 @@ class BranchData {
     this.phone,
     this.email,
     this.managerName,
+    this.managerId,
+    this.isActive,
     this.employeesCount,
     this.latitude,
     this.longitude,
@@ -38,9 +42,11 @@ class BranchData {
       phone: json['phone'] as String?,
       email: json['email'] as String?,
       managerName: json['manager']?['name'] as String?,
+      managerId: json['manager_id'] as int?,
+      isActive: json['is_active'] is bool ? json['is_active'] as bool : (json['is_active'] == 1 || json['is_active'] == '1'),
       employeesCount: json['employees_count'] as int?,
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      longitude: (json['longitude'] as num?)?.toDouble(),
+      latitude: json['latitude'] != null ? double.tryParse(json['latitude'].toString()) : null,
+      longitude: json['longitude'] != null ? double.tryParse(json['longitude'].toString()) : null,
       allowedRadiusMeters: json['allowed_radius_meters'] as int?,
     );
   }
@@ -50,18 +56,42 @@ class BranchData {
 class DepartmentData {
   final int id;
   final String name;
-  final String? description;
-  final String? headName;
+  final String? code;
+  final int? branchId;
+  final String? branchName;
+  final int? parentId;
+  final String? parentName;
+  final int? managerId;
+  final String? managerName;
+  final bool? isActive;
   final int? employeesCount;
 
-  const DepartmentData({required this.id, required this.name, this.description, this.headName, this.employeesCount});
+  const DepartmentData({
+    required this.id,
+    required this.name,
+    this.code,
+    this.branchId,
+    this.branchName,
+    this.parentId,
+    this.parentName,
+    this.managerId,
+    this.managerName,
+    this.isActive,
+    this.employeesCount,
+  });
 
   factory DepartmentData.fromJson(Map<String, dynamic> json) {
     return DepartmentData(
       id: json['id'] as int,
       name: json['name'] as String? ?? '',
-      description: json['description'] as String?,
-      headName: json['head']?['name'] as String? ?? json['department_head']?['name'] as String?,
+      code: json['code'] as String?,
+      branchId: json['branch_id'] as int?,
+      branchName: json['branch']?['name'] as String?,
+      parentId: json['parent_id'] as int?,
+      parentName: json['parent']?['name'] as String?,
+      managerId: json['manager_id'] as int?,
+      managerName: json['manager']?['name'] as String?,
+      isActive: json['is_active'] is bool ? json['is_active'] as bool : (json['is_active'] == 1 || json['is_active'] == '1'),
       employeesCount: json['employees_count'] as int?,
     );
   }
@@ -71,16 +101,33 @@ class DepartmentData {
 class PositionData {
   final int id;
   final String name;
-  final String? description;
+  final String? code;
+  final String? level;
+  final int? departmentId;
+  final String? departmentName;
+  final bool? isActive;
   final int? employeesCount;
 
-  const PositionData({required this.id, required this.name, this.description, this.employeesCount});
+  const PositionData({
+    required this.id,
+    required this.name,
+    this.code,
+    this.level,
+    this.departmentId,
+    this.departmentName,
+    this.isActive,
+    this.employeesCount,
+  });
 
   factory PositionData.fromJson(Map<String, dynamic> json) {
     return PositionData(
       id: json['id'] as int,
       name: json['name'] as String? ?? '',
-      description: json['description'] as String?,
+      code: json['code'] as String?,
+      level: json['level'] as String?,
+      departmentId: json['department_id'] as int?,
+      departmentName: json['department']?['name'] as String?,
+      isActive: json['is_active'] is bool ? json['is_active'] as bool : (json['is_active'] == 1 || json['is_active'] == '1'),
       employeesCount: json['employees_count'] as int?,
     );
   }
@@ -91,18 +138,38 @@ class TeamData {
   final int id;
   final String name;
   final String? description;
+  final int? departmentId;
+  final String? departmentName;
+  final int? leaderId;
   final String? leaderName;
-  final int? membersCount;
+  final bool? isActive;
+  final int? employeesCount;
 
-  const TeamData({required this.id, required this.name, this.description, this.leaderName, this.membersCount});
+  const TeamData({
+    required this.id,
+    required this.name,
+    this.description,
+    this.departmentId,
+    this.departmentName,
+    this.leaderId,
+    this.leaderName,
+    this.isActive,
+    this.employeesCount,
+  });
 
   factory TeamData.fromJson(Map<String, dynamic> json) {
     return TeamData(
       id: json['id'] as int,
       name: json['name'] as String? ?? '',
       description: json['description'] as String?,
-      leaderName: json['leader']?['name'] as String?,
-      membersCount: json['members_count'] as int?,
+      departmentId: json['department_id'] as int?,
+      departmentName: json['department']?['name'] as String?,
+      leaderId: json['leader_id'] as int?,
+      leaderName: (json['leader'] != null)
+          ? '${json['leader']['first_name'] ?? ''} ${json['leader']['last_name'] ?? ''}'.trim()
+          : null,
+      isActive: json['is_active'] is bool ? json['is_active'] as bool : (json['is_active'] == 1 || json['is_active'] == '1'),
+      employeesCount: json['employees_count'] as int? ?? json['members_count'] as int?,
     );
   }
 }
@@ -270,6 +337,8 @@ class HrRepository {
     double? latitude,
     double? longitude,
     int? allowedRadiusMeters,
+    int? managerId,
+    bool? isActive,
   }) async {
     final response = await _api.post('/company/branches', data: {
       'name': name,
@@ -280,6 +349,8 @@ class HrRepository {
       'latitude': latitude,
       'longitude': longitude,
       'allowed_radius_meters': allowedRadiusMeters,
+      'manager_id': managerId,
+      'is_active': isActive ?? true,
     });
     return BranchData.fromJson(response.data as Map<String, dynamic>);
   }
@@ -293,6 +364,8 @@ class HrRepository {
     double? latitude,
     double? longitude,
     int? allowedRadiusMeters,
+    int? managerId,
+    bool? isActive,
   }) async {
     final response = await _api.put('/company/branches/$id', data: {
       'name': name,
@@ -303,6 +376,8 @@ class HrRepository {
       'latitude': latitude,
       'longitude': longitude,
       'allowed_radius_meters': allowedRadiusMeters,
+      'manager_id': managerId,
+      'is_active': isActive,
     });
     return BranchData.fromJson(response.data as Map<String, dynamic>);
   }
@@ -315,13 +390,41 @@ class HrRepository {
     return _parseList(response.data, DepartmentData.fromJson);
   }
 
-  Future<DepartmentData> createDepartment({required String name, String? description, int? headId}) async {
-    final response = await _api.post('/company/departments', data: {'name': name, 'description': ?description, 'department_head_id': ?headId});
+  Future<DepartmentData> createDepartment({
+    required String name,
+    String? code,
+    int? branchId,
+    int? parentId,
+    int? managerId,
+    bool? isActive,
+  }) async {
+    final response = await _api.post('/company/departments', data: {
+      'name': name,
+      'code': code,
+      'branch_id': branchId,
+      'parent_id': parentId,
+      'manager_id': managerId,
+      'is_active': isActive ?? true,
+    });
     return DepartmentData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<DepartmentData> updateDepartment(int id, {required String name, String? description, int? headId}) async {
-    final response = await _api.put('/company/departments/$id', data: {'name': name, 'description': ?description, 'department_head_id': ?headId});
+  Future<DepartmentData> updateDepartment(int id, {
+    required String name,
+    String? code,
+    int? branchId,
+    int? parentId,
+    int? managerId,
+    bool? isActive,
+  }) async {
+    final response = await _api.put('/company/departments/$id', data: {
+      'name': name,
+      'code': code,
+      'branch_id': branchId,
+      'parent_id': parentId,
+      'manager_id': managerId,
+      'is_active': isActive,
+    });
     return DepartmentData.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -333,13 +436,37 @@ class HrRepository {
     return _parseList(response.data, PositionData.fromJson);
   }
 
-  Future<PositionData> createPosition({required String name, String? description}) async {
-    final response = await _api.post('/company/positions', data: {'name': name, 'description': ?description});
+  Future<PositionData> createPosition({
+    required String name,
+    String? code,
+    int? departmentId,
+    String? level,
+    bool? isActive,
+  }) async {
+    final response = await _api.post('/company/positions', data: {
+      'name': name,
+      'code': code,
+      'department_id': departmentId,
+      'level': level,
+      'is_active': isActive ?? true,
+    });
     return PositionData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<PositionData> updatePosition(int id, {required String name, String? description}) async {
-    final response = await _api.put('/company/positions/$id', data: {'name': name, 'description': ?description});
+  Future<PositionData> updatePosition(int id, {
+    required String name,
+    String? code,
+    int? departmentId,
+    String? level,
+    bool? isActive,
+  }) async {
+    final response = await _api.put('/company/positions/$id', data: {
+      'name': name,
+      'code': code,
+      'department_id': departmentId,
+      'level': level,
+      'is_active': isActive,
+    });
     return PositionData.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -351,13 +478,37 @@ class HrRepository {
     return _parseList(response.data, TeamData.fromJson);
   }
 
-  Future<TeamData> createTeam({required String name, String? description, int? leaderId}) async {
-    final response = await _api.post('/company/teams', data: {'name': name, 'description': ?description, 'team_leader_id': ?leaderId});
+  Future<TeamData> createTeam({
+    required String name,
+    String? description,
+    int? departmentId,
+    int? leaderId,
+    bool? isActive,
+  }) async {
+    final response = await _api.post('/company/teams', data: {
+      'name': name,
+      'description': description,
+      'department_id': departmentId,
+      'leader_id': leaderId,
+      'is_active': isActive ?? true,
+    });
     return TeamData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<TeamData> updateTeam(int id, {required String name, String? description, int? leaderId}) async {
-    final response = await _api.put('/company/teams/$id', data: {'name': name, 'description': ?description, 'team_leader_id': ?leaderId});
+  Future<TeamData> updateTeam(int id, {
+    required String name,
+    String? description,
+    int? departmentId,
+    int? leaderId,
+    bool? isActive,
+  }) async {
+    final response = await _api.put('/company/teams/$id', data: {
+      'name': name,
+      'description': description,
+      'department_id': departmentId,
+      'leader_id': leaderId,
+      'is_active': isActive,
+    });
     return TeamData.fromJson(response.data as Map<String, dynamic>);
   }
 

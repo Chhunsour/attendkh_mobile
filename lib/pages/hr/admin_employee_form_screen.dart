@@ -266,7 +266,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
         );
       }
 
-      ref.invalidate(employeesProvider);
+      ref.invalidate(allEmployeesProvider);
       if (widget.employee != null) {
         ref.invalidate(employeeDetailProvider(widget.employee!.id));
       }
@@ -702,7 +702,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
   }
 
   Widget _buildManagerDropdown() {
-    final async = ref.watch(employeesProvider);
+    final async = ref.watch(allEmployeesProvider);
     return async.when(
       data: (employees) => DropdownButtonFormField<int>(
         initialValue: _managerId,
