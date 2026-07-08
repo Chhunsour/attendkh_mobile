@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'dart:ui';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -18,9 +19,9 @@ class ProfileScreen extends ConsumerWidget {
     final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      backgroundColor: AppColors.backgroundLight,
       body: profileAsync.when(
-        data: (data) => _buildContent(context, ref, data),
+        data: (data) => _buildContent(context, ref, data, authState),
         loading: () => const LoadingIndicator(message: 'Loading profile...'),
         error: (e, _) => _buildFallback(context, ref, authState),
       ),
@@ -28,124 +29,178 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildFallback(BuildContext context, WidgetRef ref, AuthState authState) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+    return Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 16),
-          Container(
-            width: 104, height: 104,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.primaryLight,
-              border: Border.all(color: AppColors.primary.withAlpha(40), width: 4),
-            ),
-            child: Center(
-              child: Text(
-                _initials(authState.userName ?? 'User'),
-                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.primaryDark),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(authState.userName ?? 'Unknown', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.grey900)),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: AppColors.primaryLight.withAlpha(150), borderRadius: BorderRadius.circular(20)),
-            child: Text(authState.companyName ?? '', style: const TextStyle(fontSize: 13, color: AppColors.primaryDark, fontWeight: FontWeight.w600)),
-          ),
+          const Icon(Icons.error_outline, size: 48, color: AppColors.grey400),
+          const SizedBox(height: 12),
+          const Text('Failed to load profile details.', style: TextStyle(color: AppColors.grey500)),
           const SizedBox(height: 24),
-          OutlinedButton.icon(onPressed: () => ref.invalidate(profileProvider), icon: const Icon(Icons.refresh), label: const Text('Retry')),
+          OutlinedButton.icon(
+            onPressed: () => ref.invalidate(profileProvider),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, WidgetRef ref, ProfileData data) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          const SizedBox(height: 16),
-          Container(
-            width: 104, height: 104,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.primaryLight,
-              border: Border.all(color: AppColors.primary.withAlpha(40), width: 4),
-            ),
-            child: Center(
-              child: Text(
-                _initials(data.name),
-                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppColors.primaryDark),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(data.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.grey900)),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(color: AppColors.primaryLight.withAlpha(150), borderRadius: BorderRadius.circular(20)),
-            child: Text(data.companyName ?? '', style: const TextStyle(fontSize: 13, color: AppColors.primaryDark, fontWeight: FontWeight.w600)),
-          ),
-          const SizedBox(height: 32),
-          _ProfileInfoCard(title: 'Email', value: data.email ?? '—', icon: Icons.email_outlined),
-          _ProfileInfoCard(title: 'Company ID', value: data.companyId.toString(), icon: Icons.business_outlined),
-          _ProfileInfoCard(title: 'Roles', value: data.roles.map((r) => r.replaceAll('_', ' ').replaceAllMapped(RegExp(r'\b\w'), (m) => m.group(0)!.toUpperCase())).join(', '), icon: Icons.shield_outlined),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => _showEditDialog(context, ref, data),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                elevation: 0,
-              ),
-              icon: const Icon(Icons.edit_rounded, size: 20),
-              label: const Text('Edit Profile', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            ),
-          ),
-          const SizedBox(height: 12),
-          if (ref.watch(authProvider).isSuperAdmin) ...[
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => context.go(AppRoutes.adminDashboard),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF6366F1),
-                  side: const BorderSide(color: Color(0xFF6366F1)),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+  Widget _buildContent(BuildContext context, WidgetRef ref, ProfileData data, AuthState authState) {
+    return CustomScrollView(
+      slivers: [
+        // Glassmorphism Header
+        SliverAppBar(
+          expandedHeight: 280,
+          pinned: true,
+          backgroundColor: AppColors.primary,
+          flexibleSpace: FlexibleSpaceBar(
+            background: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Animated Gradient Background
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.primaryDark, AppColors.primary, Color(0xFF6366F1)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
                 ),
-                icon: const Icon(Icons.admin_panel_settings_rounded, size: 20),
-                label: const Text('Return to Admin Dashboard', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => showLogoutConfirmation(context, ref),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.danger,
-                side: const BorderSide(color: AppColors.dangerLight, width: 2),
-                backgroundColor: AppColors.dangerLight.withAlpha(80),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              icon: const Icon(Icons.logout_rounded, size: 20),
-              label: const Text('Log Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                // Glassmorphism Overlay
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(20),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: Colors.white.withAlpha(50)),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 80, height: 80,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                boxShadow: [BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 10, offset: const Offset(0, 5))],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  _initials(data.name),
+                                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primaryDark),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              data.name,
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(color: Colors.white.withAlpha(30), borderRadius: BorderRadius.circular(12)),
+                              child: Text(
+                                data.companyName ?? 'Organization',
+                                style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 32),
-        ],
-      ),
+        ),
+        
+        // Grouped Settings Lists
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Personal Information', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey500, letterSpacing: 1.2)),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 10, offset: const Offset(0, 2))],
+                  ),
+                  child: Column(
+                    children: [
+                      _SettingsTile(icon: Icons.email_rounded, iconColor: const Color(0xFF3B82F6), title: 'Email Address', subtitle: data.email ?? '—'),
+                      const Divider(height: 1, indent: 56),
+                      _SettingsTile(icon: Icons.business_rounded, iconColor: const Color(0xFF8B5CF6), title: 'Company ID', subtitle: data.companyId.toString()),
+                      const Divider(height: 1, indent: 56),
+                      _SettingsTile(icon: Icons.shield_rounded, iconColor: const Color(0xFF10B981), title: 'Access Roles', subtitle: data.roles.map((r) => r.replaceAll('_', ' ')).join(', ').toUpperCase()),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 32),
+                const Text('Account Actions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey500, letterSpacing: 1.2)),
+                const SizedBox(height: 12),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 10, offset: const Offset(0, 2))],
+                  ),
+                  child: Column(
+                    children: [
+                      _SettingsTile(
+                        icon: Icons.edit_rounded,
+                        iconColor: AppColors.primary,
+                        title: 'Edit Profile',
+                        onTap: () => _showEditDialog(context, ref, data),
+                      ),
+                      if (authState.isSuperAdmin) ...[
+                        const Divider(height: 1, indent: 56),
+                        _SettingsTile(
+                          icon: Icons.admin_panel_settings_rounded,
+                          iconColor: const Color(0xFF6366F1),
+                          title: 'Return to Admin Console',
+                          onTap: () => context.go(AppRoutes.adminDashboard),
+                        ),
+                      ] else if (authState.isCompanyAdmin) ...[
+                        const Divider(height: 1, indent: 56),
+                        _SettingsTile(
+                          icon: Icons.admin_panel_settings_rounded,
+                          iconColor: const Color(0xFF6366F1),
+                          title: 'Return to Admin Console',
+                          onTap: () => context.go(AppRoutes.companyAdmin),
+                        ),
+                      ],
+                      const Divider(height: 1, indent: 56),
+                      _SettingsTile(
+                        icon: Icons.logout_rounded,
+                        iconColor: AppColors.danger,
+                        title: 'Log Out',
+                        textColor: AppColors.danger,
+                        onTap: () => showLogoutConfirmation(context, ref),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -209,48 +264,54 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-class _ProfileInfoCard extends StatelessWidget {
-  final String title; final String value; final IconData icon;
-  const _ProfileInfoCard({required this.title, required this.value, required this.icon});
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String? subtitle;
+  final Color? textColor;
+  final VoidCallback? onTap;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    this.subtitle,
+    this.textColor,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight.withAlpha(150),
-              borderRadius: BorderRadius.circular(12),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: iconColor.withAlpha(20), borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, color: iconColor, size: 20),
             ),
-            child: Icon(icon, size: 22, color: AppColors.primary),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.grey500)),
-                const SizedBox(height: 4),
-                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.grey800)),
-              ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: textColor ?? AppColors.grey800)),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(subtitle!, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
+                  ]
+                ],
+              ),
             ),
-          ),
-        ],
+            if (onTap != null)
+              const Icon(Icons.chevron_right_rounded, color: AppColors.grey400, size: 20),
+          ],
+        ),
       ),
     );
   }

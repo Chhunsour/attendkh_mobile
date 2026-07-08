@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/attendance_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/employee/dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/leave_list_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/payslip_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/profile/profile_screen.dart';
@@ -26,9 +25,8 @@ class MainShell extends ConsumerStatefulWidget {
 class _MainShellState extends ConsumerState<MainShell> {
   int _currentIndex = MainShell.initialIndex;
 
-  /// The 5 bottom-navigation tabs (same order as BottomNavigationBar items)
+  /// The 4 bottom-navigation tabs (same order as BottomNavigationBar items)
   static const _tabScreens = <Widget>[
-    DashboardScreen(),
     AttendanceScreen(),
     LeaveListScreen(),
     PayslipScreen(),
@@ -71,11 +69,10 @@ class _MainShellState extends ConsumerState<MainShell> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard, 'Home'),
-              _buildNavItem(1, Icons.access_time_outlined, Icons.access_time, 'Clock'),
-              _buildNavItem(2, Icons.event_note_outlined, Icons.event_note, 'Leave'),
-              _buildNavItem(3, Icons.receipt_long_outlined, Icons.receipt_long, 'Pay'),
-              _buildNavItem(4, Icons.person_outline, Icons.person, 'Profile'),
+              _buildNavItem(0, Icons.access_time_outlined, Icons.access_time, 'Clock'),
+              _buildNavItem(1, Icons.event_note_outlined, Icons.event_note, 'Leave'),
+              _buildNavItem(2, Icons.receipt_long_outlined, Icons.receipt_long, 'Pay'),
+              _buildNavItem(3, Icons.person_outline, Icons.person, 'Profile'),
             ],
           ),
         ),

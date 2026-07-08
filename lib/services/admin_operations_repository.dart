@@ -385,11 +385,18 @@ class PayrollSettingsData {
   });
 
   factory PayrollSettingsData.fromJson(Map<String, dynamic> json) {
+    double parseDouble(dynamic val, double fallback) {
+      if (val == null) return fallback;
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val) ?? fallback;
+      return fallback;
+    }
+
     return PayrollSettingsData(
       overtimeEnabled: json['overtime_enabled'] == 1 || json['overtime_enabled'] == true,
-      overtimeMultiplier: (json['overtime_multiplier'] as num?)?.toDouble() ?? 1.5,
+      overtimeMultiplier: parseDouble(json['overtime_multiplier'], 1.5),
       lateDeductionEnabled: json['late_deduction_enabled'] == 1 || json['late_deduction_enabled'] == true,
-      lateDeductionPerMinute: (json['late_deduction_per_minute'] as num?)?.toDouble() ?? 0,
+      lateDeductionPerMinute: parseDouble(json['late_deduction_per_minute'], 0.0),
       payrollPeriod: json['payroll_period'] as String? ?? 'monthly',
       currency: json['currency'] as String? ?? 'USD',
     );

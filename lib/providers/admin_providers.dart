@@ -91,3 +91,7 @@ final payrollRunsProvider = FutureProvider.autoDispose<List<PayrollRunData>>((re
 final payrollSettingsProvider = FutureProvider.autoDispose<PayrollSettingsData>((ref) {
   return ref.watch(adminOpsRepositoryProvider).getPayrollSettings();
 });
+
+final employeeDetailProvider = FutureProvider.autoDispose.family<EmployeeData, int>((ref, id) {
+  return ref.watch(hrRepositoryProvider).getEmployee(id);
+});

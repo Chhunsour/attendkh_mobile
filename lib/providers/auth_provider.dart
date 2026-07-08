@@ -17,6 +17,7 @@ class AuthState {
   final String? companyId;
   final String? companyName;
   final List<String> roles;
+  final String? employeeId;
 
   final String? emailVerifiedAt;
 
@@ -32,9 +33,11 @@ class AuthState {
     this.companyId,
     this.companyName,
     this.roles = const [],
+    this.employeeId,
   });
 
   bool get isSuperAdmin => roles.contains('super_admin');
+  bool get isCompanyAdmin => roles.contains('company_admin') || roles.contains('admin') || roles.contains('company_owner');
 
   /// True when the auth state has enough data to consider the user logged in
   bool get hasLocalSession =>
@@ -51,6 +54,7 @@ class AuthState {
     String? companyId,
     String? companyName,
     List<String>? roles,
+    String? employeeId,
     String? error,
     bool clearError = false,
   }) {
@@ -65,6 +69,7 @@ class AuthState {
       companyId: companyId ?? this.companyId,
       companyName: companyName ?? this.companyName,
       roles: roles ?? this.roles,
+      employeeId: employeeId ?? this.employeeId,
       error: clearError ? null : (error ?? this.error),
     );
   }
@@ -115,6 +120,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
               : null,
           companyName: currentUser.companyName,
           roles: currentUser.roles,
+          employeeId: currentUser.employeeId?.toString(),
         );
 
         // Sync FCM token
@@ -173,6 +179,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       companyId: await storage.companyId,
       companyName: await storage.companyName,
       roles: await storage.roles,
+      employeeId: await storage.employeeId,
     );
 
     // Sync FCM token
@@ -209,6 +216,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         companyId: result.companyId > 0 ? result.companyId.toString() : null,
         companyName: result.companyName,
         roles: result.roles,
+        employeeId: result.employeeId?.toString(),
       );
 
       // Sync FCM token
@@ -254,6 +262,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       storage.setCompanyId(result.companyId.toString()),
       if (result.companyName != null) storage.setCompanyName(result.companyName!),
       storage.setRoles(result.roles),
+      if (result.employeeId != null) storage.setEmployeeId(result.employeeId!.toString()),
     ]);
   }
 
@@ -268,6 +277,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       storage.setCompanyId(user.companyId.toString()),
       if (user.companyName != null) storage.setCompanyName(user.companyName!),
       storage.setRoles(user.roles),
+      if (user.employeeId != null) storage.setEmployeeId(user.employeeId!.toString()),
     ]);
   }
 }

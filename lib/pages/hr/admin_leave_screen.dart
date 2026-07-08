@@ -29,25 +29,41 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen> with Single
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          color: AppColors.surfaceLight,
-          child: TabBar(
-            controller: _tabController,
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.grey500,
-            indicatorColor: AppColors.primary,
-            tabs: const [Tab(text: 'Requests'), Tab(text: 'Balances'), Tab(text: 'Leave Types')],
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Leave Requests',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [_RequestsTab(), _LeaveBalancesTab(), _LeaveTypesTab()],
+      ),
+      body: Column(
+        children: [
+          Container(
+            color: AppColors.surfaceLight,
+            child: TabBar(
+              controller: _tabController,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.grey500,
+              indicatorColor: AppColors.primary,
+              tabs: const [Tab(text: 'Requests'), Tab(text: 'Balances'), Tab(text: 'Leave Types')],
+            ),
           ),
-        ),
-      ],
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [_RequestsTab(), _LeaveBalancesTab(), _LeaveTypesTab()],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

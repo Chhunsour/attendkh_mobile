@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_dashboard_repository.dart';
+import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
+import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 
 // ── Riverpod provider ──────────────────────────────────────────────────────
 final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((ref) {
@@ -20,60 +23,52 @@ class AdminDashboardScreen extends ConsumerWidget {
     final authState = ref.watch(authProvider);
     final dashAsync = ref.watch(adminDashboardProvider);
 
-    return Column(
-      children: [
-        _buildAppBar(context, authState.userName ?? 'Super Admin'),
-        Expanded(
-          child: RefreshIndicator(
-            color: AppColors.primary,
-            onRefresh: () async => ref.invalidate(adminDashboardProvider),
-            child: dashAsync.when(
-              loading: () => _buildLoading(),
-              error: (err, _) => _buildError(err, ref),
-              data: (data) => _buildContent(context, data, authState),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary.withAlpha(20),
+              ),
+              child: const Icon(Icons.shield_rounded, color: AppColors.primary, size: 18),
             ),
-          ),
+            const SizedBox(width: 10),
+            const Text(
+              'Platform Admin',
+              style: TextStyle(
+                color: Colors.black87,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Inter',
+              ),
+            ),
+          ],
         ),
-      ],
-    );
-  }
-
-  // ── App Bar ────────────────────────────────────────────────────────────────
-  AppBar _buildAppBar(BuildContext context, String name) {
-    return AppBar(
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      title: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.primary.withAlpha(20),
-            ),
-            child: const Icon(Icons.shield_rounded, color: AppColors.primary, size: 18),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout_rounded, color: Colors.black87),
+            onPressed: () => showLogoutConfirmation(context, ref),
           ),
-          const SizedBox(width: 10),
-          const Text(
-            'Platform Admin',
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Inter',
-            ),
-          ),
+          const SizedBox(width: 8),
         ],
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_outlined, color: Colors.black87),
-          onPressed: () {},
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async => ref.invalidate(adminDashboardProvider),
+        child: dashAsync.when(
+          loading: () => _buildLoading(),
+          error: (err, _) => _buildError(err, ref),
+          data: (data) => _buildContent(context, data, authState),
         ),
-        const SizedBox(width: 4),
-      ],
+      ),
     );
   }
 
@@ -84,23 +79,15 @@ class AdminDashboardScreen extends ConsumerWidget {
       children: [
         _shimmerBox(height: 120, radius: 20),
         const SizedBox(height: 20),
-        Row(
-          children: [
-            Expanded(child: _shimmerBox(height: 110, radius: 16)),
-            const SizedBox(width: 12),
-            Expanded(child: _shimmerBox(height: 110, radius: 16)),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(child: _shimmerBox(height: 110, radius: 16)),
-            const SizedBox(width: 12),
-            Expanded(child: _shimmerBox(height: 110, radius: 16)),
-          ],
-        ),
+        _shimmerBox(height: 240, radius: 16),
         const SizedBox(height: 20),
-        _shimmerBox(height: 200, radius: 16),
+        Row(
+          children: [
+            Expanded(child: _shimmerBox(height: 110, radius: 16)),
+            const SizedBox(width: 12),
+            Expanded(child: _shimmerBox(height: 110, radius: 16)),
+          ],
+        ),
       ],
     );
   }
@@ -179,7 +166,90 @@ class AdminDashboardScreen extends ConsumerWidget {
       children: [
         // ── Welcome banner
         _buildWelcomeBanner(auth.userName ?? 'Super Admin'),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
+
+        // ── Quick Operations Grid Menu
+        const Text(
+          'Quick Operations',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.grey800,
+            fontFamily: 'Inter',
+          ),
+        ),
+        const SizedBox(height: 12),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.45,
+          children: [
+            _buildGridItem(
+              context,
+              title: 'Companies',
+              description: 'Manage registers',
+              icon: Icons.business_rounded,
+              color: const Color(0xFF6366F1),
+              routePath: AppRoutes.adminCompanies,
+            ),
+            _buildGridItem(
+              context,
+              title: 'Support Tickets',
+              description: 'User queries',
+              icon: Icons.support_agent_rounded,
+              color: const Color(0xFFF59E0B),
+              routePath: AppRoutes.adminSupportTickets,
+            ),
+            _buildGridItem(
+              context,
+              title: 'Announcements',
+              description: 'Broadcast alerts',
+              icon: Icons.campaign_rounded,
+              color: const Color(0xFF10B981),
+              routePath: AppRoutes.adminAnnouncements,
+            ),
+            _buildGridItem(
+              context,
+              title: 'Audit Logs',
+              description: 'System changes',
+              icon: Icons.description_rounded,
+              color: const Color(0xFF6B7280),
+              routePath: AppRoutes.adminAuditLogs,
+            ),
+            _buildGridItem(
+              context,
+              title: 'Settings',
+              description: 'Global configs',
+              icon: Icons.settings_rounded,
+              color: const Color(0xFF0F172A),
+              routePath: AppRoutes.adminSettings,
+            ),
+            _buildGridItem(
+              context,
+              title: 'Admin Profile',
+              description: 'Security & setup',
+              icon: Icons.person_rounded,
+              color: const Color(0xFF0284C7),
+              routePath: AppRoutes.adminProfile,
+            ),
+          ],
+        ),
+        const SizedBox(height: 28),
+
+        // ── Statistics Section Header
+        const Text(
+          'Platform Statistics',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.grey800,
+            fontFamily: 'Inter',
+          ),
+        ),
+        const SizedBox(height: 12),
 
         // ── KPI row 1
         Row(
@@ -199,7 +269,7 @@ class AdminDashboardScreen extends ConsumerWidget {
               child: _KpiCard(
                 title: 'Total Users',
                 value: _formatNumber(stats.totalUsers),
-                sub: 'Across all companies',
+                sub: 'Across all tenants',
                 icon: Icons.people_alt_rounded,
                 color: const Color(0xFF10B981),
                 bgColor: const Color(0xFFECFDF5),
@@ -222,13 +292,20 @@ class AdminDashboardScreen extends ConsumerWidget {
                 bgColor: const Color(0xFFFFFBEB),
               ),
             ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _KpiCard(
+                title: 'Announcements',
+                value: stats.publishedAnnouncements.toString(),
+                sub: 'Published and active',
+                icon: Icons.campaign_rounded,
+                color: const Color(0xFF6B7280),
+                bgColor: const Color(0xFFF3F4F6),
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 24),
-
-        // ── Announcements KPI
-        _buildAnnouncementsCard(stats.publishedAnnouncements),
-        const SizedBox(height: 24),
+        const SizedBox(height: 28),
 
         // ── Recent Company Signups
         if (data.recentSignups.isNotEmpty) ...[
@@ -255,6 +332,72 @@ class AdminDashboardScreen extends ConsumerWidget {
               )),
         ],
       ],
+    );
+  }
+
+  Widget _buildGridItem(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required IconData icon,
+    required Color color,
+    required String routePath,
+  }) {
+    return InkWell(
+      onTap: () => context.push(routePath),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.grey200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(5),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: color.withAlpha(20),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey800,
+                    fontFamily: 'Inter',
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppColors.grey500,
+                    fontFamily: 'Inter',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -323,64 +466,6 @@ class AdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAnnouncementsCard(int count) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF6366F1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha(30),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.campaign_rounded, color: Colors.white, size: 26),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Platform Announcements',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$count published and live',
-                  style: TextStyle(
-                    color: Colors.white.withAlpha(200),
-                    fontSize: 12,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            count.toString(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-              fontFamily: 'Inter',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSectionHeader(String title, IconData icon) {
     return Row(
       children: [
@@ -434,11 +519,12 @@ class _KpiCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.grey200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withAlpha(5),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -513,11 +599,12 @@ class _ActivityTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.grey200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(8),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            color: Colors.black.withAlpha(4),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),

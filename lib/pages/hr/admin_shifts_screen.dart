@@ -15,7 +15,20 @@ class AdminShiftsScreen extends ConsumerWidget {
     final shiftsAsync = ref.watch(shiftsProvider);
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Shifts & Calendars',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
       body: Stack(
         children: [
           shiftsAsync.when(

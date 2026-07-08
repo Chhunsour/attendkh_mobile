@@ -32,84 +32,100 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Generate Report', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
-          const SizedBox(height: 8),
-          Text('Select a report type to generate', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
-          const SizedBox(height: 16),
-          _buildDateFilters(),
-          const SizedBox(height: 16),
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 1.4),
-              itemCount: _reportTypes.length,
-              itemBuilder: (context, i) {
-                final r = _reportTypes[i];
-                final isSelected = _selectedType == r['key'];
-                return GestureDetector(
-                  onTap: () => _generate(r['key'] as String),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: isSelected ? (r['color'] as Color).withAlpha(26) : AppColors.surfaceLight,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: isSelected ? r['color'] as Color : AppColors.grey200, width: isSelected ? 2 : 1),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(r['icon'] as IconData, color: r['color'] as Color, size: 28),
-                        const SizedBox(height: 8),
-                        Text(r['label'] as String, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isSelected ? r['color'] as Color : AppColors.grey700)),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Reports & Analytics',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
-          if (_isLoading) ...[
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Generate Report', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+            const SizedBox(height: 8),
+            Text('Select a report type to generate', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
             const SizedBox(height: 16),
-            const LoadingIndicator(message: 'Generating report...'),
-          ],
-          if (_result != null && !_isLoading) ...[
+            _buildDateFilters(),
             const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: AppColors.successLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.success.withAlpha(76))),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(children: [
-                      const Icon(Icons.check_circle, color: AppColors.success, size: 20),
-                      const SizedBox(width: 8),
-                      const Text('Report Generated', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.success)),
-                    ]),
-                    if (_isExporting)
-                      const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                    else
-                      IconButton(
-                        icon: const Icon(Icons.download, color: AppColors.success),
-                        onPressed: () => _export(_selectedType!),
-                        tooltip: 'Export to Excel',
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 1.4),
+                itemCount: _reportTypes.length,
+                itemBuilder: (context, i) {
+                  final r = _reportTypes[i];
+                  final isSelected = _selectedType == r['key'];
+                  return GestureDetector(
+                    onTap: () => _generate(r['key'] as String),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isSelected ? (r['color'] as Color).withAlpha(26) : AppColors.surfaceLight,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: isSelected ? r['color'] as Color : AppColors.grey200, width: isSelected ? 2 : 1),
                       ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(_result!.entries.map((e) => '${e.key}: ${e.value}').join('\n'), style: TextStyle(fontSize: 12, color: AppColors.grey600)),
-              ]),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(r['icon'] as IconData, color: r['color'] as Color, size: 28),
+                          const SizedBox(height: 8),
+                          Text(r['label'] as String, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isSelected ? r['color'] as Color : AppColors.grey700)),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
+            if (_isLoading) ...[
+              const SizedBox(height: 16),
+              const LoadingIndicator(message: 'Generating report...'),
+            ],
+            if (_result != null && !_isLoading) ...[
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: AppColors.successLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.success.withAlpha(76))),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(children: [
+                        const Icon(Icons.check_circle, color: AppColors.success, size: 20),
+                        const SizedBox(width: 8),
+                        const Text('Report Generated', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.success)),
+                      ]),
+                      if (_isExporting)
+                        const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      else
+                        IconButton(
+                          icon: const Icon(Icons.download, color: AppColors.success),
+                          onPressed: () => _export(_selectedType!),
+                          tooltip: 'Export to Excel',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(_result!.entries.map((e) => '${e.key}: ${e.value}').join('\n'), style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                ]),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

@@ -53,13 +53,14 @@ class LeaveListScreen extends ConsumerWidget {
         // Leave Balance Cards
         if (balances.isNotEmpty)
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: SizedBox(
-              height: 120,
+              height: 160,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: balances.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 12),
+                clipBehavior: Clip.none,
+                separatorBuilder: (_, _) => const SizedBox(width: 16),
                 itemBuilder: (context, i) => _LeaveBalanceCard(balance: balances[i]),
               ),
             ),
@@ -98,28 +99,61 @@ class _LeaveBalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final remaining = balance.remaining;
     final total = balance.allocated + balance.carriedForward;
+    final used = total - remaining;
     final color = Color(int.tryParse(balance.color?.replaceFirst('#', 'FF') ?? 'FFF97316') ?? 0xFFF97316);
+    final value = total > 0 ? (used / total).clamp(0.0, 1.0) : 0.0;
 
     return Container(
       width: 140,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(color: color.withAlpha(20), blurRadius: 15, offset: const Offset(0, 8)),
+          BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 4, offset: const Offset(0, 2)),
+        ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(balance.typeName, style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 6),
-          Text(remaining.toStringAsFixed(1), style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color)),
-          Text('/ ${total.toStringAsFixed(1)} days', style: const TextStyle(fontSize: 11, color: AppColors.grey400)),
-          const SizedBox(height: 8),
-          LinearProgressIndicator(
-            value: total > 0 ? (balance.used / total).clamp(0.0, 1.0) : 0,
-            backgroundColor: color.withAlpha(26),
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-            borderRadius: BorderRadius.circular(4),
+          SizedBox(
+            width: 64,
+            height: 64,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CircularProgressIndicator(
+                  value: 1.0,
+                  strokeWidth: 6,
+                  color: color.withAlpha(20),
+                ),
+                CircularProgressIndicator(
+                  value: value,
+                  strokeWidth: 6,
+                  strokeCap: StrokeCap.round,
+                  color: color,
+                ),
+                Center(
+                  child: Text(
+                    remaining.toStringAsFixed(remaining % 1 == 0 ? 0 : 1),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            balance.typeName,
+            style: const TextStyle(fontSize: 13, color: AppColors.grey700, fontWeight: FontWeight.w600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${used.toStringAsFixed(used % 1 == 0 ? 0 : 1)} used',
+            style: const TextStyle(fontSize: 11, color: AppColors.grey400),
           ),
         ],
       ),
@@ -143,44 +177,51 @@ class _LeaveRequestCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey200),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
       ),
       child: Row(
         children: [
           Container(
-            width: 40, height: 40,
-            decoration: BoxDecoration(color: _statusColor.withAlpha(26), borderRadius: BorderRadius.circular(10)),
-            child: Icon(Icons.event, color: _statusColor, size: 20),
+            width: 48, height: 48,
+            decoration: BoxDecoration(color: _statusColor.withAlpha(20), shape: BoxShape.circle),
+            child: Icon(Icons.event_available_rounded, color: _statusColor, size: 24),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(request.leaveType, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                const SizedBox(height: 2),
-                Text('${request.startDate} → ${request.endDate}', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                Text(request.leaveType, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.grey800)),
+                const SizedBox(height: 4),
+                Text('${request.startDate} → ${request.endDate}', style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
               ],
             ),
           ),
-          if (request.status == 'pending')
-            IconButton(
-              icon: const Icon(Icons.close, size: 20, color: AppColors.danger),
-              tooltip: 'Cancel request',
-              onPressed: () => _cancelRequest(context, ref),
-            ),
-          const SizedBox(width: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(color: _statusColor.withAlpha(26), borderRadius: BorderRadius.circular(6)),
-            child: Text(
-              request.status.substring(0, 1).toUpperCase() + request.status.substring(1),
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: _statusColor),
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(color: _statusColor.withAlpha(20), borderRadius: BorderRadius.circular(20)),
+                child: Text(
+                  request.status.toUpperCase(),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _statusColor, letterSpacing: 0.5),
+                ),
+              ),
+              if (request.status == 'pending') ...[
+                const SizedBox(height: 8),
+                InkWell(
+                  onTap: () => _cancelRequest(context, ref),
+                  child: const Text('Cancel', style: TextStyle(color: AppColors.danger, fontSize: 12, fontWeight: FontWeight.w600)),
+                ),
+              ]
+            ],
           ),
         ],
       ),

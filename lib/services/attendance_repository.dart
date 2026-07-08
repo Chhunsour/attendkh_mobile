@@ -99,9 +99,9 @@ class AttendanceRepository {
 
     if (photoPath != null) {
       payload = FormData.fromMap({
-        'lat': ?lat,
-        'lng': ?lng,
-        'device_id': ?deviceId,
+        'lat': lat,
+        'lng': lng,
+        'device_id': deviceId,
         'photo': await MultipartFile.fromFile(photoPath, filename: 'clock_in.jpg'),
         'method': 'mobile',
       });
@@ -137,9 +137,9 @@ class AttendanceRepository {
 
     if (photoPath != null) {
       payload = FormData.fromMap({
-        'lat': ?lat,
-        'lng': ?lng,
-        'device_id': ?deviceId,
+        'lat': lat,
+        'lng': lng,
+        'device_id': deviceId,
         'photo': await MultipartFile.fromFile(photoPath, filename: 'clock_out.jpg'),
         'method': 'mobile',
       });

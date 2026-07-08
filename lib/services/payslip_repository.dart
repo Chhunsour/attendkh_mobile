@@ -28,16 +28,17 @@ class PayslipRepository {
   PayslipRepository({ApiRepository? api}) : _api = api ?? ApiRepository();
 
   Future<List<PayslipData>> getPayslips() async {
-    final response = await _api.get('/company/payroll/runs');
+    final response = await _api.get('/company/my-payslips');
     final data = response.data;
     if (data is List) return data.map((e) => PayslipData.fromJson(e as Map<String, dynamic>)).toList();
-    if (data is Map && data['payslips'] != null) {
-      return (data['payslips'] as List).map((e) => PayslipData.fromJson(e as Map<String, dynamic>)).toList();
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List).map((e) => PayslipData.fromJson(e as Map<String, dynamic>)).toList();
     }
     return [];
   }
 
-  Future<void> downloadPayslip(String period) async {
-    await _api.get('/company/payroll/export/$period');
+  Future<void> downloadPayslip(String periodOrId) async {
+    // Assuming the API takes the ID now for downloadMyPayslip
+    await _api.get('/company/my-payslips/$periodOrId/download');
   }
 }

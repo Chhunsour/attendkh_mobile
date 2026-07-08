@@ -16,6 +16,7 @@ class SecureStorageService {
   static const _rolesKey = 'user_roles';
   static const _companyNameKey = 'company_name';
   static const _companyLogoKey = 'company_logo';
+  static const _employeeIdKey = 'employee_id';
   static const _themeModeKey = 'theme_mode';
   static const _localeKey = 'locale';
   static const _biometricEnabledKey = 'biometric_enabled';
@@ -49,6 +50,9 @@ class SecureStorageService {
   // User
   Future<String?> get userId => _storage.read(key: _userIdKey);
   Future<void> setUserId(String id) => _storage.write(key: _userIdKey, value: id);
+
+  Future<String?> get employeeId => _storage.read(key: _employeeIdKey);
+  Future<void> setEmployeeId(String id) => _storage.write(key: _employeeIdKey, value: id);
 
   Future<String?> get userName => _storage.read(key: _userNameKey);
   Future<void> setUserName(String name) => _storage.write(key: _userNameKey, value: name);

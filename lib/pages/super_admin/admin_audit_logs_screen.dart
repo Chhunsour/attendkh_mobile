@@ -40,35 +40,32 @@ class AdminAuditLogsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final logsAsync = ref.watch(adminAuditLogsProvider);
 
-    return Column(
-      children: [
-        AppBar(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          title: const Text(
-            'Audit Logs',
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Audit Logs',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        Expanded(
-          child: RefreshIndicator(
-            color: AppColors.primary,
-            onRefresh: () async => ref.invalidate(adminAuditLogsProvider),
-            child: logsAsync.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              ),
-              error: (err, _) => _buildError(context, err, ref),
-              data: (logs) => _buildList(context, logs),
-            ),
+      ),
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async => ref.invalidate(adminAuditLogsProvider),
+        child: logsAsync.when(
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
           ),
+          error: (err, _) => _buildError(context, err, ref),
+          data: (logs) => _buildList(context, logs),
         ),
-      ],
+      ),
     );
   }
 

@@ -9,70 +9,87 @@ class AdminAssetsScreen extends ConsumerWidget {
   const AdminAssetsScreen({super.key});
 
   @override
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final assetsAsync = ref.watch(assetsProvider);
-    return Stack(
-      children: [
-        assetsAsync.when(
-          data: (items) => items.isEmpty
-              ? const Center(child: Text('No assets', style: TextStyle(color: AppColors.grey400)))
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: items.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (context, i) {
-                    final a = items[i];
-                    final statusColor = a.status == 'assigned' ? AppColors.info : a.status == 'available' ? AppColors.success : AppColors.grey400;
-                    return Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(width: 44, height: 44, decoration: BoxDecoration(color: statusColor.withAlpha(26), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.inventory_2, color: statusColor, size: 22)),
-                              const SizedBox(width: 14),
-                              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text(a.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                                if (a.type != null) Text(a.type!, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
-                                if (a.serialNumber != null) Text('SN: ${a.serialNumber}', style: TextStyle(fontSize: 11, color: AppColors.grey400)),
-                              ])),
-                              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                                Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: statusColor.withAlpha(26), borderRadius: BorderRadius.circular(6)), child: Text(a.status.substring(0, 1).toUpperCase() + a.status.substring(1), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor))),
-                                if (a.assignedTo != null) ...[
-                                  const SizedBox(height: 4),
-                                  Text(a.assignedTo!, style: TextStyle(fontSize: 11, color: AppColors.grey500)),
-                                ],
-                              ]),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(children: [
-                            if (a.status == 'available')
-                              Expanded(child: OutlinedButton.icon(onPressed: () => _assignAsset(context, ref, a.id), icon: const Icon(Icons.person_add, size: 16), label: const Text('Assign'))),
-                        if (a.status == 'assigned')
-                          Expanded(child: OutlinedButton.icon(onPressed: () => _returnAsset(context, ref, a.id), icon: const Icon(Icons.keyboard_return, size: 16), label: const Text('Return'))),
-                        IconButton(icon: const Icon(Icons.history, size: 18, color: AppColors.info), onPressed: () => _showHistory(context, a.id, a.name)),
-                        IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger), onPressed: () => _deleteAsset(context, ref, a.id, a.name)),
-                      ]),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-          loading: () => const LoadingIndicator(message: 'Loading assets...'),
-          error: (e, _) => Center(child: OutlinedButton.icon(onPressed: () => ref.invalidate(assetsProvider), icon: const Icon(Icons.refresh), label: const Text('Retry'))),
-        ),
-        Positioned(
-          right: 16, bottom: 16,
-          child: FloatingActionButton(
-            onPressed: () => _showCreateDialog(context, ref),
-            backgroundColor: AppColors.primary,
-            child: const Icon(Icons.add, color: Colors.white),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Assets Directory',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
         ),
-      ],
+      ),
+      body: Stack(
+        children: [
+          assetsAsync.when(
+            data: (items) => items.isEmpty
+                ? const Center(child: Text('No assets', style: TextStyle(color: AppColors.grey400)))
+                : ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: items.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    itemBuilder: (context, i) {
+                      final a = items[i];
+                      final statusColor = a.status == 'assigned' ? AppColors.info : a.status == 'available' ? AppColors.success : AppColors.grey400;
+                      return Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(width: 44, height: 44, decoration: BoxDecoration(color: statusColor.withAlpha(26), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.inventory_2, color: statusColor, size: 22)),
+                                const SizedBox(width: 14),
+                                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  Text(a.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                                  if (a.type != null) Text(a.type!, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                                  if (a.serialNumber != null) Text('SN: ${a.serialNumber}', style: TextStyle(fontSize: 11, color: AppColors.grey400)),
+                                ])),
+                                Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                                  Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: statusColor.withAlpha(26), borderRadius: BorderRadius.circular(6)), child: Text(a.status.substring(0, 1).toUpperCase() + a.status.substring(1), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor))),
+                                  if (a.assignedTo != null) ...[
+                                    const SizedBox(height: 4),
+                                    Text(a.assignedTo!, style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                                  ],
+                                ]),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(children: [
+                              if (a.status == 'available')
+                                Expanded(child: OutlinedButton.icon(onPressed: () => _assignAsset(context, ref, a.id), icon: const Icon(Icons.person_add, size: 16), label: const Text('Assign'))),
+                              if (a.status == 'assigned')
+                                Expanded(child: OutlinedButton.icon(onPressed: () => _returnAsset(context, ref, a.id), icon: const Icon(Icons.keyboard_return, size: 16), label: const Text('Return'))),
+                              IconButton(icon: const Icon(Icons.history, size: 18, color: AppColors.info), onPressed: () => _showHistory(context, a.id, a.name)),
+                              IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger), onPressed: () => _deleteAsset(context, ref, a.id, a.name)),
+                            ]),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+            loading: () => const LoadingIndicator(message: 'Loading assets...'),
+            error: (e, _) => Center(child: OutlinedButton.icon(onPressed: () => ref.invalidate(assetsProvider), icon: const Icon(Icons.refresh), label: const Text('Retry'))),
+          ),
+          Positioned(
+            right: 16, bottom: 16,
+            child: FloatingActionButton(
+              onPressed: () => _showCreateDialog(context, ref),
+              backgroundColor: AppColors.primary,
+              child: const Icon(Icons.add, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 
 class LeaveBalance {
   final int id;
+  final int leaveTypeId;
   final String type;
   final String typeName;
   final double allocated;
@@ -12,6 +13,7 @@ class LeaveBalance {
 
   const LeaveBalance({
     required this.id,
+    required this.leaveTypeId,
     required this.type,
     required this.typeName,
     required this.allocated,
@@ -26,6 +28,7 @@ class LeaveBalance {
   factory LeaveBalance.fromJson(Map<String, dynamic> json) {
     return LeaveBalance(
       id: json['id'] as int? ?? 0,
+      leaveTypeId: json['leave_type_id'] as int? ?? json['leave_type']?['id'] as int? ?? 0,
       type: json['leave_type']?['name'] as String? ?? json['type'] as String? ?? '',
       typeName: json['leave_type']?['name'] as String? ?? json['type'] as String? ?? '',
       allocated: (json['allocated_days'] as num?)?.toDouble() ?? 0,

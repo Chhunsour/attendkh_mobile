@@ -133,7 +133,7 @@ class _LoggingInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     AppLogger.e(
       '❌ ${err.response?.statusCode} ${err.requestOptions.uri}',
-      err.message,
+      'Message: ${err.message}\nResponse Data: ${err.response?.data}',
     );
     handler.next(err);
   }

@@ -33,4 +33,28 @@ class ExpenseRepository {
     if (data is Map && data['data'] != null) return (data['data'] as List).map((e) => ExpenseData.fromJson(e as Map<String, dynamic>)).toList();
     return [];
   }
+
+  Future<ExpenseData> submitClaim({
+    required String title,
+    required String category,
+    required double amount,
+    required String expenseDate,
+    String? description,
+  }) async {
+    final response = await _api.post(
+      '/company/expenses',
+      data: {
+        'title': title,
+        'category': category,
+        'amount': amount,
+        'expense_date': expenseDate,
+        'description': description,
+      },
+    );
+    final data = response.data;
+    if (data is Map && data['data'] != null) {
+      return ExpenseData.fromJson(data['data'] as Map<String, dynamic>);
+    }
+    return ExpenseData.fromJson(data as Map<String, dynamic>);
+  }
 }

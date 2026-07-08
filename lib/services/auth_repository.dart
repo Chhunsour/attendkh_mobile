@@ -11,6 +11,7 @@ class LoginResult {
   final int companyId;
   final String? companyName;
   final List<String> roles;
+  final int? employeeId;
 
   const LoginResult({
     required this.accessToken,
@@ -22,6 +23,7 @@ class LoginResult {
     required this.companyId,
     this.companyName,
     required this.roles,
+    this.employeeId,
   });
 
   factory LoginResult.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class LoginResult {
       companyId: companyIdRaw is int ? companyIdRaw : 0,
       companyName: company?['name'] as String?,
       roles: (user['roles'] as List<dynamic>?)?.cast<String>() ?? [],
+      employeeId: user['employee_id'] as int?,
     );
   }
 }
@@ -51,6 +54,7 @@ class CurrentUser {
   final int companyId;
   final List<String> roles;
   final String? companyName;
+  final int? employeeId;
 
   const CurrentUser({
     required this.id,
@@ -60,6 +64,7 @@ class CurrentUser {
     required this.companyId,
     this.companyName,
     required this.roles,
+    this.employeeId,
   });
 
   factory CurrentUser.fromJson(Map<String, dynamic> json) {
@@ -73,6 +78,7 @@ class CurrentUser {
       companyId: companyIdRaw is int ? companyIdRaw : 0,
       companyName: company?['name'] as String?,
       roles: (json['roles'] as List<dynamic>?)?.cast<String>() ?? [],
+      employeeId: json['employee_id'] as int?,
     );
   }
 }

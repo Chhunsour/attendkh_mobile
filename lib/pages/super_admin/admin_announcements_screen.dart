@@ -15,41 +15,38 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final announcementsAsync = ref.watch(adminAnnouncementsProvider);
 
-    return Column(
-      children: [
-        AppBar(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          title: const Text(
-            'Platform Announcements',
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.add_rounded, color: Colors.black87),
-              onPressed: () => _showCreateEditDialog(context, ref),
-            ),
-          ],
-        ),
-        Expanded(
-          child: RefreshIndicator(
-            color: AppColors.primary,
-            onRefresh: () async => ref.invalidate(adminAnnouncementsProvider),
-            child: announcementsAsync.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              ),
-              error: (err, _) => _buildError(context, err, ref),
-              data: (list) => _buildList(context, ref, list),
-            ),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Platform Announcements',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
         ),
-      ],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_rounded, color: Colors.black87),
+            onPressed: () => _showCreateEditDialog(context, ref),
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async => ref.invalidate(adminAnnouncementsProvider),
+        child: announcementsAsync.when(
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+          error: (err, _) => _buildError(context, err, ref),
+          data: (list) => _buildList(context, ref, list),
+        ),
+      ),
     );
   }
 

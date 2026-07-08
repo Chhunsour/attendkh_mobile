@@ -33,39 +33,55 @@ class _AdminResourcesScreenState extends ConsumerState<AdminResourcesScreen> wit
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          color: AppColors.surfaceLight,
-          child: TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.grey500,
-            indicatorColor: AppColors.primary,
-            tabAlignment: TabAlignment.start,
-            tabs: const [
-              Tab(text: 'Shifts'),
-              Tab(text: 'Holidays'),
-              Tab(text: 'Announce.'),
-              Tab(text: 'Policies'),
-              Tab(text: 'Docs'),
-            ],
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Resource Directory',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _ShiftsTab(),
-              _HolidaysTab(),
-              _AnnouncementsTab(),
-              _PoliciesTab(),
-              _DocumentsTab(),
-            ],
+      ),
+      body: Column(
+        children: [
+          Container(
+            color: AppColors.surfaceLight,
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.grey500,
+              indicatorColor: AppColors.primary,
+              tabAlignment: TabAlignment.start,
+              tabs: const [
+                Tab(text: 'Shifts'),
+                Tab(text: 'Holidays'),
+                Tab(text: 'Announce.'),
+                Tab(text: 'Policies'),
+                Tab(text: 'Docs'),
+              ],
+            ),
           ),
-        ),
-      ],
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _ShiftsTab(),
+                _HolidaysTab(),
+                _AnnouncementsTab(),
+                _PoliciesTab(),
+                _DocumentsTab(),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

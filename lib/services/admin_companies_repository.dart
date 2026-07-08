@@ -29,6 +29,17 @@ class AdminCompany {
   });
 
   factory AdminCompany.fromJson(Map<String, dynamic> json) {
+    List<dynamic> parsedSocialMedia = [];
+    final rawSm = json['social_media'];
+    if (rawSm is List) {
+      parsedSocialMedia = rawSm;
+    } else if (rawSm is Map) {
+      parsedSocialMedia = rawSm.entries.map((e) => {
+        'platform': e.key.toString(),
+        'url': e.value.toString(),
+      }).toList();
+    }
+
     return AdminCompany(
       id: json['id'] as int? ?? 0,
       name: json['name'] as String? ?? '',
@@ -37,7 +48,7 @@ class AdminCompany {
       address: json['address'] as String?,
       timezone: json['timezone'] as String?,
       currency: json['currency'] as String?,
-      socialMedia: json['social_media'] as List<dynamic>?,
+      socialMedia: parsedSocialMedia,
       status: json['status'] as String? ?? 'active',
       logo: json['logo'] as String?,
       createdAt: json['created_at'] as String?,

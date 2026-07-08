@@ -1,4 +1,5 @@
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
+import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 
 // ── Branch ──────────────────────────────────────────────────────────────────
 class BranchData {
@@ -128,6 +129,18 @@ class EmployeeData {
   final int? departmentId;
   final int? positionId;
   final int? branchId;
+  final String? gender;
+  final String? dateOfBirth;
+  final String? maritalStatus;
+  final String? nationalId;
+  final String? address;
+  final String? bankName;
+  final String? bankAccount;
+  final String? notes;
+  final Map<String, dynamic>? emergencyContact;
+  final List<LeaveBalanceData>? leaveBalances;
+  final List<AdminLeaveRequestData>? recentLeaveRequests;
+  final List<AdminAttendanceRecord>? recentAttendances;
 
   const EmployeeData({
     required this.id,
@@ -150,6 +163,18 @@ class EmployeeData {
     this.departmentId,
     this.positionId,
     this.branchId,
+    this.gender,
+    this.dateOfBirth,
+    this.maritalStatus,
+    this.nationalId,
+    this.address,
+    this.bankName,
+    this.bankAccount,
+    this.notes,
+    this.emergencyContact,
+    this.leaveBalances,
+    this.recentLeaveRequests,
+    this.recentAttendances,
   });
 
   factory EmployeeData.fromJson(Map<String, dynamic> json) {
@@ -174,6 +199,32 @@ class EmployeeData {
       departmentId: json['department_id'] as int?,
       positionId: json['position_id'] as int?,
       branchId: json['branch_id'] as int?,
+      gender: json['gender'] as String?,
+      dateOfBirth: json['date_of_birth'] as String?,
+      maritalStatus: json['marital_status'] as String?,
+      nationalId: json['national_id'] as String?,
+      address: json['address'] as String?,
+      bankName: json['bank_name'] as String?,
+      bankAccount: json['bank_account'] as String?,
+      notes: json['notes'] as String?,
+      emergencyContact: json['emergency_contact'] is Map
+          ? Map<String, dynamic>.from(json['emergency_contact'] as Map)
+          : null,
+      leaveBalances: json['leave_balances'] == null
+          ? null
+          : (json['leave_balances'] as List)
+              .map((e) => LeaveBalanceData.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      recentLeaveRequests: json['recent_leave_requests'] == null
+          ? null
+          : (json['recent_leave_requests'] as List)
+              .map((e) => AdminLeaveRequestData.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      recentAttendances: json['recent_attendances'] == null
+          ? null
+          : (json['recent_attendances'] as List)
+              .map((e) => AdminAttendanceRecord.fromJson(e as Map<String, dynamic>))
+              .toList(),
     );
   }
 }
@@ -324,7 +375,8 @@ class HrRepository {
 
   Future<EmployeeData> getEmployee(int id) async {
     final response = await _api.get('/company/employees/$id');
-    return EmployeeData.fromJson(response.data as Map<String, dynamic>);
+    final dataMap = response.data['data'] as Map<String, dynamic>? ?? response.data as Map<String, dynamic>;
+    return EmployeeData.fromJson(dataMap);
   }
 
   Future<EmployeeData> createEmployee({

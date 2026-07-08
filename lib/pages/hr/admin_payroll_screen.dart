@@ -29,28 +29,44 @@ class _AdminPayrollScreenState extends ConsumerState<AdminPayrollScreen> with Si
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          color: AppColors.surfaceLight,
-          child: TabBar(
-            controller: _tabController,
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.grey500,
-            indicatorColor: AppColors.primary,
-            tabs: const [Tab(text: 'Runs'), Tab(text: 'Settings')],
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Payroll Management',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
         ),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _PayrollRunsTab(),
-              _PayrollSettingsTab(),
-            ],
+      ),
+      body: Column(
+        children: [
+          Container(
+            color: AppColors.surfaceLight,
+            child: TabBar(
+              controller: _tabController,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.grey500,
+              indicatorColor: AppColors.primary,
+              tabs: const [Tab(text: 'Runs'), Tab(text: 'Settings')],
+            ),
           ),
-        ),
-      ],
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _PayrollRunsTab(),
+                _PayrollSettingsTab(),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
