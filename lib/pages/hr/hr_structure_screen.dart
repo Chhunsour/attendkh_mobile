@@ -57,13 +57,13 @@ class _HrStructureScreenState extends ConsumerState<HrStructureScreen>
               unselectedLabelColor: AppColors.grey500,
               indicatorColor: AppColors.primary,
               tabAlignment: TabAlignment.start,
-              tabs: const [
-                Tab(text: 'Branches'),
-                Tab(text: 'Depts'),
-                Tab(text: 'Positions'),
-                Tab(text: 'Teams'),
-                Tab(text: 'Employees'),
-              ],
+                tabs: const [
+                  Tab(text: 'Branches'),
+                  Tab(text: 'Depts'),
+                  Tab(text: 'Positions'),
+                  Tab(text: 'Teams'),
+                  Tab(text: 'Org Chart'),
+                ],
             ),
           ),
           Expanded(
@@ -74,7 +74,7 @@ class _HrStructureScreenState extends ConsumerState<HrStructureScreen>
                 _DepartmentsTab(),
                 _PositionsTab(),
                 _TeamsTab(),
-                _EmployeesTab(),
+                _OrgChartTab(),
               ],
             ),
           ),
@@ -2861,109 +2861,483 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
   }
 }
 
-// ── Employees Tab ───────────────────────────────────────────────────────────
-class _EmployeesTab extends ConsumerWidget {
+// ── Org Chart Tab ───────────────────────────────────────────────────────────
+class _OrgChartTab extends ConsumerStatefulWidget {
+  const _OrgChartTab();
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final empsAsync = ref.watch(allEmployeesProvider);
-    return empsAsync.when(
-      data: (items) => items.isEmpty
-          ? const Center(
-              child: Text(
-                'No employees',
-                style: TextStyle(color: AppColors.grey400),
+  ConsumerState<_OrgChartTab> createState() => _OrgChartTabState();
+}
+
+class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
+  late TextEditingController _searchCtrl;
+  String _searchQuery = '';
+  int _maxDepth = 2;
+
+  // Dept colors for visual grouping
+  static const _deptColors = [
+    Color(0xFFFFF7ED), // orange
+    Color(0xFFEFF6FF), // blue
+    Color(0xFFF5F3FF), // purple
+    Color(0xFFECFDF5), // emerald
+    Color(0xFFFDF2F8), // pink
+  ];
+  static const _deptDots = [
+    Color(0xFFF97316),
+    Color(0xFF3B82F6),
+    Color(0xFF8B5CF6),
+    Color(0xFF10B981),
+    Color(0xFFEC4899),
+  ];
+  int _deptColorIdx = 0;
+  final Map<String, int> _deptColorMap = {};
+
+  Color _deptBg(String? deptName) {
+    final key = deptName ?? '__none';
+    if (!_deptColorMap.containsKey(key)) {
+      _deptColorMap[key] = _deptColorIdx % _deptColors.length;
+      _deptColorIdx++;
+    }
+    return _deptColors[_deptColorMap[key]!];
+  }
+
+  Color _deptDot(String? deptName) {
+    final key = deptName ?? '__none';
+    if (!_deptColorMap.containsKey(key)) {
+      _deptColorMap[key] = _deptColorIdx % _deptDots.length;
+      _deptColorIdx++;
+    }
+    return _deptDots[_deptColorMap[key]! % _deptDots.length];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _searchCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  bool _nodeMatches(OrgNode node, String query) {
+    if (query.isEmpty) return true;
+    final q = query.toLowerCase();
+    return node.name.toLowerCase().contains(q) ||
+        (node.positionName?.toLowerCase().contains(q) ?? false) ||
+        (node.departmentName?.toLowerCase().contains(q) ?? false);
+  }
+
+  bool _anyChildMatches(OrgNode node, String query) {
+    if (query.isEmpty) return false;
+    if (!node.hasSubordinates) return false;
+    return node.subordinates!.any((child) => _nodeMatches(child, query) || _anyChildMatches(child, query));
+  }
+
+  Widget _buildNode(OrgNode node, int depth) {
+    final deptBgColor = _deptBg(node.departmentName);
+    final deptDotColor = _deptDot(node.departmentName);
+    final match = _nodeMatches(node, _searchQuery);
+    final childMatch = _anyChildMatches(node, _searchQuery);
+    final shouldShow = _searchQuery.isEmpty || match || childMatch;
+    final isExpanded = depth < _maxDepth || _maxDepth == -1;
+
+    if (!shouldShow) return const SizedBox.shrink();
+
+    final statusColors = {
+      'active': const Color(0xFF16A34A),
+      'on_leave': const Color(0xFFD97706),
+      'probation': const Color(0xFF2563EB),
+      'resigned': const Color(0xFFDC2626),
+      'terminated': const Color(0xFFDC2626),
+    };
+    final statusColor = statusColors[node.employmentStatus] ?? AppColors.grey500;
+
+    return Column(
+      children: [
+        // Node card
+        Container(
+          margin: EdgeInsets.only(left: depth * 24.0),
+          decoration: BoxDecoration(
+            color: deptBgColor,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: deptBgColor.withAlpha(180)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Dept band
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(100),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(13)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: deptDotColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        node.departmentName ?? '—',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.grey500,
+                          letterSpacing: 0.5,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: items.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
-              itemBuilder: (context, i) {
-                final item = items[i];
-                final initials = item.name
-                    .trim()
-                    .split(RegExp(r'\s+'))
-                    .take(2)
-                    .map((w) => w.isNotEmpty ? w[0].toUpperCase() : '')
-                    .join();
-                return Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.grey200),
-                  ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: AppColors.primaryLight,
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    // Avatar
+                    Stack(
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF374151), Color(0xFF111827)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              node.initials,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: -1,
+                          right: -1,
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: deptDotColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 10),
+                    // Info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            node.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: AppColors.grey800,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (node.positionName != null) ...[
+                            const SizedBox(height: 1),
+                            Text(
+                              node.positionName!,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.grey600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: statusColor.withAlpha(25),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              node.employmentStatus.replaceAll('_', ' '),
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: statusColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Children count
+                    if (node.hasSubordinates)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.grey200),
+                        ),
                         child: Text(
-                          initials,
+                          '${node.subordinatesCount}',
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
                             color: AppColors.primary,
-                            fontSize: 14,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              [item.department, item.position]
-                                  .where((s) => s != null && s.isNotEmpty)
-                                  .join(' · '),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.grey500,
-                              ),
-                            ),
-                          ],
-                        ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Children
+        if (node.hasSubordinates && isExpanded)
+          ...node.subordinates!.map((child) => _buildNode(child, depth + 1)),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  int _countNodes(List<OrgNode> nodes) {
+    int c = nodes.length;
+    for (final n in nodes) {
+      if (n.hasSubordinates) c += _countNodes(n.subordinates!);
+    }
+    return c;
+  }
+
+  int _maxTreeDepth(List<OrgNode> nodes, int d) {
+    if (nodes.isEmpty) return d;
+    int maxD = d + 1;
+    for (final n in nodes) {
+      if (n.hasSubordinates) {
+        final cd = _maxTreeDepth(n.subordinates!, d + 1);
+        if (cd > maxD) maxD = cd;
+      }
+    }
+    return maxD;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final orgChartAsync = ref.watch(orgChartProvider);
+
+    return orgChartAsync.when(
+      data: (tree) {
+        if (tree.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.account_tree_rounded, size: 36, color: AppColors.primary),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No organisation structure yet',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.grey800),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Add employees and assign managers to build your org chart.',
+                    style: TextStyle(fontSize: 13, color: AppColors.grey500),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final totalCount = _countNodes(tree);
+        final maxDepthVal = _maxTreeDepth(tree, 0);
+
+        return Column(
+          children: [
+            // Search + Depth
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Column(
+                children: [
+                  // Search
+                  Container(
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: AppColors.grey50,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.grey200),
+                    ),
+                    child: TextField(
+                      controller: _searchCtrl,
+                      onChanged: (val) => setState(() => _searchQuery = val.trim().toLowerCase()),
+                      style: const TextStyle(fontSize: 14, color: AppColors.grey800),
+                      decoration: InputDecoration(
+                        hintText: 'Search name, position, dept...',
+                        hintStyle: const TextStyle(fontSize: 13, color: AppColors.grey400),
+                        prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.grey400),
+                        suffixIcon: _searchCtrl.text.isNotEmpty
+                            ? GestureDetector(
+                                onTap: () {
+                                  _searchCtrl.clear();
+                                  setState(() => _searchQuery = '');
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.grey200,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.close_rounded, size: 14, color: AppColors.grey600),
+                                ),
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 13),
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Depth control + stats
+                  Row(
+                    children: [
+                      // Stats
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: item.status == 'active'
-                              ? AppColors.successLight
-                              : AppColors.warningLight,
-                          borderRadius: BorderRadius.circular(6),
+                          color: AppColors.grey50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.grey200),
                         ),
                         child: Text(
-                          item.status?.toUpperCase() ?? 'ACTIVE',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: item.status == 'active'
-                                ? AppColors.success
-                                : AppColors.warning,
+                          '$totalCount people · $maxDepthVal levels',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey500),
+                        ),
+                      ),
+                      const Spacer(),
+                      // Depth label
+                      const Text(
+                        'Depth',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey400),
+                      ),
+                      const SizedBox(width: 8),
+                      // Depth buttons
+                      ...[1, 2, 3, 4, 5].map((level) {
+                        final active = _maxDepth == level;
+                        return GestureDetector(
+                          key: ValueKey('depth$level'),
+                          onTap: () => setState(() => _maxDepth = level),
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            margin: const EdgeInsets.symmetric(horizontal: 2),
+                            decoration: BoxDecoration(
+                              color: active ? AppColors.primary : AppColors.grey100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '$level',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: active ? Colors.white : AppColors.grey500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: () => setState(() => _maxDepth = _maxDepth == -1 ? 2 : -1),
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: _maxDepth == -1 ? AppColors.primary : AppColors.grey100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '∞',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: _maxDepth == -1 ? Colors.white : AppColors.grey500,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                );
-              },
+                ],
+              ),
             ),
-      loading: () => const LoadingIndicator(message: 'Loading employees...'),
+            Divider(height: 1, color: AppColors.grey200),
+            // Tree
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(8, 12, 8, 40),
+                children: tree.map((root) => _buildNode(root, 0)).toList(),
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const LoadingIndicator(message: 'Loading org chart...'),
       error: (e, _) => Center(
-        child: OutlinedButton.icon(
-          onPressed: () => ref.invalidate(allEmployeesProvider),
-          icon: const Icon(Icons.refresh),
-          label: const Text('Retry'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_off_rounded, size: 40, color: AppColors.danger),
+            const SizedBox(height: 10),
+            const Text('Failed to load org chart', style: TextStyle(fontSize: 14, color: AppColors.grey600)),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () => ref.invalidate(orgChartProvider),
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Retry'),
+            ),
+          ],
         ),
       ),
     );

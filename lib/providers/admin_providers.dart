@@ -162,3 +162,8 @@ final payrollSettingsProvider = FutureProvider.autoDispose<PayrollSettingsData>(
 final employeeDetailProvider = FutureProvider.autoDispose.family<EmployeeData, int>((ref, id) {
   return ref.watch(hrRepositoryProvider).getEmployee(id);
 });
+
+// ── Org Chart Provider ──────────────────────────────────────────────────────
+final orgChartProvider = FutureProvider.autoDispose<List<OrgNode>>((ref) {
+  return ref.watch(hrRepositoryProvider).getOrgChart();
+});

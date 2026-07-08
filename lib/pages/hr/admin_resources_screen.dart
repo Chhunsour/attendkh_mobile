@@ -111,7 +111,7 @@ class _ShiftsTab extends ConsumerWidget {
                           const SizedBox(width: 14),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text(s.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                            Text('${s.startTime} - ${s.endTime}', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                            Text('${s.startTime} – ${s.endTime}', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
                             if (s.employeesCount != null) Text('${s.employeesCount} employees', style: TextStyle(fontSize: 11, color: AppColors.grey400)),
                           ])),
                           IconButton(icon: const Icon(Icons.person_add, size: 20, color: AppColors.secondary), onPressed: () => _assignShift(context, ref, s.id)),

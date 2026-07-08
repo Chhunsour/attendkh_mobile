@@ -138,51 +138,118 @@ class LeaveBalanceData {
   }
 }
 
+// ── Daily Schedule ───────────────────────────────────────────────────────────
+class DailySchedule {
+  final bool isWorking;
+  final String start;
+  final String end;
+  final String? breakStart;
+  final String? breakEnd;
+
+  const DailySchedule({
+    required this.isWorking,
+    required this.start,
+    required this.end,
+    this.breakStart,
+    this.breakEnd,
+  });
+
+  factory DailySchedule.fromJson(Map<String, dynamic> json) {
+    return DailySchedule(
+      isWorking: json['is_working'] as bool? ?? true,
+      start: json['start'] as String? ?? '09:00',
+      end: json['end'] as String? ?? '17:00',
+      breakStart: json['break_start'] as String?,
+      breakEnd: json['break_end'] as String?,
+    );
+  }
+}
+
 // ── Shift ───────────────────────────────────────────────────────────────────
 class ShiftData {
   final int id;
   final String name;
-  final String startTime;
-  final String endTime;
   final String? code;
-  final int? breakDuration;
-  final int? gracePeriod;
-  final int? overtimeThreshold;
-  final List<String>? workDays;
-  final bool? isOvernight;
-  final bool? isActive;
+  final Map<String, DailySchedule>? schedule;
+  final int gracePeriod;
+  final int overtimeThreshold;
+  final bool isOvernight;
+  final bool isActive;
   final int? employeesCount;
 
   const ShiftData({
     required this.id,
     required this.name,
-    required this.startTime,
-    required this.endTime,
     this.code,
-    this.breakDuration,
-    this.gracePeriod,
-    this.overtimeThreshold,
-    this.workDays,
-    this.isOvernight,
-    this.isActive,
+    this.schedule,
+    this.gracePeriod = 15,
+    this.overtimeThreshold = 30,
+    this.isOvernight = false,
+    this.isActive = true,
     this.employeesCount,
   });
 
   factory ShiftData.fromJson(Map<String, dynamic> json) {
+    Map<String, DailySchedule>? schedule;
+    if (json['schedule'] != null && json['schedule'] is Map) {
+      schedule = (json['schedule'] as Map<String, dynamic>).map(
+        (k, v) => MapEntry(k, DailySchedule.fromJson(v as Map<String, dynamic>)),
+      );
+    }
     return ShiftData(
       id: json['id'] as int,
       name: json['name'] as String? ?? '',
-      startTime: json['start_time'] as String? ?? '',
-      endTime: json['end_time'] as String? ?? '',
       code: json['code'] as String?,
-      breakDuration: json['break_duration'] as int?,
-      gracePeriod: json['grace_period'] as int?,
-      overtimeThreshold: json['overtime_threshold'] as int?,
-      workDays: (json['work_days'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
-      isOvernight: json['is_overnight'] as bool?,
-      isActive: json['is_active'] as bool?,
-      employeesCount: json['employees_count'] as int?,
+      schedule: schedule,
+      gracePeriod: json['grace_period'] as int? ?? 15,
+      overtimeThreshold: json['overtime_threshold'] as int? ?? 30,
+      isOvernight: json['is_overnight'] as bool? ?? false,
+      isActive: json['is_active'] as bool? ?? true,
+      employeesCount: json['employees_count'] as int? ?? json['assignments_count'] as int?,
     );
+  }
+
+  /// Convenience: list of working day names (e.g. ['monday', 'tuesday', ...])
+  List<String> get workDays =>
+      schedule?.entries.where((e) => e.value.isWorking).map((e) => e.key).toList() ?? [];
+
+  /// Number of working days
+  int get workingDaysCount => workDays.length;
+
+  /// First working day's start time (convenience for single-shift-day UIs)
+  String get startTime {
+    final s = schedule;
+    if (s == null) return '09:00';
+    final entry = s.entries.cast<MapEntry<String, DailySchedule>>().firstWhere(
+      (e) => e.value.isWorking,
+      orElse: () => const MapEntry('monday', DailySchedule(isWorking: true, start: '09:00', end: '17:00')),
+    );
+    return entry.value.start;
+  }
+
+  /// First working day's end time
+  String get endTime {
+    final s = schedule;
+    if (s == null) return '17:00';
+    final entry = s.entries.cast<MapEntry<String, DailySchedule>>().firstWhere(
+      (e) => e.value.isWorking,
+      orElse: () => const MapEntry('monday', DailySchedule(isWorking: true, start: '09:00', end: '17:00')),
+    );
+    return entry.value.end;
+  }
+
+  /// Break duration in minutes derived from first working day
+  int? get breakDuration {
+    final s = schedule;
+    if (s == null) return null;
+    final entry = s.entries.cast<MapEntry<String, DailySchedule>>().firstWhere(
+      (e) => e.value.isWorking && e.value.breakStart != null && e.value.breakEnd != null,
+      orElse: () => const MapEntry('', DailySchedule(isWorking: true, start: '', end: '')),
+    );
+    if (entry.key.isEmpty || entry.value.breakStart == null || entry.value.breakEnd == null) return null;
+    final startParts = entry.value.breakStart!.split(':').map(int.parse).toList();
+    final endParts = entry.value.breakEnd!.split(':').map(int.parse).toList();
+    return (endParts[0] * 60 + endParts[1]) - (startParts[0] * 60 + startParts[1]);
   }
 }
 
@@ -464,19 +531,26 @@ class AdminOperationsRepository {
     List<String>? workDays,
     bool? isOvernight,
     bool? isActive,
+    Map<String, dynamic>? schedule,
   }) async {
-    final response = await _api.post('/company/shifts', data: {
+    final Map<String, dynamic> body = {
       'name': name,
-      'start_time': startTime,
-      'end_time': endTime,
       'code': ?code,
-      'break_duration': ?breakDuration,
       'grace_period': ?gracePeriod,
       'overtime_threshold': ?overtimeThreshold,
-      'work_days': ?workDays,
       'is_overnight': ?isOvernight,
       'is_active': ?isActive,
-    });
+    };
+    // If schedule is provided, use the new format; otherwise fall back to old params
+    if (schedule != null) {
+      body['schedule'] = schedule;
+    } else {
+      body['start_time'] = startTime;
+      body['end_time'] = endTime;
+      if (breakDuration != null) body['break_duration'] = breakDuration;
+      if (workDays != null) body['work_days'] = workDays;
+    }
+    final response = await _api.post('/company/shifts', data: body);
     return ShiftData.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -491,19 +565,25 @@ class AdminOperationsRepository {
     List<String>? workDays,
     bool? isOvernight,
     bool? isActive,
+    Map<String, dynamic>? schedule,
   }) async {
-    final response = await _api.put('/company/shifts/$id', data: {
+    final Map<String, dynamic> body = {
       'name': name,
-      'start_time': startTime,
-      'end_time': endTime,
       'code': ?code,
-      'break_duration': ?breakDuration,
       'grace_period': ?gracePeriod,
       'overtime_threshold': ?overtimeThreshold,
-      'work_days': ?workDays,
       'is_overnight': ?isOvernight,
       'is_active': ?isActive,
-    });
+    };
+    if (schedule != null) {
+      body['schedule'] = schedule;
+    } else {
+      body['start_time'] = startTime;
+      body['end_time'] = endTime;
+      if (breakDuration != null) body['break_duration'] = breakDuration;
+      if (workDays != null) body['work_days'] = workDays;
+    }
+    final response = await _api.put('/company/shifts/$id', data: body);
     return ShiftData.fromJson(response.data as Map<String, dynamic>);
   }
 

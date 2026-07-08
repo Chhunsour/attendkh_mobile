@@ -317,6 +317,57 @@ class RoleData {
   }
 }
 
+// ── Org Node (Org Chart) ────────────────────────────────────────────────────
+class OrgNode {
+  final int id;
+  final String firstName;
+  final String lastName;
+  final String? photo;
+  final String employmentStatus;
+  final String? email;
+  final String? phone;
+  final String? positionName;
+  final String? departmentName;
+  final List<OrgNode>? subordinates;
+
+  const OrgNode({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    this.photo,
+    this.employmentStatus = 'active',
+    this.email,
+    this.phone,
+    this.positionName,
+    this.departmentName,
+    this.subordinates,
+  });
+
+  String get name => '$firstName $lastName';
+  String get initials => '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'.toUpperCase();
+  int get subordinatesCount => subordinates?.length ?? 0;
+  bool get hasSubordinates => subordinates != null && subordinates!.isNotEmpty;
+
+  factory OrgNode.fromJson(Map<String, dynamic> json) {
+    return OrgNode(
+      id: json['id'] as int,
+      firstName: json['first_name'] as String? ?? '',
+      lastName: json['last_name'] as String? ?? '',
+      photo: json['photo'] as String?,
+      employmentStatus: json['employment_status'] as String? ?? 'active',
+      email: json['email'] as String?,
+      phone: json['phone'] as String?,
+      positionName: json['position']?['name'] as String?,
+      departmentName: json['department']?['name'] as String?,
+      subordinates: json['subordinates'] != null
+          ? (json['subordinates'] as List)
+              .map((e) => OrgNode.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : null,
+    );
+  }
+}
+
 // ── HR Repository ───────────────────────────────────────────────────────────
 class HrRepository {
   final ApiRepository _api;
@@ -355,7 +406,7 @@ class HrRepository {
     return BranchData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<BranchData> updateBranch(int id, {
+  Future<void> updateBranch(int id, {
     String? name,
     String? code,
     String? address,
@@ -367,7 +418,7 @@ class HrRepository {
     int? managerId,
     bool? isActive,
   }) async {
-    final response = await _api.put('/company/branches/$id', data: {
+    await _api.put('/company/branches/$id', data: {
       'name': name,
       'code': code,
       'address': address,
@@ -379,7 +430,6 @@ class HrRepository {
       'manager_id': managerId,
       'is_active': isActive,
     });
-    return BranchData.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<void> deleteBranch(int id) async => _api.delete('/company/branches/$id');
@@ -409,7 +459,7 @@ class HrRepository {
     return DepartmentData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<DepartmentData> updateDepartment(int id, {
+  Future<void> updateDepartment(int id, {
     required String name,
     String? code,
     int? branchId,
@@ -417,7 +467,7 @@ class HrRepository {
     int? managerId,
     bool? isActive,
   }) async {
-    final response = await _api.put('/company/departments/$id', data: {
+    await _api.put('/company/departments/$id', data: {
       'name': name,
       'code': code,
       'branch_id': branchId,
@@ -425,7 +475,6 @@ class HrRepository {
       'manager_id': managerId,
       'is_active': isActive,
     });
-    return DepartmentData.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<void> deleteDepartment(int id) async => _api.delete('/company/departments/$id');
@@ -453,21 +502,20 @@ class HrRepository {
     return PositionData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<PositionData> updatePosition(int id, {
+  Future<void> updatePosition(int id, {
     required String name,
     String? code,
     int? departmentId,
     String? level,
     bool? isActive,
   }) async {
-    final response = await _api.put('/company/positions/$id', data: {
+    await _api.put('/company/positions/$id', data: {
       'name': name,
       'code': code,
       'department_id': departmentId,
       'level': level,
       'is_active': isActive,
     });
-    return PositionData.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<void> deletePosition(int id) async => _api.delete('/company/positions/$id');
@@ -495,21 +543,20 @@ class HrRepository {
     return TeamData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<TeamData> updateTeam(int id, {
+  Future<void> updateTeam(int id, {
     required String name,
     String? description,
     int? departmentId,
     int? leaderId,
     bool? isActive,
   }) async {
-    final response = await _api.put('/company/teams/$id', data: {
+    await _api.put('/company/teams/$id', data: {
       'name': name,
       'description': description,
       'department_id': departmentId,
       'leader_id': leaderId,
       'is_active': isActive,
     });
-    return TeamData.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<void> deleteTeam(int id) async => _api.delete('/company/teams/$id');
@@ -667,6 +714,21 @@ class HrRepository {
       'permissions': ?permissions,
     });
     return RoleData.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  // ── Org Chart ───────────────────────────────────────────────────────────
+  Future<List<OrgNode>> getOrgChart() async {
+    final response = await _api.get('/company/org-chart');
+    final data = response.data;
+    if (data is List) {
+      return data.map((e) => OrgNode.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List)
+          .map((e) => OrgNode.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    return [];
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────

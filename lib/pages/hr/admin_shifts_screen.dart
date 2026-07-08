@@ -138,11 +138,80 @@ class _ShiftCard extends ConsumerWidget {
   final int colorIndex;
   const _ShiftCard({required this.shift, required this.colorIndex});
 
+  static const _dayAbbr = {
+    'monday': 'Mon', 'tuesday': 'Tue', 'wednesday': 'Wed',
+    'thursday': 'Thu', 'friday': 'Fri', 'saturday': 'Sat', 'sunday': 'Sun',
+  };
+  static const _dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+  String _formatTime(String t) {
+    final parts = t.split(':');
+    final h = int.parse(parts[0]);
+    final ampm = h >= 12 ? 'PM' : 'AM';
+    final h12 = h % 12 == 0 ? 12 : h % 12;
+    return '$h12:${parts[1]} $ampm';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gradient = _cardGradients[colorIndex];
     final accent = _cardAccents[colorIndex];
-    final workDays = shift.workDays ?? [];
+    final schedule = shift.schedule;
+
+    // Group consecutive working days with identical times into periods
+    final periods = <Map<String, dynamic>>[];
+    if (schedule != null) {
+      String? currentStart, currentEnd, currentBreakStart, currentBreakEnd;
+      final currentDays = <String>[];
+      for (final day in _dayOrder) {
+        final ds = schedule[day];
+        if (ds != null && ds.isWorking) {
+          final key = '${ds.start}|${ds.end}|${ds.breakStart}|${ds.breakEnd}';
+          final newKey = '$currentStart|$currentEnd|$currentBreakStart|$currentBreakEnd';
+          if (currentStart == null || key != newKey) {
+            if (currentDays.isNotEmpty) {
+              periods.add({
+                'days': List<String>.from(currentDays),
+                'start': _formatTime(currentStart!),
+                'end': _formatTime(currentEnd!),
+                'breakStart': currentBreakStart != null ? _formatTime(currentBreakStart) : null,
+                'breakEnd': currentBreakEnd != null ? _formatTime(currentBreakEnd) : null,
+              });
+            }
+            currentStart = ds.start;
+            currentEnd = ds.end;
+            currentBreakStart = ds.breakStart;
+            currentBreakEnd = ds.breakEnd;
+            currentDays.clear();
+          }
+          currentDays.add(day);
+        } else {
+          if (currentDays.isNotEmpty) {
+            periods.add({
+              'days': List<String>.from(currentDays),
+              'start': _formatTime(currentStart!),
+              'end': _formatTime(currentEnd!),
+              'breakStart': currentBreakStart != null ? _formatTime(currentBreakStart) : null,
+              'breakEnd': currentBreakEnd != null ? _formatTime(currentBreakEnd) : null,
+            });
+          }
+          currentStart = null;
+          currentEnd = null;
+          currentBreakStart = null;
+          currentBreakEnd = null;
+          currentDays.clear();
+        }
+      }
+      if (currentDays.isNotEmpty) {
+        periods.add({
+          'days': List<String>.from(currentDays),
+          'start': _formatTime(currentStart!),
+          'end': _formatTime(currentEnd!),
+          'breakStart': currentBreakStart != null ? _formatTime(currentBreakStart) : null,
+          'breakEnd': currentBreakEnd != null ? _formatTime(currentBreakEnd) : null,
+        });
+      }
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -169,7 +238,6 @@ class _ShiftCard extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Icon circle
                 Container(
                   width: 48,
                   height: 48,
@@ -184,37 +252,62 @@ class _ShiftCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        shift.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          color: AppColors.grey800,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              shift.name,
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.grey800),
+                            ),
+                          ),
+                          if (shift.code != null && shift.code!.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: accent.withAlpha(30),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                shift.code!,
+                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: accent),
+                              ),
+                            ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      // Time badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: accent.withAlpha(20),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.access_time_rounded, size: 12, color: accent),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${shift.startTime} – ${shift.endTime}',
+                      const SizedBox(height: 6),
+                      // Status badge
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: shift.isActive ? const Color(0xFFDCFCE7) : AppColors.grey100,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              shift.isActive ? 'ACTIVE' : 'INACTIVE',
                               style: TextStyle(
-                                color: accent,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                                color: shift.isActive ? const Color(0xFF16A34A) : AppColors.grey500,
+                              ),
+                            ),
+                          ),
+                          if (shift.isOvernight) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEEF2FF),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'OVERNIGHT',
+                                style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFF4F46E5)),
                               ),
                             ),
                           ],
-                        ),
+                        ],
                       ),
                     ],
                   ),
@@ -243,47 +336,106 @@ class _ShiftCard extends ConsumerWidget {
 
           // ── Divider ──────────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Divider(height: 1, color: accent.withAlpha(30)),
           ),
 
-          // ── Stats row ────────────────────────────────────────────────
+          // ── Schedule grid ────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: periods.map((p) {
+                final days = (p['days'] as List<String>);
+                final dayLabels = days.map((d) => _dayAbbr[d] ?? d.substring(0, 2)).join(', ');
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(80),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: accent.withAlpha(50)),
+                    ),
+                    child: Row(
+                      children: [
+                        // Day labels
+                        Expanded(
+                          flex: 3,
+                          child: Text(
+                            dayLabels,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: accent,
+                            ),
+                          ),
+                        ),
+                        // Time range
+                        Text(
+                          '${p['start']} – ${p['end']}',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                        ),
+                        if (p['breakStart'] != null) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withAlpha(150),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              'Brk ${p['breakStart']}–${p['breakEnd']}',
+                              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: AppColors.grey500),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+
+          // ── Rules row ────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
             child: Row(
               children: [
-                _StatChip(
-                  icon: Icons.people_alt_rounded,
-                  label: '${shift.employeesCount ?? 0} Assigned',
-                  color: accent,
-                ),
+                _StatChip(icon: Icons.timer_outlined, label: '${shift.gracePeriod}m grace', color: accent),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: workDays.isEmpty
-                      ? _StatChip(icon: Icons.event_busy_rounded, label: 'No days set', color: AppColors.grey400)
-                      : _DayChips(days: workDays, accent: accent),
-                ),
+                _StatChip(icon: Icons.more_time_rounded, label: 'OT≥${shift.overtimeThreshold}m', color: accent),
               ],
             ),
           ),
 
-          // ── Assign button ─────────────────────────────────────────────
+          // ── Assigned count + Assign button ─────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: () => _showAssignDialog(context, ref),
-                style: FilledButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            child: Row(
+              children: [
+                _StatChip(
+                  icon: Icons.people_alt_rounded,
+                  label: '${shift.employeesCount ?? 0} assigned',
+                  color: accent,
                 ),
-                icon: const Icon(Icons.person_add_alt_1_rounded, size: 16),
-                label: const Text('Assign Employee'),
-              ),
+                const Spacer(),
+                FilledButton.icon(
+                  onPressed: () => _showAssignDialog(context, ref),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: accent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                    minimumSize: Size.zero,
+                  ),
+                  icon: const Icon(Icons.person_add_alt_1_rounded, size: 14),
+                  label: const Text('Assign'),
+                ),
+              ],
             ),
           ),
         ],
@@ -391,6 +543,7 @@ class _StatChip extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _DayChips extends StatelessWidget {
   final List<dynamic> days;
   final Color accent;
@@ -431,8 +584,16 @@ class _AssignShiftDialog extends ConsumerStatefulWidget {
 }
 
 class _AssignShiftDialogState extends ConsumerState<_AssignShiftDialog> {
-  int? _selectedEmployeeId;
+  final Set<int> _selectedIds = {};
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _searchQuery = '';
   bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -464,11 +625,11 @@ class _AssignShiftDialogState extends ConsumerState<_AssignShiftDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Assign Employee',
+                        'Assign Employees',
                         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.grey800),
                       ),
                       Text(
-                        widget.shift.name,
+                        '${widget.shift.name} · ${_selectedIds.length} selected',
                         style: const TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w500),
                       ),
                     ],
@@ -485,49 +646,155 @@ class _AssignShiftDialogState extends ConsumerState<_AssignShiftDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
-            // Dropdown
-            const Text(
-              'Select Employee',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.grey700),
+            // Search + Select All
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: AppColors.grey50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.grey200),
+                    ),
+                    child: TextField(
+                      controller: _searchCtrl,
+                      onChanged: (v) => setState(() => _searchQuery = v.toLowerCase()),
+                      style: const TextStyle(fontSize: 13),
+                      decoration: InputDecoration(
+                        hintText: 'Search employees...',
+                        hintStyle: const TextStyle(fontSize: 12, color: AppColors.grey400),
+                        prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppColors.grey400),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
-            employeesAsync.when(
-              data: (employees) => DropdownButtonFormField<int>(
-                initialValue: _selectedEmployeeId,
-                decoration: InputDecoration(
-                  hintText: 'Choose an employee...',
-                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 20),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.grey200),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.grey200),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
-                  ),
-                  filled: true,
-                  fillColor: AppColors.grey50,
-                ),
-                items: employees
-                    .map((e) => DropdownMenuItem(
-                          value: e.id,
-                          child: Text(e.name, style: const TextStyle(fontSize: 14)),
-                        ))
-                    .toList(),
-                onChanged: (v) => setState(() => _selectedEmployeeId = v),
+
+            // Employee list
+            Flexible(
+              child: employeesAsync.when(
+                data: (allEmployees) {
+                  final filtered = _searchQuery.isEmpty
+                      ? allEmployees
+                      : allEmployees.where((e) =>
+                          e.name.toLowerCase().contains(_searchQuery) ||
+                          (e.employeeId ?? '').toLowerCase().contains(_searchQuery)
+                        ).toList();
+
+                  if (filtered.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text('No employees found', style: TextStyle(fontSize: 13, color: AppColors.grey400)),
+                    );
+                  }
+
+                  final allFilteredSelected = filtered.every((e) => _selectedIds.contains(e.id));
+
+                  return SizedBox(
+                    height: 240,
+                    child: Column(
+                      children: [
+                        // Select All toggle
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (allFilteredSelected) {
+                                for (final e in filtered) { _selectedIds.remove(e.id); }
+                              } else {
+                                for (final e in filtered) { _selectedIds.add(e.id); }
+                              }
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.grey50,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  allFilteredSelected ? Icons.check_box : Icons.check_box_outline_blank,
+                                  size: 18,
+                                  color: allFilteredSelected ? AppColors.primary : AppColors.grey400,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  allFilteredSelected ? 'Deselect All' : 'Select All',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: allFilteredSelected ? AppColors.primary : AppColors.grey600),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        // List
+                        Expanded(
+                          child: ListView.separated(
+                            itemCount: filtered.length,
+                            separatorBuilder: (_, _) => const SizedBox(height: 4),
+                            itemBuilder: (_, i) {
+                              final emp = filtered[i];
+                              final isSelected = _selectedIds.contains(emp.id);
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    if (isSelected) {
+                                      _selectedIds.remove(emp.id);
+                                    } else {
+                                      _selectedIds.add(emp.id);
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? AppColors.primaryLight : Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: isSelected ? AppColors.primary.withAlpha(50) : AppColors.grey100),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        isSelected ? Icons.check_box : Icons.check_box_outline_blank,
+                                        size: 18,
+                                        color: isSelected ? AppColors.primary : AppColors.grey300,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(emp.name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isSelected ? AppColors.primary : AppColors.grey800)),
+                                            if (emp.employeeId != null)
+                                              Text(emp.employeeId!, style: const TextStyle(fontSize: 11, color: AppColors.grey400)),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                loading: () => const SizedBox(height: 240, child: Center(child: CircularProgressIndicator())),
+                error: (e, _) => const SizedBox(height: 240, child: Center(child: Text('Error loading employees', style: TextStyle(color: AppColors.danger)))),
               ),
-              loading: () => const SizedBox(height: 56, child: Center(child: CircularProgressIndicator())),
-              error: (e, _) => const Text('Error loading employees', style: TextStyle(color: AppColors.danger)),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // Actions
             Row(
@@ -548,7 +815,7 @@ class _AssignShiftDialogState extends ConsumerState<_AssignShiftDialog> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton(
-                    onPressed: _selectedEmployeeId == null || _isLoading ? null : _assign,
+                    onPressed: _selectedIds.isEmpty || _isLoading ? null : _assign,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -557,7 +824,7 @@ class _AssignShiftDialogState extends ConsumerState<_AssignShiftDialog> {
                     ),
                     child: _isLoading
                         ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Text('Assign', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        : Text('Assign ${_selectedIds.length}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                   ),
                 ),
               ],
@@ -571,12 +838,25 @@ class _AssignShiftDialogState extends ConsumerState<_AssignShiftDialog> {
   Future<void> _assign() async {
     setState(() => _isLoading = true);
     try {
-      await ref.read(adminOpsRepositoryProvider).assignShift(widget.shift.id, _selectedEmployeeId!);
+      final repo = ref.read(adminOpsRepositoryProvider);
+      int successCount = 0;
+      int failCount = 0;
+      for (final empId in _selectedIds) {
+        try {
+          await repo.assignShift(widget.shift.id, empId);
+          successCount++;
+        } catch (_) {
+          failCount++;
+        }
+      }
       ref.invalidate(shiftsProvider);
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Shift assigned successfully'), backgroundColor: AppColors.success),
+          SnackBar(
+            content: Text('✅ $successCount assigned${failCount > 0 ? ', $failCount failed' : ''}'),
+            backgroundColor: failCount == 0 ? AppColors.success : AppColors.warning,
+          ),
         );
       }
     } catch (e) {
