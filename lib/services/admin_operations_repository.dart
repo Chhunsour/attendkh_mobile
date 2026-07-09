@@ -68,6 +68,9 @@ class AdminLeaveRequestData {
   final int id;
   final String employeeName;
   final String leaveType;
+  final String leaveTypeName;
+  final String? leaveTypeColor;
+  final bool halfDay;
   final String startDate;
   final String endDate;
   final double days;
@@ -75,13 +78,29 @@ class AdminLeaveRequestData {
   final String status;
   final String createdAt;
 
-  const AdminLeaveRequestData({required this.id, required this.employeeName, required this.leaveType, required this.startDate, required this.endDate, required this.days, this.reason, required this.status, required this.createdAt});
+  const AdminLeaveRequestData({
+    required this.id,
+    required this.employeeName,
+    required this.leaveType,
+    this.leaveTypeName = '',
+    this.leaveTypeColor,
+    this.halfDay = false,
+    required this.startDate,
+    required this.endDate,
+    required this.days,
+    this.reason,
+    required this.status,
+    required this.createdAt,
+  });
 
   factory AdminLeaveRequestData.fromJson(Map<String, dynamic> json) {
     return AdminLeaveRequestData(
       id: json['id'] as int,
       employeeName: json['employee']?['name'] as String? ?? json['user']?['name'] as String? ?? '',
       leaveType: json['leave_type']?['name'] as String? ?? '',
+      leaveTypeName: json['leave_type']?['name'] as String? ?? '',
+      leaveTypeColor: json['leave_type']?['color'] as String?,
+      halfDay: json['half_day'] as bool? ?? false,
       startDate: json['start_date'] as String? ?? '',
       endDate: json['end_date'] as String? ?? '',
       days: (json['days'] as num?)?.toDouble() ?? (json['total_days'] as num?)?.toDouble() ?? 0,
@@ -96,19 +115,61 @@ class AdminLeaveRequestData {
 class LeaveTypeData {
   final int id;
   final String name;
+  final String? code;
   final double defaultDays;
   final String? color;
   final bool isActive;
+  final bool isPaid;
+  final bool carryForward;
+  final bool requiresDocument;
+  final bool isProrated;
+  final int? minimumTenureDays;
+  final bool allowHalfDay;
+  final int noticePeriodDays;
+  final int? maxConsecutiveDays;
+  final int sortOrder;
+  final int? maxCarryForward;
+  final String genderSpecific;
 
-  const LeaveTypeData({required this.id, required this.name, required this.defaultDays, this.color, this.isActive = true});
+  const LeaveTypeData({
+    required this.id,
+    required this.name,
+    this.code,
+    required this.defaultDays,
+    this.color,
+    this.isActive = true,
+    this.isPaid = true,
+    this.carryForward = false,
+    this.requiresDocument = false,
+    this.isProrated = false,
+    this.minimumTenureDays,
+    this.allowHalfDay = false,
+    this.noticePeriodDays = 0,
+    this.maxConsecutiveDays,
+    this.sortOrder = 0,
+    this.maxCarryForward,
+    this.genderSpecific = 'all',
+  });
 
   factory LeaveTypeData.fromJson(Map<String, dynamic> json) {
     return LeaveTypeData(
       id: json['id'] as int,
       name: json['name'] as String? ?? '',
-      defaultDays: (json['default_days'] as num?)?.toDouble() ?? 0,
+      code: json['code'] as String?,
+      defaultDays: (json['default_days'] as num?)?.toDouble() ?? (json['days_per_year'] as num?)?.toDouble() ?? 0,
       color: json['color'] as String?,
       isActive: json['is_active'] as bool? ?? true,
+      isPaid: json['is_paid'] as bool? ?? true,
+      carryForward: json['carry_forward'] as bool? ?? false,
+      requiresDocument: json['requires_document'] as bool? ?? false,
+      isProrated: json['is_prorated'] as bool? ?? false,
+      minimumTenureDays: json['minimum_tenure_days'] as int?,
+      allowHalfDay: json['allow_half_day'] as bool? ?? false,
+      noticePeriodDays: json['notice_period_days'] as int? ?? 0,
+      maxConsecutiveDays: json['max_consecutive_days'] as int?,
+      sortOrder: json['sort_order'] as int? ?? 0,
+      maxCarryForward: json['max_carry_forward'] as int?,
+      genderSpecific: json['gender_specific'] as String? ?? 'all',
     );
   }
 }
@@ -501,14 +562,66 @@ class AdminOperationsRepository {
   Future<void> approveLeaveRequest(int id) async => _api.put('/company/leave/requests/$id/action', data: {'action': 'approve'});
   Future<void> rejectLeaveRequest(int id, {String? reason}) async => _api.put('/company/leave/requests/$id/action', data: {'action': 'reject', 'rejection_reason': ?reason});
 
+  Future<void> createLeaveRequest({
+    required int employeeId,
+    required int leaveTypeId,
+    required String startDate,
+    required String endDate,
+    required String reason,
+    required bool halfDay,
+    String? halfDayPeriod,
+  }) async => _api.post('/company/leave/requests', data: {
+    'employee_id': employeeId,
+    'leave_type_id': leaveTypeId,
+    'start_date': startDate,
+    'end_date': endDate,
+    'reason': reason,
+    'half_day': halfDay,
+    if (halfDay && halfDayPeriod != null) 'half_day_period': halfDayPeriod,
+  });
+
   // ── Leave Types ─────────────────────────────────────────────────────────
   Future<List<LeaveTypeData>> getLeaveTypes() async {
     final response = await _api.get('/company/leave/types');
     return _parseList(response.data, LeaveTypeData.fromJson);
   }
 
-  Future<LeaveTypeData> createLeaveType({required String name, required double defaultDays, String? color}) async {
-    final response = await _api.post('/company/leave/types', data: {'name': name, 'default_days': defaultDays, 'color': ?color});
+  Future<LeaveTypeData> createLeaveType({
+    required String name,
+    required double defaultDays,
+    String? color,
+    String? code,
+    bool isPaid = true,
+    bool carryForward = false,
+    bool requiresDocument = false,
+    bool isProrated = false,
+    int? minimumTenureDays,
+    bool allowHalfDay = false,
+    int noticePeriodDays = 0,
+    int? maxConsecutiveDays,
+    int sortOrder = 0,
+    int? maxCarryForward,
+    String genderSpecific = 'all',
+    bool isActive = true,
+  }) async {
+    final response = await _api.post('/company/leave/types', data: {
+      'name': name,
+      'days_per_year': defaultDays,
+      'color': ?color,
+      'code': ?code,
+      'is_paid': isPaid,
+      'carry_forward': carryForward,
+      'requires_document': requiresDocument,
+      'is_prorated': isProrated,
+      'minimum_tenure_days': minimumTenureDays,
+      'allow_half_day': allowHalfDay,
+      'notice_period_days': noticePeriodDays,
+      'max_consecutive_days': maxConsecutiveDays,
+      'sort_order': sortOrder,
+      'max_carry_forward': maxCarryForward,
+      'gender_specific': genderSpecific,
+      'is_active': isActive,
+    });
     return LeaveTypeData.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -520,7 +633,7 @@ class AdminOperationsRepository {
     return _parseList(response.data, ShiftData.fromJson);
   }
 
-  Future<ShiftData> createShift({
+  Future<void> createShift({
     required String name,
     required String startTime,
     required String endTime,
@@ -550,11 +663,10 @@ class AdminOperationsRepository {
       if (breakDuration != null) body['break_duration'] = breakDuration;
       if (workDays != null) body['work_days'] = workDays;
     }
-    final response = await _api.post('/company/shifts', data: body);
-    return ShiftData.fromJson(response.data as Map<String, dynamic>);
+    await _api.post('/company/shifts', data: body);
   }
 
-  Future<ShiftData> updateShift(int id, {
+  Future<void> updateShift(int id, {
     required String name,
     required String startTime,
     required String endTime,
@@ -583,8 +695,7 @@ class AdminOperationsRepository {
       if (breakDuration != null) body['break_duration'] = breakDuration;
       if (workDays != null) body['work_days'] = workDays;
     }
-    final response = await _api.put('/company/shifts/$id', data: body);
-    return ShiftData.fromJson(response.data as Map<String, dynamic>);
+    await _api.put('/company/shifts/$id', data: body);
   }
 
   Future<void> deleteShift(int id) async => _api.delete('/company/shifts/$id');
@@ -637,6 +748,20 @@ class AdminOperationsRepository {
   }
 
   Future<void> updateLeaveBalance(int id, Map<String, dynamic> data) async => _api.put('/company/leave/balances/$id', data: data);
+
+  Future<void> createLeaveBalance({
+    required int employeeId,
+    required int leaveTypeId,
+    required int year,
+    required double allocatedDays,
+    double carriedForward = 0,
+  }) async => _api.post('/company/leave/balances', data: {
+    'employee_id': employeeId,
+    'leave_type_id': leaveTypeId,
+    'year': year,
+    'allocated_days': allocatedDays,
+    'carried_forward': carriedForward,
+  });
 
   // ── Recruitment ─────────────────────────────────────────────────────────
   Future<List<JobPostingData>> getJobPostings() async {
@@ -748,4 +873,5 @@ class AdminOperationsRepository {
     if (data is Map && data['data'] != null) return (data['data'] as List).map((e) => fromJson(e as Map<String, dynamic>)).toList();
     return [];
   }
+
 }
