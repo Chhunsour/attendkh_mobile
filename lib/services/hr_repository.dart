@@ -640,7 +640,9 @@ class HrRepository {
       'notes': ?notes,
       'probation_end_date': ?probationEndDate,
     });
-    return EmployeeData.fromJson(response.data as Map<String, dynamic>);
+    final raw = response.data as Map<String, dynamic>;
+    final payload = raw['data'] as Map<String, dynamic>? ?? raw;
+    return EmployeeData.fromJson(payload);
   }
 
   Future<EmployeeData> updateEmployee(int id, {
@@ -670,7 +672,7 @@ class HrRepository {
     String? notes,
     String? probationEndDate,
   }) async {
-    final response = await _api.put('/company/employees/$id', data: {
+    await _api.put('/company/employees/$id', data: {
       'first_name': ?firstName,
       'last_name': ?lastName,
       'employment_type': ?employmentType,
@@ -697,7 +699,8 @@ class HrRepository {
       'notes': ?notes,
       'probation_end_date': ?probationEndDate,
     });
-    return EmployeeData.fromJson(response.data as Map<String, dynamic>);
+    // The update endpoint returns null data — re-fetch the updated employee.
+    return getEmployee(id);
   }
 
   Future<void> deleteEmployee(int id) async => _api.delete('/company/employees/$id');

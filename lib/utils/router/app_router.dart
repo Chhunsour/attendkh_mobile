@@ -41,6 +41,10 @@ import 'package:mpg_hr_mobile_app/pages/hr/admin_resources_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employee_form_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_shift_form_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_send_notification_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_payroll_detail_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_documents_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_policies_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_notifications_screen.dart';
 
 /// Route paths
 class AppRoutes {
@@ -81,6 +85,10 @@ class AppRoutes {
   static const adminEmployeeForm = '/company-admin/employee-form';
   static const adminShiftForm = '/company-admin/shift-form';
   static const adminSendNotification = '/company-admin/send-notification';
+  static const adminPayrollDetail = '/company-admin/payroll/:period';
+  static const adminDocuments = '/company-admin/documents';
+  static const adminPolicies = '/company-admin/policies';
+  static const adminNotifications = '/company-admin/notifications';
   static const adminCompanies = '/admin/companies';
   static const adminAnnouncements = '/admin/announcements';
   static const adminAuditLogs = '/admin/audit-logs';
@@ -329,6 +337,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminSendNotification,
         builder: (context, state) => const AdminSendNotificationScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminPayrollDetail,
+        builder: (context, state) => AdminPayrollDetailScreen(
+          period: state.pathParameters['period']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.adminDocuments,
+        builder: (context, state) => const AdminDocumentsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminPolicies,
+        builder: (context, state) => const AdminPoliciesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminNotifications,
+        builder: (context, state) => const AdminNotificationsScreen(),
       ),
     ],
   );

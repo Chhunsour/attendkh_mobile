@@ -44,154 +44,207 @@ class PayslipScreen extends ConsumerWidget {
                       (context, i) {
                         final p = payslips[i];
                         return _WalletCard(
-                          period: p.period,
-                          payDate: p.payDate ?? 'Pending',
-                          netPay: p.netPay,
-                          onDownload: () => _handleDownload(context, p.period),
+                          payslip: p,
+                          onDownload: () => _handleDownload(context, p),
                         );
                       },
                       childCount: payslips.length,
                     ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 100)), // Bottom padding for nav bar
+                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
                 ],
               ),
         loading: () => const LoadingIndicator(message: 'Loading secure wallet...'),
         error: (e, _) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: AppColors.grey400),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => ref.invalidate(payslipsProvider),
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
-              ),
-            ],
+          child: OutlinedButton.icon(
+            onPressed: () => ref.invalidate(payslipsProvider),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
           ),
         ),
       ),
     );
   }
 
-  Future<void> _handleDownload(BuildContext context, String period) async {
+  Future<void> _handleDownload(BuildContext context, PayslipData p) async {
     try {
       final repo = PayslipRepository();
-      await repo.downloadPayslip(period);
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('📥 Downloading payslip...'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      await repo.downloadPayslip(p.id?.toString() ?? p.period);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ Download started'), backgroundColor: AppColors.success),
+        );
+      }
     } catch (e) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ ${e.toString()}'),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger),
+        );
+      }
     }
   }
 }
 
-class _WalletCard extends StatelessWidget {
-  final String period;
-  final String payDate;
-  final double netPay;
+class _WalletCard extends StatefulWidget {
+  final PayslipData payslip;
   final VoidCallback onDownload;
 
-  const _WalletCard({
-    required this.period,
-    required this.payDate,
-    required this.netPay,
-    required this.onDownload,
-  });
+  const _WalletCard({required this.payslip, required this.onDownload});
+
+  @override
+  State<_WalletCard> createState() => _WalletCardState();
+}
+
+class _WalletCardState extends State<_WalletCard> {
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(left: 24, right: 24, bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Top portion (Bank Card Aesthetic)
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF334155), Color(0xFF1E293B)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+    final p = widget.payslip;
+    final statusColor = p.status == 'completed'
+        ? AppColors.success
+        : p.status == 'processing'
+            ? AppColors.info
+            : AppColors.warning;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: AppColors.grey200),
+        ),
+        color: AppColors.surfaceLight,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => setState(() => _expanded = !_expanded),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Text(period.toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white70, letterSpacing: 1.2)),
-                    const SizedBox(height: 8),
-                    Text('\$${netPay.toStringAsFixed(2)}', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.5)),
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withAlpha(26),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.receipt_long, color: AppColors.primary, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(p.period, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                          Text(p.payDate ?? 'Pending', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text('\$${p.netPay.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.success)),
+                        const SizedBox(height: 2),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: statusColor.withAlpha(26),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            p.status.substring(0, 1).toUpperCase() + p.status.substring(1),
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: statusColor),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.white.withAlpha(20), shape: BoxShape.circle),
-                  child: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 24),
-                ),
-              ],
-            ),
-          ),
-          
-          // Bottom portion (Details & Action)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const Text('Deposit Date', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
-                    const SizedBox(height: 2),
-                    Text(payDate, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey800)),
+                    Icon(_expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: AppColors.grey400, size: 20),
                   ],
                 ),
-                TextButton.icon(
-                  onPressed: onDownload,
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    backgroundColor: AppColors.primary.withAlpha(15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                if (_expanded) ...[
+                  const Divider(height: 20),
+                  _detailRow('Basic Salary', '\$${p.basicSalary.toStringAsFixed(2)}'),
+                  if (p.overtimePay > 0) _detailRow('Overtime Pay', '\$${p.overtimePay.toStringAsFixed(2)}', color: AppColors.info),
+                  if (p.allowances > 0) _detailRow('Allowances', '\$${p.allowances.toStringAsFixed(2)}'),
+                  const SizedBox(height: 4),
+                  _detailRow('Gross Pay', '\$${p.grossPay.toStringAsFixed(2)}', bold: true),
+                  const SizedBox(height: 8),
+                  if (p.taxDeduction > 0) _detailRow('Tax', '-\$${p.taxDeduction.toStringAsFixed(2)}', color: AppColors.danger),
+                  if (p.insuranceDeduction > 0) _detailRow('Insurance', '-\$${p.insuranceDeduction.toStringAsFixed(2)}', color: AppColors.danger),
+                  if (p.lateDeduction > 0) _detailRow('Late Deduction', '-\$${p.lateDeduction.toStringAsFixed(2)}', color: AppColors.warning),
+                  const SizedBox(height: 4),
+                  _detailRow('Total Deductions', '-\$${p.totalDeductions.toStringAsFixed(2)}', color: AppColors.danger, bold: true),
+                  const Divider(height: 16),
+                  _detailRow('Net Pay', '\$${p.netPay.toStringAsFixed(2)}', bold: true, netRow: true),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _statChip('Working Days', p.workingDays.toString(), AppColors.primary),
+                      _statChip('Present', p.presentDays.toString(), AppColors.success),
+                      _statChip('Late', p.lateDays.toString(), AppColors.warning),
+                      _statChip('OT Hours', p.overtimeHours.toString(), AppColors.info),
+                    ],
                   ),
-                  icon: const Icon(Icons.download_rounded, size: 18),
-                  label: const Text('Save PDF', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: widget.onDownload,
+                      icon: const Icon(Icons.download, size: 18),
+                      label: const Text('Download PDF'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ],
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value, {Color? color, bool bold = false, bool netRow = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(fontSize: 13, color: AppColors.grey500, fontWeight: bold ? FontWeight.w600 : FontWeight.normal)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: netRow ? 16 : 13,
+              fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+              color: color ?? AppColors.grey800,
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _statChip(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: color)),
+        const SizedBox(height: 2),
+        Text(label, style: TextStyle(fontSize: 10, color: AppColors.grey500)),
+      ],
     );
   }
 }

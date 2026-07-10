@@ -89,6 +89,9 @@ class LeaveRepository {
     if (data is List) {
       return data.map((e) => LeaveBalance.fromJson(e as Map<String, dynamic>)).toList();
     }
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List).map((e) => LeaveBalance.fromJson(e as Map<String, dynamic>)).toList();
+    }
     return [];
   }
 
@@ -126,7 +129,9 @@ class LeaveRepository {
         'reason': reason,
       },
     );
-    return LeaveRequest.fromJson(response.data as Map<String, dynamic>);
+    final raw = response.data as Map<String, dynamic>;
+    final payload = raw['data'] as Map<String, dynamic>? ?? raw;
+    return LeaveRequest.fromJson(payload);
   }
 
   /// POST /api/v1/company/leave/requests/{id}/cancel

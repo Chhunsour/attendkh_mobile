@@ -1,7 +1,24 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
+
+/// Base URL for the Laravel backend.
+/// - Android Emulator : 10.0.2.2 maps to the host machine's localhost.
+/// - Real device (WiFi): Use the Mac's LAN IP so the device can reach the server.
+/// Change [_devServerIp] to match your machine's current IP when on a real device.
+const String _devServerIp = '192.168.100.252';
+
+String get _baseUrl {
+  if (Platform.isAndroid) {
+    // Android emulator uses 10.0.2.2 to reach the host
+    // For a real Android device on same WiFi, use the Mac's LAN IP
+    return 'http://$_devServerIp:8000/api';
+  }
+  // iOS simulator and iOS real device
+  return 'http://$_devServerIp:8000/api';
+}
 
 class DioClient {
   static Dio? _dio;
@@ -9,7 +26,7 @@ class DioClient {
   static void init() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: 'http://localhost:8000/api',
+        baseUrl: _baseUrl,
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
         sendTimeout: const Duration(seconds: 15),
@@ -42,7 +59,7 @@ class DioClient {
   static Dio createDio({String? baseUrl}) {
     return Dio(
       BaseOptions(
-        baseUrl: baseUrl ?? 'http://localhost:8000/api',
+        baseUrl: baseUrl ?? _baseUrl,
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
         headers: {

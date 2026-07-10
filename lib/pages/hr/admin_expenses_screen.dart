@@ -1,15 +1,27 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/expense_provider.dart';
+import 'package:mpg_hr_mobile_app/services/expense_repository.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 
-class AdminExpensesScreen extends ConsumerWidget {
+class AdminExpensesScreen extends ConsumerStatefulWidget {
   const AdminExpensesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminExpensesScreen> createState() => _AdminExpensesScreenState();
+}
+
+class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
+  String _statusFilter = 'all';
+
+  @override
+  Widget build(BuildContext context) {
     final expensesAsync = ref.watch(expensesProvider);
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -19,99 +31,800 @@ class AdminExpensesScreen extends ConsumerWidget {
         elevation: 0,
         title: const Text(
           'Expense Claims',
-          style: TextStyle(
-            color: Colors.black87,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add, color: AppColors.primary, size: 28),
+            onPressed: () => _showAddExpenseSheet(context),
+            tooltip: 'New Claim',
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => ref.invalidate(expensesProvider),
+            tooltip: 'Refresh',
+          ),
+        ],
       ),
-      body: expensesAsync.when(
-        data: (items) => items.isEmpty
-            ? const Center(child: Text('No expense claims', style: TextStyle(color: AppColors.grey400)))
-            : ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: items.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 8),
-                itemBuilder: (context, i) {
-                  final e = items[i];
-                  final statusColor = e.status == 'approved' ? AppColors.success : e.status == 'rejected' ? AppColors.danger : e.status == 'paid' ? AppColors.info : AppColors.warning;
-                  return Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(width: 44, height: 44, decoration: BoxDecoration(color: statusColor.withAlpha(26), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.receipt_outlined, color: statusColor, size: 22)),
-                            const SizedBox(width: 14),
-                            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text(e.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                              Text(e.date, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
-                            ])),
-                            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                              Text('\$${e.amount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                              Container(margin: const EdgeInsets.only(top: 2), padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: statusColor.withAlpha(26), borderRadius: BorderRadius.circular(6)), child: Text(e.status.substring(0, 1).toUpperCase() + e.status.substring(1), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor))),
-                            ]),
-                          ],
+      body: Column(
+        children: [
+          // Status filter chips
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Row(
+              children: [
+                const Icon(Icons.filter_list, size: 18, color: AppColors.grey500),
+                const SizedBox(width: 8),
+                ...['all', 'pending', 'approved', 'rejected', 'paid'].map((status) {
+                  final isActive = _statusFilter == status;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: GestureDetector(
+                      onTap: () => setState(() => _statusFilter = status),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: isActive ? AppColors.primary : AppColors.grey100,
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        if (e.status == 'pending') ...[
-                          const SizedBox(height: 12),
-                          Row(children: [
-                            Expanded(child: OutlinedButton.icon(onPressed: () => _action(context, ref, e.id, 'reject'), icon: const Icon(Icons.close, size: 16), label: const Text('Reject'), style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)))),
-                            const SizedBox(width: 8),
-                            Expanded(child: ElevatedButton.icon(onPressed: () => _action(context, ref, e.id, 'approve'), icon: const Icon(Icons.check, size: 16), label: const Text('Approve'))),
-                          ]),
-                        ],
-                        if (e.status == 'approved') ...[
-                          const SizedBox(height: 12),
-                          Row(children: [
-                            Expanded(child: OutlinedButton.icon(onPressed: () => _action(context, ref, e.id, 'pay'), icon: const Icon(Icons.payment, size: 16), label: const Text('Mark as Paid'), style: OutlinedButton.styleFrom(foregroundColor: AppColors.info, side: const BorderSide(color: AppColors.info)))),
-                            const SizedBox(width: 8),
-                            IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger), onPressed: () => _deleteExpense(context, ref, e.id)),
-                          ]),
-                        ],
+                        child: Text(
+                          status == 'all' ? 'All' : status[0].toUpperCase() + status.substring(1),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isActive ? Colors.white : AppColors.grey500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Expanded(
+            child: expensesAsync.when(
+              data: (items) {
+                final filtered = _statusFilter == 'all' ? items : items.where((e) => e.status == _statusFilter).toList();
+                if (filtered.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.receipt_outlined, size: 64, color: AppColors.grey300.withAlpha(128)),
+                        const SizedBox(height: 12),
+                        const Text('No expense claims', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.grey500)),
                       ],
                     ),
                   );
-                },
+                }
+                return ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: filtered.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, i) {
+                    final e = filtered[i];
+                    final statusColor = e.status == 'approved'
+                        ? AppColors.success
+                        : e.status == 'rejected'
+                            ? AppColors.danger
+                            : e.status == 'paid'
+                                ? AppColors.info
+                                : AppColors.warning;
+                    return _AdminExpenseCard(
+                      expense: e,
+                      statusColor: statusColor,
+                      onTap: () => _showDetailModal(context, e, statusColor),
+                      onApprove: e.status == 'pending' ? () => _approveExpense(e.id) : null,
+                      onReject: e.status == 'pending' ? () => _showRejectDialog(context, e.id) : null,
+                      onPay: e.status == 'approved' ? () => _markAsPaid(e.id) : null,
+                      onEdit: e.status == 'pending' ? () => _showEditExpenseSheet(context, e) : null,
+                      onDelete: _canDelete(e.status) ? () => _deleteExpense(e.id) : null,
+                    );
+                  },
+                );
+              },
+              loading: () => const LoadingIndicator(message: 'Loading expenses...'),
+              error: (e, _) => Center(
+                child: OutlinedButton.icon(
+                  onPressed: () => ref.invalidate(expensesProvider),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retry'),
+                ),
               ),
-        loading: () => const LoadingIndicator(message: 'Loading expenses...'),
-        error: (e, _) => Center(child: OutlinedButton.icon(onPressed: () => ref.invalidate(expensesProvider), icon: const Icon(Icons.refresh), label: const Text('Retry'))),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> _deleteExpense(BuildContext context, WidgetRef ref, int id) async {
+  bool _canDelete(String status) => status == 'approved' || status == 'rejected' || status == 'paid';
+
+  Future<void> _approveExpense(int id) async {
+    try {
+      await AdminOperationsRepository().approveExpense(id);
+      ref.invalidate(expensesProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ Expense approved'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+      );
+    } catch (e) {
+      _showError(e);
+    }
+  }
+
+  Future<void> _markAsPaid(int id) async {
+    try {
+      await AdminOperationsRepository().markExpensePaid(id);
+      ref.invalidate(expensesProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ Expense marked as paid'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+      );
+    } catch (e) {
+      _showError(e);
+    }
+  }
+
+  Future<void> _deleteExpense(int id) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(title: const Text('Delete Claim'), content: const Text('Delete this expense claim?'), actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-        TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: AppColors.danger))),
-      ]),
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Claim'),
+        content: const Text('Delete this expense claim permanently?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: AppColors.danger))),
+        ],
+      ),
     );
     if (confirmed == true) {
       try {
         await AdminOperationsRepository().deleteExpense(id);
         ref.invalidate(expensesProvider);
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Claim deleted'), backgroundColor: AppColors.success));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('✅ Claim deleted'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+          );
+        }
       } catch (e) {
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
+        _showError(e);
       }
     }
   }
 
-  Future<void> _action(BuildContext context, WidgetRef ref, int id, String action) async {
-    try {
-      final repo = AdminOperationsRepository();
-      if (action == 'approve') { await repo.approveExpense(id); }
-      else if (action == 'reject') { await repo.rejectExpense(id); }
-      else if (action == 'pay') { await repo.markExpensePaid(id); }
-      ref.invalidate(expensesProvider);
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('✅ Expense ${action}d'), backgroundColor: AppColors.success));
-    } catch (e) {
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
+  Future<void> _showRejectDialog(BuildContext context, int id) async {
+    final reasonCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reject Claim'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Please provide a reason for rejecting this claim:', style: TextStyle(fontSize: 13, color: AppColors.grey600)),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: reasonCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Rejection Reason *',
+                  border: OutlineInputBorder(),
+                  hintText: 'e.g. Invalid receipt, duplicate claim',
+                ),
+                maxLines: 2,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Rejection reason is required' : null,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) Navigator.pop(ctx, true);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger, foregroundColor: Colors.white),
+            child: const Text('Reject'),
+          ),
+        ],
+      ),
+    );
+    if (result == true) {
+      try {
+        await AdminOperationsRepository().rejectExpense(id, reason: reasonCtrl.text.trim());
+        ref.invalidate(expensesProvider);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('✅ Expense rejected'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+          );
+        }
+      } catch (e) {
+        _showError(e);
+      }
     }
+  }
+
+  void _showDetailModal(BuildContext context, ExpenseData e, Color statusColor) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => _AdminExpenseDetailSheet(expense: e, statusColor: statusColor),
+    );
+  }
+
+  void _showAddExpenseSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => _AdminExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider)),
+    );
+  }
+
+  void _showEditExpenseSheet(BuildContext context, ExpenseData e) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => _AdminExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider), initial: e),
+    );
+  }
+
+  void _showError(dynamic e) {
+    String msg = 'Operation failed';
+    if (e is AppException) msg = e.message;
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ $msg'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+      );
+    }
+  }
+}
+
+// ─── Admin Expense Card ────────────────────────────────────────────────────
+
+class _AdminExpenseCard extends StatelessWidget {
+  final ExpenseData expense;
+  final Color statusColor;
+  final VoidCallback? onTap;
+  final VoidCallback? onApprove;
+  final VoidCallback? onReject;
+  final VoidCallback? onPay;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+
+  const _AdminExpenseCard({
+    required this.expense,
+    required this.statusColor,
+    this.onTap,
+    this.onApprove,
+    this.onReject,
+    this.onPay,
+    this.onEdit,
+    this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.grey200),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: statusColor.withAlpha(26),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(_categoryIcon(expense.category), color: statusColor, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(expense.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                      if (expense.description != null && expense.description!.isNotEmpty) ...[
+                        const SizedBox(height: 1),
+                        Text(expense.description!, style: const TextStyle(fontSize: 11, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ],
+                      if (expense.employeeName != null) ...[
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(expense.employeeName!, style: const TextStyle(fontSize: 11, color: AppColors.grey400)),
+                            if (expense.employeeId != null && expense.employeeId!.isNotEmpty) ...[
+                              const Text(' · ', style: TextStyle(fontSize: 10, color: AppColors.grey400)),
+                              Text(expense.employeeId!, style: const TextStyle(fontSize: 10, color: AppColors.grey400)),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    const SizedBox(height: 2),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: statusColor.withAlpha(26),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        _capitalize(expense.status),
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 58, top: 4),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.grey100,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(expense.category, style: const TextStyle(fontSize: 10, color: AppColors.grey500)),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(expense.date, style: const TextStyle(fontSize: 11, color: AppColors.grey400)),
+                  if (expense.receiptPath != null && expense.receiptPath!.isNotEmpty) ...[
+                    const SizedBox(width: 6),
+                    const Icon(Icons.attach_file, size: 12, color: AppColors.grey400),
+                  ],
+                ],
+              ),
+            ),
+            if (expense.rejectionReason != null && expense.rejectionReason!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 58, top: 4),
+                child: Row(
+                  children: [
+                    const Icon(Icons.block, size: 12, color: AppColors.danger),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        'Reason: ${expense.rejectionReason!}',
+                        style: const TextStyle(fontSize: 11, color: AppColors.danger, fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (expense.paidAt != null && expense.paidAt!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 58, top: 4),
+                child: Row(
+                  children: [
+                    const Icon(Icons.check_circle, size: 12, color: AppColors.info),
+                    const SizedBox(width: 4),
+                    Text('Paid: ${expense.paidAt}', style: const TextStyle(fontSize: 11, color: AppColors.info)),
+                  ],
+                ),
+              ),
+            // Action buttons
+            if (expense.status == 'pending') ...[
+              const SizedBox(height: 10),
+              Row(children: [
+                if (onEdit != null) ...[
+                  IconButton(icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.primary), onPressed: onEdit, tooltip: 'Edit'),
+                  const SizedBox(width: 4),
+                ],
+                if (onReject != null)
+                  Expanded(child: OutlinedButton.icon(onPressed: onReject, icon: const Icon(Icons.close, size: 16), label: const Text('Reject'), style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger, side: const BorderSide(color: AppColors.danger)))),
+                const SizedBox(width: 8),
+                if (onApprove != null)
+                  Expanded(child: ElevatedButton.icon(onPressed: onApprove, icon: const Icon(Icons.check, size: 16), label: const Text('Approve'))),
+              ]),
+            ],
+            if (expense.status == 'approved' && (onPay != null || onDelete != null)) ...[
+              const SizedBox(height: 10),
+              Row(children: [
+                if (onPay != null)
+                  Expanded(child: OutlinedButton.icon(onPressed: onPay, icon: const Icon(Icons.payment, size: 16), label: const Text('Mark as Paid'), style: OutlinedButton.styleFrom(foregroundColor: AppColors.info, side: const BorderSide(color: AppColors.info)))),
+                if (onDelete != null) ...[
+                  const SizedBox(width: 8),
+                  IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger), onPressed: onDelete),
+                ],
+              ]),
+            ],
+            if ((expense.status == 'rejected' || expense.status == 'paid') && onDelete != null) ...[
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger), onPressed: onDelete),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _categoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'travel': return Icons.flight;
+      case 'meals': return Icons.restaurant;
+      case 'supplies': return Icons.inventory_2;
+      case 'software': return Icons.computer;
+      case 'transport': return Icons.directions_car;
+      case 'accommodation': return Icons.hotel;
+      case 'other':
+      default: return Icons.receipt_outlined;
+    }
+  }
+
+  String _capitalize(String s) => s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
+
+  String _currencySymbol(String currency) {
+    switch (currency.toUpperCase()) {
+      case 'USD': return '\$';
+      case 'EUR': return '€';
+      case 'GBP': return '£';
+      default: return '$currency ';
+    }
+  }
+}
+
+// ─── Admin Detail Sheet ────────────────────────────────────────────────────
+
+class _AdminExpenseDetailSheet extends StatelessWidget {
+  final ExpenseData expense;
+  final Color statusColor;
+
+  const _AdminExpenseDetailSheet({required this.expense, required this.statusColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Expense Claim Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+              IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _detailRow('Title', expense.title),
+          if (expense.employeeName != null) _detailRow('Employee', expense.employeeName!),
+          _detailRow('Category', expense.category),
+          _detailRow('Amount', '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
+          _detailRow('Expense Date', expense.date),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Text('Status: ', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                decoration: BoxDecoration(
+                  color: statusColor.withAlpha(26),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  _capitalize(expense.status),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: statusColor),
+                ),
+              ),
+            ],
+          ),
+          if (expense.description != null && expense.description!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _detailRow('Description', expense.description!),
+          ],
+          if (expense.rejectionReason != null && expense.rejectionReason!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            const Text('Rejection Reason', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+            const SizedBox(height: 2),
+            Text(expense.rejectionReason!, style: const TextStyle(fontSize: 13, color: AppColors.danger)),
+          ],
+          if (expense.paidAt != null && expense.paidAt!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _detailRow('Paid At', expense.paidAt!),
+          ],
+          if (expense.receiptPath != null && expense.receiptPath!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            const Text('Receipt', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.description, size: 18, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    expense.receiptPath!.split('/').last,
+                    style: const TextStyle(fontSize: 13, color: AppColors.grey700),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+          const SizedBox(height: 2),
+          Text(value, style: const TextStyle(fontSize: 13, color: AppColors.grey800)),
+        ],
+      ),
+    );
+  }
+
+  String _capitalize(String s) => s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
+
+  String _currencySymbol(String currency) {
+    switch (currency.toUpperCase()) {
+      case 'USD': return '\$';
+      case 'EUR': return '€';
+      case 'GBP': return '£';
+      default: return '$currency ';
+    }
+  }
+}
+
+// ─── Admin Expense Form (Add/Edit) ─────────────────────────────────────────
+
+class _AdminExpenseForm extends ConsumerStatefulWidget {
+  final VoidCallback onSubmitted;
+  final ExpenseData? initial;
+
+  const _AdminExpenseForm({required this.onSubmitted, this.initial});
+
+  @override
+  ConsumerState<_AdminExpenseForm> createState() => _AdminExpenseFormState();
+}
+
+class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleCtrl = TextEditingController();
+  final _amountCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+  String _category = 'Travel';
+  String _currency = 'USD';
+  DateTime _expenseDate = DateTime.now();
+  bool _isSubmitting = false;
+
+  bool get _isEditing => widget.initial != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isEditing) {
+      final e = widget.initial!;
+      _titleCtrl.text = e.title;
+      _category = e.category;
+      _amountCtrl.text = e.amount.toString();
+      _currency = e.currency;
+      _descCtrl.text = e.description ?? '';
+      if (e.date.isNotEmpty) {
+        final parsed = DateTime.tryParse(e.date);
+        if (parsed != null) _expenseDate = parsed;
+      }
+    }
+  }
+
+  Future<void> _pickDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _expenseDate,
+      firstDate: DateTime.now().subtract(const Duration(days: 90)),
+      lastDate: DateTime.now(),
+    );
+    if (date != null) {
+      setState(() => _expenseDate = date);
+    }
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isSubmitting = true);
+    try {
+      final formattedDate = DateFormat('yyyy-MM-dd').format(_expenseDate);
+
+      if (_isEditing) {
+        final repo = AdminOperationsRepository();
+        await repo.updateExpense(widget.initial!.id, {
+          'title': _titleCtrl.text.trim(),
+          'category': _category,
+          'amount': double.parse(_amountCtrl.text.trim()),
+          'currency': _currency,
+          'expense_date': formattedDate,
+          if (_descCtrl.text.trim().isNotEmpty) 'description': _descCtrl.text.trim(),
+        });
+        widget.onSubmitted();
+        if (mounted) Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ Expense claim updated'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+        );
+      } else {
+        final repo = ref.read(expenseRepositoryProvider);
+        await repo.submitClaim(
+          title: _titleCtrl.text.trim(),
+          category: _category,
+          amount: double.parse(_amountCtrl.text.trim()),
+          currency: _currency,
+          expenseDate: formattedDate,
+          description: _descCtrl.text.trim().isNotEmpty ? _descCtrl.text.trim() : null,
+        );
+        widget.onSubmitted();
+        if (mounted) Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ Expense claim submitted'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ ${e is AppException ? e.message : e}'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _amountCtrl.dispose();
+    _descCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(_isEditing ? 'Edit Expense Claim' : 'New Expense Claim', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _titleCtrl,
+                decoration: const InputDecoration(labelText: 'Title *', border: OutlineInputBorder(), hintText: 'e.g. Client lunch, Taxi fare'),
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Title is required' : null,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                initialValue: _category,
+                decoration: const InputDecoration(labelText: 'Category *', border: OutlineInputBorder()),
+                items: const [
+                  DropdownMenuItem(value: 'Travel', child: Text('Travel')),
+                  DropdownMenuItem(value: 'Meals', child: Text('Meals')),
+                  DropdownMenuItem(value: 'Supplies', child: Text('Supplies')),
+                  DropdownMenuItem(value: 'Software', child: Text('Software')),
+                  DropdownMenuItem(value: 'Transport', child: Text('Transport')),
+                  DropdownMenuItem(value: 'Accommodation', child: Text('Accommodation')),
+                  DropdownMenuItem(value: 'Other', child: Text('Other')),
+                ],
+                onChanged: (v) {
+                  if (v != null) setState(() => _category = v);
+                },
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: TextFormField(
+                      controller: _amountCtrl,
+                      decoration: const InputDecoration(labelText: 'Amount *', border: OutlineInputBorder(), prefixText: '\$ '),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Required';
+                        if (double.tryParse(v.trim()) == null) return 'Invalid amount';
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _currency,
+                      decoration: const InputDecoration(labelText: 'Currency', border: OutlineInputBorder()),
+                      items: const [
+                        DropdownMenuItem(value: 'USD', child: Text('USD')),
+                        DropdownMenuItem(value: 'EUR', child: Text('EUR')),
+                        DropdownMenuItem(value: 'GBP', child: Text('GBP')),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) setState(() => _currency = v);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              InkWell(
+                onTap: _pickDate,
+                child: InputDecorator(
+                  decoration: const InputDecoration(labelText: 'Expense Date *', border: OutlineInputBorder(), suffixIcon: Icon(Icons.calendar_today)),
+                  child: Text(DateFormat('dd MMM yyyy').format(_expenseDate), style: const TextStyle(fontSize: 15, color: AppColors.grey800)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _descCtrl,
+                decoration: const InputDecoration(labelText: 'Description (optional)', border: OutlineInputBorder()),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _isSubmitting ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: _isSubmitting
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : Text(_isEditing ? 'Update Claim' : 'Submit Claim', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
