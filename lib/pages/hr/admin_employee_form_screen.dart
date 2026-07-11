@@ -234,6 +234,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
           emergencyContactRelationship: _emergRelCtrl.text.trim().isEmpty ? null : _emergRelCtrl.text.trim(),
           emergencyContactPhone:        _emergPhoneCtrl.text.trim().isEmpty ? null : _emergPhoneCtrl.text.trim(),
           notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+          photo: _pickedPhoto,
         );
       } else {
         await repo.updateEmployee(
@@ -263,10 +264,12 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
           emergencyContactRelationship: _emergRelCtrl.text.trim().isEmpty ? null : _emergRelCtrl.text.trim(),
           emergencyContactPhone:        _emergPhoneCtrl.text.trim().isEmpty ? null : _emergPhoneCtrl.text.trim(),
           notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+          photo: _pickedPhoto,
         );
       }
 
       ref.invalidate(allEmployeesProvider);
+      ref.invalidate(adminEmployeesProvider);
       if (widget.employee != null) {
         ref.invalidate(employeeDetailProvider(widget.employee!.id));
       }

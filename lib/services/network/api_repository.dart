@@ -116,14 +116,14 @@ class ApiRepository {
   }
 
   /// DOWNLOAD request
-  Future<void> download(String path, String savePath, {dynamic data}) async {
+  Future<void> download(String path, String savePath, {dynamic data, String method = 'POST'}) async {
     try {
       AppLogger.i('DOWNLOAD $path to $savePath');
       await _dio.download(
         path,
         savePath,
         data: data,
-        options: Options(method: 'POST'),
+        options: Options(method: method),
       );
     } on DioException catch (e) {
       AppLogger.e('DOWNLOAD $path failed', e.message);

@@ -16,8 +16,8 @@ class AttendanceCorrectionData {
 
   factory AttendanceCorrectionData.fromJson(Map<String, dynamic> json) {
     return AttendanceCorrectionData(
-      id: json['id'] as int,
-      employeeName: json['employee']?['name'] as String? ?? json['user']?['name'] as String? ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? json['user']?['name'] as String? ?? '',
       date: json['date'] as String? ?? '',
       reason: json['reason'] as String?,
       status: json['status'] as String? ?? 'pending',
@@ -51,14 +51,14 @@ class AdminAttendanceRecord {
 
   factory AdminAttendanceRecord.fromJson(Map<String, dynamic> json) {
     return AdminAttendanceRecord(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       employeeId: json['employee_id'] as int,
       employeeName: json['employee']?['user']?['name'] ?? json['employee']?['first_name'] ?? 'Unknown',
       date: json['date'] as String? ?? '',
       clockIn: json['clock_in'] as String?,
       clockOut: json['clock_out'] as String?,
       status: json['status'] as String? ?? 'absent',
-      workHours: (json['work_hours'] as num?)?.toDouble(),
+      workHours: double.tryParse(json['work_hours']?.toString() ?? ''),
     );
   }
 }
@@ -95,15 +95,17 @@ class AdminLeaveRequestData {
 
   factory AdminLeaveRequestData.fromJson(Map<String, dynamic> json) {
     return AdminLeaveRequestData(
-      id: json['id'] as int,
-      employeeName: json['employee']?['name'] as String? ?? json['user']?['name'] as String? ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? 
+                    (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? 
+                    json['user']?['name'] as String? ?? '',
       leaveType: json['leave_type']?['name'] as String? ?? '',
       leaveTypeName: json['leave_type']?['name'] as String? ?? '',
       leaveTypeColor: json['leave_type']?['color'] as String?,
       halfDay: json['half_day'] as bool? ?? false,
       startDate: json['start_date'] as String? ?? '',
       endDate: json['end_date'] as String? ?? '',
-      days: (json['days'] as num?)?.toDouble() ?? (json['total_days'] as num?)?.toDouble() ?? 0,
+      days: double.tryParse(json['days']?.toString() ?? json['total_days']?.toString() ?? '0') ?? 0,
       reason: json['reason'] as String?,
       status: json['status'] as String? ?? 'pending',
       createdAt: json['created_at'] as String? ?? '',
@@ -153,22 +155,22 @@ class LeaveTypeData {
 
   factory LeaveTypeData.fromJson(Map<String, dynamic> json) {
     return LeaveTypeData(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       name: json['name'] as String? ?? '',
       code: json['code'] as String?,
-      defaultDays: (json['default_days'] as num?)?.toDouble() ?? (json['days_per_year'] as num?)?.toDouble() ?? 0,
+      defaultDays: double.tryParse(json['default_days']?.toString() ?? '') ?? double.tryParse(json['days_per_year']?.toString() ?? '') ?? 0,
       color: json['color'] as String?,
       isActive: json['is_active'] as bool? ?? true,
       isPaid: json['is_paid'] as bool? ?? true,
       carryForward: json['carry_forward'] as bool? ?? false,
       requiresDocument: json['requires_document'] as bool? ?? false,
       isProrated: json['is_prorated'] as bool? ?? false,
-      minimumTenureDays: json['minimum_tenure_days'] as int?,
+      minimumTenureDays: int.tryParse(json['minimum_tenure_days']?.toString() ?? ''),
       allowHalfDay: json['allow_half_day'] as bool? ?? false,
-      noticePeriodDays: json['notice_period_days'] as int? ?? 0,
-      maxConsecutiveDays: json['max_consecutive_days'] as int?,
-      sortOrder: json['sort_order'] as int? ?? 0,
-      maxCarryForward: json['max_carry_forward'] as int?,
+      noticePeriodDays: int.tryParse(json['notice_period_days']?.toString() ?? '') ?? 0,
+      maxConsecutiveDays: int.tryParse(json['max_consecutive_days']?.toString() ?? ''),
+      sortOrder: int.tryParse(json['sort_order']?.toString() ?? '') ?? 0,
+      maxCarryForward: int.tryParse(json['max_carry_forward']?.toString() ?? ''),
       genderSpecific: json['gender_specific'] as String? ?? 'all',
     );
   }
@@ -188,13 +190,13 @@ class LeaveBalanceData {
 
   factory LeaveBalanceData.fromJson(Map<String, dynamic> json) {
     return LeaveBalanceData(
-      id: json['id'] as int,
-      employeeName: json['employee']?['name'] as String? ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? '',
       leaveTypeName: json['leave_type']?['name'] as String? ?? '',
-      year: json['year'] as int? ?? DateTime.now().year,
-      allocatedDays: (json['allocated_days'] as num?)?.toDouble() ?? 0,
-      carriedForward: (json['carried_forward'] as num?)?.toDouble() ?? 0,
-      usedDays: (json['used_days'] as num?)?.toDouble() ?? 0,
+      year: int.tryParse(json['year']?.toString() ?? '') ?? DateTime.now().year,
+      allocatedDays: double.tryParse(json['allocated_days']?.toString() ?? '') ?? 0,
+      carriedForward: double.tryParse(json['carried_forward']?.toString() ?? '') ?? 0,
+      usedDays: double.tryParse(json['used_days']?.toString() ?? '') ?? 0,
     );
   }
 }
@@ -258,15 +260,15 @@ class ShiftData {
       );
     }
     return ShiftData(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       name: json['name'] as String? ?? '',
       code: json['code'] as String?,
       schedule: schedule,
-      gracePeriod: json['grace_period'] as int? ?? 15,
-      overtimeThreshold: json['overtime_threshold'] as int? ?? 30,
+      gracePeriod: int.tryParse(json['grace_period']?.toString() ?? '') ?? 15,
+      overtimeThreshold: int.tryParse(json['overtime_threshold']?.toString() ?? '') ?? 30,
       isOvernight: json['is_overnight'] as bool? ?? false,
       isActive: json['is_active'] as bool? ?? true,
-      employeesCount: json['employees_count'] as int? ?? json['assignments_count'] as int?,
+      employeesCount: int.tryParse(json['employees_count']?.toString() ?? '') ?? int.tryParse(json['assignments_count']?.toString() ?? ''),
     );
   }
 
@@ -326,7 +328,7 @@ class HolidayData {
 
   factory HolidayData.fromJson(Map<String, dynamic> json) {
     return HolidayData(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       name: json['name'] as String? ?? '',
       date: json['date'] as String? ?? '',
       description: json['description'] as String?,
@@ -355,6 +357,7 @@ class AssetData {
   final String? notes;
   final String? assignedTo;
   final String? assignedDate;
+  final int? currentAssignmentId;
 
   const AssetData({
     required this.id,
@@ -375,13 +378,27 @@ class AssetData {
     this.notes,
     this.assignedTo,
     this.assignedDate,
+    this.currentAssignmentId,
   });
 
   factory AssetData.fromJson(Map<String, dynamic> json) {
-    double? parseDouble(dynamic v) => v != null ? (v as num).toDouble() : null;
+    double? parseDouble(dynamic v) {
+      if (v == null) return null;
+      if (v is num) return v.toDouble();
+      if (v is String) return double.tryParse(v);
+      return null;
+    }
+    
+    String? extractName(dynamic emp) {
+      if (emp == null) return null;
+      if (emp['name'] != null) return emp['name'] as String?;
+      if (emp['first_name'] != null) return '${emp['first_name']} ${emp['last_name'] ?? ''}'.trim();
+      return null;
+    }
+
 
     return AssetData(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       assetCode: json['asset_code'] as String? ?? '',
       name: json['name'] as String? ?? '',
       category: json['category'] as String?,
@@ -392,12 +409,12 @@ class AssetData {
       purchasePrice: parseDouble(json['purchase_price']),
       currentValue: parseDouble(json['current_value']),
       calculatedCurrentValue: parseDouble(json['calculated_current_value']),
-      depreciationMonths: json['depreciation_months'] as int?,
+      depreciationMonths: int.tryParse(json['depreciation_months']?.toString() ?? ''),
       warrantyExpiryDate: json['warranty_expiry_date'] as String?,
       condition: json['condition'] as String? ?? 'good',
       status: json['status'] as String? ?? 'available',
       notes: json['notes'] as String?,
-      assignedTo: json['assigned_to']?['name'] as String? ?? json['current_assignment']?['employee']?['name'] as String?,
+      assignedTo: extractName(json['assigned_to']) ?? extractName(json['current_assignment']?['employee']),
       assignedDate: json['assigned_date'] as String?,
     );
   }
@@ -417,8 +434,8 @@ class AssetAssignmentData {
 
   factory AssetAssignmentData.fromJson(Map<String, dynamic> json) {
     return AssetAssignmentData(
-      id: json['id'] as int,
-      employeeName: json['employee']?['name'] as String? ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? '',
       assignedDate: json['assigned_date'] as String? ?? json['created_at'] as String? ?? '',
       returnedDate: json['returned_date'] as String?,
       notes: json['notes'] as String?,
@@ -440,12 +457,12 @@ class JobPostingData {
 
   factory JobPostingData.fromJson(Map<String, dynamic> json) {
     return JobPostingData(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       title: json['title'] as String? ?? '',
       department: json['department']?['name'] as String? ?? json['department'] as String?,
       location: json['location'] as String?,
       status: json['status'] as String? ?? 'open',
-      candidatesCount: json['candidates_count'] as int? ?? 0,
+      candidatesCount: int.tryParse(json['candidates_count']?.toString() ?? '') ?? 0,
       createdAt: json['created_at'] as String?,
     );
   }
@@ -464,7 +481,7 @@ class CandidateData {
 
   factory CandidateData.fromJson(Map<String, dynamic> json) {
     return CandidateData(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       name: json['name'] as String? ?? '',
       email: json['email'] as String?,
       phone: json['phone'] as String?,
@@ -487,10 +504,10 @@ class PerformanceReviewData {
 
   factory PerformanceReviewData.fromJson(Map<String, dynamic> json) {
     return PerformanceReviewData(
-      id: json['id'] as int,
-      employeeName: json['employee']?['name'] as String? ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? '',
       period: json['period'] as String?,
-      score: (json['score'] as num?)?.toDouble(),
+      score: double.tryParse(json['score']?.toString() ?? ''),
       status: json['status'] as String? ?? 'draft',
       reviewDate: json['review_date'] as String?,
     );
@@ -509,10 +526,10 @@ class TrainingCourseData {
 
   factory TrainingCourseData.fromJson(Map<String, dynamic> json) {
     return TrainingCourseData(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       title: json['title'] as String? ?? '',
       description: json['description'] as String?,
-      enrolledCount: json['enrolled_count'] as int?,
+      enrolledCount: int.tryParse(json['enrolled_count']?.toString() ?? ''),
       status: json['status'] as String? ?? 'active',
     );
   }
@@ -530,10 +547,10 @@ class PayrollRunData {
 
   factory PayrollRunData.fromJson(Map<String, dynamic> json) {
     return PayrollRunData(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       period: json['period'] as String? ?? json['payroll_period'] as String? ?? '',
-      totalAmount: (json['total_amount'] as num?)?.toDouble() ?? (json['net_salary'] as num?)?.toDouble() ?? 0,
-      employeesCount: json['employees_count'] as int? ?? 0,
+      totalAmount: double.tryParse(json['total_amount']?.toString() ?? '') ?? double.tryParse(json['net_salary']?.toString() ?? '') ?? 0,
+      employeesCount: int.tryParse(json['employees_count']?.toString() ?? '') ?? 0,
       status: json['status'] as String? ?? 'draft',
     );
   }
@@ -557,11 +574,11 @@ class PayrollRunDetailData {
 
   factory PayrollRunDetailData.fromJson(Map<String, dynamic> json) {
     return PayrollRunDetailData(
-      totalGross: (json['total_gross'] as num?)?.toDouble() ?? 0,
-      totalDeductions: (json['total_deductions'] as num?)?.toDouble() ?? 0,
-      totalNet: (json['total_net'] as num?)?.toDouble() ?? 0,
+      totalGross: double.tryParse(json['total_gross']?.toString() ?? '') ?? 0,
+      totalDeductions: double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0,
+      totalNet: double.tryParse(json['total_net']?.toString() ?? '') ?? 0,
       status: json['status'] as String? ?? 'draft',
-      totalEmployees: json['total_employees'] as int? ?? 0,
+      totalEmployees: int.tryParse(json['total_employees']?.toString() ?? '') ?? 0,
     );
   }
 }
@@ -608,23 +625,23 @@ class AdminPayslipDetailData {
 
   factory AdminPayslipDetailData.fromJson(Map<String, dynamic> json) {
     return AdminPayslipDetailData(
-      employeeName: json['employee_name'] as String? ?? json['employee']?['name'] as String? ?? '',
+      employeeName: json['employee_name'] as String? ?? json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? '',
       department: json['department'] as String? ?? json['employee']?['department']?['name'] as String? ?? '',
-      netSalary: (json['net_salary'] as num?)?.toDouble() ?? 0,
-      basicSalary: (json['basic_salary'] as num?)?.toDouble() ?? 0,
-      overtimePay: (json['overtime_pay'] as num?)?.toDouble() ?? 0,
-      allowances: (json['allowances'] as num?)?.toDouble() ?? 0,
-      otherEarnings: (json['other_earnings'] as num?)?.toDouble() ?? 0,
-      grossSalary: (json['gross_salary'] as num?)?.toDouble() ?? 0,
-      taxDeduction: (json['tax_deduction'] as num?)?.toDouble() ?? 0,
-      insuranceDeduction: (json['insurance_deduction'] as num?)?.toDouble() ?? 0,
-      lateDeduction: (json['late_deduction'] as num?)?.toDouble() ?? 0,
-      otherDeductions: (json['other_deductions'] as num?)?.toDouble() ?? 0,
-      totalDeductions: (json['total_deductions'] as num?)?.toDouble() ?? 0,
-      workingDays: json['working_days'] as int? ?? 0,
-      presentDays: json['present_days'] as int? ?? 0,
-      lateDays: json['late_days'] as int? ?? 0,
-      overtimeHours: json['overtime_hours'] as int? ?? 0,
+      netSalary: double.tryParse(json['net_salary']?.toString() ?? '') ?? 0,
+      basicSalary: double.tryParse(json['basic_salary']?.toString() ?? '') ?? 0,
+      overtimePay: double.tryParse(json['overtime_pay']?.toString() ?? '') ?? 0,
+      allowances: double.tryParse(json['allowances']?.toString() ?? '') ?? 0,
+      otherEarnings: double.tryParse(json['other_earnings']?.toString() ?? '') ?? 0,
+      grossSalary: double.tryParse(json['gross_salary']?.toString() ?? '') ?? 0,
+      taxDeduction: double.tryParse(json['tax_deduction']?.toString() ?? '') ?? 0,
+      insuranceDeduction: double.tryParse(json['insurance_deduction']?.toString() ?? '') ?? 0,
+      lateDeduction: double.tryParse(json['late_deduction']?.toString() ?? '') ?? 0,
+      otherDeductions: double.tryParse(json['other_deductions']?.toString() ?? '') ?? 0,
+      totalDeductions: double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0,
+      workingDays: int.tryParse(json['working_days']?.toString() ?? '') ?? 0,
+      presentDays: int.tryParse(json['present_days']?.toString() ?? '') ?? 0,
+      lateDays: int.tryParse(json['late_days']?.toString() ?? '') ?? 0,
+      overtimeHours: int.tryParse(json['overtime_hours']?.toString() ?? '') ?? 0,
     );
   }
 }
@@ -714,6 +731,16 @@ class PayrollSettingsData {
 }
 
 // ── Admin Operations Repository ─────────────────────────────────────────────
+
+
+
+
+
+
+
+
+
+
 class AdminOperationsRepository {
   final ApiRepository _api;
   AdminOperationsRepository({ApiRepository? api}) : _api = api ?? ApiRepository();
@@ -737,12 +764,13 @@ class AdminOperationsRepository {
 
   // ── Leave Requests (Admin) ──────────────────────────────────────────────
   Future<List<AdminLeaveRequestData>> getAllLeaveRequests({String? status}) async {
-    final response = await _api.get('/company/leave/requests', queryParameters: {'status': ?status});
+    final response = await _api.get('/company/leave/requests', queryParameters: {'status': status});
     return _parseList(response.data, AdminLeaveRequestData.fromJson);
   }
 
-  Future<void> approveLeaveRequest(int id) async => _api.put('/company/leave/requests/$id/action', data: {'action': 'approve'});
-  Future<void> rejectLeaveRequest(int id, {String? reason}) async => _api.put('/company/leave/requests/$id/action', data: {'action': 'reject', 'rejection_reason': ?reason});
+  Future<void> approveLeaveRequest(int id) async => _api.post('/company/leave/requests/$id/approve');
+  Future<void> rejectLeaveRequest(int id, {String? reason}) async => _api.post('/company/leave/requests/$id/reject', data: {'rejection_reason': ?reason});
+  Future<void> updateLeaveRequest(int id, Map<String, dynamic> data) async => _api.put('/company/leave/requests/$id', data: data);
 
   Future<void> createLeaveRequest({
     required int employeeId,
@@ -893,6 +921,8 @@ class AdminOperationsRepository {
     final response = await _api.post('/company/holidays', data: {'name': name, 'date': date, 'description': ?description, 'is_recurring': isRecurring});
     return HolidayData.fromJson(response.data as Map<String, dynamic>);
   }
+
+  Future<void> updateHoliday(int id, Map<String, dynamic> data) async => _api.put('/company/holidays/$id', data: data);
 
   Future<void> deleteHoliday(int id) async => _api.delete('/company/holidays/$id');
 
@@ -1084,14 +1114,14 @@ class AdminOperationsRepository {
   }
 
   Future<PayrollRunDetailData> getPayrollRunDetail(String period) async {
-    final response = await _api.get('/company/payroll/runs/$period');
-    final data = response.data['data'] ?? response.data;
+    final response = await _api.get('/company/payroll/payslips/$period');
+    final data = response.data['payroll_run'] ?? response.data;
     return PayrollRunDetailData.fromJson(data is Map<String, dynamic> ? data : {});
   }
 
   Future<List<AdminPayslipDetailData>> getPayslipsForRun(String period) async {
-    final response = await _api.get('/company/payroll/runs/$period/payslips');
-    return _parseList(response.data, AdminPayslipDetailData.fromJson);
+    final response = await _api.get('/company/payroll/payslips/$period');
+    return _parseList(response.data['payslips'] ?? response.data, AdminPayslipDetailData.fromJson);
   }
 
   Future<String> exportPayroll(String period) async {
@@ -1100,9 +1130,9 @@ class AdminOperationsRepository {
     final savePath = '${dir.path}/$filename';
 
     await _api.download(
-      '/company/payroll/runs/$period/export',
+      '/company/payroll/export/$period',
       savePath,
-      data: {'format': 'excel'},
+      method: 'GET',
     );
     return savePath;
   }

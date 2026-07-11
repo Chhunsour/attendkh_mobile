@@ -34,8 +34,6 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
 
   // Assign modal state
   final _assignEmployeeIdCtrl = TextEditingController();
-  List<Map<String, dynamic>> _employees = [];
-  bool _loadingEmployees = false;
   Map<String, dynamic>? _selectedEmployee;
 
   @override
@@ -89,16 +87,6 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     _warrantyExpiryDate = asset.warrantyExpiryDate;
   }
 
-  Future<void> _loadEmployees() async {
-    setState(() => _loadingEmployees = true);
-    try {
-      final repo = AdminOperationsRepository();
-      _employees = await repo.getEmployees();
-    } catch (_) {
-      _employees = [];
-    }
-    setState(() => _loadingEmployees = false);
-  }
 
   // ── Color helpers ──────────────────────────────────────────────────────
   Color _conditionColor(String condition) {
@@ -193,237 +181,433 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     _resetForm();
     if (asset != null) _populateFormFromAsset(asset);
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      barrierDismissible: false,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          return AlertDialog(
-            title: Text(asset != null ? 'Edit Asset' : 'Add New Asset', style: const TextStyle(fontWeight: FontWeight.w700)),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    _buildTextField(_assetCodeCtrl, 'Asset Code *', hint: 'e.g. AST-001'),
-                    const SizedBox(height: 10),
-                    _buildTextField(_nameCtrl, 'Name *', hint: 'e.g. MacBook Pro M3'),
-                    const SizedBox(height: 10),
-                    _buildTextField(_categoryCtrl, 'Category', hint: 'e.g. Laptop, Phone, Furniture'),
-                    const SizedBox(height: 10),
-                    _buildTextField(_descriptionCtrl, 'Description', maxLines: 2),
-                    const SizedBox(height: 10),
-                    _buildTextField(_serialNumberCtrl, 'Serial Number'),
-                    const SizedBox(height: 10),
-                    _buildTextField(_modelCtrl, 'Model', hint: 'e.g. A2991'),
-                    const SizedBox(height: 10),
-                    // Condition dropdown
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedCondition,
-                      decoration: const InputDecoration(
-                        labelText: 'Condition',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'new', child: Text('New')),
-                        DropdownMenuItem(value: 'good', child: Text('Good')),
-                        DropdownMenuItem(value: 'fair', child: Text('Fair')),
-                        DropdownMenuItem(value: 'poor', child: Text('Poor')),
-                        DropdownMenuItem(value: 'damaged', child: Text('Damaged')),
-                      ],
-                      onChanged: (v) => setDialogState(() => _selectedCondition = v ?? 'new'),
-                    ),
-                    const SizedBox(height: 10),
-                    // Purchase date
-                    InkWell(
-                      onTap: () async {
-                        final date = await showDatePicker(context: ctx, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
-                        if (date != null) setDialogState(() => _purchaseDate = date.toIso8601String().substring(0, 10));
-                      },
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Purchase Date',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        ),
-                        child: Text(_purchaseDate ?? 'Select date...', style: TextStyle(color: _purchaseDate != null ? AppColors.grey900 : AppColors.grey400, fontSize: 14)),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildTextField(_purchasePriceCtrl, 'Purchase Price (\$)', keyboardType: TextInputType.number),
-                    const SizedBox(height: 10),
-                    _buildTextField(_currentValueCtrl, 'Manual Current Value (\$)', keyboardType: TextInputType.number, hint: 'Leave empty for auto depreciation'),
-                    const SizedBox(height: 10),
-                    _buildTextField(_depreciationMonthsCtrl, 'Depreciation (Months)', keyboardType: TextInputType.number, hint: 'e.g. 36 for 3 years'),
-                    const SizedBox(height: 10),
-                    // Warranty date
-                    InkWell(
-                      onTap: () async {
-                        final date = await showDatePicker(context: ctx, initialDate: DateTime.now().add(const Duration(days: 365)), firstDate: DateTime.now(), lastDate: DateTime(2100));
-                        if (date != null) setDialogState(() => _warrantyExpiryDate = date.toIso8601String().substring(0, 10));
-                      },
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Warranty Expiry Date',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        ),
-                        child: Text(_warrantyExpiryDate ?? 'Select date...', style: TextStyle(color: _warrantyExpiryDate != null ? AppColors.grey900 : AppColors.grey400, fontSize: 14)),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildTextField(_notesCtrl, 'Internal Notes', maxLines: 2),
-                  ]),
-                ),
-              ),
+        builder: (ctx, setSheetState) {
+          return Container(
+            height: MediaQuery.of(ctx).size.height * 0.85,
+            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  _resetForm();
-                  Navigator.pop(ctx);
-                },
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                onPressed: () async {
-                  if (_assetCodeCtrl.text.trim().isEmpty || _nameCtrl.text.trim().isEmpty) return;
-                  try {
-                    final repo = AdminOperationsRepository();
-                    if (asset != null) {
-                      await repo.updateAsset(asset.id,
-                        assetCode: _assetCodeCtrl.text.trim(),
-                        name: _nameCtrl.text.trim(),
-                        category: _categoryCtrl.text.trim().isNotEmpty ? _categoryCtrl.text.trim() : null,
-                        description: _descriptionCtrl.text.trim().isNotEmpty ? _descriptionCtrl.text.trim() : null,
-                        serialNumber: _serialNumberCtrl.text.trim().isNotEmpty ? _serialNumberCtrl.text.trim() : null,
-                        model: _modelCtrl.text.trim().isNotEmpty ? _modelCtrl.text.trim() : null,
-                        purchaseDate: _purchaseDate,
-                        purchasePrice: double.tryParse(_purchasePriceCtrl.text),
-                        currentValue: double.tryParse(_currentValueCtrl.text),
-                        depreciationMonths: int.tryParse(_depreciationMonthsCtrl.text),
-                        warrantyExpiryDate: _warrantyExpiryDate,
-                        condition: _selectedCondition,
-                        notes: _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
-                      );
-                    } else {
-                      await repo.createAsset(
-                        assetCode: _assetCodeCtrl.text.trim(),
-                        name: _nameCtrl.text.trim(),
-                        category: _categoryCtrl.text.trim().isNotEmpty ? _categoryCtrl.text.trim() : null,
-                        description: _descriptionCtrl.text.trim().isNotEmpty ? _descriptionCtrl.text.trim() : null,
-                        serialNumber: _serialNumberCtrl.text.trim().isNotEmpty ? _serialNumberCtrl.text.trim() : null,
-                        model: _modelCtrl.text.trim().isNotEmpty ? _modelCtrl.text.trim() : null,
-                        purchaseDate: _purchaseDate,
-                        purchasePrice: double.tryParse(_purchasePriceCtrl.text),
-                        currentValue: double.tryParse(_currentValueCtrl.text),
-                        depreciationMonths: int.tryParse(_depreciationMonthsCtrl.text),
-                        warrantyExpiryDate: _warrantyExpiryDate,
-                        condition: _selectedCondition,
-                        notes: _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
-                      );
-                    }
-                    ref.invalidate(assetsProvider);
-                    _resetForm();
-                    if (ctx.mounted) Navigator.pop(ctx);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(asset != null ? 'Asset updated' : 'Asset created'), backgroundColor: AppColors.success));
-                  } catch (e) {
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e'), backgroundColor: AppColors.danger));
-                  }
-                },
-                child: Text(asset != null ? 'Update Asset' : 'Create Asset'),
-              ),
-            ],
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(asset != null ? 'Edit Asset' : 'Add New Asset', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.grey900)),
+                          const SizedBox(height: 4),
+                          Text('Fill in the details below', style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
+                        ],
+                      ),
+                      IconButton(icon: const Icon(Icons.close, color: AppColors.grey500), onPressed: () => Navigator.pop(ctx)),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Basic Info Section
+                          _buildSectionHeader('Basic Details', Icons.info_outline),
+                          const SizedBox(height: 16),
+                          _buildModernTextField(_assetCodeCtrl, 'Asset Code *', 'e.g. AST-001'),
+                          const SizedBox(height: 16),
+                          _buildModernTextField(_nameCtrl, 'Name *', 'e.g. MacBook Pro M3'),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(child: _buildModernTextField(_categoryCtrl, 'Category', 'Laptop, Phone...')),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: DropdownButtonFormField<String>(
+                                  initialValue: _selectedCondition,
+                                  decoration: InputDecoration(
+                                    labelText: 'Condition',
+                                    labelStyle: const TextStyle(color: AppColors.grey600, fontSize: 14),
+                                    filled: true,
+                                    fillColor: AppColors.grey50,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  ),
+                                  items: const [
+                                    DropdownMenuItem(value: 'new', child: Text('New')),
+                                    DropdownMenuItem(value: 'good', child: Text('Good')),
+                                    DropdownMenuItem(value: 'fair', child: Text('Fair')),
+                                    DropdownMenuItem(value: 'poor', child: Text('Poor')),
+                                    DropdownMenuItem(value: 'damaged', child: Text('Damaged')),
+                                  ],
+                                  onChanged: (v) => setSheetState(() => _selectedCondition = v ?? 'new'),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(child: _buildModernTextField(_modelCtrl, 'Model', 'e.g. A2991')),
+                              const SizedBox(width: 16),
+                              Expanded(child: _buildModernTextField(_serialNumberCtrl, 'Serial Number', '...')),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          _buildModernTextField(_descriptionCtrl, 'Description', 'Detailed specs...', maxLines: 2),
+                          const SizedBox(height: 24),
+                          
+                          // Financial Section
+                          _buildSectionHeader('Financial & Depreciation', Icons.attach_money),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () async {
+                                    final date = await showDatePicker(context: ctx, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
+                                    if (date != null) setSheetState(() => _purchaseDate = date.toIso8601String().substring(0, 10));
+                                  },
+                                  child: InputDecorator(
+                                    decoration: InputDecoration(
+                                      labelText: 'Purchase Date',
+                                      labelStyle: const TextStyle(color: AppColors.grey600, fontSize: 14),
+                                      filled: true,
+                                      fillColor: AppColors.grey50,
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                    ),
+                                    child: Text(_purchaseDate ?? 'Select date...', style: TextStyle(color: _purchaseDate != null ? AppColors.grey900 : AppColors.grey400, fontSize: 15)),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(child: _buildModernTextField(_purchasePriceCtrl, 'Purchase Price', '\$', isNumber: true)),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(child: _buildModernTextField(_currentValueCtrl, 'Current Value', '\$', isNumber: true)),
+                              const SizedBox(width: 16),
+                              Expanded(child: _buildModernTextField(_depreciationMonthsCtrl, 'Depreciation', 'Months', isNumber: true)),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Warranty & Notes Section
+                          _buildSectionHeader('Warranty & Notes', Icons.verified_user_outlined),
+                          const SizedBox(height: 16),
+                          InkWell(
+                            onTap: () async {
+                              final date = await showDatePicker(context: ctx, initialDate: DateTime.now().add(const Duration(days: 365)), firstDate: DateTime.now(), lastDate: DateTime(2100));
+                              if (date != null) setSheetState(() => _warrantyExpiryDate = date.toIso8601String().substring(0, 10));
+                            },
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: 'Warranty Expiry Date',
+                                labelStyle: const TextStyle(color: AppColors.grey600, fontSize: 14),
+                                filled: true,
+                                fillColor: AppColors.grey50,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                              ),
+                              child: Text(_warrantyExpiryDate ?? 'Select date...', style: TextStyle(color: _warrantyExpiryDate != null ? AppColors.grey900 : AppColors.grey400, fontSize: 15)),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildModernTextField(_notesCtrl, 'Internal Notes', 'Condition notes...', maxLines: 2),
+                          const SizedBox(height: 32),
+
+                          // Action Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 54,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 4,
+                                shadowColor: AppColors.primary.withAlpha(100),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              ),
+                              onPressed: () async {
+                                if (_assetCodeCtrl.text.trim().isEmpty || _nameCtrl.text.trim().isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Asset Code and Name are required'), backgroundColor: AppColors.danger));
+                                  return;
+                                }
+                                try {
+                                  final repo = AdminOperationsRepository();
+                                  if (asset != null) {
+                                    await repo.updateAsset(asset.id,
+                                      assetCode: _assetCodeCtrl.text.trim(),
+                                      name: _nameCtrl.text.trim(),
+                                      category: _categoryCtrl.text.trim().isNotEmpty ? _categoryCtrl.text.trim() : null,
+                                      description: _descriptionCtrl.text.trim().isNotEmpty ? _descriptionCtrl.text.trim() : null,
+                                      serialNumber: _serialNumberCtrl.text.trim().isNotEmpty ? _serialNumberCtrl.text.trim() : null,
+                                      model: _modelCtrl.text.trim().isNotEmpty ? _modelCtrl.text.trim() : null,
+                                      purchaseDate: _purchaseDate,
+                                      purchasePrice: double.tryParse(_purchasePriceCtrl.text),
+                                      currentValue: double.tryParse(_currentValueCtrl.text),
+                                      depreciationMonths: int.tryParse(_depreciationMonthsCtrl.text),
+                                      warrantyExpiryDate: _warrantyExpiryDate,
+                                      condition: _selectedCondition,
+                                      notes: _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
+                                    );
+                                  } else {
+                                    await repo.createAsset(
+                                      assetCode: _assetCodeCtrl.text.trim(),
+                                      name: _nameCtrl.text.trim(),
+                                      category: _categoryCtrl.text.trim().isNotEmpty ? _categoryCtrl.text.trim() : null,
+                                      description: _descriptionCtrl.text.trim().isNotEmpty ? _descriptionCtrl.text.trim() : null,
+                                      serialNumber: _serialNumberCtrl.text.trim().isNotEmpty ? _serialNumberCtrl.text.trim() : null,
+                                      model: _modelCtrl.text.trim().isNotEmpty ? _modelCtrl.text.trim() : null,
+                                      purchaseDate: _purchaseDate,
+                                      purchasePrice: double.tryParse(_purchasePriceCtrl.text),
+                                      currentValue: double.tryParse(_currentValueCtrl.text),
+                                      depreciationMonths: int.tryParse(_depreciationMonthsCtrl.text),
+                                      warrantyExpiryDate: _warrantyExpiryDate,
+                                      condition: _selectedCondition,
+                                      notes: _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
+                                    );
+                                  }
+                                  ref.invalidate(assetsProvider);
+                                  if (ctx.mounted) Navigator.pop(ctx);
+                                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(asset != null ? 'Asset updated successfully' : 'Asset created successfully'), backgroundColor: AppColors.success));
+                                } catch (e) {
+                                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger));
+                                }
+                              },
+                              child: Text(asset != null ? 'Save Changes' : 'Create Asset', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
     );
   }
 
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: AppColors.primary),
+        const SizedBox(width: 8),
+        Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.primary)),
+      ],
+    );
+  }
+
+  Widget _buildModernTextField(TextEditingController controller, String label, String hint, {int maxLines = 1, bool isNumber = false}) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        labelStyle: const TextStyle(color: AppColors.grey600, fontSize: 14),
+        hintStyle: const TextStyle(color: AppColors.grey400),
+        filled: true,
+        fillColor: AppColors.grey50,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+    );
+  }
+
   void _showAssignDialog(AssetData asset) {
     _resetForm();
-    _loadEmployees();
     _selectedEmployee = null;
 
-    showDialog(
+    bool isFetching = true;
+    List<Map<String, dynamic>> sheetEmployees = [];
+
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          return AlertDialog(
-            title: const Text('Assign Asset', style: TextStyle(fontWeight: FontWeight.w700)),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: SingleChildScrollView(
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  // Asset info preview
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
-                    child: Row(children: [
-                      Icon(_categoryIcon(asset.category), color: AppColors.grey600, size: 22),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(asset.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                          Text(asset.assetCode, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
-                        ]),
-                      ),
-                    ]),
+        builder: (ctx, setSheetState) {
+          if (isFetching && sheetEmployees.isEmpty) {
+            AdminOperationsRepository().getEmployees().then((data) {
+              if (ctx.mounted) {
+                setSheetState(() {
+                  sheetEmployees = data;
+                  isFetching = false;
+                });
+              }
+            }).catchError((_) {
+              if (ctx.mounted) {
+                setSheetState(() {
+                  sheetEmployees = [];
+                  isFetching = false;
+                });
+              }
+            });
+          }
+          return Container(
+            height: MediaQuery.of(ctx).size.height * 0.7,
+            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+            child: Column(
+              children: [
+                Container(margin: const EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2))),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text('Assign Asset', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.grey900)),
+                        SizedBox(height: 4),
+                        Text('Transfer asset to an employee', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                      ]),
+                      IconButton(icon: const Icon(Icons.close, color: AppColors.grey500), onPressed: () => Navigator.pop(ctx)),
+                    ],
                   ),
-                  const SizedBox(height: 14),
-                  // Employee dropdown
-                  _loadingEmployees
-                      ? const Center(child: CircularProgressIndicator())
-                      : _employees.isEmpty
-                          ? Text('No employees loaded', style: TextStyle(color: AppColors.grey500))
-                          : DropdownButtonFormField<Map<String, dynamic>>(
-                              initialValue: _selectedEmployee,
-                              decoration: const InputDecoration(
-                                labelText: 'Assign To Employee *',
-                                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              ),
-                              items: _employees.map((e) {
-                                final name = '${e['first_name'] ?? ''} ${e['last_name'] ?? ''}'.trim();
-                                final id = e['employee_id'] ?? e['id'] ?? '';
-                                return DropdownMenuItem<Map<String, dynamic>>(
-                                  value: e,
-                                  child: Text('$name ($id)', style: const TextStyle(fontSize: 13)),
-                                );
-                              }).toList(),
-                              onChanged: (v) => setDialogState(() => _selectedEmployee = v),
+                ),
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Asset info preview card (Glassmorphism inspired)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(colors: [AppColors.primary.withAlpha(20), AppColors.primary.withAlpha(5)]),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.primary.withAlpha(30)),
+                          ),
+                          child: Row(children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: AppColors.primary.withAlpha(15), blurRadius: 8, offset: const Offset(0, 2))]),
+                              child: Icon(_categoryIcon(asset.category), color: AppColors.primary, size: 24),
                             ),
-                  const SizedBox(height: 10),
-                  _buildTextField(_conditionAtAssignmentCtrl, 'Condition at Assignment', maxLines: 2, hint: 'Note any scratches or damage...'),
-                ]),
-              ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Text(asset.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.grey900)),
+                                const SizedBox(height: 2),
+                                Text(asset.assetCode, style: TextStyle(fontSize: 13, color: AppColors.grey500, fontFamily: 'monospace')),
+                              ]),
+                            ),
+                          ]),
+                        ),
+                        const SizedBox(height: 24),
+                        // Employee dropdown
+                        isFetching
+                            ? const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()))
+                            : sheetEmployees.isEmpty
+                                ? const Padding(padding: EdgeInsets.all(20), child: Text('No employees found', style: TextStyle(color: AppColors.grey500)))
+                                : DropdownButtonFormField<Map<String, dynamic>>(
+                                    initialValue: _selectedEmployee,
+                                    decoration: InputDecoration(
+                                      labelText: 'Assign To Employee *',
+                                      labelStyle: const TextStyle(color: AppColors.grey600),
+                                      filled: true,
+                                      fillColor: AppColors.grey50,
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                    ),
+                                    dropdownColor: Colors.white,
+                                    icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.grey500),
+                                    items: sheetEmployees.map((e) {
+                                      final name = '${e['first_name'] ?? ''} ${e['last_name'] ?? ''}'.trim();
+                                      final id = e['employee_id'] ?? e['id'] ?? '';
+                                      return DropdownMenuItem<Map<String, dynamic>>(
+                                        value: e,
+                                        child: Text('$name ($id)', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                                      );
+                                    }).toList(),
+                                    onChanged: (v) => setSheetState(() => _selectedEmployee = v),
+                                  ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _conditionAtAssignmentCtrl,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            labelText: 'Condition at Assignment',
+                            hintText: 'Note any scratches or damage...',
+                            labelStyle: const TextStyle(color: AppColors.grey600),
+                            hintStyle: const TextStyle(color: AppColors.grey400),
+                            filled: true,
+                            fillColor: AppColors.grey50,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              elevation: 4,
+                              shadowColor: AppColors.primary.withAlpha(100),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            ),
+                            onPressed: () async {
+                              if (_selectedEmployee == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select an employee'), backgroundColor: AppColors.danger));
+                                return;
+                              }
+                              try {
+                                final employeeId = _selectedEmployee!['id'] as int;
+                                await AdminOperationsRepository().assignAsset(
+                                  asset.id,
+                                  employeeId,
+                                  conditionAtAssignment: _conditionAtAssignmentCtrl.text.trim().isNotEmpty ? _conditionAtAssignmentCtrl.text.trim() : null,
+                                );
+                                ref.invalidate(assetsProvider);
+                                if (ctx.mounted) Navigator.pop(ctx);
+                                if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Asset assigned successfully'), backgroundColor: AppColors.success));
+                              } catch (e) {
+                                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger));
+                              }
+                            },
+                            child: const Text('Confirm Assignment', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                onPressed: () async {
-                  if (_selectedEmployee == null) return;
-                  try {
-                    final employeeId = _selectedEmployee!['id'] as int;
-                    await AdminOperationsRepository().assignAsset(
-                      asset.id,
-                      employeeId,
-                      conditionAtAssignment: _conditionAtAssignmentCtrl.text.trim().isNotEmpty ? _conditionAtAssignmentCtrl.text.trim() : null,
-                    );
-                    ref.invalidate(assetsProvider);
-                    if (ctx.mounted) Navigator.pop(ctx);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Asset assigned'), backgroundColor: AppColors.success));
-                  } catch (e) {
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e'), backgroundColor: AppColors.danger));
-                  }
-                },
-                child: const Text('Confirm Assignment'),
-              ),
-            ],
           );
         },
       ),
@@ -485,22 +669,6 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     }
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {String? hint, int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        hintStyle: TextStyle(color: AppColors.grey400, fontSize: 12),
-        border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        isDense: true,
-      ),
-      style: const TextStyle(fontSize: 14),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -577,17 +745,31 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                     Expanded(
                       child: LayoutBuilder(
                         builder: (context, constraints) {
-                          final crossAxisCount = constraints.maxWidth > 600 ? 2 : 1;
-                          return GridView.builder(
+                          if (constraints.maxWidth <= 600) {
+                            return ListView.separated(
+                              padding: const EdgeInsets.all(14),
+                              itemCount: items.length,
+                              separatorBuilder: (_, _) => const SizedBox(height: 12),
+                              itemBuilder: (context, i) => _buildAssetCard(items[i]),
+                            );
+                          }
+                          // Grid layout for tablet using chunked ListView to prevent vertical overflow
+                          return ListView.separated(
                             padding: const EdgeInsets.all(14),
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: crossAxisCount,
-                              mainAxisSpacing: 10,
-                              crossAxisSpacing: 10,
-                              childAspectRatio: crossAxisCount == 2 ? 1.15 : 2.2,
-                            ),
-                            itemCount: items.length,
-                            itemBuilder: (context, i) => _buildAssetCard(items[i]),
+                            itemCount: (items.length / 2).ceil(),
+                            separatorBuilder: (_, _) => const SizedBox(height: 14),
+                            itemBuilder: (context, i) {
+                              final firstItem = items[i * 2];
+                              final hasSecond = i * 2 + 1 < items.length;
+                              return Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(child: _buildAssetCard(firstItem)),
+                                  const SizedBox(width: 14),
+                                  if (hasSecond) Expanded(child: _buildAssetCard(items[i * 2 + 1])) else Expanded(child: const SizedBox()),
+                                ],
+                              );
+                            },
                           );
                         },
                       ),
@@ -722,7 +904,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
               ]),
             ),
           ],
-          const Spacer(),
+          const SizedBox(height: 16),
           // Action buttons row
           Row(
             children: [

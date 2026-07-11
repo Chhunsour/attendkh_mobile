@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 
@@ -612,8 +614,9 @@ class HrRepository {
     String? emergencyContactPhone,
     String? notes,
     String? probationEndDate,
+    File? photo,
   }) async {
-    final response = await _api.post('/company/employees', data: {
+    final Map<String, dynamic> dataMap = {
       'first_name': firstName,
       'last_name': lastName,
       'employment_type': employmentType,
@@ -639,7 +642,15 @@ class HrRepository {
       'emergency_contact_phone': ?emergencyContactPhone,
       'notes': ?notes,
       'probation_end_date': ?probationEndDate,
-    });
+    };
+
+    if (photo != null) {
+      dataMap['photo'] = await MultipartFile.fromFile(photo.path);
+    }
+
+    final formData = FormData.fromMap(dataMap);
+
+    final response = await _api.post('/company/employees', data: formData);
     final raw = response.data as Map<String, dynamic>;
     final payload = raw['data'] as Map<String, dynamic>? ?? raw;
     return EmployeeData.fromJson(payload);
@@ -671,8 +682,10 @@ class HrRepository {
     String? emergencyContactPhone,
     String? notes,
     String? probationEndDate,
+    File? photo,
   }) async {
-    await _api.put('/company/employees/$id', data: {
+    final Map<String, dynamic> dataMap = {
+      '_method': 'PUT', // Spoofing PUT for Laravel when sending FormData
       'first_name': ?firstName,
       'last_name': ?lastName,
       'employment_type': ?employmentType,
@@ -698,7 +711,15 @@ class HrRepository {
       'emergency_contact_phone': ?emergencyContactPhone,
       'notes': ?notes,
       'probation_end_date': ?probationEndDate,
-    });
+    };
+
+    if (photo != null) {
+      dataMap['photo'] = await MultipartFile.fromFile(photo.path);
+    }
+
+    final formData = FormData.fromMap(dataMap);
+
+    await _api.post('/company/employees/$id', data: formData);
     // The update endpoint returns null data — re-fetch the updated employee.
     return getEmployee(id);
   }

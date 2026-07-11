@@ -105,6 +105,14 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
               ),
               _buildGridItem(
                 context,
+                title: 'Holidays',
+                description: 'Manage company holidays',
+                icon: Icons.celebration_rounded,
+                color: const Color(0xFFEAB308), // Yellow
+                routePath: AppRoutes.adminHolidays,
+              ),
+              _buildGridItem(
+                context,
                 title: 'Leave Requests',
                 description: 'Review submissions',
                 icon: Icons.event_busy_rounded,
