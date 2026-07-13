@@ -618,6 +618,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
   late TextEditingController _latCtrl;
   late TextEditingController _lngCtrl;
   late TextEditingController _radiusCtrl;
+  late TextEditingController _graceCtrl;
   int? _managerId;
   bool _isActive = true;
   bool _isLoading = false;
@@ -636,6 +637,9 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
     _radiusCtrl = TextEditingController(
       text: b?.allowedRadiusMeters?.toString() ?? '100',
     );
+    _graceCtrl = TextEditingController(
+      text: b?.gracePeriod?.toString() ?? '',
+    );
     _managerId = b?.managerId;
     _isActive = b?.isActive ?? true;
   }
@@ -650,6 +654,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
     _latCtrl.dispose();
     _lngCtrl.dispose();
     _radiusCtrl.dispose();
+    _graceCtrl.dispose();
     super.dispose();
   }
 
@@ -706,6 +711,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
               latitude: double.tryParse(_latCtrl.text),
               longitude: double.tryParse(_lngCtrl.text),
               allowedRadiusMeters: int.tryParse(_radiusCtrl.text),
+              gracePeriod: int.tryParse(_graceCtrl.text),
               managerId: _managerId,
               isActive: _isActive,
             );
@@ -722,6 +728,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
               latitude: double.tryParse(_latCtrl.text),
               longitude: double.tryParse(_lngCtrl.text),
               allowedRadiusMeters: int.tryParse(_radiusCtrl.text),
+              gracePeriod: int.tryParse(_graceCtrl.text),
               managerId: _managerId,
               isActive: _isActive,
             );
@@ -1009,6 +1016,20 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                           labelText: 'Allowed Radius (meters)',
                           prefixIcon: Icon(
                             Icons.radar_rounded,
+                            color: AppColors.grey400,
+                            size: 20,
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 14),
+                      TextFormField(
+                        controller: _graceCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Override Grace Period (minutes)',
+                          hintText: 'e.g. 15 (leave blank to use shift default)',
+                          prefixIcon: Icon(
+                            Icons.timer_outlined,
                             color: AppColors.grey400,
                             size: 20,
                           ),

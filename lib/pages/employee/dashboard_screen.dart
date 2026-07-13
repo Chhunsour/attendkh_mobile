@@ -1,30 +1,189 @@
-import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/attendance_provider.dart';
 import 'package:mpg_hr_mobile_app/services/attendance_repository.dart';
+import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
+import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
+import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  bool _isClocking = false;
+  Position? _currentPosition;
+  StreamSubscription<Position>? _positionStreamSubscription;
+  @override
+  void initState() {
+    super.initState();
+    _startLocationTracking();
+  }
+
+  @override
+  void dispose() {
+    _positionStreamSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _startLocationTracking() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        return;
+      }
+
+      // ignore: deprecated_member_use
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      if (mounted) setState(() => _currentPosition = pos);
+
+      _positionStreamSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 5,
+        ),
+      ).listen((Position position) {
+        if (mounted) setState(() => _currentPosition = position);
+      });
+    } catch (e) {
+      AppLogger.e('Location tracking error', e);
+    }
+  }
+
+  double? _calculateDistance(ProfileData profile) {
+    if (_currentPosition == null || profile.branchLat == null || profile.branchLng == null) {
+      return null;
+    }
+    return Geolocator.distanceBetween(
+      _currentPosition!.latitude,
+      _currentPosition!.longitude,
+      profile.branchLat!,
+      profile.branchLng!,
+    );
+  }
+
+  Future<void> _handleSimpleClockOut() async {
+    bool proceed = false;
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirm Clock Out'),
+        content: const Text('Are you sure you want to clock out for the day?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              proceed = false;
+              Navigator.pop(ctx);
+            },
+            child: const Text('Cancel', style: TextStyle(color: AppColors.grey500)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              proceed = true;
+              Navigator.pop(ctx);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            child: const Text('Clock Out', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (!proceed) return;
+
+    setState(() => _isClocking = true);
+
+    try {
+      final repo = ref.read(attendanceRepositoryProvider);
+      await repo.clockOut(
+        lat: _currentPosition?.latitude ?? 0.0,
+        lng: _currentPosition?.longitude ?? 0.0,
+      );
+      ref.invalidate(todayAttendanceProvider);
+      if (mounted) setState(() => _isClocking = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('👋 Clocked out successfully!'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+        );
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isClocking = false);
+      String msg = 'Clock-out failed';
+      if (e is AppException) {
+        msg = e.message;
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ $msg'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+  }
+
+  Widget _buildClockButton(BuildContext context, WidgetRef ref, bool isClockedIn, ProfileData? profile) {
+    return _SwipeToClockButton(
+      isClockedIn: isClockedIn,
+      isLoading: _isClocking,
+      onSwipe: () {
+        if (_isClocking) return;
+
+        // If clocking out, skip geofence and photo
+        if (isClockedIn) {
+          _handleSimpleClockOut();
+          return;
+        }
+
+        // If clocking in, enforce location and new selfie screen
+        if (_currentPosition == null) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('⚠️ Waiting for location data...')));
+          return;
+        }
+
+        final args = ClockInArgs(
+          isClockIn: true,
+          branchName: profile?.branchName ?? 'Unknown Location',
+          latitude: _currentPosition!.latitude,
+          longitude: _currentPosition!.longitude,
+          distance: profile != null ? (_calculateDistance(profile) ?? 0) : 0,
+          radius: profile?.branchRadius,
+        );
+
+        context.push(AppRoutes.clockIn, extra: args);
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final todayAsync = ref.watch(todayAttendanceProvider);
     final authState = ref.watch(authProvider);
+    final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -69,7 +228,7 @@ class DashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildClockCard(context, ref, today),
+              _buildClockCard(context, ref, today, profileAsync: profileAsync),
               const SizedBox(height: 28),
 
               const Text(
@@ -88,7 +247,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildClockCard(BuildContext context, WidgetRef ref, TodayAttendance? today) {
+  Widget _buildClockCard(BuildContext context, WidgetRef ref, TodayAttendance? today, {required AsyncValue<ProfileData> profileAsync}) {
     final isClockedIn = today?.clockIn != null && today?.clockOut == null;
     final isCompleted = today?.clockIn != null && today?.clockOut != null;
 
@@ -125,10 +284,27 @@ class DashboardScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            today?.date ?? DateFormat('EEEE, dd MMM yyyy').format(DateTime.now()),
+            today?.date != null
+                ? DateFormat('EEEE, dd MMM yyyy').format(DateTime.parse(today!.date!).toLocal())
+                : DateFormat('EEEE, dd MMM yyyy').format(DateTime.now()),
             style: const TextStyle(fontSize: 13, color: Colors.white70, letterSpacing: 0.5),
           ),
-          const SizedBox(height: 6),
+          profileAsync.maybeWhen(
+            data: (profile) => profile.branchName != null 
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.location_on, size: 12, color: Colors.white70),
+                        const SizedBox(width: 4),
+                        Text(profile.branchName!, style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  )
+                : const SizedBox(height: 6),
+            orElse: () => const SizedBox(height: 6),
+          ),
           if (isClockedIn) ...[
             Text('Clocked in at ${_formatTime(today!.clockIn!)}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 4),
@@ -153,15 +329,47 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           if (!isCompleted)
-            _SwipeToClockButton(
-              isClockedIn: isClockedIn,
-              onSwipe: () {
-                if (isClockedIn) {
-                  _handleClockOut(context, ref);
+            profileAsync.maybeWhen(
+              data: (profile) {
+                if (profile.branchLat == null || profile.branchLng == null || profile.branchRadius == null) {
+                  return _buildClockButton(context, ref, isClockedIn, profile);
+                }
+                
+                final distance = _calculateDistance(profile);
+                if (distance == null) {
+                   return const Padding(
+                     padding: EdgeInsets.only(top: 8),
+                     child: Text('Calculating location...', style: TextStyle(color: Colors.white70)),
+                   );
+                }
+
+                if (isClockedIn || distance <= profile.branchRadius!) {
+                  return Column(
+                    children: [
+                      if (!isClockedIn)
+                        Text('Within radius (${distance.toStringAsFixed(0)}m / ${profile.branchRadius}m)', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                      if (isClockedIn)
+                        const Text('You can clock out from anywhere.', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      const SizedBox(height: 8),
+                      _buildClockButton(context, ref, isClockedIn, profile),
+                    ],
+                  );
                 } else {
-                  _handleClockIn(context, ref);
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(color: Colors.white.withAlpha(20), borderRadius: BorderRadius.circular(16)),
+                    child: Column(
+                      children: [
+                        const Icon(Icons.location_off, color: Colors.white70),
+                        const SizedBox(height: 8),
+                        Text('You are ${distance.toStringAsFixed(0)}m away.', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text('Must be within ${profile.branchRadius}m to clock in.', style: const TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center),
+                      ],
+                    ),
+                  );
                 }
               },
+              orElse: () => _buildClockButton(context, ref, isClockedIn, null),
             ),
         ],
       ),
@@ -231,149 +439,6 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleClockIn(BuildContext context, WidgetRef ref) async {
-    final Map<String, dynamic>? attendanceData = await _captureAttendanceData(context);
-    if (attendanceData == null) return;
-
-    try {
-      final repo = ref.read(attendanceRepositoryProvider);
-      await repo.clockIn(
-        lat: attendanceData['latitude'] as double,
-        lng: attendanceData['longitude'] as double,
-        photoPath: attendanceData['photo_path'] as String,
-      );
-      ref.invalidate(todayAttendanceProvider);
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('🎉 Clocked in successfully!'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
-      );
-    } catch (e) {
-      String msg = 'Clock-in failed';
-      if (e is AppException) {
-        msg = e.message;
-      }
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ $msg'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
-      );
-    }
-  }
-
-  Future<void> _handleClockOut(BuildContext context, WidgetRef ref) async {
-    final Map<String, dynamic>? attendanceData = await _captureAttendanceData(context);
-    if (attendanceData == null) return;
-
-    try {
-      final repo = ref.read(attendanceRepositoryProvider);
-      await repo.clockOut(
-        lat: attendanceData['latitude'] as double,
-        lng: attendanceData['longitude'] as double,
-        photoPath: attendanceData['photo_path'] as String,
-      );
-      ref.invalidate(todayAttendanceProvider);
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('👋 Clocked out successfully!'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
-      );
-    } catch (e) {
-      String msg = 'Clock-out failed';
-      if (e is AppException) {
-        msg = e.message;
-      }
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ $msg'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
-      );
-    }
-  }
-
-  Future<Map<String, dynamic>?> _captureAttendanceData(BuildContext context) async {
-    final deviceInfo = DeviceInfoPlugin();
-    bool isPhysicalDevice = true;
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      final androidInfo = await deviceInfo.androidInfo;
-      isPhysicalDevice = androidInfo.isPhysicalDevice;
-    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      final iosInfo = await deviceInfo.iosInfo;
-      isPhysicalDevice = iosInfo.isPhysicalDevice;
-    }
-
-    double latitude = 0.0;
-    double longitude = 0.0;
-    String photoPath = '';
-
-    // Location
-    try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw Exception('Location services are disabled.');
-      }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          throw Exception('Location permissions are denied');
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        throw Exception('Location permissions are permanently denied');
-      }
-
-      // ignore: deprecated_member_use
-      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      latitude = position.latitude;
-      longitude = position.longitude;
-    } catch (e) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('⚠️ Location Warning: ${e.toString()}. Using mock location.'), backgroundColor: AppColors.warning));
-      latitude = 11.5564;
-      longitude = 104.9282;
-    }
-
-    // Selfie Image
-    if (!isPhysicalDevice) {
-      try {
-        final tempDir = await getTemporaryDirectory();
-        final file = File('${tempDir.path}/dummy_selfie.jpg');
-        await file.writeAsBytes(List<int>.filled(100, 0));
-        photoPath = file.path;
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🤖 Simulator: generated mock selfie photo'), backgroundColor: AppColors.info, duration: Duration(seconds: 2)));
-      } catch (e) {
-        photoPath = '';
-      }
-    } else {
-      final cameraStatus = await Permission.camera.request();
-      if (!cameraStatus.isGranted) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Camera permission is required for selfie verification.'), backgroundColor: AppColors.danger));
-        return null;
-      }
-
-      final picker = ImagePicker();
-      try {
-        final photo = await picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.front, maxWidth: 600);
-        if (photo == null) return null;
-        photoPath = photo.path;
-      } catch (e) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('⚠️ Camera exception: ${e.toString()}. Generating simulator fallback.'), backgroundColor: AppColors.warning));
-        try {
-          final tempDir = await getTemporaryDirectory();
-          final file = File('${tempDir.path}/dummy_selfie.jpg');
-          await file.writeAsBytes(List<int>.filled(100, 0));
-          photoPath = file.path;
-        } catch (_) {
-          return null;
-        }
-      }
-    }
-
-    return {'latitude': latitude, 'longitude': longitude, 'photo_path': photoPath};
-  }
-
   String _formatTime(String? timeStr) {
     if (timeStr == null || timeStr.isEmpty) return '—';
     try {
@@ -439,9 +504,10 @@ class _GridItem extends StatelessWidget {
 
 class _SwipeToClockButton extends StatefulWidget {
   final bool isClockedIn;
+  final bool isLoading;
   final VoidCallback onSwipe;
 
-  const _SwipeToClockButton({required this.isClockedIn, required this.onSwipe});
+  const _SwipeToClockButton({required this.isClockedIn, required this.onSwipe, this.isLoading = false});
 
   @override
   State<_SwipeToClockButton> createState() => _SwipeToClockButtonState();
@@ -455,7 +521,7 @@ class _SwipeToClockButtonState extends State<_SwipeToClockButton> {
   Widget build(BuildContext context) {
     const double height = 56.0;
     final color = widget.isClockedIn ? AppColors.warning : Colors.white;
-    final textColor = widget.isClockedIn ? AppColors.warning : AppColors.primary;
+    final iconColor = widget.isClockedIn ? Colors.white : AppColors.primary;
     final text = widget.isClockedIn ? 'Swipe to Clock Out' : 'Swipe to Clock In';
 
     return LayoutBuilder(
@@ -470,13 +536,15 @@ class _SwipeToClockButtonState extends State<_SwipeToClockButton> {
           child: Stack(
             children: [
               Center(
-                child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                child: widget.isLoading 
+                  ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : Text(text, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
               ),
               Positioned(
                 left: _dragValue,
                 child: GestureDetector(
                   onHorizontalDragUpdate: (details) {
-                    if (_triggered) return;
+                    if (_triggered || widget.isLoading) return;
                     setState(() {
                       _dragValue += details.delta.dx;
                       if (_dragValue < 0) _dragValue = 0;
@@ -516,7 +584,7 @@ class _SwipeToClockButtonState extends State<_SwipeToClockButton> {
                         BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 6, offset: const Offset(0, 3)),
                       ],
                     ),
-                    child: Icon(Icons.double_arrow_rounded, color: textColor, size: 20),
+                    child: Icon(Icons.arrow_forward_rounded, color: iconColor, size: 24),
                   ),
                 ),
               ),

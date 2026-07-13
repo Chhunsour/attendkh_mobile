@@ -18,6 +18,7 @@ class BranchData {
   final double? latitude;
   final double? longitude;
   final int? allowedRadiusMeters;
+  final int? gracePeriod;
 
   const BranchData({
     required this.id,
@@ -33,6 +34,7 @@ class BranchData {
     this.latitude,
     this.longitude,
     this.allowedRadiusMeters,
+    this.gracePeriod,
   });
 
   factory BranchData.fromJson(Map<String, dynamic> json) {
@@ -50,6 +52,7 @@ class BranchData {
       latitude: json['latitude'] != null ? double.tryParse(json['latitude'].toString()) : null,
       longitude: json['longitude'] != null ? double.tryParse(json['longitude'].toString()) : null,
       allowedRadiusMeters: json['allowed_radius_meters'] as int?,
+      gracePeriod: json['grace_period'] as int?,
     );
   }
 }
@@ -390,6 +393,7 @@ class HrRepository {
     double? latitude,
     double? longitude,
     int? allowedRadiusMeters,
+    int? gracePeriod,
     int? managerId,
     bool? isActive,
   }) async {
@@ -402,6 +406,7 @@ class HrRepository {
       'latitude': latitude,
       'longitude': longitude,
       'allowed_radius_meters': allowedRadiusMeters,
+      'grace_period': gracePeriod,
       'manager_id': managerId,
       'is_active': isActive ?? true,
     });
@@ -417,6 +422,7 @@ class HrRepository {
     double? latitude,
     double? longitude,
     int? allowedRadiusMeters,
+    int? gracePeriod,
     int? managerId,
     bool? isActive,
   }) async {
@@ -429,6 +435,7 @@ class HrRepository {
       'latitude': latitude,
       'longitude': longitude,
       'allowed_radius_meters': allowedRadiusMeters,
+      'grace_period': gracePeriod,
       'manager_id': managerId,
       'is_active': isActive,
     });

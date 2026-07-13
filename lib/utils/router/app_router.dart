@@ -13,6 +13,7 @@ import 'package:mpg_hr_mobile_app/pages/employee/leave_list_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/leave_request_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/payslip_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/expense_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/profile/profile_screen.dart';
 
 // Super Admin imports
@@ -57,6 +58,7 @@ class AppRoutes {
 
   // Company-side
   static const main = '/main';
+  static const clockIn = '/main/clock-in';
   static const attendance = '/main/attendance';
   static const leaveList = '/main/leave';
   static const leaveRequest = '/main/leave/request';
@@ -211,6 +213,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.main,
         builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.clockIn,
+        builder: (context, state) {
+          final args = state.extra as ClockInArgs;
+          return ClockInScreen(args: args);
+        },
       ),
       GoRoute(
         path: AppRoutes.attendance,

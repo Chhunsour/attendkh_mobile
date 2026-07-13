@@ -11,6 +11,8 @@ class TodayAttendance {
   final String? status;
   final double? workHours;
   final String? date;
+  final int? lateMinutes;
+  final int? breakMinutes;
 
   const TodayAttendance({
     this.id,
@@ -21,6 +23,8 @@ class TodayAttendance {
     this.status,
     this.workHours,
     this.date,
+    this.lateMinutes,
+    this.breakMinutes,
   });
 
   factory TodayAttendance.fromJson(Map<String, dynamic> json) {
@@ -33,6 +37,8 @@ class TodayAttendance {
       status: json['status'] as String?,
       workHours: (json['work_hours'] as num?)?.toDouble(),
       date: json['date'] as String?,
+      lateMinutes: json['late_minutes'] as int?,
+      breakMinutes: json['break_minutes'] as int?,
     );
   }
 }
@@ -187,11 +193,24 @@ class AttendanceRepository {
       queryParameters: {'month': month},
     );
     final data = response.data;
+    
     if (data is List) {
       return data.map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
     }
-    if (data is Map && data['data'] != null) {
-      return (data['data'] as List).map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
+    
+    if (data is Map) {
+      // The ApiRepository unwraps the { "status": "success", "data": { ... } } envelope.
+      // So data is the inner map which contains 'attendances'.
+      if (data.containsKey('attendances')) {
+        return (data['attendances'] as List).map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
+      } else if (data.containsKey('data')) { // Fallback just in case
+        final innerData = data['data'];
+        if (innerData is Map && innerData.containsKey('attendances')) {
+          return (innerData['attendances'] as List).map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
+        } else if (innerData is List) {
+          return innerData.map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
+        }
+      }
     }
     return [];
   }

@@ -8,6 +8,10 @@ class ProfileData {
   final int companyId;
   final List<String> roles;
   final String? companyName;
+  final String? branchName;
+  final double? branchLat;
+  final double? branchLng;
+  final int? branchRadius;
 
   const ProfileData({
     required this.id,
@@ -15,6 +19,10 @@ class ProfileData {
     this.email,
     required this.companyId,
     this.companyName,
+    this.branchName,
+    this.branchLat,
+    this.branchLng,
+    this.branchRadius,
     required this.roles,
   });
 
@@ -31,6 +39,10 @@ class ProfileData {
       email: user['email'] as String?,
       companyId: companyIdRaw is int ? companyIdRaw : 0,
       companyName: company?['name'] as String?,
+      branchName: user['branch_name'] as String?,
+      branchLat: user['branch_lat'] != null ? double.tryParse(user['branch_lat'].toString()) : null,
+      branchLng: user['branch_lng'] != null ? double.tryParse(user['branch_lng'].toString()) : null,
+      branchRadius: user['branch_radius'] as int?,
       roles: (user['roles'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }

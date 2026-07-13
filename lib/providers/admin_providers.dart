@@ -99,6 +99,12 @@ final rolesProvider = FutureProvider.autoDispose<List<RoleData>>((ref) {
 });
 
 // ── Admin Operations Providers ──────────────────────────────────────────────
+
+final dashboardStatsProvider = FutureProvider.autoDispose<DashboardKpiData>((ref) {
+  return ref.watch(adminOpsRepositoryProvider).getDashboardStats();
+});
+
+
 final allAttendanceLogsProvider = FutureProvider.autoDispose<List<AdminAttendanceRecord>>((ref) {
   return ref.watch(adminOpsRepositoryProvider).getAllAttendanceLogs();
 });
