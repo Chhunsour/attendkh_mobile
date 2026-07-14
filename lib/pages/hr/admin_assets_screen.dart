@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
+import 'package:mpg_hr_mobile_app/services/assets_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 class AdminAssetsScreen extends ConsumerStatefulWidget {
@@ -356,39 +357,27 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                                   return;
                                 }
                                 try {
-                                  final repo = AdminOperationsRepository();
+                                  final repo = AssetsRepository();
+                                  final data = {
+                                    'asset_code': _assetCodeCtrl.text.trim(),
+                                    'name': _nameCtrl.text.trim(),
+                                    'category': _categoryCtrl.text.trim().isNotEmpty ? _categoryCtrl.text.trim() : null,
+                                    'description': _descriptionCtrl.text.trim().isNotEmpty ? _descriptionCtrl.text.trim() : null,
+                                    'serial_number': _serialNumberCtrl.text.trim().isNotEmpty ? _serialNumberCtrl.text.trim() : null,
+                                    'model': _modelCtrl.text.trim().isNotEmpty ? _modelCtrl.text.trim() : null,
+                                    'purchase_date': _purchaseDate,
+                                    'purchase_price': double.tryParse(_purchasePriceCtrl.text),
+                                    'current_value': double.tryParse(_currentValueCtrl.text),
+                                    'depreciation_months': int.tryParse(_depreciationMonthsCtrl.text),
+                                    'warranty_expiry_date': _warrantyExpiryDate,
+                                    'condition': _selectedCondition,
+                                    'notes': _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
+                                  };
+                                  
                                   if (asset != null) {
-                                    await repo.updateAsset(asset.id,
-                                      assetCode: _assetCodeCtrl.text.trim(),
-                                      name: _nameCtrl.text.trim(),
-                                      category: _categoryCtrl.text.trim().isNotEmpty ? _categoryCtrl.text.trim() : null,
-                                      description: _descriptionCtrl.text.trim().isNotEmpty ? _descriptionCtrl.text.trim() : null,
-                                      serialNumber: _serialNumberCtrl.text.trim().isNotEmpty ? _serialNumberCtrl.text.trim() : null,
-                                      model: _modelCtrl.text.trim().isNotEmpty ? _modelCtrl.text.trim() : null,
-                                      purchaseDate: _purchaseDate,
-                                      purchasePrice: double.tryParse(_purchasePriceCtrl.text),
-                                      currentValue: double.tryParse(_currentValueCtrl.text),
-                                      depreciationMonths: int.tryParse(_depreciationMonthsCtrl.text),
-                                      warrantyExpiryDate: _warrantyExpiryDate,
-                                      condition: _selectedCondition,
-                                      notes: _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
-                                    );
+                                    await repo.updateAsset(asset.id, data);
                                   } else {
-                                    await repo.createAsset(
-                                      assetCode: _assetCodeCtrl.text.trim(),
-                                      name: _nameCtrl.text.trim(),
-                                      category: _categoryCtrl.text.trim().isNotEmpty ? _categoryCtrl.text.trim() : null,
-                                      description: _descriptionCtrl.text.trim().isNotEmpty ? _descriptionCtrl.text.trim() : null,
-                                      serialNumber: _serialNumberCtrl.text.trim().isNotEmpty ? _serialNumberCtrl.text.trim() : null,
-                                      model: _modelCtrl.text.trim().isNotEmpty ? _modelCtrl.text.trim() : null,
-                                      purchaseDate: _purchaseDate,
-                                      purchasePrice: double.tryParse(_purchasePriceCtrl.text),
-                                      currentValue: double.tryParse(_currentValueCtrl.text),
-                                      depreciationMonths: int.tryParse(_depreciationMonthsCtrl.text),
-                                      warrantyExpiryDate: _warrantyExpiryDate,
-                                      condition: _selectedCondition,
-                                      notes: _notesCtrl.text.trim().isNotEmpty ? _notesCtrl.text.trim() : null,
-                                    );
+                                    await repo.createAsset(data);
                                   }
                                   ref.invalidate(assetsProvider);
                                   if (ctx.mounted) Navigator.pop(ctx);
@@ -587,7 +576,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                               }
                               try {
                                 final employeeId = _selectedEmployee!['id'] as int;
-                                await AdminOperationsRepository().assignAsset(
+                                await AssetsRepository().assignAsset(
                                   asset.id,
                                   employeeId,
                                   conditionAtAssignment: _conditionAtAssignmentCtrl.text.trim().isNotEmpty ? _conditionAtAssignmentCtrl.text.trim() : null,
@@ -637,7 +626,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     );
     if (confirmed == true) {
       try {
-        await AdminOperationsRepository().deleteAsset(asset.id);
+        await AssetsRepository().deleteAsset(asset.id);
         ref.invalidate(assetsProvider);
         if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Asset deleted'), backgroundColor: AppColors.success));
       } catch (e) {
@@ -660,7 +649,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     );
     if (confirmed == true) {
       try {
-        await AdminOperationsRepository().returnAsset(asset.id);
+        await AssetsRepository().returnAsset(asset.id);
         ref.invalidate(assetsProvider);
         if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Asset returned'), backgroundColor: AppColors.success));
       } catch (e) {
@@ -681,14 +670,6 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: const Text('Company Assets', style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
-        actions: [
-          TextButton.icon(
-            onPressed: () => _showCreateEditDialog(),
-            icon: const Icon(Icons.add, size: 18, color: AppColors.primary),
-            label: const Text('Add Asset', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
-          ),
-          const SizedBox(width: 4),
-        ],
       ),
       body: assetsAsync.when(
         data: (items) {
@@ -700,20 +681,43 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
 
           return items.isEmpty
               ? Center(
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.inventory_2, size: 64, color: AppColors.grey300),
-                    const SizedBox(height: 12),
-                    const Text('No assets found', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.grey500)),
-                    const SizedBox(height: 4),
-                    const Text('Add your first company asset to get started', style: TextStyle(fontSize: 13, color: AppColors.grey400)),
-                    const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: () => _showCreateEditDialog(),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add Asset'),
-                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+                  child: Container(
+                    margin: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: AppColors.grey200),
+                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 10, offset: const Offset(0, 4))],
                     ),
-                  ]),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(color: AppColors.grey50, shape: BoxShape.circle),
+                          child: Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.grey400),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('No assets found', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.grey800)),
+                        const SizedBox(height: 8),
+                        const Text('Add your first company asset to get started', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: AppColors.grey500)),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: () => _showCreateEditDialog(),
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('Add Asset', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 )
               : Column(
                   children: [
@@ -830,119 +834,152 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.grey200),
-        boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 4, offset: const Offset(0, 1))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row: icon, name, status
-          Row(
-            children: [
-              Container(
-                width: 40, height: 40,
-                decoration: BoxDecoration(color: AppColors.grey100, borderRadius: BorderRadius.circular(10)),
-                child: Icon(_categoryIcon(asset.category), color: AppColors.grey600, size: 20),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(asset.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  Text(asset.assetCode, style: TextStyle(fontSize: 11, color: AppColors.grey400, fontFamily: 'monospace')),
-                ]),
-              ),
-              _buildStatusBadge(asset.status),
-            ],
-          ),
-          const SizedBox(height: 10),
-          // Details row
-          Row(children: [
-            const Text('Condition', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
-            const Spacer(),
-            _buildConditionBadge(asset.condition),
-          ]),
-          const SizedBox(height: 6),
-          Row(children: [
-            const Text('Value', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
-            const Spacer(),
-            Text(
-              '\$${asset.displayValue.toStringAsFixed(asset.displayValue == asset.displayValue.roundToDouble() ? 0 : 2)}',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-            ),
-          ]),
-          if (asset.assignedTo != null) ...[
-            const SizedBox(height: 6),
-            Row(children: [
-              Icon(Icons.person, size: 14, color: AppColors.grey400),
-              const SizedBox(width: 4),
-              Expanded(child: Text(asset.assignedTo!, style: TextStyle(fontSize: 11, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis)),
-            ]),
-          ],
-          // Warranty warning
-          if (isWarrantyExpired || isWarrantyExpiring) ...[
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isWarrantyExpired ? Colors.red.shade50 : Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: isWarrantyExpired ? Colors.red.shade200 : Colors.orange.shade200),
-              ),
-              child: Row(children: [
-                Icon(Icons.shield, size: 14, color: isWarrantyExpired ? AppColors.danger : Colors.orange),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(isWarrantyExpired ? 'Warranty Expired' : 'Warranty Expiring Soon', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: isWarrantyExpired ? AppColors.danger : Colors.orange.shade800)),
-                    Text(asset.warrantyExpiryDate!, style: TextStyle(fontSize: 10, color: isWarrantyExpired ? Colors.red.shade400 : Colors.orange.shade600)),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header row: icon, name, status
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 40, height: 40,
+                      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey100)),
+                      child: Icon(_categoryIcon(asset.category), color: AppColors.grey600, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(asset.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.grey900), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 2),
+                        Text(asset.assetCode, style: TextStyle(fontSize: 12, color: AppColors.grey500, fontFamily: 'monospace')),
+                      ]),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Details
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Status', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                    _buildStatusBadge(asset.status),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Condition', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                    _buildConditionBadge(asset.condition),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Value', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                    Text(
+                      '\$${asset.displayValue.toStringAsFixed(asset.displayValue == asset.displayValue.roundToDouble() ? 0 : 2)}',
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.grey900),
+                    ),
+                  ],
+                ),
+                if (asset.assignedTo != null) ...[
+                  const SizedBox(height: 12),
+                  Row(children: [
+                    Icon(Icons.person, size: 14, color: AppColors.grey400),
+                    const SizedBox(width: 6),
+                    Expanded(child: Text('Assigned to: ${asset.assignedTo!}', style: TextStyle(fontSize: 12, color: AppColors.grey600), maxLines: 1, overflow: TextOverflow.ellipsis)),
                   ]),
-                ),
-              ]),
+                ],
+                // Warranty warning
+                if (isWarrantyExpired || isWarrantyExpiring) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isWarrantyExpired ? Colors.red.shade50 : Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: isWarrantyExpired ? Colors.red.shade100 : Colors.orange.shade100),
+                    ),
+                    child: Row(children: [
+                      Icon(Icons.shield, size: 16, color: isWarrantyExpired ? AppColors.danger : Colors.orange),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(isWarrantyExpired ? 'Warranty Expired' : 'Warranty Expiring Soon', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isWarrantyExpired ? Colors.red.shade700 : Colors.orange.shade700)),
+                          Text(asset.warrantyExpiryDate!, style: TextStyle(fontSize: 11, color: isWarrantyExpired ? Colors.red.shade600 : Colors.orange.shade600)),
+                        ]),
+                      ),
+                    ]),
+                  ),
+                ],
+              ],
             ),
-          ],
-          const SizedBox(height: 16),
-          // Action buttons row
-          Row(
-            children: [
-              if (asset.status == 'available')
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showAssignDialog(asset),
-                    icon: const Icon(Icons.person_add, size: 14),
-                    label: const Text('Assign', style: TextStyle(fontSize: 12)),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.success,
-                      side: BorderSide(color: AppColors.success.withAlpha(102)),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          // Action buttons footer
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.grey50.withAlpha(128),
+              border: const Border(top: BorderSide(color: AppColors.grey100)),
+            ),
+            child: Row(
+              children: [
+                if (asset.status == 'available')
+                  InkWell(
+                    onTap: () => _showAssignDialog(asset),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withAlpha(20),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(children: [
+                        Icon(Icons.person_add, size: 14, color: Colors.green.shade700),
+                        const SizedBox(width: 6),
+                        Text('Assign', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.green.shade700)),
+                      ]),
                     ),
                   ),
-                ),
-              if (asset.status == 'assigned')
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _returnAsset(asset),
-                    icon: const Icon(Icons.keyboard_return, size: 14),
-                    label: const Text('Return', style: TextStyle(fontSize: 12)),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.info,
-                      side: BorderSide(color: AppColors.info.withAlpha(102)),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                if (asset.status == 'assigned')
+                  InkWell(
+                    onTap: () => _returnAsset(asset),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withAlpha(20),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(children: [
+                        Icon(Icons.keyboard_return, size: 14, color: Colors.orange.shade700),
+                        const SizedBox(width: 6),
+                        Text('Return', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.orange.shade700)),
+                      ]),
                     ),
                   ),
-                ),
-              const Spacer(),
-              _actionButton(Icons.history, AppColors.info, () => _showHistory(asset)),
-              const SizedBox(width: 4),
-              _actionButton(Icons.edit, AppColors.primary, () => _showCreateEditDialog(asset: asset)),
-              const SizedBox(width: 4),
-              _actionButton(Icons.delete_outline, AppColors.danger, () => _deleteAsset(asset)),
-            ],
+                const Spacer(),
+                _actionButton(Icons.edit, AppColors.primary, () => _showCreateEditDialog(asset: asset)),
+                const SizedBox(width: 8),
+                _actionButton(Icons.history, AppColors.grey600, () => _showHistory(asset)),
+                const SizedBox(width: 8),
+                _actionButton(Icons.delete_outline, AppColors.danger, () => _deleteAsset(asset)),
+              ],
+            ),
           ),
         ],
       ),
@@ -955,7 +992,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(color: color.withAlpha(20), borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(color: color.withAlpha(15), borderRadius: BorderRadius.circular(8)),
         child: Icon(icon, size: 16, color: color),
       ),
     );
@@ -984,7 +1021,7 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
 
   Future<void> _load() async {
     try {
-      final history = await AdminOperationsRepository().getAssetHistory(widget.assetId);
+      final history = await AssetsRepository().getAssetHistory(widget.assetId);
       setState(() { _history = history; _isLoading = false; });
     } catch (_) {
       setState(() { _isLoading = false; });
@@ -994,53 +1031,142 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
+      height: MediaQuery.of(context).size.height * 0.8,
       decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       child: Column(
         children: [
           Container(margin: const EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2))),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('Assignment History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.grey900)),
-                  Text(widget.assetName, style: TextStyle(fontSize: 13, color: AppColors.grey500)),
-                ]),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const Text('Assignment History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.grey900)),
+                    const SizedBox(height: 2),
+                    Text(widget.assetName, style: TextStyle(fontSize: 13, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  ]),
+                ),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          Divider(height: 1, color: AppColors.grey200),
           Expanded(
             child: _isLoading
                 ? const LoadingIndicator(message: 'Loading history...')
                 : _history.isEmpty
-                    ? const Center(child: Text('No assignment history', style: TextStyle(color: AppColors.grey400)))
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.history, size: 48, color: AppColors.grey300),
+                          const SizedBox(height: 12),
+                          const Text('No assignment history', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                          const SizedBox(height: 4),
+                          const Text('This asset has never been assigned to anyone.', style: TextStyle(fontSize: 12, color: AppColors.grey400)),
+                        ],
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                         itemCount: _history.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemBuilder: (context, i) {
                           final h = _history[i];
-                          return Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.grey200)),
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Row(children: [
-                                const Icon(Icons.person, size: 16, color: AppColors.grey500),
-                                const SizedBox(width: 6),
-                                Text(h.employeeName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                              ]),
-                              const SizedBox(height: 4),
-                              Text('Assigned: ${h.assignedDate}', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
-                              if (h.returnedDate != null) Text('Returned: ${h.returnedDate}', style: TextStyle(fontSize: 12, color: AppColors.success)),
-                              if (h.notes != null && h.notes!.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Text('Condition: ${h.notes}', style: TextStyle(fontSize: 11, color: AppColors.grey500, fontStyle: FontStyle.italic)),
+                          final isLast = i == _history.length - 1;
+                          final isReturned = h.returnedDate != null;
+
+                          return IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Timeline line and icon
+                                Column(
+                                  children: [
+                                    Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        color: isReturned ? AppColors.grey100 : AppColors.success.withAlpha(26),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        isReturned ? Icons.keyboard_return : Icons.check_circle,
+                                        size: 16,
+                                        color: isReturned ? AppColors.grey500 : AppColors.success,
+                                      ),
+                                    ),
+                                    if (!isLast) Expanded(child: Container(width: 2, color: AppColors.grey200, margin: const EdgeInsets.symmetric(vertical: 4))),
+                                  ],
+                                ),
+                                const SizedBox(width: 16),
+                                // Content
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 24),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(Icons.person, size: 14, color: AppColors.grey400),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                h.employeeName,
+                                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.grey900),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: isReturned ? AppColors.grey100 : AppColors.success.withAlpha(20),
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: Text(
+                                                isReturned ? 'Returned' : 'Active',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: isReturned ? AppColors.grey600 : AppColors.success,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Wrap(
+                                          spacing: 12,
+                                          runSpacing: 4,
+                                          children: [
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.calendar_today, size: 12, color: AppColors.grey500),
+                                                const SizedBox(width: 4),
+                                                Text('Assigned: ${h.assignedDate}', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                                              ],
+                                            ),
+                                            if (isReturned)
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(Icons.keyboard_return, size: 12, color: AppColors.grey500),
+                                                  const SizedBox(width: 4),
+                                                  Text('Returned: ${h.returnedDate}', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                                                ],
+                                              ),
+                                          ],
+                                        ),
+                                        if (h.notes != null && h.notes!.isNotEmpty) ...[
+                                          const SizedBox(height: 8),
+                                          Text('Notes: ${h.notes}', style: TextStyle(fontSize: 11, color: AppColors.grey500, fontStyle: FontStyle.italic)),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ],
-                            ]),
+                            ),
                           );
                         },
                       ),

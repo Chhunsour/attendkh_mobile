@@ -3,6 +3,57 @@ import 'package:dio/dio.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 
+// ── Branch Payroll Settings ───────────────────────────────────────────────────
+class BranchPayrollSettingsData {
+  final int id;
+  final int branchId;
+  final bool isCustom;
+  final int lateGracePeriodMinutes;
+  final String lateDeductionType;
+  final double lateDeductionRate;
+  final double regularOtMultiplier;
+  final double restDayOtMultiplier;
+  final double publicHolidayOtMultiplier;
+  final double companyHolidayOtMultiplier;
+  final String earlyClockInPolicy;
+  final double preShiftOtMultiplier;
+  final int maxPreShiftOtMinutes;
+
+  const BranchPayrollSettingsData({
+    required this.id,
+    required this.branchId,
+    required this.isCustom,
+    required this.lateGracePeriodMinutes,
+    required this.lateDeductionType,
+    required this.lateDeductionRate,
+    required this.regularOtMultiplier,
+    required this.restDayOtMultiplier,
+    required this.publicHolidayOtMultiplier,
+    required this.companyHolidayOtMultiplier,
+    required this.earlyClockInPolicy,
+    required this.preShiftOtMultiplier,
+    required this.maxPreShiftOtMinutes,
+  });
+
+  factory BranchPayrollSettingsData.fromJson(Map<String, dynamic> json) {
+    return BranchPayrollSettingsData(
+      id: json['id'] as int,
+      branchId: json['branch_id'] as int,
+      isCustom: json['is_custom'] is bool ? json['is_custom'] as bool : (json['is_custom'] == 1 || json['is_custom'] == '1'),
+      lateGracePeriodMinutes: json['late_grace_period_minutes'] as int? ?? 0,
+      lateDeductionType: json['late_deduction_type'] as String? ?? 'per_minute',
+      lateDeductionRate: double.tryParse(json['late_deduction_rate']?.toString() ?? '1.0') ?? 1.0,
+      regularOtMultiplier: double.tryParse(json['regular_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
+      restDayOtMultiplier: double.tryParse(json['rest_day_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
+      publicHolidayOtMultiplier: double.tryParse(json['public_holiday_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
+      companyHolidayOtMultiplier: double.tryParse(json['company_holiday_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
+      earlyClockInPolicy: json['early_clock_in_policy'] as String? ?? 'ignore',
+      preShiftOtMultiplier: double.tryParse(json['pre_shift_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
+      maxPreShiftOtMinutes: json['max_pre_shift_ot_minutes'] as int? ?? 0,
+    );
+  }
+}
+
 // ── Branch ──────────────────────────────────────────────────────────────────
 class BranchData {
   final int id;
@@ -19,6 +70,7 @@ class BranchData {
   final double? longitude;
   final int? allowedRadiusMeters;
   final int? gracePeriod;
+  final BranchPayrollSettingsData? payrollSettings;
 
   const BranchData({
     required this.id,
@@ -35,6 +87,7 @@ class BranchData {
     this.longitude,
     this.allowedRadiusMeters,
     this.gracePeriod,
+    this.payrollSettings,
   });
 
   factory BranchData.fromJson(Map<String, dynamic> json) {
@@ -53,6 +106,7 @@ class BranchData {
       longitude: json['longitude'] != null ? double.tryParse(json['longitude'].toString()) : null,
       allowedRadiusMeters: json['allowed_radius_meters'] as int?,
       gracePeriod: json['grace_period'] as int?,
+      payrollSettings: json['payroll_settings'] != null ? BranchPayrollSettingsData.fromJson(json['payroll_settings'] as Map<String, dynamic>) : null,
     );
   }
 }
@@ -196,6 +250,7 @@ class EmployeeData {
   final String? employmentType;
   final String? employmentStatus;
   final String? joinDate;
+  final String? terminationDate;
   final String? avatar;
   final double? salary;
   final int? departmentId;
@@ -230,6 +285,7 @@ class EmployeeData {
     this.employmentType,
     this.employmentStatus,
     this.joinDate,
+    this.terminationDate,
     this.avatar,
     this.salary,
     this.departmentId,
@@ -266,6 +322,7 @@ class EmployeeData {
       employmentType: json['employment_type'] as String?,
       employmentStatus: json['employment_status'] as String?,
       joinDate: json['hire_date'] as String? ?? json['join_date'] as String?,
+      terminationDate: json['termination_date'] as String?,
       avatar: json['avatar'] as String? ?? json['photo'] as String?,
       salary: (json['salary'] as num?)?.toDouble(),
       departmentId: json['department_id'] as int?,
@@ -396,6 +453,7 @@ class HrRepository {
     int? gracePeriod,
     int? managerId,
     bool? isActive,
+    Map<String, dynamic>? payrollSettings,
   }) async {
     final response = await _api.post('/company/branches', data: {
       'name': name,
@@ -409,6 +467,7 @@ class HrRepository {
       'grace_period': gracePeriod,
       'manager_id': managerId,
       'is_active': isActive ?? true,
+      'payroll_settings': ?payrollSettings,
     });
     return BranchData.fromJson(response.data as Map<String, dynamic>);
   }
@@ -425,6 +484,7 @@ class HrRepository {
     int? gracePeriod,
     int? managerId,
     bool? isActive,
+    Map<String, dynamic>? payrollSettings,
   }) async {
     await _api.put('/company/branches/$id', data: {
       'name': name,
@@ -438,6 +498,7 @@ class HrRepository {
       'grace_period': gracePeriod,
       'manager_id': managerId,
       'is_active': isActive,
+      'payroll_settings': ?payrollSettings,
     });
   }
 
@@ -621,6 +682,7 @@ class HrRepository {
     String? emergencyContactPhone,
     String? notes,
     String? probationEndDate,
+    String? terminationDate,
     File? photo,
   }) async {
     final Map<String, dynamic> dataMap = {
@@ -649,6 +711,7 @@ class HrRepository {
       'emergency_contact_phone': ?emergencyContactPhone,
       'notes': ?notes,
       'probation_end_date': ?probationEndDate,
+      'termination_date': ?terminationDate,
     };
 
     if (photo != null) {
@@ -689,6 +752,7 @@ class HrRepository {
     String? emergencyContactPhone,
     String? notes,
     String? probationEndDate,
+    String? terminationDate,
     File? photo,
   }) async {
     final Map<String, dynamic> dataMap = {
@@ -718,6 +782,7 @@ class HrRepository {
       'emergency_contact_phone': ?emergencyContactPhone,
       'notes': ?notes,
       'probation_end_date': ?probationEndDate,
+      'termination_date': ?terminationDate,
     };
 
     if (photo != null) {

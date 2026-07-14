@@ -1,10 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
+import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
+import 'package:mpg_hr_mobile_app/services/assets_repository.dart';
 
 // ── Repository Providers ────────────────────────────────────────────────────
 final hrRepositoryProvider = Provider<HrRepository>((ref) => HrRepository());
 final adminOpsRepositoryProvider = Provider<AdminOperationsRepository>((ref) => AdminOperationsRepository());
+final recruitmentRepositoryProvider = Provider<RecruitmentRepository>((ref) => RecruitmentRepository());
+final assetsRepositoryProvider = Provider<AssetsRepository>((ref) => AssetsRepository());
 
 // ── HR Structure Providers ──────────────────────────────────────────────────
 final branchesProvider = FutureProvider.autoDispose<List<BranchData>>((ref) {
@@ -138,15 +142,15 @@ final holidaysAdminProvider = FutureProvider.autoDispose<List<HolidayData>>((ref
 });
 
 final assetsProvider = FutureProvider.autoDispose<List<AssetData>>((ref) {
-  return ref.watch(adminOpsRepositoryProvider).getAssets();
+  return ref.watch(assetsRepositoryProvider).getAssets();
 });
 
-final jobPostingsProvider = FutureProvider.autoDispose<List<JobPostingData>>((ref) {
-  return ref.watch(adminOpsRepositoryProvider).getJobPostings();
+final recruitmentJobsProvider = FutureProvider.autoDispose<RecruitmentJobsResponse>((ref) {
+  return ref.watch(recruitmentRepositoryProvider).getJobs();
 });
 
 final jobCandidatesProvider = FutureProvider.family.autoDispose<List<CandidateData>, int>((ref, jobId) {
-  return ref.watch(adminOpsRepositoryProvider).getCandidates(jobId);
+  return ref.watch(recruitmentRepositoryProvider).getCandidates(jobId);
 });
 
 final performanceReviewsProvider = FutureProvider.autoDispose<List<PerformanceReviewData>>((ref) {

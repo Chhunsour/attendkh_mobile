@@ -37,6 +37,8 @@ class AdminAttendanceRecord {
   final String? clockOut;
   final String status;
   final double? workHours;
+  final int? earlyClockInMinutes;
+  final int? approvedPreShiftOtMinutes;
 
   const AdminAttendanceRecord({
     required this.id,
@@ -47,6 +49,8 @@ class AdminAttendanceRecord {
     this.clockOut,
     required this.status,
     this.workHours,
+    this.earlyClockInMinutes,
+    this.approvedPreShiftOtMinutes,
   });
 
   factory AdminAttendanceRecord.fromJson(Map<String, dynamic> json) {
@@ -58,7 +62,9 @@ class AdminAttendanceRecord {
       clockIn: json['clock_in'] as String?,
       clockOut: json['clock_out'] as String?,
       status: json['status'] as String? ?? 'absent',
-      workHours: double.tryParse(json['work_hours']?.toString() ?? ''),
+      workHours: (json['work_hours'] as num?)?.toDouble(),
+      earlyClockInMinutes: json['early_clock_in_minutes'] as int?,
+      approvedPreShiftOtMinutes: json['approved_pre_shift_ot_minutes'] as int?,
     );
   }
 }
@@ -321,175 +327,26 @@ class HolidayData {
   final int id;
   final String name;
   final String date;
+  final String type;
   final String? description;
   final bool isRecurring;
 
-  const HolidayData({required this.id, required this.name, required this.date, this.description, this.isRecurring = false});
+  const HolidayData({required this.id, required this.name, required this.date, required this.type, this.description, this.isRecurring = false});
 
   factory HolidayData.fromJson(Map<String, dynamic> json) {
     return HolidayData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       name: json['name'] as String? ?? '',
       date: json['date'] as String? ?? '',
+      type: json['type'] as String? ?? 'company',
       description: json['description'] as String?,
       isRecurring: json['is_recurring'] as bool? ?? false,
     );
   }
 }
 
-// ── Asset ───────────────────────────────────────────────────────────────────
-class AssetData {
-  final int id;
-  final String assetCode;
-  final String name;
-  final String? category;
-  final String? description;
-  final String? serialNumber;
-  final String? model;
-  final String? purchaseDate;
-  final double? purchasePrice;
-  final double? currentValue;
-  final double? calculatedCurrentValue;
-  final int? depreciationMonths;
-  final String? warrantyExpiryDate;
-  final String condition;
-  final String status;
-  final String? notes;
-  final String? assignedTo;
-  final String? assignedDate;
-  final int? currentAssignmentId;
-
-  const AssetData({
-    required this.id,
-    required this.assetCode,
-    required this.name,
-    this.category,
-    this.description,
-    this.serialNumber,
-    this.model,
-    this.purchaseDate,
-    this.purchasePrice,
-    this.currentValue,
-    this.calculatedCurrentValue,
-    this.depreciationMonths,
-    this.warrantyExpiryDate,
-    required this.condition,
-    required this.status,
-    this.notes,
-    this.assignedTo,
-    this.assignedDate,
-    this.currentAssignmentId,
-  });
-
-  factory AssetData.fromJson(Map<String, dynamic> json) {
-    double? parseDouble(dynamic v) {
-      if (v == null) return null;
-      if (v is num) return v.toDouble();
-      if (v is String) return double.tryParse(v);
-      return null;
-    }
-    
-    String? extractName(dynamic emp) {
-      if (emp == null) return null;
-      if (emp['name'] != null) return emp['name'] as String?;
-      if (emp['first_name'] != null) return '${emp['first_name']} ${emp['last_name'] ?? ''}'.trim();
-      return null;
-    }
 
 
-    return AssetData(
-      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      assetCode: json['asset_code'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      category: json['category'] as String?,
-      description: json['description'] as String?,
-      serialNumber: json['serial_number'] as String?,
-      model: json['model'] as String?,
-      purchaseDate: json['purchase_date'] as String?,
-      purchasePrice: parseDouble(json['purchase_price']),
-      currentValue: parseDouble(json['current_value']),
-      calculatedCurrentValue: parseDouble(json['calculated_current_value']),
-      depreciationMonths: int.tryParse(json['depreciation_months']?.toString() ?? ''),
-      warrantyExpiryDate: json['warranty_expiry_date'] as String?,
-      condition: json['condition'] as String? ?? 'good',
-      status: json['status'] as String? ?? 'available',
-      notes: json['notes'] as String?,
-      assignedTo: extractName(json['assigned_to']) ?? extractName(json['current_assignment']?['employee']),
-      assignedDate: json['assigned_date'] as String?,
-    );
-  }
-
-  double get displayValue => calculatedCurrentValue ?? currentValue ?? 0.0;
-}
-
-// ── Asset Assignment History ────────────────────────────────────────────────
-class AssetAssignmentData {
-  final int id;
-  final String employeeName;
-  final String assignedDate;
-  final String? returnedDate;
-  final String? notes;
-
-  const AssetAssignmentData({required this.id, required this.employeeName, required this.assignedDate, this.returnedDate, this.notes});
-
-  factory AssetAssignmentData.fromJson(Map<String, dynamic> json) {
-    return AssetAssignmentData(
-      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? '',
-      assignedDate: json['assigned_date'] as String? ?? json['created_at'] as String? ?? '',
-      returnedDate: json['returned_date'] as String?,
-      notes: json['notes'] as String?,
-    );
-  }
-}
-
-// ── Job Posting ─────────────────────────────────────────────────────────────
-class JobPostingData {
-  final int id;
-  final String title;
-  final String? department;
-  final String? location;
-  final String status;
-  final int candidatesCount;
-  final String? createdAt;
-
-  const JobPostingData({required this.id, required this.title, this.department, this.location, required this.status, this.candidatesCount = 0, this.createdAt});
-
-  factory JobPostingData.fromJson(Map<String, dynamic> json) {
-    return JobPostingData(
-      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      title: json['title'] as String? ?? '',
-      department: json['department']?['name'] as String? ?? json['department'] as String?,
-      location: json['location'] as String?,
-      status: json['status'] as String? ?? 'open',
-      candidatesCount: int.tryParse(json['candidates_count']?.toString() ?? '') ?? 0,
-      createdAt: json['created_at'] as String?,
-    );
-  }
-}
-
-// ── Candidate ──────────────────────────────────────────────────────────────
-class CandidateData {
-  final int id;
-  final String name;
-  final String? email;
-  final String? phone;
-  final String stage;
-  final String? appliedJob;
-
-  const CandidateData({required this.id, required this.name, this.email, this.phone, required this.stage, this.appliedJob});
-
-  factory CandidateData.fromJson(Map<String, dynamic> json) {
-    return CandidateData(
-      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      name: json['name'] as String? ?? '',
-      email: json['email'] as String?,
-      phone: json['phone'] as String?,
-      stage: json['stage'] as String? ?? json['status'] as String? ?? 'applied',
-      appliedJob: json['job']?['title'] as String?,
-    );
-  }
-}
 
 // ── Performance Review ─────────────────────────────────────────────────────
 class PerformanceReviewData {
@@ -805,6 +662,7 @@ class AdminOperationsRepository {
   Future<void> approveCorrection(int id) async => _api.post('/company/attendance/corrections/$id/approve');
   Future<void> rejectCorrection(int id) async => _api.post('/company/attendance/corrections/$id/reject');
   Future<void> deleteAttendance(int id) async => _api.delete('/company/attendance/$id');
+  Future<void> approveOvertime(int id) async => _api.post('/company/attendance/$id/approve-overtime');
 
   // ── Leave Requests (Admin) ──────────────────────────────────────────────
   Future<List<AdminLeaveRequestData>> getAllLeaveRequests({String? status}) async {
@@ -961,8 +819,8 @@ class AdminOperationsRepository {
     return _parseList(response.data, HolidayData.fromJson);
   }
 
-  Future<HolidayData> createHoliday({required String name, required String date, String? description, bool isRecurring = false}) async {
-    final response = await _api.post('/company/holidays', data: {'name': name, 'date': date, 'description': ?description, 'is_recurring': isRecurring});
+  Future<HolidayData> createHoliday({required String name, required String date, required String type, String? description, bool isRecurring = false}) async {
+    final response = await _api.post('/company/holidays', data: {'name': name, 'date': date, 'type': type, 'description': description, 'is_recurring': isRecurring});
     return HolidayData.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -970,92 +828,7 @@ class AdminOperationsRepository {
 
   Future<void> deleteHoliday(int id) async => _api.delete('/company/holidays/$id');
 
-  // ── Assets ──────────────────────────────────────────────────────────────
-  Future<List<AssetData>> getAssets() async {
-    final response = await _api.get('/company/assets');
-    return _parseList(response.data, AssetData.fromJson);
-  }
 
-  Future<AssetData> createAsset({
-    required String assetCode,
-    required String name,
-    String? category,
-    String? description,
-    String? serialNumber,
-    String? model,
-    String? purchaseDate,
-    double? purchasePrice,
-    double? currentValue,
-    int? depreciationMonths,
-    String? warrantyExpiryDate,
-    String? condition,
-    String? notes,
-  }) async {
-    final response = await _api.post('/company/assets', data: {
-      'asset_code': assetCode,
-      'name': name,
-      'category': category,
-      'description': description,
-      'serial_number': serialNumber,
-      'model': model,
-      'purchase_date': purchaseDate,
-      'purchase_price': purchasePrice,
-      'current_value': currentValue,
-      'depreciation_months': depreciationMonths,
-      'warranty_expiry_date': warrantyExpiryDate,
-      'condition': condition ?? 'new',
-      'notes': notes,
-    });
-    return AssetData.fromJson(response.data as Map<String, dynamic>);
-  }
-
-  Future<AssetData> updateAsset(int id, {
-    String? assetCode,
-    String? name,
-    String? category,
-    String? description,
-    String? serialNumber,
-    String? model,
-    String? purchaseDate,
-    double? purchasePrice,
-    double? currentValue,
-    int? depreciationMonths,
-    String? warrantyExpiryDate,
-    String? condition,
-    String? notes,
-  }) async {
-    final response = await _api.put('/company/assets/$id', data: {
-      'asset_code': ?assetCode,
-      'name': ?name,
-      'category': ?category,
-      'description': ?description,
-      'serial_number': ?serialNumber,
-      'model': ?model,
-      'purchase_date': ?purchaseDate,
-      'purchase_price': ?purchasePrice,
-      'current_value': ?currentValue,
-      'depreciation_months': ?depreciationMonths,
-      'warranty_expiry_date': ?warrantyExpiryDate,
-      'condition': ?condition,
-      'notes': ?notes,
-    });
-    return AssetData.fromJson(response.data as Map<String, dynamic>);
-  }
-
-  Future<void> deleteAsset(int id) async => _api.delete('/company/assets/$id');
-
-  Future<void> assignAsset(int id, int employeeId, {String? conditionAtAssignment}) async =>
-      _api.post('/company/assets/$id/assign', data: {
-        'employee_id': employeeId,
-        'condition_at_assignment': ?conditionAtAssignment,
-      });
-
-  Future<void> returnAsset(int id) async => _api.post('/company/assets/$id/return');
-
-  Future<List<AssetAssignmentData>> getAssetHistory(int id) async {
-    final response = await _api.get('/company/assets/$id/history');
-    return _parseList(response.data, AssetAssignmentData.fromJson);
-  }
 
   // ── Employees (for dropdowns) ──────────────────────────────────────────
   Future<List<Map<String, dynamic>>> getEmployees() async {
@@ -1096,25 +869,6 @@ class AdminOperationsRepository {
     'carried_forward': carriedForward,
   });
 
-  // ── Recruitment ─────────────────────────────────────────────────────────
-  Future<List<JobPostingData>> getJobPostings() async {
-    final response = await _api.get('/company/recruitment/jobs');
-    return _parseList(response.data, JobPostingData.fromJson);
-  }
-
-  Future<JobPostingData> createJobPosting({required String title, String? department, String? location, String? description}) async {
-    final response = await _api.post('/company/recruitment/jobs', data: {'title': title, 'department': ?department, 'location': ?location, 'description': ?description});
-    return JobPostingData.fromJson(response.data as Map<String, dynamic>);
-  }
-
-  Future<void> deleteJobPosting(int id) async => _api.delete('/company/recruitment/jobs/$id');
-
-  Future<List<CandidateData>> getCandidates(int jobId) async {
-    final response = await _api.get('/company/recruitment/jobs/$jobId/candidates');
-    return _parseList(response.data, CandidateData.fromJson);
-  }
-
-  Future<void> updateCandidateStatus(int id, String stage) async => _api.post('/company/recruitment/candidates/$id/status', data: {'stage': stage});
 
   // ── Performance ─────────────────────────────────────────────────────────
   Future<List<PerformanceReviewData>> getReviews() async {

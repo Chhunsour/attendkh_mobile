@@ -252,30 +252,62 @@ class _HolidaysTab extends ConsumerWidget {
 
   void _showCreateHolidayDialog(BuildContext context, WidgetRef ref) {
     final nameCtrl = TextEditingController();
-    final dateCtrl = TextEditingController(text: DateTime.now().toString().substring(0, 10));
+    final dateCtrl = TextEditingController(text: DateTime.now().add(const Duration(days: 1)).toString().substring(0, 10));
+    String selectedType = 'company';
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add Holiday'),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Name', hintText: 'e.g. New Year')),
-          const SizedBox(height: 12),
-          TextField(controller: dateCtrl, decoration: const InputDecoration(labelText: 'Date', hintText: 'YYYY-MM-DD')),
-        ]),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () async {
-            if (nameCtrl.text.trim().isEmpty) return;
-            try {
-              await AdminOperationsRepository().createHoliday(name: nameCtrl.text.trim(), date: dateCtrl.text.trim());
-              ref.invalidate(holidaysAdminProvider);
-              if (ctx.mounted) Navigator.pop(ctx);
-              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Holiday created'), backgroundColor: AppColors.success));
-            } catch (e) {
-              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
-            }
-          }, child: const Text('Create')),
-        ],
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          title: const Text('Add Holiday'),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Name', hintText: 'e.g. New Year')),
+            const SizedBox(height: 12),
+            TextField(
+              controller: dateCtrl,
+              readOnly: true,
+              decoration: const InputDecoration(labelText: 'Date', hintText: 'YYYY-MM-DD', suffixIcon: Icon(Icons.calendar_today)),
+              onTap: () async {
+                final initDate = DateTime.tryParse(dateCtrl.text) ?? DateTime.now().add(const Duration(days: 1));
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: initDate,
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
+                );
+                if (picked != null) {
+                  dateCtrl.text = picked.toString().substring(0, 10);
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: selectedType,
+              decoration: const InputDecoration(labelText: 'Type'),
+              items: const [
+                DropdownMenuItem(value: 'company', child: Text('Company')),
+                DropdownMenuItem(value: 'national', child: Text('National (Cambodia)')),
+              ],
+              onChanged: (val) {
+                if (val != null) setState(() => selectedType = val);
+              },
+            ),
+          ]),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            ElevatedButton(onPressed: () async {
+              if (nameCtrl.text.trim().isEmpty) return;
+              try {
+                await AdminOperationsRepository().createHoliday(name: nameCtrl.text.trim(), date: dateCtrl.text.trim(), type: selectedType);
+                ref.invalidate(holidaysAdminProvider);
+                if (ctx.mounted) Navigator.pop(ctx);
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Holiday created'), backgroundColor: AppColors.success));
+              } catch (e) {
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
+              }
+            }, child: const Text('Create')),
+          ],
+        ),
       ),
     );
   }
@@ -370,7 +402,7 @@ class _PoliciesTab extends ConsumerWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) return const LoadingIndicator(message: 'Loading...');
         if (snapshot.hasError) return Center(child: OutlinedButton.icon(onPressed: () => (context as Element).markNeedsBuild(), icon: const Icon(Icons.refresh), label: const Text('Retry')));
-        final items = snapshot.data ?? [];
+        final items = snapshot.data?.policies ?? [];
         if (items.isEmpty) return const Center(child: Text('No policies', style: TextStyle(color: AppColors.grey400)));
         return ListView.separated(
           padding: const EdgeInsets.all(16),
@@ -387,15 +419,14 @@ class _PoliciesTab extends ConsumerWidget {
                   const SizedBox(width: 14),
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(p.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                    Text(p.category, style: TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(p.department?.name ?? 'Company-Wide', style: TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ])),
                   PopupMenuButton<String>(
                     icon: Icon(Icons.more_vert, color: AppColors.grey400, size: 20),
                     onSelected: (action) async {
-                      final opsRepo = AdminOperationsRepository();
                       try {
-                        if (action == 'publish') { await opsRepo.publishPolicy(p.id); }
-                        else if (action == 'archive') { await opsRepo.archivePolicy(p.id); }
+                        if (action == 'publish') { await repo.publishPolicy(p.id); }
+                        else if (action == 'archive') { await repo.archivePolicy(p.id); }
                         if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('✅ Policy ${action}d'), backgroundColor: AppColors.success));
                       } catch (e) {
                         if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
@@ -426,7 +457,7 @@ class _DocumentsTab extends ConsumerWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) return const LoadingIndicator(message: 'Loading...');
         if (snapshot.hasError) return Center(child: OutlinedButton.icon(onPressed: () => (context as Element).markNeedsBuild(), icon: const Icon(Icons.refresh), label: const Text('Retry')));
-        final items = snapshot.data ?? [];
+        final items = snapshot.data?.documents ?? [];
         if (items.isEmpty) return const Center(child: Text('No documents', style: TextStyle(color: AppColors.grey400)));
         return ListView.separated(
           padding: const EdgeInsets.all(16),
@@ -441,11 +472,17 @@ class _DocumentsTab extends ConsumerWidget {
                 children: [
                   Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.warningLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.description, color: AppColors.warning, size: 22)),
                   const SizedBox(width: 14),
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(d.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                    if (d.category != null) Text(d.category!, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
-                  ])),
-                  IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger), onPressed: () => _deleteDoc(context, ref, d.id, d.name)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(d.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                        if (d.department != null) Text(d.department!.name, style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
+                        if (d.fileSize != null) Text('Size: ${d.fileSize} KB', style: const TextStyle(fontSize: 11, color: AppColors.grey400)),
+                      ],
+                    ),
+                  ),
+                  IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger), onPressed: () => _deleteDoc(context, ref, d.id, d.title)),
                 ],
               ),
             );

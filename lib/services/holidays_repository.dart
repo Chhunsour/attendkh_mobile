@@ -4,16 +4,18 @@ class Holiday {
   final int id;
   final String name;
   final String date;
+  final String type;
   final String? description;
   final bool? isRecurring;
 
-  const Holiday({required this.id, required this.name, required this.date, this.description, this.isRecurring});
+  const Holiday({required this.id, required this.name, required this.date, required this.type, this.description, this.isRecurring});
 
   factory Holiday.fromJson(Map<String, dynamic> json) {
     return Holiday(
-      id: json['id'] as int,
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       name: json['name'] as String? ?? '',
       date: json['date'] as String? ?? '',
+      type: json['type'] as String? ?? 'company',
       description: json['description'] as String?,
       isRecurring: json['is_recurring'] as bool?,
     );

@@ -561,6 +561,26 @@ class _HistoryCard extends StatelessWidget {
                     ],
                   ),
                 ],
+                if ((record.earlyClockInMinutes ?? 0) > 0) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(color: Colors.blue.withAlpha(26), borderRadius: BorderRadius.circular(4)),
+                        child: Text('Early In: ${record.earlyClockInMinutes! ~/ 60}h ${record.earlyClockInMinutes! % 60}m', style: const TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.w600)),
+                      ),
+                      if ((record.approvedPreShiftOtMinutes ?? 0) > 0) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(color: AppColors.success.withAlpha(26), borderRadius: BorderRadius.circular(4)),
+                          child: Text('OT Approved', style: const TextStyle(fontSize: 10, color: AppColors.success, fontWeight: FontWeight.w600)),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

@@ -72,6 +72,9 @@ class _DailyLogsTab extends ConsumerWidget {
               itemBuilder: (context, i) {
                 final c = items[i];
                 final statusColor = c.status == 'present' ? AppColors.success : c.status == 'late' || c.status == 'early_leave' ? AppColors.warning : AppColors.danger;
+                
+                final hasUnapprovedEarlyIn = (c.earlyClockInMinutes ?? 0) > 0 && (c.approvedPreShiftOtMinutes ?? 0) == 0;
+                
                 return Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
@@ -97,6 +100,32 @@ class _DailyLogsTab extends ConsumerWidget {
                           if (c.clockOut != null) Text('Out: ${formatTime(c.clockOut)}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
                         ]),
                       ],
+                      if ((c.earlyClockInMinutes ?? 0) > 0) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(color: Colors.blue.withAlpha(26), borderRadius: BorderRadius.circular(4)),
+                              child: Text('Early In: ${c.earlyClockInMinutes! ~/ 60}h ${c.earlyClockInMinutes! % 60}m', style: const TextStyle(fontSize: 11, color: Colors.blue, fontWeight: FontWeight.w600)),
+                            ),
+                            if ((c.approvedPreShiftOtMinutes ?? 0) > 0)
+                              Text('Approved: ${c.approvedPreShiftOtMinutes! ~/ 60}h ${c.approvedPreShiftOtMinutes! % 60}m', style: const TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ],
+                      if (hasUnapprovedEarlyIn) ...[
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () => _handleApproveOt(context, ref, c.id),
+                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, padding: const EdgeInsets.symmetric(vertical: 8)),
+                            child: const Text('Approve Pre-shift OT', style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 );
@@ -111,6 +140,20 @@ class _DailyLogsTab extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleApproveOt(BuildContext context, WidgetRef ref, int id) async {
+    try {
+      await ref.read(adminOpsRepositoryProvider).approveOvertime(id);
+      ref.invalidate(allAttendanceLogsProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Pre-shift OT approved'), backgroundColor: AppColors.success));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: AppColors.danger));
+      }
+    }
   }
 }
 

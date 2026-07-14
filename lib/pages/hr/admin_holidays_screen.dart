@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:intl/intl.dart';
 
 class AdminHolidaysScreen extends StatefulWidget {
   const AdminHolidaysScreen({super.key});
@@ -13,10 +15,13 @@ class AdminHolidaysScreen extends StatefulWidget {
 class _State extends State<AdminHolidaysScreen> {
   bool _loading = true;
   List<HolidayData> _items = [];
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
 
   @override
   void initState() {
     super.initState();
+    _selectedDay = _focusedDay;
     _fetchData();
   }
 
@@ -34,11 +39,17 @@ class _State extends State<AdminHolidaysScreen> {
     }
   }
 
-  void _showForm([HolidayData? item]) {
+  List<HolidayData> _getHolidaysForDay(DateTime day) {
+    final dateStr = DateFormat('yyyy-MM-dd').format(day);
+    return _items.where((h) => h.date == dateStr).toList();
+  }
+
+  void _showForm([HolidayData? item, DateTime? selectedDate]) {
     final isEdit = item != null;
     final nameCtrl = TextEditingController(text: isEdit ? item.name : '');
-    final dateCtrl = TextEditingController(text: isEdit ? item.date : '');
+    final dateCtrl = TextEditingController(text: isEdit ? item.date : (selectedDate != null ? DateFormat('yyyy-MM-dd').format(selectedDate) : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 1)))));
     final descCtrl = TextEditingController(text: isEdit ? (item.description ?? '') : '');
+    String selectedType = isEdit ? item.type : 'company';
     
     showModalBottomSheet(
       context: context,
@@ -56,15 +67,46 @@ class _State extends State<AdminHolidaysScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(isEdit ? 'Edit Holidays' : 'Add Holidays', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                    Text(isEdit ? 'Edit Holiday' : 'Add Holiday', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
                     const SizedBox(height: 24),
                     TextField(controller: nameCtrl, decoration: InputDecoration(labelText: 'Name *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), keyboardType: TextInputType.text),
                     const SizedBox(height: 16),
-                    TextField(controller: dateCtrl, decoration: InputDecoration(labelText: 'Date (YYYY-MM-DD) *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), keyboardType: TextInputType.text),
+                    TextField(
+                      controller: dateCtrl,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'Date *',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        suffixIcon: const Icon(Icons.calendar_today, size: 20, color: Colors.grey),
+                      ),
+                      onTap: () async {
+                        final defaultDate = selectedDate ?? DateTime.now().add(const Duration(days: 1));
+                        final initDate = DateTime.tryParse(dateCtrl.text) ?? defaultDate;
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: initDate,
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2030),
+                        );
+                        if (picked != null) {
+                          dateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      initialValue: selectedType,
+                      decoration: InputDecoration(labelText: 'Type *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      items: const [
+                        DropdownMenuItem(value: 'company', child: Text('Company')),
+                        DropdownMenuItem(value: 'national', child: Text('National (Cambodia)')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) setSheetState(() => selectedType = val);
+                      },
+                    ),
                     const SizedBox(height: 16),
                     TextField(controller: descCtrl, decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), keyboardType: TextInputType.text),
-                    const SizedBox(height: 16),
-                    
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
@@ -74,16 +116,16 @@ class _State extends State<AdminHolidaysScreen> {
                         onPressed: () async {
                           if (nameCtrl.text.trim().isEmpty || dateCtrl.text.trim().isEmpty) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required fields', style: TextStyle(color: Colors.white)), backgroundColor: AppColors.danger)); return; }
                           try {
-                            final data = {
-                              if (nameCtrl.text.trim().isNotEmpty) 'name': nameCtrl.text.trim(),
-                              if (dateCtrl.text.trim().isNotEmpty) 'date': dateCtrl.text.trim(),
-                              if (descCtrl.text.trim().isNotEmpty) 'description': descCtrl.text.trim(),
-                              
-                            };
                             if (isEdit) {
+                              final data = {
+                                'name': nameCtrl.text.trim(),
+                                'date': dateCtrl.text.trim(),
+                                'type': selectedType,
+                                'description': descCtrl.text.trim(),
+                              };
                               await AdminOperationsRepository().updateHoliday(item.id, data);
                             } else {
-                              await AdminOperationsRepository().createHoliday(name: nameCtrl.text.trim(), date: dateCtrl.text.trim(), description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim());
+                              await AdminOperationsRepository().createHoliday(name: nameCtrl.text.trim(), date: dateCtrl.text.trim(), type: selectedType, description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim());
                             }
                             if (ctx.mounted) Navigator.pop(ctx);
                             _fetchData();
@@ -92,7 +134,7 @@ class _State extends State<AdminHolidaysScreen> {
                             if (ctx.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
                           }
                         },
-                        child: Text(isEdit ? 'Save Changes' : 'Create Holidays', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                        child: Text(isEdit ? 'Save Changes' : 'Create Holiday', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                       ),
                     )
                   ],
@@ -132,6 +174,8 @@ class _State extends State<AdminHolidaysScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedHolidays = _selectedDay != null ? _getHolidaysForDay(_selectedDay!) : <HolidayData>[];
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -140,35 +184,123 @@ class _State extends State<AdminHolidaysScreen> {
         elevation: 0,
         title: const Text('Holidays', style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
         actions: [
-          IconButton(icon: const Icon(Icons.add, color: AppColors.primary), onPressed: () => _showForm())
+          IconButton(icon: const Icon(Icons.add, color: AppColors.primary), onPressed: () => _showForm(null, _selectedDay))
         ],
       ),
       body: _loading
           ? const LoadingIndicator(message: 'Loading Holidays...')
-          : _items.isEmpty
-              ? const Center(child: Text('No Holidays found.', style: TextStyle(color: AppColors.grey500)))
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _items.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
-                  itemBuilder: (context, i) {
-                    final e = _items[i];
-                    return Container(
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.grey200)),
-                      child: ListTile(
-                        title: Text(e.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.grey900)),
-                        subtitle: Text(e.date, style: const TextStyle(color: AppColors.grey500, fontSize: 13)),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(icon: const Icon(Icons.edit, color: AppColors.grey500, size: 20), onPressed: () => _showForm(e)),
-                            IconButton(icon: const Icon(Icons.delete, color: AppColors.danger, size: 20), onPressed: () => _confirmDelete(e.id, e.name)),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+          : Column(
+              children: [
+                Container(
+                  color: Colors.white,
+                  child: TableCalendar<HolidayData>(
+                    firstDay: DateTime.utc(2020, 1, 1),
+                    lastDay: DateTime.utc(2030, 12, 31),
+                    focusedDay: _focusedDay,
+                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
+                    },
+                    eventLoader: _getHolidaysForDay,
+                    calendarStyle: const CalendarStyle(
+                      todayDecoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                      selectedDecoration: BoxDecoration(color: Colors.black87, shape: BoxShape.circle),
+                      markerDecoration: BoxDecoration(color: Colors.transparent),
+                    ),
+                    calendarBuilders: CalendarBuilders(
+                      defaultBuilder: (context, day, focusedDay) {
+                        final hols = _getHolidaysForDay(day);
+                        if (hols.isNotEmpty) {
+                          bool isNational = hols.any((h) => h.type == 'national');
+                          return Container(
+                            margin: const EdgeInsets.all(6.0),
+                            decoration: BoxDecoration(
+                              color: isNational ? Colors.red.shade50 : Colors.purple.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${day.day}',
+                              style: TextStyle(
+                                color: isNational ? Colors.red.shade700 : Colors.purple.shade700,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        }
+                        return null;
+                      },
+                      markerBuilder: (context, day, events) {
+                        if (events.isNotEmpty) {
+                          return Positioned(
+                            bottom: 1,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: events.map((e) => Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 1.0),
+                                width: 5.0,
+                                height: 5.0,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: e.type == 'national' ? Colors.red : Colors.purple,
+                                ),
+                              )).toList(),
+                            ),
+                          );
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
                 ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: selectedHolidays.isEmpty
+                      ? const Center(child: Text('No holidays on this day', style: TextStyle(color: AppColors.grey500)))
+                      : ListView.separated(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          itemCount: selectedHolidays.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 12),
+                          itemBuilder: (context, i) {
+                            final e = selectedHolidays[i];
+                            final isNational = e.type == 'national';
+                            final bgColor = isNational ? Colors.red.shade50 : Colors.purple.shade50;
+                            final textColor = isNational ? Colors.red.shade700 : Colors.purple.shade700;
+                            final borderColor = isNational ? Colors.red.shade200 : Colors.purple.shade200;
+
+                            return Container(
+                              decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: borderColor)),
+                              child: ListTile(
+                                title: Row(
+                                  children: [
+                                    Expanded(child: Text(e.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: textColor))),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(color: isNational ? Colors.red.shade100 : Colors.purple.shade100, borderRadius: BorderRadius.circular(8)),
+                                      child: Text(isNational ? 'National' : 'Company', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor)),
+                                    ),
+                                  ],
+                                ),
+                                subtitle: e.description?.isNotEmpty == true
+                                    ? Text(e.description!, style: TextStyle(color: textColor.withValues(alpha: 0.8), fontSize: 13))
+                                    : null,
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(icon: Icon(Icons.edit, color: textColor.withValues(alpha: 0.6), size: 20), onPressed: () => _showForm(e)),
+                                    IconButton(icon: Icon(Icons.delete, color: textColor, size: 20), onPressed: () => _confirmDelete(e.id, e.name)),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
     );
   }
 }

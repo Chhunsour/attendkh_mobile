@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,8 +58,9 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
     if (!isPhysicalDevice) {
       try {
         final tempDir = await getTemporaryDirectory();
-        final file = File('${tempDir.path}/dummy_selfie.jpg');
-        await file.writeAsBytes(List<int>.filled(100, 0));
+        final file = File('${tempDir.path}/dummy_selfie.png');
+        final bytes = base64Decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+        await file.writeAsBytes(bytes);
         setState(() {
           _photoPath = file.path;
         });
@@ -89,7 +91,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('⚠️ Camera exception: \${e.toString()}'), backgroundColor: AppColors.warning));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('⚠️ Camera exception: ${e.toString()}'), backgroundColor: AppColors.warning));
       }
     }
   }
@@ -97,6 +99,28 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
   Future<void> _submitClockIn() async {
     if (_photoPath == null) return;
     
+    final radius = widget.args.radius ?? 500; // default 500m
+    final bool isGeoValid = widget.args.distance <= radius;
+
+    if (!isGeoValid) {
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Out of Range'),
+          content: Text('You are ${widget.args.distance.toStringAsFixed(0)}m away from the branch (allowed: ${radius}m). This will be flagged for manager review. Proceed?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning),
+              child: const Text('Clock In Anyway', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+      if (proceed != true) return;
+    }
+
     setState(() => _isSubmitting = true);
     
     try {
@@ -106,12 +130,14 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
           lat: widget.args.latitude,
           lng: widget.args.longitude,
           photoPath: _photoPath!,
+          isGeoValid: isGeoValid,
         );
       } else {
         await repo.clockOut(
           lat: widget.args.latitude,
           lng: widget.args.longitude,
           photoPath: _photoPath!,
+          isGeoValid: isGeoValid,
         );
       }
       
@@ -221,7 +247,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
                         const Icon(Icons.location_on, color: AppColors.primary, size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          'Location: \${widget.args.branchName}',
+                          'Location: ${widget.args.branchName}',
                           style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.grey800, fontSize: 16),
                         ),
                       ],
@@ -229,7 +255,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
                     const SizedBox(height: 8),
                     if (widget.args.radius != null)
                       Text(
-                        'Within \${widget.args.radius}m radius',
+                        'Within ${widget.args.radius}m radius',
                         style: const TextStyle(color: AppColors.grey600, fontSize: 14),
                       ),
                   ],

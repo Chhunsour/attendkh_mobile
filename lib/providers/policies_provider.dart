@@ -5,7 +5,7 @@ final policiesRepositoryProvider = Provider<PoliciesRepository>(
   (ref) => PoliciesRepository(),
 );
 
-final policiesProvider = FutureProvider.autoDispose<List<Policy>>((ref) async {
+final policiesProvider = FutureProvider.autoDispose<PoliciesResponse>((ref) async {
   final repo = ref.watch(policiesRepositoryProvider);
   return repo.getAll();
 });

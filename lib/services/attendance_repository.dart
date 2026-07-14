@@ -13,6 +13,9 @@ class TodayAttendance {
   final String? date;
   final int? lateMinutes;
   final int? breakMinutes;
+  final int? earlyClockInMinutes;
+  final int? approvedPreShiftOtMinutes;
+  final int? earlyLeaveMinutes;
 
   const TodayAttendance({
     this.id,
@@ -25,6 +28,9 @@ class TodayAttendance {
     this.date,
     this.lateMinutes,
     this.breakMinutes,
+    this.earlyClockInMinutes,
+    this.approvedPreShiftOtMinutes,
+    this.earlyLeaveMinutes,
   });
 
   factory TodayAttendance.fromJson(Map<String, dynamic> json) {
@@ -35,10 +41,13 @@ class TodayAttendance {
       clockInPhoto: json['clock_in_photo'] as String?,
       clockOutPhoto: json['clock_out_photo'] as String?,
       status: json['status'] as String?,
-      workHours: (json['work_hours'] as num?)?.toDouble(),
+      workHours: json['work_hours'] != null ? double.tryParse(json['work_hours'].toString()) : null,
       date: json['date'] as String?,
       lateMinutes: json['late_minutes'] as int?,
       breakMinutes: json['break_minutes'] as int?,
+      earlyClockInMinutes: json['early_clock_in_minutes'] as int?,
+      approvedPreShiftOtMinutes: json['approved_pre_shift_ot_minutes'] as int?,
+      earlyLeaveMinutes: json['early_leave_minutes'] as int?,
     );
   }
 }
@@ -67,7 +76,7 @@ class AttendanceSummary {
       late: json['late'] as int? ?? 0,
       halfDay: json['half_day'] as int? ?? 0,
       totalDays: json['total_days'] as int? ?? 0,
-      totalHours: (json['total_hours'] as num?)?.toDouble() ?? 0,
+      totalHours: json['total_hours'] != null ? (double.tryParse(json['total_hours'].toString()) ?? 0) : 0,
     );
   }
 }
@@ -100,6 +109,7 @@ class AttendanceRepository {
     double? lng,
     String? deviceId,
     String? photoPath,
+    bool? isGeoValid,
   }) async {
     dynamic payload;
 
@@ -108,6 +118,7 @@ class AttendanceRepository {
         'lat': lat,
         'lng': lng,
         'device_id': deviceId,
+        'is_geo_valid': isGeoValid == true ? 1 : 0,
         'photo': await MultipartFile.fromFile(photoPath, filename: 'clock_in.jpg'),
         'method': 'mobile',
       });
@@ -116,6 +127,7 @@ class AttendanceRepository {
         'lat': lat,
         'lng': lng,
         'device_id': deviceId,
+        'is_geo_valid': isGeoValid == true ? 1 : 0,
         'method': 'mobile',
       };
     }
@@ -138,6 +150,7 @@ class AttendanceRepository {
     double? lng,
     String? deviceId,
     String? photoPath,
+    bool? isGeoValid,
   }) async {
     dynamic payload;
 
@@ -146,6 +159,7 @@ class AttendanceRepository {
         'lat': lat,
         'lng': lng,
         'device_id': deviceId,
+        'is_geo_valid': isGeoValid == true ? 1 : 0,
         'photo': await MultipartFile.fromFile(photoPath, filename: 'clock_out.jpg'),
         'method': 'mobile',
       });
@@ -154,6 +168,7 @@ class AttendanceRepository {
         'lat': lat,
         'lng': lng,
         'device_id': deviceId,
+        'is_geo_valid': isGeoValid == true ? 1 : 0,
         'method': 'mobile',
       };
     }

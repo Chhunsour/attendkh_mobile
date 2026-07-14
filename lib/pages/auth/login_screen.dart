@@ -195,7 +195,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           children: [
             // ── Title ──
             const Text(
-              'សូមស្វាគមន៍', // "Welcome" in Khmer
+              'Welcome Back!', // "Welcome" in Khmer
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 28,

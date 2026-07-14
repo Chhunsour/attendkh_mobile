@@ -623,6 +623,19 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
   bool _isActive = true;
   bool _isLoading = false;
 
+  // Payroll Settings fields
+  bool _isCustomPayroll = false;
+  late TextEditingController _lateGraceCtrl;
+  String _lateDedType = 'per_minute';
+  late TextEditingController _lateDedRateCtrl;
+  late TextEditingController _regOtCtrl;
+  late TextEditingController _restOtCtrl;
+  late TextEditingController _pubHolOtCtrl;
+  late TextEditingController _compHolOtCtrl;
+  String _earlyClockInPolicy = 'ignore';
+  late TextEditingController _preShiftOtCtrl;
+  late TextEditingController _maxPreShiftCtrl;
+
   @override
   void initState() {
     super.initState();
@@ -642,6 +655,19 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
     );
     _managerId = b?.managerId;
     _isActive = b?.isActive ?? true;
+
+    final p = b?.payrollSettings;
+    _isCustomPayroll = p?.isCustom ?? false;
+    _lateGraceCtrl = TextEditingController(text: p?.lateGracePeriodMinutes.toString() ?? '15');
+    _lateDedType = p?.lateDeductionType ?? 'per_minute';
+    _lateDedRateCtrl = TextEditingController(text: p?.lateDeductionRate.toString() ?? '1.0');
+    _regOtCtrl = TextEditingController(text: p?.regularOtMultiplier.toString() ?? '1.5');
+    _restOtCtrl = TextEditingController(text: p?.restDayOtMultiplier.toString() ?? '2.0');
+    _pubHolOtCtrl = TextEditingController(text: p?.publicHolidayOtMultiplier.toString() ?? '2.0');
+    _compHolOtCtrl = TextEditingController(text: p?.companyHolidayOtMultiplier.toString() ?? '1.5');
+    _earlyClockInPolicy = p?.earlyClockInPolicy ?? 'ignore';
+    _preShiftOtCtrl = TextEditingController(text: p?.preShiftOtMultiplier.toString() ?? '1.25');
+    _maxPreShiftCtrl = TextEditingController(text: p?.maxPreShiftOtMinutes.toString() ?? '120');
   }
 
   @override
@@ -655,6 +681,14 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
     _lngCtrl.dispose();
     _radiusCtrl.dispose();
     _graceCtrl.dispose();
+    _lateGraceCtrl.dispose();
+    _lateDedRateCtrl.dispose();
+    _regOtCtrl.dispose();
+    _restOtCtrl.dispose();
+    _pubHolOtCtrl.dispose();
+    _compHolOtCtrl.dispose();
+    _preShiftOtCtrl.dispose();
+    _maxPreShiftCtrl.dispose();
     super.dispose();
   }
 
@@ -698,6 +732,20 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
+    final payrollSettings = _isCustomPayroll ? {
+      'is_custom': _isCustomPayroll,
+      'late_grace_period_minutes': int.tryParse(_lateGraceCtrl.text),
+      'late_deduction_type': _lateDedType,
+      'late_deduction_rate': double.tryParse(_lateDedRateCtrl.text),
+      'regular_ot_multiplier': double.tryParse(_regOtCtrl.text),
+      'rest_day_ot_multiplier': double.tryParse(_restOtCtrl.text),
+      'public_holiday_ot_multiplier': double.tryParse(_pubHolOtCtrl.text),
+      'company_holiday_ot_multiplier': double.tryParse(_compHolOtCtrl.text),
+      'early_clock_in_policy': _earlyClockInPolicy,
+      'pre_shift_ot_multiplier': double.tryParse(_preShiftOtCtrl.text),
+      'max_pre_shift_ot_minutes': int.tryParse(_maxPreShiftCtrl.text),
+    } : null;
+
     try {
       if (widget.branch == null) {
         await ref
@@ -714,6 +762,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
               gracePeriod: int.tryParse(_graceCtrl.text),
               managerId: _managerId,
               isActive: _isActive,
+              payrollSettings: payrollSettings,
             );
       } else {
         await ref
@@ -731,6 +780,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
               gracePeriod: int.tryParse(_graceCtrl.text),
               managerId: _managerId,
               isActive: _isActive,
+              payrollSettings: payrollSettings,
             );
       }
       ref.invalidate(branchesProvider);
@@ -1053,6 +1103,77 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                         contentPadding: EdgeInsets.zero,
                         onChanged: (val) => setState(() => _isActive = val),
                       ),
+                      const SizedBox(height: 14),
+                      Divider(color: AppColors.grey200),
+                      SwitchListTile(
+                        title: const Text('Custom Payroll Settings', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        subtitle: const Text('Override company-wide overtime and late rules', style: TextStyle(fontSize: 12)),
+                        value: _isCustomPayroll,
+                        contentPadding: EdgeInsets.zero,
+                        onChanged: (val) => setState(() => _isCustomPayroll = val),
+                      ),
+                      if (_isCustomPayroll) ...[
+                        const SizedBox(height: 12),
+                        const Text('Late Penalties', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(child: TextFormField(controller: _lateGraceCtrl, decoration: const InputDecoration(labelText: 'Grace Mins'), keyboardType: TextInputType.number)),
+                            const SizedBox(width: 8),
+                            Expanded(child: TextFormField(controller: _lateDedRateCtrl, decoration: const InputDecoration(labelText: 'Ded. Rate'), keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
+                          initialValue: _lateDedType,
+                          decoration: const InputDecoration(labelText: 'Deduction Type'),
+                          items: const [
+                            DropdownMenuItem(value: 'per_minute', child: Text('Per Minute')),
+                            DropdownMenuItem(value: 'fixed_amount', child: Text('Fixed Amount')),
+                            DropdownMenuItem(value: 'half_day', child: Text('Half Day')),
+                          ],
+                          onChanged: (v) => setState(() => _lateDedType = v!),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('Overtime Multipliers', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(child: TextFormField(controller: _regOtCtrl, decoration: const InputDecoration(labelText: 'Regular OT'), keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                            const SizedBox(width: 8),
+                            Expanded(child: TextFormField(controller: _restOtCtrl, decoration: const InputDecoration(labelText: 'Rest Day OT'), keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(child: TextFormField(controller: _pubHolOtCtrl, decoration: const InputDecoration(labelText: 'Public Hol. OT'), keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                            const SizedBox(width: 8),
+                            Expanded(child: TextFormField(controller: _compHolOtCtrl, decoration: const InputDecoration(labelText: 'Company Hol. OT'), keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('Pre-Shift & Early Clock-In', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary)),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
+                          initialValue: _earlyClockInPolicy,
+                          decoration: const InputDecoration(labelText: 'Early Clock-In Policy'),
+                          items: const [
+                            DropdownMenuItem(value: 'ignore', child: Text('Ignore (No extra pay)')),
+                            DropdownMenuItem(value: 'treat_as_ot', child: Text('Treat as OT')),
+                            DropdownMenuItem(value: 'paid_outside', child: Text('Paid Outside (No OT multiplier)')),
+                          ],
+                          onChanged: (v) => setState(() => _earlyClockInPolicy = v!),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(child: TextFormField(controller: _preShiftOtCtrl, decoration: const InputDecoration(labelText: 'Pre-Shift OT Mult.'), keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                            const SizedBox(width: 8),
+                            Expanded(child: TextFormField(controller: _maxPreShiftCtrl, decoration: const InputDecoration(labelText: 'Max Mins Allowed'), keyboardType: TextInputType.number)),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -2976,174 +3097,189 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
     };
     final statusColor = statusColors[node.employmentStatus] ?? AppColors.grey500;
 
-    return Column(
-      children: [
-        // Node card
-        Container(
-          margin: EdgeInsets.only(left: depth * 24.0),
-          decoration: BoxDecoration(
-            color: deptBgColor,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: deptBgColor.withAlpha(180)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Dept band
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(100),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(13)),
+    final nodeCard = Container(
+      width: 280, // Fixed width for nodes to align nicely
+      decoration: BoxDecoration(
+        color: deptBgColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: deptBgColor.withAlpha(180), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(10),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Dept band
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(150),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            ),
+            child: Row(
+              children: [
+                Container(width: 8, height: 8, decoration: BoxDecoration(color: deptDotColor, shape: BoxShape.circle)),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    node.departmentName ?? '—',
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.grey600, letterSpacing: 0.5),
+                    maxLines: 1, overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                child: Row(
+              ],
+            ),
+          ),
+          // Content
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // Avatar
+                Stack(
                   children: [
                     Container(
-                      width: 8,
-                      height: 8,
+                      width: 46, height: 46,
                       decoration: BoxDecoration(
-                        color: deptDotColor,
-                        shape: BoxShape.circle,
+                        gradient: const LinearGradient(colors: [Color(0xFF374151), Color(0xFF111827)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      child: Center(child: Text(node.initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16))),
                     ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        node.departmentName ?? '—',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.grey500,
-                          letterSpacing: 0.5,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    Positioned(
+                      bottom: -2, right: -2,
+                      child: Container(
+                        width: 16, height: 16,
+                        decoration: BoxDecoration(color: deptDotColor, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
                       ),
                     ),
                   ],
                 ),
-              ),
-              // Content
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    // Avatar
-                    Stack(
-                      children: [
-                        Container(
-                          width: 42,
-                          height: 42,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF374151), Color(0xFF111827)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: Text(
-                              node.initials,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: -1,
-                          right: -1,
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: deptDotColor,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                          ),
-                        ),
+                const SizedBox(width: 12),
+                // Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(node.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.grey900), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      if (node.positionName != null) ...[
+                        const SizedBox(height: 2),
+                        Text(node.positionName!, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600), maxLines: 1, overflow: TextOverflow.ellipsis),
                       ],
-                    ),
-                    const SizedBox(width: 10),
-                    // Info
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            node.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                              color: AppColors.grey800,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (node.positionName != null) ...[
-                            const SizedBox(height: 1),
-                            Text(
-                              node.positionName!,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.grey600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: statusColor.withAlpha(25),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              node.employmentStatus.replaceAll('_', ' '),
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                color: statusColor,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Children count
-                    if (node.hasSubordinates)
+                      const SizedBox(height: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.grey200),
-                        ),
-                        child: Text(
-                          '${node.subordinatesCount}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary,
-                          ),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: statusColor.withAlpha(25), borderRadius: BorderRadius.circular(4)),
+                        child: Text(node.employmentStatus.replaceAll('_', ' ').toUpperCase(), style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: statusColor)),
+                      ),
+                    ],
+                  ),
+                ),
+                // Children count
+                if (node.hasSubordinates)
+                  Container(
+                    margin: const EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey200)),
+                    child: Text('${node.subordinatesCount}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppColors.primary)),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!node.hasSubordinates || !isExpanded) {
+      if (depth == 0) return Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: nodeCard);
+      return Padding(padding: const EdgeInsets.only(bottom: 12), child: nodeCard);
+    }
+
+    if (depth == 0) {
+      // Horizontal layout for root's children
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          nodeCard,
+          Container(width: 2, height: 32, color: AppColors.grey300),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: node.subordinates!.map((child) {
+              final isFirst = child == node.subordinates!.first;
+              final isLast = child == node.subordinates!.last;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Horizontal connector
+                  Row(
+                    children: [
+                      Container(
+                        width: 156, // Half of 280 + 16 margin
+                        height: 2,
+                        color: isFirst ? Colors.transparent : AppColors.grey300,
+                      ),
+                      Container(
+                        width: 156,
+                        height: 2,
+                        color: isLast ? Colors.transparent : AppColors.grey300,
+                      ),
+                    ],
+                  ),
+                  Container(width: 2, height: 16, color: AppColors.grey300),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _buildNode(child, depth + 1),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ],
+      );
+    }
+
+    // Vertical layout for teams
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        nodeCard,
+        Padding(
+          padding: const EdgeInsets.only(left: 24, top: 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: node.subordinates!.map((child) {
+              return IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      width: 24,
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          left: BorderSide(color: AppColors.grey300, width: 2),
+                          bottom: BorderSide(color: AppColors.grey300, width: 2),
                         ),
                       ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: _buildNode(child, depth + 1),
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
+              );
+            }).toList(),
           ),
         ),
-        // Children
-        if (node.hasSubordinates && isExpanded)
-          ...node.subordinates!.map((child) => _buildNode(child, depth + 1)),
-        const SizedBox(height: 8),
       ],
     );
   }
@@ -3336,9 +3472,22 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
             Divider(height: 1, color: AppColors.grey200),
             // Tree
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(8, 12, 8, 40),
-                children: tree.map((root) => _buildNode(root, 0)).toList(),
+              child: Container(
+                color: const Color(0xFFF1F5F9), // Slight gray background for contrast
+                child: InteractiveViewer(
+                  minScale: 0.2,
+                  maxScale: 3.0,
+                  constrained: false,
+                  boundaryMargin: const EdgeInsets.all(500), // Lots of pan room
+                  child: Padding(
+                    padding: const EdgeInsets.all(64.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: tree.map((root) => _buildNode(root, 0)).toList(),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

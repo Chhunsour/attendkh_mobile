@@ -92,26 +92,69 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     bool proceed = false;
     await showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Confirm Clock Out'),
-        content: const Text('Are you sure you want to clock out for the day?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              proceed = false;
-              Navigator.pop(ctx);
-            },
-            child: const Text('Cancel', style: TextStyle(color: AppColors.grey500)),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.logout_rounded, size: 40, color: AppColors.primary),
+              ),
+              const SizedBox(height: 20),
+              const Text('Confirm Clock Out', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+              const SizedBox(height: 12),
+              const Text(
+                'Are you sure you want to clock out for the day? Your work hours will be recorded.', 
+                textAlign: TextAlign.center, 
+                style: TextStyle(color: AppColors.grey600, fontSize: 14, height: 1.4),
+              ),
+              const SizedBox(height: 28),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        proceed = false;
+                        Navigator.pop(ctx);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        side: const BorderSide(color: AppColors.grey300),
+                      ),
+                      child: const Text('Cancel', style: TextStyle(color: AppColors.grey700, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        proceed = true;
+                        Navigator.pop(ctx);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
+                      child: const Text('Clock Out', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              proceed = true;
-              Navigator.pop(ctx);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Clock Out', style: TextStyle(color: Colors.white)),
-          ),
-        ],
+        ),
       ),
     );
 

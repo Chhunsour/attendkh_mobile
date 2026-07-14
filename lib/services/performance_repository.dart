@@ -1,0 +1,189 @@
+import 'package:dio/dio.dart';
+import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
+import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
+import 'package:mpg_hr_mobile_app/services/directory_repository.dart' show EmployeeData;
+
+class PerformanceReviewData {
+  final int id;
+  final EmployeeData? employee;
+  final EmployeeData? reviewer;
+  final String? reviewPeriod;
+  final String reviewType;
+  final String status;
+  final String? reviewDate;
+  final int? overallRating;
+
+  const PerformanceReviewData({
+    required this.id,
+    this.employee,
+    this.reviewer,
+    this.reviewPeriod,
+    required this.reviewType,
+    required this.status,
+    this.reviewDate,
+    this.overallRating,
+  });
+
+  factory PerformanceReviewData.fromJson(Map<String, dynamic> json) {
+    return PerformanceReviewData(
+      id: json['id'] as int,
+      employee: json['employee'] != null ? EmployeeData.fromJson(json['employee']) : null,
+      reviewer: json['reviewer'] != null ? EmployeeData.fromJson(json['reviewer']) : null,
+      reviewPeriod: json['review_period'] as String?,
+      reviewType: json['review_type'] as String? ?? 'manager',
+      status: json['status'] as String? ?? 'draft',
+      reviewDate: json['review_date'] as String?,
+      overallRating: json['overall_rating'] != null ? int.tryParse(json['overall_rating'].toString()) : null,
+    );
+  }
+}
+
+class TrainingCourseData {
+  final int id;
+  final String title;
+  final String? description;
+  final DepartmentData? department;
+  final int? departmentId;
+  final String? coverImage;
+  final String? level;
+  final int? durationHours;
+  final String status;
+  final String? startDate;
+  final String? endDate;
+
+  const TrainingCourseData({
+    required this.id,
+    required this.title,
+    this.description,
+    this.department,
+    this.departmentId,
+    this.coverImage,
+    this.level,
+    this.durationHours,
+    required this.status,
+    this.startDate,
+    this.endDate,
+  });
+
+  factory TrainingCourseData.fromJson(Map<String, dynamic> json) {
+    return TrainingCourseData(
+      id: json['id'] as int,
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String?,
+      department: json['department'] != null ? DepartmentData.fromJson(json['department']) : null,
+      departmentId: json['department_id'] as int?,
+      coverImage: json['cover_image'] as String?,
+      level: json['level'] as String?,
+      durationHours: json['duration_hours'] != null ? int.tryParse(json['duration_hours'].toString()) : null,
+      status: json['status'] as String? ?? 'draft',
+      startDate: json['start_date'] as String?,
+      endDate: json['end_date'] as String?,
+    );
+  }
+}
+
+class PerformanceReviewsResponse {
+  final List<PerformanceReviewData> reviews;
+  final List<String> periods;
+  final List<EmployeeData> employees;
+
+  PerformanceReviewsResponse({required this.reviews, required this.periods, required this.employees});
+}
+
+class TrainingsResponse {
+  final List<TrainingCourseData> trainings;
+  final List<DepartmentData> departments;
+
+  TrainingsResponse({required this.trainings, required this.departments});
+}
+
+class PerformanceRepository {
+  final ApiRepository _api;
+  PerformanceRepository({ApiRepository? api}) : _api = api ?? ApiRepository();
+
+  // Reviews
+  Future<PerformanceReviewsResponse> getReviews({String? search, String? period, String? type, int page = 1}) async {
+    final Map<String, dynamic> query = {'page': page};
+    if (search != null && search.isNotEmpty) query['search'] = search;
+    if (period != null && period != 'all') query['review_period'] = period;
+    if (type != null && type != 'all') query['review_type'] = type;
+
+    final response = await _api.get('/company/performance/reviews', queryParameters: query);
+    final data = response.data;
+
+    List<PerformanceReviewData> revs = [];
+    List<String> pers = [];
+    List<EmployeeData> emps = [];
+
+    if (data is Map && data['reviews'] != null) {
+      if (data['reviews']['data'] != null) {
+        revs = (data['reviews']['data'] as List).map((e) => PerformanceReviewData.fromJson(e)).toList();
+      }
+      if (data['periods'] != null) {
+        pers = (data['periods'] as List).map((e) => e.toString()).toList();
+      }
+      if (data['employees'] != null) {
+        emps = (data['employees'] as List).map((e) => EmployeeData.fromJson(e)).toList();
+      }
+    }
+    return PerformanceReviewsResponse(reviews: revs, periods: pers, employees: emps);
+  }
+
+  Future<PerformanceReviewData> createReview(Map<String, dynamic> data) async {
+    final response = await _api.post('/company/performance/reviews', data: data);
+    return PerformanceReviewData.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<void> updateReview(int id, Map<String, dynamic> data) async {
+    await _api.put('/company/performance/reviews/$id', data: data);
+  }
+
+  Future<void> submitReview(int id) async => _api.post('/company/performance/reviews/$id/submit');
+  Future<void> acknowledgeReview(int id) async => _api.post('/company/performance/reviews/$id/acknowledge');
+  Future<void> deleteReview(int id) async => _api.delete('/company/performance/reviews/$id');
+
+  // Trainings
+  Future<TrainingsResponse> getTrainings({String? search, String? departmentId, int page = 1}) async {
+    final Map<String, dynamic> query = {'page': page};
+    if (search != null && search.isNotEmpty) query['search'] = search;
+    if (departmentId != null && departmentId != 'all') query['department_id'] = departmentId;
+
+    final response = await _api.get('/company/performance/trainings', queryParameters: query);
+    final data = response.data;
+
+    List<TrainingCourseData> trs = [];
+    List<DepartmentData> depts = [];
+
+    if (data is Map && data['trainings'] != null) {
+      if (data['trainings']['data'] != null) {
+        trs = (data['trainings']['data'] as List).map((e) => TrainingCourseData.fromJson(e)).toList();
+      }
+      if (data['departments'] != null) {
+        depts = (data['departments'] as List).map((e) => DepartmentData.fromJson(e)).toList();
+      }
+    }
+    return TrainingsResponse(trainings: trs, departments: depts);
+  }
+
+  Future<TrainingCourseData> createTraining(Map<String, dynamic> data, {String? coverImagePath}) async {
+    FormData formData = FormData.fromMap(data);
+    if (coverImagePath != null) {
+      formData.files.add(MapEntry('cover_image', await MultipartFile.fromFile(coverImagePath)));
+    }
+    final response = await _api.post('/company/performance/trainings', data: formData);
+    return TrainingCourseData.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<void> updateTraining(int id, Map<String, dynamic> data, {String? coverImagePath}) async {
+    // Laravel PHP needs POST + _method=PUT to parse FormData correctly with files.
+    data['_method'] = 'PUT';
+    FormData formData = FormData.fromMap(data);
+    if (coverImagePath != null) {
+      formData.files.add(MapEntry('cover_image', await MultipartFile.fromFile(coverImagePath)));
+    }
+    await _api.post('/company/performance/trainings/$id', data: formData);
+  }
+
+  Future<void> deleteTraining(int id) async => _api.delete('/company/performance/trainings/$id');
+  Future<void> enrollEmployee(int trainingId, int employeeId) async => _api.post('/company/performance/trainings/$trainingId/enroll', data: {'employee_id': employeeId});
+}

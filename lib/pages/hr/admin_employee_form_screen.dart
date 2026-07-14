@@ -93,6 +93,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
   // Employment
   late TextEditingController _hireDateCtrl;
   late TextEditingController _probationEndCtrl;
+  late TextEditingController _terminationDateCtrl;
   String? _employmentType;
   String? _employmentStatus;
   int? _departmentId;
@@ -133,6 +134,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     // Employment
     _hireDateCtrl   = TextEditingController(text: e?.joinDate ?? DateTime.now().toString().substring(0, 10));
     _probationEndCtrl = TextEditingController(text: '');
+    _terminationDateCtrl = TextEditingController(text: e?.terminationDate ?? '');
     _employmentType   = e?.employmentType ?? 'full_time';
     _employmentStatus = e?.employmentStatus ?? 'active';
     _departmentId     = e?.departmentId;
@@ -156,7 +158,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
   void dispose() {
     for (final c in [
       _firstNameCtrl, _lastNameCtrl, _emailCtrl, _phoneCtrl, _nationalIdCtrl,
-      _addressCtrl, _hireDateCtrl, _probationEndCtrl, _notesCtrl,
+      _addressCtrl, _hireDateCtrl, _probationEndCtrl, _terminationDateCtrl, _notesCtrl,
       _salaryCtrl, _bankNameCtrl, _bankAccountCtrl,
       _emergNameCtrl, _emergRelCtrl, _emergPhoneCtrl,
     ]) { c.dispose(); }
@@ -218,6 +220,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
           employmentStatus: _employmentStatus!,
           hireDate:   _hireDateCtrl.text,
           probationEndDate: _probationEndCtrl.text.isEmpty ? null : _probationEndCtrl.text,
+          terminationDate: _terminationDateCtrl.text.isEmpty ? null : _terminationDateCtrl.text,
           departmentId: _departmentId,
           positionId:   _positionId,
           branchId:     _branchId,
@@ -248,6 +251,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
           employmentStatus: _employmentStatus,
           hireDate:   _hireDateCtrl.text,
           probationEndDate: _probationEndCtrl.text.isEmpty ? null : _probationEndCtrl.text,
+          terminationDate: _terminationDateCtrl.text.isEmpty ? null : _terminationDateCtrl.text,
           departmentId: _departmentId,
           positionId:   _positionId,
           branchId:     _branchId,
@@ -432,6 +436,10 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
                     _buildDateField(label: 'Hire Date *', ctrl: _hireDateCtrl, required: true),
                     _buildDateField(label: 'Probation End', ctrl: _probationEndCtrl),
                   ]),
+                  if (_employmentStatus == 'terminated' || _employmentStatus == 'resigned') ...[
+                    const SizedBox(height: 12),
+                    _buildDateField(label: 'Termination Date', ctrl: _terminationDateCtrl),
+                  ],
                   const SizedBox(height: 12),
                   _buildRow([
                     _buildDepartmentDropdown(),
