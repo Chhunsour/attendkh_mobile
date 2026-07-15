@@ -16,6 +16,8 @@ class TodayAttendance {
   final int? earlyClockInMinutes;
   final int? approvedPreShiftOtMinutes;
   final int? earlyLeaveMinutes;
+  final String? overtimeIn;
+  final String? overtimeOut;
 
   const TodayAttendance({
     this.id,
@@ -31,6 +33,8 @@ class TodayAttendance {
     this.earlyClockInMinutes,
     this.approvedPreShiftOtMinutes,
     this.earlyLeaveMinutes,
+    this.overtimeIn,
+    this.overtimeOut,
   });
 
   factory TodayAttendance.fromJson(Map<String, dynamic> json) {
@@ -48,6 +52,8 @@ class TodayAttendance {
       earlyClockInMinutes: json['early_clock_in_minutes'] as int?,
       approvedPreShiftOtMinutes: json['approved_pre_shift_ot_minutes'] as int?,
       earlyLeaveMinutes: json['early_leave_minutes'] as int?,
+      overtimeIn: json['overtime_in'] as String?,
+      overtimeOut: json['overtime_out'] as String?,
     );
   }
 }
@@ -176,6 +182,54 @@ class AttendanceRepository {
     final response = await _api.post(
       '/company/attendance/clock-out',
       data: payload,
+    );
+
+    final data = response.data;
+    if (data is Map<String, dynamic> && data.containsKey('data')) {
+      return TodayAttendance.fromJson(data['data'] as Map<String, dynamic>);
+    }
+    return TodayAttendance.fromJson(data as Map<String, dynamic>);
+  }
+
+  /// POST /api/v1/company/attendance/overtime-in
+  Future<TodayAttendance> overtimeIn({
+    required double lat,
+    required double lng,
+    required String deviceId,
+    bool? isGeoValid,
+  }) async {
+    final response = await _api.post(
+      '/company/attendance/overtime-in',
+      data: {
+        'lat': lat,
+        'lng': lng,
+        'device_id': deviceId,
+        'is_geo_valid': isGeoValid == true ? 1 : 0,
+      },
+    );
+
+    final data = response.data;
+    if (data is Map<String, dynamic> && data.containsKey('data')) {
+      return TodayAttendance.fromJson(data['data'] as Map<String, dynamic>);
+    }
+    return TodayAttendance.fromJson(data as Map<String, dynamic>);
+  }
+
+  /// POST /api/v1/company/attendance/overtime-out
+  Future<TodayAttendance> overtimeOut({
+    required double lat,
+    required double lng,
+    required String deviceId,
+    bool? isGeoValid,
+  }) async {
+    final response = await _api.post(
+      '/company/attendance/overtime-out',
+      data: {
+        'lat': lat,
+        'lng': lng,
+        'device_id': deviceId,
+        'is_geo_valid': isGeoValid == true ? 1 : 0,
+      },
     );
 
     final data = response.data;

@@ -15,6 +15,7 @@ import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 
 class ClockInArgs {
   final bool isClockIn;
+  final bool isOvertime;
   final String branchName;
   final double latitude;
   final double longitude;
@@ -23,6 +24,7 @@ class ClockInArgs {
 
   ClockInArgs({
     required this.isClockIn,
+    this.isOvertime = false,
     required this.branchName,
     required this.latitude,
     required this.longitude,
@@ -126,19 +128,39 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
     try {
       final repo = ref.read(attendanceRepositoryProvider);
       if (widget.args.isClockIn) {
-        await repo.clockIn(
-          lat: widget.args.latitude,
-          lng: widget.args.longitude,
-          photoPath: _photoPath!,
-          isGeoValid: isGeoValid,
-        );
+        if (widget.args.isOvertime) {
+          await repo.overtimeIn(
+            lat: widget.args.latitude,
+            lng: widget.args.longitude,
+            deviceId: 'app',
+            isGeoValid: isGeoValid,
+          );
+        } else {
+          await repo.clockIn(
+            lat: widget.args.latitude,
+            lng: widget.args.longitude,
+            photoPath: _photoPath!,
+            deviceId: 'app',
+            isGeoValid: isGeoValid,
+          );
+        }
       } else {
-        await repo.clockOut(
-          lat: widget.args.latitude,
-          lng: widget.args.longitude,
-          photoPath: _photoPath!,
-          isGeoValid: isGeoValid,
-        );
+        if (widget.args.isOvertime) {
+          await repo.overtimeOut(
+            lat: widget.args.latitude,
+            lng: widget.args.longitude,
+            deviceId: 'app',
+            isGeoValid: isGeoValid,
+          );
+        } else {
+          await repo.clockOut(
+            lat: widget.args.latitude,
+            lng: widget.args.longitude,
+            photoPath: _photoPath!,
+            deviceId: 'app',
+            isGeoValid: isGeoValid,
+          );
+        }
       }
       
       ref.invalidate(todayAttendanceProvider);
@@ -169,7 +191,9 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.args.isClockIn ? 'Check In' : 'Check Out';
+    final title = widget.args.isClockIn 
+        ? (widget.args.isOvertime ? 'Overtime Check In' : 'Check In') 
+        : (widget.args.isOvertime ? 'Overtime Check Out' : 'Check Out');
     
     return Scaffold(
       backgroundColor: Colors.white,

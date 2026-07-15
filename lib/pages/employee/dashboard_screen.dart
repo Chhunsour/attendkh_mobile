@@ -89,7 +89,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Future<void> _handleSimpleClockOut() async {
+  Future<void> _handleSimpleClockOut({bool isOvertime = false}) async {
     bool proceed = false;
     await showDialog(
       context: context,
@@ -105,18 +105,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: isOvertime ? Colors.deepPurple.withValues(alpha: 0.1) : AppColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.logout_rounded, size: 40, color: AppColors.primary),
+                child: Icon(Icons.logout_rounded, size: 40, color: isOvertime ? Colors.deepPurple : AppColors.primary),
               ),
               const SizedBox(height: 20),
-              const Text('Confirm Clock Out', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+              Text(isOvertime ? 'Confirm Overtime Clock Out' : 'Confirm Clock Out', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
               const SizedBox(height: 12),
-              const Text(
-                'Are you sure you want to clock out for the day? Your work hours will be recorded.', 
+              Text(
+                isOvertime ? 'Are you sure you want to end your overtime?' : 'Are you sure you want to clock out for the day? Your work hours will be recorded.', 
                 textAlign: TextAlign.center, 
-                style: TextStyle(color: AppColors.grey600, fontSize: 14, height: 1.4),
+                style: const TextStyle(color: AppColors.grey600, fontSize: 14, height: 1.4),
               ),
               const SizedBox(height: 28),
               Row(
@@ -143,7 +143,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         Navigator.pop(ctx);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: isOvertime ? Colors.deepPurple : AppColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         elevation: 0,
@@ -165,15 +165,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     try {
       final repo = ref.read(attendanceRepositoryProvider);
-      await repo.clockOut(
-        lat: _currentPosition?.latitude ?? 0.0,
-        lng: _currentPosition?.longitude ?? 0.0,
-      );
+      if (isOvertime) {
+        await repo.overtimeOut(
+          lat: _currentPosition?.latitude ?? 0.0,
+          lng: _currentPosition?.longitude ?? 0.0,
+          deviceId: 'app',
+        );
+      } else {
+        await repo.clockOut(
+          lat: _currentPosition?.latitude ?? 0.0,
+          lng: _currentPosition?.longitude ?? 0.0,
+        );
+      }
       ref.invalidate(todayAttendanceProvider);
       if (mounted) setState(() => _isClocking = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('👋 Clocked out successfully!'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+          SnackBar(content: Text(isOvertime ? '👋 Overtime ended!' : '👋 Clocked out successfully!'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
         );
       }
     } catch (e) {
@@ -190,16 +198,28 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
   }
 
-  Widget _buildClockButton(BuildContext context, WidgetRef ref, bool isClockedIn, ProfileData? profile) {
+  Widget _buildClockButton(BuildContext context, WidgetRef ref, bool isClockedIn, ProfileData? profile, TodayAttendance? today) {
+    final bool isRegularCompleted = today?.clockIn != null && today?.clockOut != null;
+    final bool isOvertimeIn = today?.overtimeIn != null && today?.overtimeOut == null;
+    final bool isOvertimeCompleted = today?.overtimeIn != null && today?.overtimeOut != null;
+
+    if (isOvertimeCompleted) {
+      return const SizedBox(); // Should not show any button
+    }
+
+    final isClockingOut = isClockedIn || isOvertimeIn;
+    final isOvertimeAction = isRegularCompleted && !isOvertimeCompleted;
+
     return _SwipeToClockButton(
-      isClockedIn: isClockedIn,
+      isClockedIn: isClockingOut,
+      isOvertime: isOvertimeAction,
       isLoading: _isClocking,
       onSwipe: () {
         if (_isClocking) return;
 
         // If clocking out, skip geofence and photo
-        if (isClockedIn) {
-          _handleSimpleClockOut();
+        if (isClockingOut) {
+          _handleSimpleClockOut(isOvertime: isOvertimeAction);
           return;
         }
 
@@ -211,6 +231,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
         final args = ClockInArgs(
           isClockIn: true,
+          isOvertime: isOvertimeAction,
           branchName: profile?.branchName ?? 'Unknown Location',
           latitude: _currentPosition!.latitude,
           longitude: _currentPosition!.longitude,
@@ -279,6 +300,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildClockCard(context, ref, today, profileAsync: profileAsync),
+              
+              summaryAsync.maybeWhen(
+                data: (summary) => _buildLateWarningBanner(summary),
+                orElse: () => const SizedBox(),
+              ),
+              
               const SizedBox(height: 28),
 
               const Text(
@@ -286,7 +313,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800),
               ),
               const SizedBox(height: 16),
-              _buildQuickActionsGrid(context),
+              _buildQuickActionsGrid(context, authState.isBranchManager),
 
               const SizedBox(height: 28),
               
@@ -300,6 +327,42 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         loading: () => const LoadingIndicator(message: 'Loading dashboard...'),
         error: (error, _) => _buildError(context, ref, error.toString()),
+      ),
+    );
+  }
+
+  Widget _buildLateWarningBanner(Map<String, dynamic> summary) {
+    final int lateCount = summary['late_count'] ?? 0;
+    
+    if (lateCount < 3) return const SizedBox();
+
+    return Container(
+      margin: const EdgeInsets.only(top: 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.amber.withAlpha(20),
+        border: Border.all(color: Colors.amber.shade300),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 28),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Late Attendance Warning', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.amber, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text(
+                  'Notice: You have been late $lateCount times this month. Please ensure you clock in on time to adhere to company policy.',
+                  style: const TextStyle(color: AppColors.grey800, fontSize: 13, height: 1.4),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -385,10 +448,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildClockCard(BuildContext context, WidgetRef ref, TodayAttendance? today, {required AsyncValue<ProfileData> profileAsync}) {
     final isClockedIn = today?.clockIn != null && today?.clockOut == null;
     final isCompleted = today?.clockIn != null && today?.clockOut != null;
+    final isOvertimeIn = today?.overtimeIn != null && today?.overtimeOut == null;
+    final isOvertimeCompleted = today?.overtimeIn != null && today?.overtimeOut != null;
 
-    final Color cardColor = isClockedIn
-        ? AppColors.success
-        : (isCompleted ? AppColors.grey800 : AppColors.primary);
+    final Color cardColor = isOvertimeIn
+        ? Colors.deepPurple
+        : isOvertimeCompleted 
+            ? AppColors.grey800
+            : isClockedIn
+                ? AppColors.success
+                : (isCompleted ? Colors.deepOrange : AppColors.primary);
 
     return Container(
       width: double.infinity,
@@ -410,9 +479,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(color: Colors.white.withAlpha(40), shape: BoxShape.circle),
             child: Icon(
-              isClockedIn
+              isOvertimeIn || isClockedIn
                   ? Icons.timer_outlined
-                  : (isCompleted ? Icons.check_circle : Icons.access_time_rounded),
+                  : (isOvertimeCompleted || isCompleted ? Icons.check_circle : Icons.access_time_rounded),
               size: 40,
               color: Colors.white,
             ),
@@ -440,7 +509,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 : const SizedBox(height: 6),
             orElse: () => const SizedBox(height: 6),
           ),
-          if (isClockedIn) ...[
+          if (isOvertimeIn) ...[
+            Text('Overtime started at ${_formatTime(today!.overtimeIn!)}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
+          ] else if (isOvertimeCompleted) ...[
+            const Text('Overtime Completed', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+          ] else if (isClockedIn) ...[
             Text('Clocked in at ${_formatTime(today!.clockIn!)}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 4),
             if (today.workHours != null)
@@ -463,11 +536,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ],
           const SizedBox(height: 24),
 
-          if (!isCompleted)
+          if (!isOvertimeCompleted)
             profileAsync.maybeWhen(
               data: (profile) {
                 if (profile.branchLat == null || profile.branchLng == null || profile.branchRadius == null) {
-                  return _buildClockButton(context, ref, isClockedIn, profile);
+                  return _buildClockButton(context, ref, isClockedIn, profile, today);
                 }
                 
                 final distance = _calculateDistance(profile);
@@ -478,15 +551,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                    );
                 }
 
-                if (isClockedIn || distance <= profile.branchRadius!) {
+                if (isClockedIn || isOvertimeIn || distance <= profile.branchRadius!) {
                   return Column(
                     children: [
-                      if (!isClockedIn)
+                      if (!isClockedIn && !isOvertimeIn && !isCompleted)
                         Text('Within radius (${distance.toStringAsFixed(0)}m / ${profile.branchRadius}m)', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                      if (isClockedIn)
+                      if (isClockedIn || isOvertimeIn)
                         const Text('You can clock out from anywhere.', style: TextStyle(color: Colors.white70, fontSize: 12)),
                       const SizedBox(height: 8),
-                      _buildClockButton(context, ref, isClockedIn, profile),
+                      _buildClockButton(context, ref, isClockedIn, profile, today),
                     ],
                   );
                 } else {
@@ -504,14 +577,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   );
                 }
               },
-              orElse: () => _buildClockButton(context, ref, isClockedIn, null),
+              orElse: () => _buildClockButton(context, ref, isClockedIn, null, today),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickActionsGrid(BuildContext context) {
+  Widget _buildQuickActionsGrid(BuildContext context, bool isBranchManager) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -520,6 +593,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       mainAxisSpacing: 16,
       childAspectRatio: 1.3,
       children: [
+        if (isBranchManager)
+          _GridItem(
+            title: 'Manager Portal',
+            description: 'Team approvals',
+            icon: Icons.admin_panel_settings_outlined,
+            color: Colors.deepPurple,
+            onTap: () => context.push(AppRoutes.companyAdmin),
+          ),
         _GridItem(
           title: 'Leaves',
           description: 'Request off days',
@@ -646,10 +727,11 @@ class _GridItem extends StatelessWidget {
 
 class _SwipeToClockButton extends StatefulWidget {
   final bool isClockedIn;
+  final bool isOvertime;
   final bool isLoading;
   final VoidCallback onSwipe;
 
-  const _SwipeToClockButton({required this.isClockedIn, required this.onSwipe, this.isLoading = false});
+  const _SwipeToClockButton({required this.isClockedIn, required this.onSwipe, this.isOvertime = false, this.isLoading = false});
 
   @override
   State<_SwipeToClockButton> createState() => _SwipeToClockButtonState();
@@ -662,9 +744,17 @@ class _SwipeToClockButtonState extends State<_SwipeToClockButton> {
   @override
   Widget build(BuildContext context) {
     const double height = 56.0;
-    final color = widget.isClockedIn ? AppColors.warning : Colors.white;
-    final iconColor = widget.isClockedIn ? Colors.white : AppColors.primary;
-    final text = widget.isClockedIn ? 'Swipe to Clock Out' : 'Swipe to Clock In';
+    final color = widget.isOvertime 
+        ? (widget.isClockedIn ? Colors.deepPurpleAccent : Colors.white)
+        : (widget.isClockedIn ? AppColors.warning : Colors.white);
+    
+    final iconColor = widget.isOvertime 
+        ? (widget.isClockedIn ? Colors.white : Colors.deepPurple)
+        : (widget.isClockedIn ? Colors.white : AppColors.primary);
+        
+    final text = widget.isOvertime
+        ? (widget.isClockedIn ? 'Swipe to Clock Out (OT)' : 'Swipe to Clock In (OT)')
+        : (widget.isClockedIn ? 'Swipe to Clock Out' : 'Swipe to Clock In');
 
     return LayoutBuilder(
       builder: (context, constraints) {
