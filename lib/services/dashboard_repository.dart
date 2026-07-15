@@ -95,4 +95,25 @@ class DashboardRepository {
       rethrow;
     }
   }
+
+  /// GET /api/v1/company/employee-dashboard-summary
+  Future<Map<String, dynamic>> getEmployeeDashboardSummary() async {
+    try {
+      final response = await _api.get('/company/employee-dashboard-summary');
+      final raw = response.data;
+      if (raw == null) {
+        throw Exception('Employee Dashboard summary not available');
+      }
+      if (raw is Map<String, dynamic>) {
+        if (raw.containsKey('data') && raw['data'] is Map<String, dynamic>) {
+          return raw['data'] as Map<String, dynamic>;
+        }
+        return raw;
+      }
+      return {};
+    } catch (e) {
+      AppLogger.e('Employee Dashboard summary fetch failed', e);
+      rethrow;
+    }
+  }
 }

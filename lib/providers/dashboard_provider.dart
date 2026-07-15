@@ -12,3 +12,9 @@ final dashboardProvider = FutureProvider<DashboardData>((ref) async {
   AppLogger.i('Dashboard loaded — ${data.kpis.totalEmployees} employees');
   return data;
 });
+
+final employeeDashboardSummaryProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
+  final repo = ref.watch(dashboardRepositoryProvider);
+  final data = await repo.getEmployeeDashboardSummary();
+  return data;
+});

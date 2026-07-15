@@ -13,6 +13,11 @@ final leaveBalancesProvider = FutureProvider.autoDispose<List<LeaveBalance>>((re
   return balances;
 });
 
+final leaveTypesProvider = FutureProvider.autoDispose<List<LeaveType>>((ref) async {
+  final repo = ref.watch(leaveRepositoryProvider);
+  return repo.getLeaveTypes();
+});
+
 final leaveRequestsProvider = FutureProvider.autoDispose<List<LeaveRequest>>((ref) async {
   final repo = ref.watch(leaveRepositoryProvider);
   return repo.getRequests();

@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 
@@ -12,6 +14,13 @@ class ProfileData {
   final double? branchLat;
   final double? branchLng;
   final int? branchRadius;
+  final String? phone;
+  final String? gender;
+  final String? dateOfBirth;
+  final String? address;
+  final String? photoUrl;
+  final String? department;
+  final String? jobTitle;
 
   const ProfileData({
     required this.id,
@@ -24,11 +33,18 @@ class ProfileData {
     this.branchLng,
     this.branchRadius,
     required this.roles,
+    this.phone,
+    this.gender,
+    this.dateOfBirth,
+    this.address,
+    this.photoUrl,
+    this.department,
+    this.jobTitle,
   });
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
-    final user = json['user'] as Map<String, dynamic>?;
-    if (user == null) {
+    final user = json['user'] as Map<String, dynamic>? ?? json; // handle nested or flat
+    if (!user.containsKey('id')) {
       return ProfileData(id: 0, name: 'Unknown', companyId: 0, roles: []);
     }
     final company = json['company'] as Map<String, dynamic>?;
@@ -44,6 +60,13 @@ class ProfileData {
       branchLng: user['branch_lng'] != null ? double.tryParse(user['branch_lng'].toString()) : null,
       branchRadius: user['branch_radius'] as int?,
       roles: (user['roles'] as List<dynamic>?)?.cast<String>() ?? [],
+      phone: user['phone'] as String?,
+      gender: user['gender'] as String?,
+      dateOfBirth: user['date_of_birth'] as String?,
+      address: user['address'] as String?,
+      photoUrl: user['photo_url'] as String?,
+      department: user['department'] as String?,
+      jobTitle: user['job_title'] as String?,
     );
   }
 }
@@ -57,7 +80,8 @@ class ProfileRepository {
       final response = await _api.get('/company/profile');
       final raw = response.data;
       if (raw is Map<String, dynamic>) {
-        return ProfileData.fromJson(raw);
+        final data = raw['data'] ?? raw;
+        return ProfileData.fromJson(data);
       }
       AppLogger.w('Profile API returned unexpected format: ${raw.runtimeType}');
       return const ProfileData(id: 0, name: 'Unknown', companyId: 0, roles: []);
@@ -67,15 +91,36 @@ class ProfileRepository {
     }
   }
 
-  Future<ProfileData> updateProfile({String? name, String? email}) async {
+  Future<ProfileData> updateProfile({
+    String? name,
+    String? email,
+    String? phone,
+    String? gender,
+    String? dateOfBirth,
+    String? address,
+    File? photo,
+  }) async {
     try {
-      final response = await _api.put('/profile', data: {
-        'name': ?name,
-        'email': ?email,
-      });
+      final Map<String, dynamic> data = {
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'gender': gender,
+        'date_of_birth': dateOfBirth,
+        'address': address,
+      };
+
+      if (photo != null) {
+        data['photo'] = await MultipartFile.fromFile(photo.path);
+      }
+
+      final formData = FormData.fromMap(data);
+
+      final response = await _api.post('/company/profile', data: formData);
       final raw = response.data;
       if (raw is Map<String, dynamic>) {
-        return ProfileData.fromJson(raw);
+        final resData = raw['data'] ?? raw;
+        return ProfileData.fromJson(resData);
       }
       throw Exception('Invalid update profile response');
     } catch (e) {

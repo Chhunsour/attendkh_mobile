@@ -17,13 +17,48 @@ class LeaveListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Leave'),
+        title: const Text('Leave Management'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => context.push(AppRoutes.leaveRequest),
+            icon: const Icon(Icons.history),
+            onPressed: () {
+                // Just to refresh the page or show history
+                ref.invalidate(leaveRequestsProvider);
+                ref.invalidate(leaveBalancesProvider);
+            },
           ),
         ],
+      ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withAlpha(80),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => context.push(AppRoutes.leaveRequest),
+            borderRadius: BorderRadius.circular(30),
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.add_circle_outline, color: Colors.white, size: 22),
+                  SizedBox(width: 8),
+                  Text('Request Leave', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: 0.5)),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
       body: balancesAsync.when(
         data: (balances) => _buildContent(context, ref, balances),
@@ -101,44 +136,46 @@ class _LeaveBalanceCard extends StatelessWidget {
     final remaining = balance.remaining;
     final total = balance.allocated + balance.carriedForward;
     final used = total - remaining;
-    final color = Color(int.tryParse(balance.color?.replaceFirst('#', 'FF') ?? 'FFF97316') ?? 0xFFF97316);
+    final baseColor = Color(int.tryParse(balance.color?.replaceFirst('#', 'FF') ?? 'FFF97316') ?? 0xFFF97316);
+    final color = baseColor.withValues(alpha: 1.0);
     final value = total > 0 ? (used / total).clamp(0.0, 1.0) : 0.0;
 
     return Container(
-      width: 140,
+      width: 150,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: color.withAlpha(30), width: 1.5),
         boxShadow: [
-          BoxShadow(color: color.withAlpha(20), blurRadius: 15, offset: const Offset(0, 8)),
-          BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 4, offset: const Offset(0, 2)),
+          BoxShadow(color: color.withAlpha(25), blurRadius: 20, offset: const Offset(0, 10)),
+          BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 5, offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            width: 64,
-            height: 64,
+            width: 70,
+            height: 70,
             child: Stack(
               fit: StackFit.expand,
               children: [
                 CircularProgressIndicator(
                   value: 1.0,
-                  strokeWidth: 6,
+                  strokeWidth: 8,
                   color: color.withAlpha(20),
                 ),
                 CircularProgressIndicator(
                   value: value,
-                  strokeWidth: 6,
+                  strokeWidth: 8,
                   strokeCap: StrokeCap.round,
                   color: color,
                 ),
                 Center(
                   child: Text(
                     remaining.toStringAsFixed(remaining % 1 == 0 ? 0 : 1),
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: color),
                   ),
                 ),
               ],
@@ -146,15 +183,15 @@ class _LeaveBalanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            balance.typeName,
-            style: const TextStyle(fontSize: 13, color: AppColors.grey700, fontWeight: FontWeight.w600),
+            balance.typeName.toUpperCase(),
+            style: const TextStyle(fontSize: 12, color: AppColors.grey700, fontWeight: FontWeight.bold, letterSpacing: 0.5),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           Text(
-            '${used.toStringAsFixed(used % 1 == 0 ? 0 : 1)} used',
-            style: const TextStyle(fontSize: 11, color: AppColors.grey400),
+            '${used.toStringAsFixed(used % 1 == 0 ? 0 : 1)} / ${total.toStringAsFixed(total % 1 == 0 ? 0 : 1)} used',
+            style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -182,25 +219,63 @@ class _LeaveRequestCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.grey100),
         boxShadow: [
-          BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 15, offset: const Offset(0, 5)),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 48, height: 48,
-            decoration: BoxDecoration(color: _statusColor.withAlpha(20), shape: BoxShape.circle),
-            child: Icon(Icons.event_available_rounded, color: _statusColor, size: 24),
+            width: 52, height: 52,
+            decoration: BoxDecoration(
+              color: _statusColor.withAlpha(20),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.event_note_rounded, color: _statusColor, size: 26),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(request.leaveType, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.grey800)),
-                const SizedBox(height: 4),
-                Text(formatDateRange(request.startDate, request.endDate), style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        request.leaveType, 
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.grey800),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (request.isHalfDay) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: Colors.blue.withAlpha(30), borderRadius: BorderRadius.circular(4)),
+                        child: const Text('HALF', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue)),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today, size: 12, color: AppColors.grey400),
+                    const SizedBox(width: 4),
+                    Text(formatDateRange(request.startDate, request.endDate), style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
+                  ],
+                ),
+                if (request.documentUrl != null && request.documentUrl!.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(Icons.attach_file, size: 12, color: AppColors.primary),
+                      const SizedBox(width: 4),
+                      const Text('Attachment included', style: TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                ]
               ],
             ),
           ),
@@ -208,18 +283,22 @@ class _LeaveRequestCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(color: _statusColor.withAlpha(20), borderRadius: BorderRadius.circular(20)),
                 child: Text(
                   request.status.toUpperCase(),
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _statusColor, letterSpacing: 0.5),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _statusColor, letterSpacing: 0.5),
                 ),
               ),
               if (request.status == 'pending') ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 InkWell(
                   onTap: () => _cancelRequest(context, ref),
-                  child: const Text('Cancel', style: TextStyle(color: AppColors.danger, fontSize: 12, fontWeight: FontWeight.w600)),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(border: Border.all(color: AppColors.danger.withAlpha(100)), borderRadius: BorderRadius.circular(12)),
+                    child: const Text('Cancel', style: TextStyle(color: AppColors.danger, fontSize: 12, fontWeight: FontWeight.w600)),
+                  ),
                 ),
               ]
             ],

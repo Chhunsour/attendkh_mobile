@@ -1,6 +1,9 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/leave_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
@@ -18,6 +21,9 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
   int? _selectedLeaveTypeId;
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 1));
+  bool _isHalfDay = false;
+  String _halfDayPeriod = 'morning';
+  PlatformFile? _attachment;
   final _reasonController = TextEditingController();
   bool _isSubmitting = false;
 
@@ -38,8 +44,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
       setState(() {
         if (isStart) {
           _startDate = date;
-          if (_endDate.isBefore(date)) {
-            _endDate = date.add(const Duration(days: 1));
+          if (_isHalfDay || _endDate.isBefore(date)) {
+            _endDate = date;
           }
         } else {
           _endDate = date;
@@ -93,6 +99,9 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
         startDate: formatter.format(_startDate),
         endDate: formatter.format(_endDate),
         reason: reason,
+        isHalfDay: _isHalfDay,
+        halfDayPeriod: _halfDayPeriod,
+        attachment: _attachment,
       );
 
       // Invalidate providers so screens reload data
@@ -124,15 +133,15 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final balancesAsync = ref.watch(leaveBalancesProvider);
+    final leaveTypesAsync = ref.watch(leaveTypesProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Request Leave')),
       body: _isSubmitting
           ? const LoadingIndicator(message: 'Submitting leave request...')
-          : balancesAsync.when(
-              data: (balances) {
-                if (balances.isEmpty) {
+          : leaveTypesAsync.when(
+              data: (leaveTypes) {
+                if (leaveTypes.isEmpty) {
                   return const Center(child: Text('No leave types configured for your company.', style: TextStyle(color: AppColors.grey500)));
                 }
 
@@ -141,7 +150,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted) {
                       setState(() {
-                        _selectedLeaveTypeId = balances.first.leaveTypeId;
+                        _selectedLeaveTypeId = leaveTypes.first.id;
                       });
                     }
                   });
@@ -156,16 +165,16 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                       const Text('Leave Type', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<int>(
-                        initialValue: _selectedLeaveTypeId ?? balances.first.leaveTypeId,
+                        initialValue: _selectedLeaveTypeId ?? leaveTypes.first.id,
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.category),
                           filled: true,
                           fillColor: Colors.white,
                         ),
-                        items: balances.map((b) {
+                        items: leaveTypes.map((lt) {
                           return DropdownMenuItem<int>(
-                            value: b.leaveTypeId,
-                            child: Text('${b.typeName} (${b.remaining.toStringAsFixed(1)} days left)'),
+                            value: lt.id,
+                            child: Text(lt.name),
                           );
                         }).toList(),
                         onChanged: (v) => setState(() => _selectedLeaveTypeId = v),
@@ -226,6 +235,60 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                       ),
                       const SizedBox(height: 16),
 
+                      // Half Day Toggle
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Request Half Day', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                                Switch(
+                                  value: _isHalfDay,
+                                  onChanged: (v) {
+                                    setState(() {
+                                      _isHalfDay = v;
+                                      if (v) _endDate = _startDate;
+                                    });
+                                  },
+                                  activeThumbColor: AppColors.primary,
+                                ),
+                              ],
+                            ),
+                            if (_isHalfDay) ...[
+                              const Divider(height: 1),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: RadioListTile<String>(
+                                      title: const Text('Morning', style: TextStyle(fontSize: 14)),
+                                      value: 'morning',
+                                      groupValue: _halfDayPeriod,
+                                      onChanged: (v) => setState(() => _halfDayPeriod = v!),
+                                      activeColor: AppColors.primary,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: RadioListTile<String>(
+                                      title: const Text('Afternoon', style: TextStyle(fontSize: 14)),
+                                      value: 'afternoon',
+                                      groupValue: _halfDayPeriod,
+                                      onChanged: (v) => setState(() => _halfDayPeriod = v!),
+                                      activeColor: AppColors.primary,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
                       // Reason
                       const Text('Reason', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
                       const SizedBox(height: 8),
@@ -236,6 +299,54 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                           hintText: 'Describe your reason for leave...',
                           filled: true,
                           fillColor: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Attachment
+                      const Text('Attachment (Optional)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: () async {
+                          final result = await FilePicker.platform.pickFiles(
+                            type: FileType.custom,
+                            allowedExtensions: ['jpg', 'png', 'pdf'],
+                          );
+                          if (result != null) {
+                            setState(() => _attachment = result.files.first);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: _attachment != null ? AppColors.primary : AppColors.grey300),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.attach_file, color: _attachment != null ? AppColors.primary : AppColors.grey500),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _attachment?.name ?? 'Tap to select file (PDF, JPG, PNG)',
+                                  style: TextStyle(
+                                    color: _attachment != null ? AppColors.grey800 : AppColors.grey500,
+                                    fontWeight: _attachment != null ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (_attachment != null)
+                                IconButton(
+                                  icon: const Icon(Icons.close, size: 20, color: AppColors.danger),
+                                  onPressed: () => setState(() => _attachment = null),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                )
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -254,7 +365,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                   ),
                 );
               },
-              loading: () => const LoadingIndicator(message: 'Loading leave balances...'),
+              loading: () => const LoadingIndicator(message: 'Loading leave types...'),
               error: (e, _) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -264,7 +375,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                     const Text('Failed to load leave types'),
                     const SizedBox(height: 8),
                     OutlinedButton.icon(
-                      onPressed: () => ref.invalidate(leaveBalancesProvider),
+                      onPressed: () => ref.invalidate(leaveTypesProvider),
                       icon: const Icon(Icons.refresh),
                       label: const Text('Retry'),
                     ),

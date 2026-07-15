@@ -29,7 +29,9 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app requires access to your location to verify your check-in and check-out at the work site.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>This app requires access to your camera to take a selfie for check-in and check-out verification.</string>
+	<string>This app requires access to your camera to take a selfie for check-in and check-out verification, and to capture expense receipts.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires access to your photo library to attach expense receipts.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app requires access to your microphone for video recording if required.</string>
 	<key>UIApplicationSceneManifest</key>

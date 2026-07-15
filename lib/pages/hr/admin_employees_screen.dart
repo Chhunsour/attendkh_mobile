@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employee_detail_screen.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 // ── Status config ────────────────────────────────────────────────────────────
 const _statusConfig = {
@@ -508,7 +509,24 @@ class _EmployeeCard extends ConsumerWidget {
                             border: Border.all(color: cfg.color.withAlpha(60), width: 2),
                           ),
                           child: employee.avatar != null
-                              ? ClipOval(child: Image.network(employee.avatar!, fit: BoxFit.cover))
+                              ? ClipOval(
+                                  child: Image.network(
+                                    employee.avatar!.startsWith('http') 
+                                        ? employee.avatar! 
+                                        : '${DioClient.storageUrl}/${employee.avatar!.startsWith('/') ? employee.avatar!.substring(1) : employee.avatar!}',
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (ctx, err, stack) => Center(
+                                      child: Text(
+                                        _initials(employee),
+                                        style: TextStyle(
+                                          color: avatarFg,
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
                               : Center(
                                   child: Text(
                                     _initials(employee),

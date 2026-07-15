@@ -324,7 +324,7 @@ class EmployeeData {
       joinDate: json['hire_date'] as String? ?? json['join_date'] as String?,
       terminationDate: json['termination_date'] as String?,
       avatar: json['avatar'] as String? ?? json['photo'] as String?,
-      salary: (json['salary'] as num?)?.toDouble(),
+      salary: json['salary'] != null ? double.tryParse(json['salary'].toString()) : null,
       departmentId: json['department_id'] as int?,
       positionId: json['position_id'] as int?,
       branchId: json['branch_id'] as int?,

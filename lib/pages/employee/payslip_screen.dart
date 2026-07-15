@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/payslip_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/payslip_provider.dart';
+import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 class PayslipScreen extends ConsumerWidget {
@@ -21,39 +22,48 @@ class PayslipScreen extends ConsumerWidget {
         centerTitle: true,
       ),
       body: payslipsAsync.when(
-        data: (payslips) => payslips.isEmpty
-            ? const Center(child: Text('No payslips available', style: TextStyle(color: AppColors.grey400)))
-            : CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Recent Payslips', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey800)),
-                          const SizedBox(height: 8),
-                          Text('Manage your payroll documents securely.', style: TextStyle(fontSize: 14, color: AppColors.grey500)),
-                          const SizedBox(height: 24),
-                        ],
-                      ),
+        data: (payslips) => CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildBankCard(context, ref, payslips.isNotEmpty ? payslips.first : null),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
+                    child: Text(
+                      'Recent Transactions',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800),
                     ),
                   ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, i) {
-                        final p = payslips[i];
-                        return _WalletCard(
-                          payslip: p,
-                          onDownload: () => _handleDownload(context, p),
-                        );
-                      },
-                      childCount: payslips.length,
-                    ),
-                  ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
                 ],
               ),
+            ),
+            if (payslips.isEmpty)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 40),
+                  child: Center(
+                    child: Text('No payslips available', style: TextStyle(color: AppColors.grey400)),
+                  ),
+                ),
+              )
+            else
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, i) {
+                    final p = payslips[i];
+                    return _WalletCard(
+                      payslip: p,
+                      onDownload: () => _handleDownload(context, p),
+                    );
+                  },
+                  childCount: payslips.length,
+                ),
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
+        ),
         loading: () => const LoadingIndicator(message: 'Loading secure wallet...'),
         error: (e, _) => Center(
           child: OutlinedButton.icon(
@@ -62,6 +72,95 @@ class PayslipScreen extends ConsumerWidget {
             label: const Text('Retry'),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBankCard(BuildContext context, WidgetRef ref, PayslipData? latest) {
+    final authState = ref.watch(authProvider);
+    final employeeName = authState.userName ?? 'Employee';
+    final amount = latest != null ? latest.netPay.toStringAsFixed(2) : '0.00';
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withAlpha(60),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Chip icon
+              Container(
+                width: 40,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(50),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Center(
+                  child: Icon(Icons.memory, color: Colors.white, size: 20),
+                ),
+              ),
+              // Contactless icon
+              const Icon(Icons.contactless_outlined, color: Colors.white, size: 24),
+            ],
+          ),
+          const SizedBox(height: 32),
+          const Text(
+            'Last Net Pay',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '\$$amount',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                employeeName.toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 2,
+                ),
+              ),
+              const Text(
+                'MPG HR',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

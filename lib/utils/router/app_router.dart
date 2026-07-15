@@ -13,8 +13,10 @@ import 'package:mpg_hr_mobile_app/pages/employee/leave_list_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/leave_request_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/payslip_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/expense_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/employee/training_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/profile/profile_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/profile/edit_profile_screen.dart';
 
 // Super Admin imports
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_dashboard_screen.dart';
@@ -64,7 +66,9 @@ class AppRoutes {
   static const leaveRequest = '/main/leave/request';
   static const payslip = '/main/payslip';
   static const expense = '/main/expense';
+  static const training = '/main/training';
   static const profile = '/main/profile';
+  static const editProfile = '/main/profile/edit';
 
   // Super Admin
   static const admin = '/admin';
@@ -242,8 +246,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ExpenseScreen(),
       ),
       GoRoute(
+        path: AppRoutes.training,
+        builder: (context, state) => const TrainingScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.profile,
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        builder: (context, state) => const EditProfileScreen(),
       ),
 
       // ---- Super Admin (drawer navigation) ----

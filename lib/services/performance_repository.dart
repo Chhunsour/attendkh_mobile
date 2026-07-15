@@ -186,4 +186,33 @@ class PerformanceRepository {
 
   Future<void> deleteTraining(int id) async => _api.delete('/company/performance/trainings/$id');
   Future<void> enrollEmployee(int trainingId, int employeeId) async => _api.post('/company/performance/trainings/$trainingId/enroll', data: {'employee_id': employeeId});
+
+  // Employee Self-Service Trainings
+  Future<List<TrainingCourseData>> getAvailableTrainings() async {
+    final response = await _api.get('/company/available-trainings');
+    final data = response.data;
+    if (data is List) {
+      return data.map((e) => TrainingCourseData.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List).map((e) => TrainingCourseData.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    return [];
+  }
+
+  Future<List<Map<String, dynamic>>> getMyTrainings() async {
+    final response = await _api.get('/company/my-trainings');
+    final data = response.data;
+    if (data is List) {
+      return List<Map<String, dynamic>>.from(data);
+    }
+    if (data is Map && data['data'] != null) {
+      return List<Map<String, dynamic>>.from(data['data']);
+    }
+    return [];
+  }
+
+  Future<void> selfEnroll(int trainingId) async {
+    await _api.post('/company/trainings/$trainingId/self-enroll');
+  }
 }

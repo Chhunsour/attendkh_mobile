@@ -23,6 +23,8 @@ String get _baseUrl {
 class DioClient {
   static Dio? _dio;
 
+  static String get storageUrl => 'http://$_devServerIp:8000/storage';
+
   static void init() {
     _dio = Dio(
       BaseOptions(
@@ -50,7 +52,9 @@ class DioClient {
 
   static Dio get instance {
     if (_dio == null) {
-      throw StateError('DioClient not initialized. Call DioClient.init() first.');
+      throw StateError(
+        'DioClient not initialized. Call DioClient.init() first.',
+      );
     }
     return _dio!;
   }
@@ -132,17 +136,13 @@ class _ConnectivityInterceptor extends Interceptor {
 class _LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    AppLogger.d(
-      '➡️ ${options.method} ${options.uri}',
-    );
+    AppLogger.d('➡️ ${options.method} ${options.uri}');
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    AppLogger.d(
-      '✅ ${response.statusCode} ${response.requestOptions.uri}',
-    );
+    AppLogger.d('✅ ${response.statusCode} ${response.requestOptions.uri}');
     handler.next(response);
   }
 
@@ -158,7 +158,8 @@ class _LoggingInterceptor extends Interceptor {
 
 /// Helper extension for API calls
 extension DioResponseX on Response {
-  bool get isSuccess => statusCode != null && statusCode! >= 200 && statusCode! < 300;
+  bool get isSuccess =>
+      statusCode != null && statusCode! >= 200 && statusCode! < 300;
 
   bool get isUnauthorized => statusCode == 401;
 

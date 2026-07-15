@@ -1,5 +1,6 @@
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
-
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 class PayslipData {
   final int? id;
   final String period;
@@ -77,6 +78,15 @@ class PayslipRepository {
   }
 
   Future<void> downloadPayslip(String periodOrId) async {
-    await _api.get('/company/my-payslips/$periodOrId/download');
+    final tempDir = await getTemporaryDirectory();
+    final savePath = '${tempDir.path}/payslip_$periodOrId.pdf';
+    
+    await _api.download(
+      '/company/my-payslips/$periodOrId/download', 
+      savePath, 
+      method: 'GET',
+    );
+    
+    await OpenFilex.open(savePath);
   }
 }

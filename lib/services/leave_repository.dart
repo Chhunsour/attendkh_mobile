@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 
 class LeaveBalance {
@@ -26,15 +28,22 @@ class LeaveBalance {
   double get remaining => allocated + carriedForward - used - pending;
 
   factory LeaveBalance.fromJson(Map<String, dynamic> json) {
+    double parseDouble(dynamic val) {
+      if (val == null) return 0.0;
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val) ?? 0.0;
+      return 0.0;
+    }
+
     return LeaveBalance(
       id: json['id'] as int? ?? 0,
       leaveTypeId: json['leave_type_id'] as int? ?? json['leave_type']?['id'] as int? ?? 0,
       type: json['leave_type']?['name'] as String? ?? json['type'] as String? ?? '',
       typeName: json['leave_type']?['name'] as String? ?? json['type'] as String? ?? '',
-      allocated: (json['allocated_days'] as num?)?.toDouble() ?? 0,
-      used: (json['used_days'] as num?)?.toDouble() ?? 0,
-      carriedForward: (json['carried_forward'] as num?)?.toDouble() ?? 0,
-      pending: (json['pending_days'] as num?)?.toDouble() ?? 0,
+      allocated: parseDouble(json['allocated_days']),
+      used: parseDouble(json['used_days']),
+      carriedForward: parseDouble(json['carried_forward']),
+      pending: parseDouble(json['pending_days']),
       color: json['leave_type']?['color'] as String? ?? json['color'] as String?,
     );
   }
@@ -46,6 +55,8 @@ class LeaveRequest {
   final String startDate;
   final String endDate;
   final double days;
+  final bool isHalfDay;
+  final String? documentUrl;
   final String? reason;
   final String status;
   final String? approvedBy;
@@ -57,6 +68,8 @@ class LeaveRequest {
     required this.startDate,
     required this.endDate,
     required this.days,
+    this.isHalfDay = false,
+    this.documentUrl,
     this.reason,
     required this.status,
     this.approvedBy,
@@ -69,7 +82,9 @@ class LeaveRequest {
       leaveType: json['leave_type']?['name'] as String? ?? '',
       startDate: json['start_date'] as String,
       endDate: json['end_date'] as String,
-      days: (json['days'] as num?)?.toDouble() ?? (json['total_days'] as num?)?.toDouble() ?? 0,
+      days: json['days'] != null ? double.tryParse(json['days'].toString()) ?? 0 : (json['total_days'] != null ? double.tryParse(json['total_days'].toString()) ?? 0 : 0),
+      isHalfDay: json['half_day'] == true || json['half_day'] == 1,
+      documentUrl: json['document'] as String?,
       reason: json['reason'] as String?,
       status: json['status'] as String? ?? 'pending',
       approvedBy: json['approver']?['name'] as String?,
@@ -91,6 +106,19 @@ class LeaveRepository {
     }
     if (data is Map && data['data'] != null) {
       return (data['data'] as List).map((e) => LeaveBalance.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    return [];
+  }
+
+  /// GET /api/v1/company/leave/types
+  Future<List<LeaveType>> getLeaveTypes() async {
+    final response = await _api.get('/company/leave/types');
+    final data = response.data;
+    if (data is List) {
+      return data.map((e) => LeaveType.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List).map((e) => LeaveType.fromJson(e as Map<String, dynamic>)).toList();
     }
     return [];
   }
@@ -118,17 +146,35 @@ class LeaveRepository {
     required String startDate,
     required String endDate,
     required String reason,
+    bool isHalfDay = false,
+    String? halfDayPeriod,
+    PlatformFile? attachment,
   }) async {
+    Map<String, dynamic> data = {
+      'employee_id': employeeId,
+      'leave_type_id': leaveTypeId,
+      'start_date': startDate,
+      'end_date': endDate,
+      'reason': reason,
+      'half_day': isHalfDay ? 1 : 0,
+    };
+
+    if (isHalfDay && halfDayPeriod != null) {
+      data['half_day_period'] = halfDayPeriod;
+    }
+
+    if (attachment != null && attachment.path != null) {
+      data['document'] = await MultipartFile.fromFile(
+        attachment.path!,
+        filename: attachment.name,
+      );
+    }
+
     final response = await _api.post(
       '/company/leave/requests',
-      data: {
-        'employee_id': employeeId,
-        'leave_type_id': leaveTypeId,
-        'start_date': startDate,
-        'end_date': endDate,
-        'reason': reason,
-      },
+      data: FormData.fromMap(data),
     );
+    
     final raw = response.data as Map<String, dynamic>;
     final payload = raw['data'] as Map<String, dynamic>? ?? raw;
     return LeaveRequest.fromJson(payload);
@@ -137,5 +183,28 @@ class LeaveRepository {
   /// POST /api/v1/company/leave/requests/{id}/cancel
   Future<void> cancelRequest(int id) async {
     await _api.post('/company/leave/requests/$id/cancel');
+  }
+}
+
+class LeaveType {
+  final int id;
+  final String name;
+  final int daysPerYear;
+  final bool isPaid;
+
+  const LeaveType({
+    required this.id,
+    required this.name,
+    required this.daysPerYear,
+    this.isPaid = true,
+  });
+
+  factory LeaveType.fromJson(Map<String, dynamic> json) {
+    return LeaveType(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      daysPerYear: json['days_per_year'] as int? ?? 0,
+      isPaid: json['is_paid'] == true || json['is_paid'] == 1,
+    );
   }
 }

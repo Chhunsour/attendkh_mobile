@@ -62,7 +62,7 @@ class AdminAttendanceRecord {
       clockIn: json['clock_in'] as String?,
       clockOut: json['clock_out'] as String?,
       status: json['status'] as String? ?? 'absent',
-      workHours: (json['work_hours'] as num?)?.toDouble(),
+      workHours: json['work_hours'] != null ? double.tryParse(json['work_hours'].toString()) : null,
       earlyClockInMinutes: json['early_clock_in_minutes'] as int?,
       approvedPreShiftOtMinutes: json['approved_pre_shift_ot_minutes'] as int?,
     );

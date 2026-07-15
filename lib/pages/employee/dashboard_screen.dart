@@ -15,6 +15,7 @@ import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
+import 'package:mpg_hr_mobile_app/providers/dashboard_provider.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -227,6 +228,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final todayAsync = ref.watch(todayAttendanceProvider);
     final authState = ref.watch(authProvider);
     final profileAsync = ref.watch(profileProvider);
+    final summaryAsync = ref.watch(employeeDashboardSummaryProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -255,10 +257,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.grey200, width: 1.5),
                 ),
-                child: const CircleAvatar(
+                child: CircleAvatar(
                   radius: 18,
                   backgroundColor: AppColors.primaryLight,
-                  child: Icon(Icons.person, color: AppColors.primary, size: 20),
+                  backgroundImage: profileAsync.value?.photoUrl != null
+                      ? NetworkImage(profileAsync.value!.photoUrl!)
+                      : null,
+                  child: profileAsync.value?.photoUrl == null
+                      ? const Icon(Icons.person, color: AppColors.primary, size: 20)
+                      : null,
                 ),
               ),
             ),
@@ -279,13 +286,98 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800),
               ),
               const SizedBox(height: 16),
-
               _buildQuickActionsGrid(context),
+
+              const SizedBox(height: 28),
+              
+              summaryAsync.when(
+                data: (summary) => _buildSummarySection(context, summary),
+                loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator())),
+                error: (e, _) => const SizedBox(),
+              ),
             ],
           ),
         ),
         loading: () => const LoadingIndicator(message: 'Loading dashboard...'),
         error: (error, _) => _buildError(context, ref, error.toString()),
+      ),
+    );
+  }
+
+  Widget _buildSummarySection(BuildContext context, Map<String, dynamic> summary) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Overview',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800),
+        ),
+        const SizedBox(height: 16),
+        
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 1.15,
+          children: [
+            _buildSummaryCard(
+              title: 'Upcoming Leaves',
+              count: (summary['upcoming_leaves'] as List?)?.length.toString() ?? '0',
+              icon: Icons.event_available,
+              color: AppColors.secondary,
+              onTap: () => context.push(AppRoutes.leaveList),
+            ),
+            _buildSummaryCard(
+              title: 'Recent Activity',
+              count: (summary['recent_attendance'] as List?)?.length.toString() ?? '0',
+              icon: Icons.how_to_reg,
+              color: AppColors.success,
+              onTap: () => context.push(AppRoutes.attendance),
+            ),
+            _buildSummaryCard(
+              title: 'Active Trainings',
+              count: (summary['active_trainings'] as List?)?.length.toString() ?? '0',
+              icon: Icons.school,
+              color: AppColors.primary,
+              onTap: () => context.push(AppRoutes.training),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _buildSummaryCard({required String title, required String count, required IconData icon, required Color color, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.grey200),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: color.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(count, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                Text(title, style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -455,6 +547,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           icon: Icons.history_toggle_off_outlined,
           color: AppColors.info,
           onTap: () => context.push(AppRoutes.attendance),
+        ),
+        _GridItem(
+          title: 'Training',
+          description: 'Enroll in courses',
+          icon: Icons.school_outlined,
+          color: AppColors.primary,
+          onTap: () => context.push(AppRoutes.training),
         ),
       ],
     );

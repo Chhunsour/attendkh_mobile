@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -541,7 +542,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
                   backgroundColor: Colors.white.withAlpha(50),
                   backgroundImage: _pickedPhoto != null
                       ? FileImage(_pickedPhoto!) as ImageProvider
-                      : (emp?.avatar != null ? NetworkImage(emp!.avatar!) : null),
+                      : (emp?.avatar != null ? NetworkImage(emp!.avatar!.startsWith('http') ? emp.avatar! : '${DioClient.storageUrl}/${emp.avatar!.startsWith('/') ? emp.avatar!.substring(1) : emp.avatar!}') : null),
                   child: (_pickedPhoto == null && (emp?.avatar == null))
                       ? Text(
                           emp != null
