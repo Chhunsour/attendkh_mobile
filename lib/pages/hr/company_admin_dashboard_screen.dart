@@ -1,11 +1,14 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
+import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 
 class CompanyAdminDashboardScreen extends ConsumerWidget {
   const CompanyAdminDashboardScreen({super.key});
@@ -13,7 +16,86 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
+    final branchSwitchState = ref.watch(branchSwitchProvider);
 
+    return Stack(
+      children: [
+        _buildMainScaffold(context, ref, authState),
+        // Blur overlay when switching branches
+        if (branchSwitchState.isSwitching) _buildBlurOverlay(),
+      ],
+    );
+  }
+
+  Widget _buildBlurOverlay() {
+    return Positioned.fill(
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+          child: Container(
+            color: Colors.black.withAlpha(100),
+            child: Center(
+              child: Material(
+                type: MaterialType.transparency,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 28),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFFFFEDD5), width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(30),
+                        blurRadius: 30,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFF97316),
+                          backgroundColor: Color(0xFFFED7AA),
+                          strokeWidth: 4.0,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Switching Branch View…',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.grey800,
+                          fontFamily: 'Inter',
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Loading branch data',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.grey500,
+                          fontFamily: 'Inter',
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainScaffold(BuildContext context, WidgetRef ref, AuthState authState) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -44,6 +126,111 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
           ],
         ),
         actions: [
+          // ── "View as Branch" button (only for Company Admin/Owner) ──
+          if (authState.isCompanyAdmin)
+            ref.watch(branchesProvider).when(
+              data: (branches) => branches.isEmpty
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: const EdgeInsets.only(right: 8.0, top: 12, bottom: 12),
+                      child: PopupMenuButton<BranchData>(
+                        tooltip: 'Select a branch to impersonate',
+                        offset: const Offset(0, 48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        color: Colors.white,
+                        elevation: 4,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF97316).withAlpha(15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.business_rounded, color: Color(0xFFF97316), size: 18),
+                              SizedBox(width: 6),
+                              Text('Branch', style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.w600, fontSize: 13, fontFamily: 'Inter')),
+                              SizedBox(width: 4),
+                              Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFFF97316), size: 18),
+                            ],
+                          ),
+                        ),
+                        onSelected: (branch) async {
+                          await ref.read(branchSwitchProvider.notifier).switchToBranch(branch);
+                          if (context.mounted) {
+                            context.push(AppRoutes.branchManagerView);
+                          }
+                        },
+                        itemBuilder: (context) {
+                          return [
+                            const PopupMenuItem<BranchData>(
+                              enabled: false,
+                              height: 30,
+                              child: Text(
+                                'VIEW AS BRANCH MANAGER',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.grey500,
+                                  fontFamily: 'Inter',
+                                ),
+                              ),
+                            ),
+                            ...branches.map((b) => PopupMenuItem<BranchData>(
+                              value: b,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF97316).withAlpha(15),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.business_rounded, color: Color(0xFFF97316), size: 16),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          b.name,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.grey800,
+                                            fontFamily: 'Inter',
+                                          ),
+                                        ),
+                                        if (b.address != null)
+                                          Text(
+                                            b.address!,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: AppColors.grey500,
+                                              fontFamily: 'Inter',
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                          ];
+                        },
+                      ),
+                    ),
+              loading: () => const SizedBox.shrink(),
+              error: (_, s) => const SizedBox.shrink(),
+            ),
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: Colors.black87),
             onPressed: () => showLogoutConfirmation(context, ref),

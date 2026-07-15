@@ -640,15 +640,22 @@ class AdminOperationsRepository {
   AdminOperationsRepository({ApiRepository? api}) : _api = api ?? ApiRepository();
 
   // ── Dashboard ────────────────────────────────────────────────────────────
-  Future<DashboardKpiData> getDashboardStats() async {
-    final response = await _api.get('/company/dashboard');
+  /// Fetch dashboard KPI stats. When [branchId] is provided (Owner impersonation),
+  /// the backend scopes all counts to employees in that branch only.
+  Future<DashboardKpiData> getDashboardStats({int? branchId}) async {
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get('/company/dashboard', queryParameters: queryParams.isEmpty ? null : queryParams);
     final data = response.data['data']?['kpis'] ?? response.data['kpis'] ?? response.data;
     return DashboardKpiData.fromJson(data as Map<String, dynamic>);
   }
 
   // ── Attendance Corrections ──────────────────────────────────────────────
-  Future<List<AdminAttendanceRecord>> getAllAttendanceLogs() async {
-    final response = await _api.get('/company/attendance');
+  /// Fetch all attendance logs. When [branchId] is provided, scoped to that branch.
+  Future<List<AdminAttendanceRecord>> getAllAttendanceLogs({int? branchId}) async {
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get('/company/attendance', queryParameters: queryParams.isEmpty ? null : queryParams);
     // The response returns { data: { attendances: [...] } }
     final dynamic data = response.data['data']?['attendances'] ?? [];
     return _parseList(data, AdminAttendanceRecord.fromJson);
@@ -665,8 +672,11 @@ class AdminOperationsRepository {
   Future<void> approveOvertime(int id) async => _api.post('/company/attendance/$id/approve-overtime');
 
   // ── Leave Requests (Admin) ──────────────────────────────────────────────
-  Future<List<AdminLeaveRequestData>> getAllLeaveRequests({String? status}) async {
-    final response = await _api.get('/company/leave/requests', queryParameters: {'status': status});
+  /// Fetch all leave requests. When [branchId] is provided, scoped to that branch.
+  Future<List<AdminLeaveRequestData>> getAllLeaveRequests({String? status, int? branchId}) async {
+    final queryParams = <String, dynamic>{'status': status};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get('/company/leave/requests', queryParameters: queryParams);
     return _parseList(response.data, AdminLeaveRequestData.fromJson);
   }
 

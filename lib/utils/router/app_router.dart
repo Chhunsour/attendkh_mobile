@@ -49,6 +49,7 @@ import 'package:mpg_hr_mobile_app/pages/hr/admin_payroll_detail_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_documents_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_policies_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_notifications_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/branch_manager_view_screen.dart';
 
 /// Route paths
 class AppRoutes {
@@ -102,6 +103,8 @@ class AppRoutes {
   static const adminAuditLogs = '/admin/audit-logs';
   static const adminSupportTickets = '/admin/support-tickets';
   static const adminSettings = '/admin/settings';
+  // Branch impersonation
+  static const branchManagerView = '/company-admin/branch-view';
 }
 
 /// ChangeNotifier that listens to auth state — used as GoRouter refreshListenable.
@@ -382,6 +385,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminNotifications,
         builder: (context, state) => const AdminNotificationsScreen(),
+      ),
+      // Branch impersonation view
+      GoRoute(
+        path: AppRoutes.branchManagerView,
+        builder: (context, state) => const BranchManagerViewScreen(),
       ),
     ],
   );

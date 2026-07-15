@@ -3,6 +3,7 @@ import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
 import 'package:mpg_hr_mobile_app/services/assets_repository.dart';
+import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 
 // ── Repository Providers ────────────────────────────────────────────────────
 final hrRepositoryProvider = Provider<HrRepository>((ref) => HrRepository());
@@ -89,10 +90,12 @@ final allEmployeesProvider = FutureProvider.autoDispose<List<EmployeeData>>((ref
 
 /// Family provider used by AdminEmployeesScreen (supports search + filters).
 final adminEmployeesProvider = FutureProvider.autoDispose.family<List<EmployeeData>, EmployeeFilters>((ref, filters) {
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
   return ref.watch(hrRepositoryProvider).getEmployees(
     search: filters.search.isEmpty ? null : filters.search,
     departmentId: filters.departmentId,
-    branchId: filters.branchId,
+    // activeBranchId overrides the manual branch filter if we are impersonating a branch
+    branchId: activeBranchId ?? filters.branchId,
     employmentStatus: filters.employmentStatus.isEmpty ? null : filters.employmentStatus,
     employmentType: filters.employmentType.isEmpty ? null : filters.employmentType,
   );
@@ -105,12 +108,13 @@ final rolesProvider = FutureProvider.autoDispose<List<RoleData>>((ref) {
 // ── Admin Operations Providers ──────────────────────────────────────────────
 
 final dashboardStatsProvider = FutureProvider.autoDispose<DashboardKpiData>((ref) {
-  return ref.watch(adminOpsRepositoryProvider).getDashboardStats();
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+  return ref.watch(adminOpsRepositoryProvider).getDashboardStats(branchId: activeBranchId);
 });
 
-
 final allAttendanceLogsProvider = FutureProvider.autoDispose<List<AdminAttendanceRecord>>((ref) {
-  return ref.watch(adminOpsRepositoryProvider).getAllAttendanceLogs();
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+  return ref.watch(adminOpsRepositoryProvider).getAllAttendanceLogs(branchId: activeBranchId);
 });
 
 final attendanceCorrectionsProvider = FutureProvider.autoDispose<List<AttendanceCorrectionData>>((ref) {
@@ -118,7 +122,8 @@ final attendanceCorrectionsProvider = FutureProvider.autoDispose<List<Attendance
 });
 
 final allLeaveRequestsProvider = FutureProvider.autoDispose<List<AdminLeaveRequestData>>((ref) {
-  return ref.watch(adminOpsRepositoryProvider).getAllLeaveRequests();
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+  return ref.watch(adminOpsRepositoryProvider).getAllLeaveRequests(branchId: activeBranchId);
 });
 
 final leaveTypesProvider = FutureProvider.autoDispose<List<LeaveTypeData>>((ref) {
