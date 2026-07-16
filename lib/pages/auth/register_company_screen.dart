@@ -158,7 +158,6 @@ class _RegisterCompanyScreenState
     return Scaffold(
       backgroundColor: _white,
       body: Stack(
-        fit: StackFit.expand,
         children: [
           // ── Layer 1: Background image ──
           Image.asset(

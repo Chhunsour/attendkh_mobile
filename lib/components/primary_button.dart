@@ -29,7 +29,7 @@ class _PrimaryButtonState extends State<PrimaryButton> {
   bool _isPressed = false;
 
   static const _height = 55.0;
-  static const _radius = 28.0;
+  static const _radius = 18.0;
   static const _bgColor = Color(0xFF4F7DF3);
   static const _shadowColor = Color(0x4D4F7DF3); // ~30 % opacity
 

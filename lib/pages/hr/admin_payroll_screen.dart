@@ -173,81 +173,241 @@ class _PayrollRunsTab extends ConsumerWidget {
   }
 
   void _showGenerateDialog(BuildContext context, WidgetRef ref) {
-    final now = DateTime.now();
-    final firstDay = DateTime(now.year, now.month, 1);
-    final lastDay = DateTime(now.year, now.month + 1, 0);
-    final periodStartCtrl = TextEditingController(
-      text: '${firstDay.year}-${firstDay.month.toString().padLeft(2, '0')}-${firstDay.day.toString().padLeft(2, '0')}',
-    );
-    final periodEndCtrl = TextEditingController(
-      text: '${lastDay.year}-${lastDay.month.toString().padLeft(2, '0')}-${lastDay.day.toString().padLeft(2, '0')}',
-    );
+  final now = DateTime.now();
 
-    Future<void> pickDate(TextEditingController ctrl) async {
-      final picked = await showDatePicker(
-        context: context,
-        initialDate: DateTime.tryParse(ctrl.text) ?? now,
-        firstDate: DateTime(2020),
-        lastDate: DateTime(2100),
-      );
-      if (picked != null) {
-        ctrl.text = '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-      }
-    }
+  final firstDay = DateTime(now.year, now.month, 1);
+  final lastDay = DateTime(now.year, now.month + 1, 0);
 
-    showDialog(
+  final periodStartCtrl = TextEditingController(
+    text:
+        '${firstDay.year}-${firstDay.month.toString().padLeft(2, '0')}-${firstDay.day.toString().padLeft(2, '0')}',
+  );
+
+  final periodEndCtrl = TextEditingController(
+    text:
+        '${lastDay.year}-${lastDay.month.toString().padLeft(2, '0')}-${lastDay.day.toString().padLeft(2, '0')}',
+  );
+
+  Future<void> pickDate(TextEditingController ctrl) async {
+    final picked = await showDatePicker(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Generate Payroll'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: periodStartCtrl,
-              readOnly: true,
-              decoration: const InputDecoration(labelText: 'Period Start', suffixIcon: Icon(Icons.calendar_today)),
-              onTap: () => pickDate(periodStartCtrl),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: periodEndCtrl,
-              readOnly: true,
-              decoration: const InputDecoration(labelText: 'Period End', suffixIcon: Icon(Icons.calendar_today)),
-              onTap: () => pickDate(periodEndCtrl),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () async {
-              try {
-                await AdminOperationsRepository().generatePayroll(
-                  periodStart: periodStartCtrl.text,
-                  periodEnd: periodEndCtrl.text,
-                );
-                ref.invalidate(payrollRunsProvider);
-                if (ctx.mounted) Navigator.pop(ctx);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('✅ Payroll generated'), backgroundColor: AppColors.success),
-                  );
-                }
-              } catch (e) {
-                if (ctx.mounted) Navigator.pop(ctx);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger),
-                  );
-                }
-              }
-            },
-            child: const Text('Generate'),
-          ),
-        ],
-      ),
+      initialDate: DateTime.tryParse(ctrl.text) ?? now,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
     );
+
+    if (picked != null) {
+      ctrl.text =
+          '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+    }
   }
+
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) {
+      return Dialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.payments_rounded,
+                  color: Colors.blue,
+                  size: 40,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                "Generate Payroll",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              const Text(
+                "Select payroll period to generate employee salary records.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.grey600,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              TextField(
+                controller: periodStartCtrl,
+                readOnly: true,
+                onTap: () => pickDate(periodStartCtrl),
+                decoration: InputDecoration(
+                  labelText: "Period Start",
+                  prefixIcon: const Icon(Icons.calendar_today_outlined),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: Colors.grey.shade300,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Colors.blue,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              TextField(
+                controller: periodEndCtrl,
+                readOnly: true,
+                onTap: () => pickDate(periodEndCtrl),
+                decoration: InputDecoration(
+                  labelText: "Period End",
+                  prefixIcon: const Icon(Icons.calendar_month_outlined),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(
+                      color: Colors.grey.shade300,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Colors.blue,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        side: const BorderSide(
+                          color: Colors.grey,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        try {
+                          await AdminOperationsRepository()
+                              .generatePayroll(
+                            periodStart: periodStartCtrl.text,
+                            periodEnd: periodEndCtrl.text,
+                          );
+
+                          ref.invalidate(payrollRunsProvider);
+
+                          if (ctx.mounted) {
+                            Navigator.pop(ctx);
+                          }
+
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content:
+                                    Text("✅ Payroll generated successfully"),
+                                backgroundColor: AppColors.success,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (ctx.mounted) {
+                            Navigator.pop(ctx);
+                          }
+
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("❌ $e"),
+                                backgroundColor: AppColors.danger,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.play_arrow_rounded),
+                      label: const Text("Generate"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
 }
 
 class _PayrollSettingsTab extends ConsumerStatefulWidget {

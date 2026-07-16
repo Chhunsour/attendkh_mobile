@@ -38,11 +38,17 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
               child: Material(
                 type: MaterialType.transparency,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 28),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 36,
+                    vertical: 28,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFFFFEDD5), width: 1),
+                    border: Border.all(
+                      color: const Color(0xFFFFEDD5),
+                      width: 1,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withAlpha(30),
@@ -95,7 +101,11 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMainScaffold(BuildContext context, WidgetRef ref, AuthState authState) {
+  Widget _buildMainScaffold(
+    BuildContext context,
+    WidgetRef ref,
+    AuthState authState,
+  ) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -111,7 +121,11 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 color: AppColors.primary.withAlpha(20),
               ),
-              child: const Icon(Icons.business_center_rounded, color: AppColors.primary, size: 18),
+              child: const Icon(
+                Icons.business_center_rounded,
+                color: AppColors.primary,
+                size: 18,
+              ),
             ),
             const SizedBox(width: 10),
             const Text(
@@ -128,109 +142,147 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
         actions: [
           // ── "View as Branch" button (only for Company Admin/Owner) ──
           if (authState.isCompanyAdmin)
-            ref.watch(branchesProvider).when(
-              data: (branches) => branches.isEmpty
-                  ? const SizedBox.shrink()
-                  : Padding(
-                      padding: const EdgeInsets.only(right: 8.0, top: 12, bottom: 12),
-                      child: PopupMenuButton<BranchData>(
-                        tooltip: 'Select a branch to impersonate',
-                        offset: const Offset(0, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        color: Colors.white,
-                        elevation: 4,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF97316).withAlpha(15),
-                            borderRadius: BorderRadius.circular(8),
+            ref
+                .watch(branchesProvider)
+                .when(
+                  data: (branches) => branches.isEmpty
+                      ? const SizedBox.shrink()
+                      : Padding(
+                          padding: const EdgeInsets.only(
+                            right: 8.0,
+                            top: 12,
+                            bottom: 12,
                           ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.business_rounded, color: Color(0xFFF97316), size: 18),
-                              SizedBox(width: 6),
-                              Text('Branch', style: TextStyle(color: Color(0xFFF97316), fontWeight: FontWeight.w600, fontSize: 13, fontFamily: 'Inter')),
-                              SizedBox(width: 4),
-                              Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFFF97316), size: 18),
-                            ],
-                          ),
-                        ),
-                        onSelected: (branch) async {
-                          await ref.read(branchSwitchProvider.notifier).switchToBranch(branch);
-                          if (context.mounted) {
-                            context.push(AppRoutes.branchManagerView);
-                          }
-                        },
-                        itemBuilder: (context) {
-                          return [
-                            const PopupMenuItem<BranchData>(
-                              enabled: false,
-                              height: 30,
-                              child: Text(
-                                'VIEW AS BRANCH MANAGER',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.grey500,
-                                  fontFamily: 'Inter',
-                                ),
-                              ),
+                          child: PopupMenuButton<BranchData>(
+                            tooltip: 'Select a branch to impersonate',
+                            offset: const Offset(0, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            ...branches.map((b) => PopupMenuItem<BranchData>(
-                              value: b,
-                              child: Row(
+                            color: Colors.white,
+                            elevation: 4,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF97316).withAlpha(15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF97316).withAlpha(15),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.business_rounded, color: Color(0xFFF97316), size: 16),
+                                  Icon(
+                                    Icons.business_rounded,
+                                    color: Color(0xFFF97316),
+                                    size: 18,
                                   ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          b.name,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.grey800,
-                                            fontFamily: 'Inter',
-                                          ),
-                                        ),
-                                        if (b.address != null)
-                                          Text(
-                                            b.address!,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: AppColors.grey500,
-                                              fontFamily: 'Inter',
-                                            ),
-                                          ),
-                                      ],
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Branch',
+                                    style: TextStyle(
+                                      color: Color(0xFFF97316),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                      fontFamily: 'Inter',
                                     ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    color: Color(0xFFF97316),
+                                    size: 18,
                                   ),
                                 ],
                               ),
-                            )),
-                          ];
-                        },
-                      ),
-                    ),
-              loading: () => const SizedBox.shrink(),
-              error: (_, s) => const SizedBox.shrink(),
-            ),
+                            ),
+                            onSelected: (branch) async {
+                              await ref
+                                  .read(branchSwitchProvider.notifier)
+                                  .switchToBranch(branch);
+                              if (context.mounted) {
+                                context.push(AppRoutes.branchManagerView);
+                              }
+                            },
+                            itemBuilder: (context) {
+                              return [
+                                const PopupMenuItem<BranchData>(
+                                  enabled: false,
+                                  height: 30,
+                                  child: Text(
+                                    'VIEW AS BRANCH MANAGER',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.grey500,
+                                      fontFamily: 'Inter',
+                                    ),
+                                  ),
+                                ),
+                                ...branches.map(
+                                  (b) => PopupMenuItem<BranchData>(
+                                    value: b,
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 32,
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                            color: const Color(
+                                              0xFFF97316,
+                                            ).withAlpha(15),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.business_rounded,
+                                            color: Color(0xFFF97316),
+                                            size: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                b.name,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.grey800,
+                                                  fontFamily: 'Inter',
+                                                ),
+                                              ),
+                                              if (b.address != null)
+                                                Text(
+                                                  b.address!,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    fontSize: 11,
+                                                    color: AppColors.grey500,
+                                                    fontFamily: 'Inter',
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ];
+                            },
+                          ),
+                        ),
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, s) => const SizedBox.shrink(),
+                ),
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: Colors.black87),
             onPressed: () => showLogoutConfirmation(context, ref),
@@ -239,8 +291,8 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-        children: [
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      children: [
           // ── Welcome Banner
           _buildWelcomeBanner(
             name: authState.userName ?? 'Manager',
@@ -249,49 +301,87 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // ── Dashboard KPIs
-          ref.watch(dashboardStatsProvider).when(
-            data: (kpi) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Company Overview',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800, fontFamily: 'Inter'),
-                ),
-                const SizedBox(height: 12),
-                Row(
+          ref
+              .watch(dashboardStatsProvider)
+              .when(
+                data: (kpi) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: _buildKpiCard('Total Staff', kpi.totalEmployees.toString(), Icons.people, const Color(0xFF3B82F6)),
+                    const Text(
+                      'Company Overview',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.grey800,
+                        fontFamily: 'Inter',
+                      ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildKpiCard('On Leave', kpi.pendingLeaves.toString(), Icons.event_busy, const Color(0xFFEF4444)),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildKpiCard(
+                            'Total Staff',
+                            kpi.totalEmployees.toString(),
+                            Icons.people,
+                            const Color(0xFF3B82F6),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildKpiCard(
+                            'On Leave',
+                            kpi.pendingLeaves.toString(),
+                            Icons.event_busy,
+                            const Color(0xFFEF4444),
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildKpiCard(
+                            'Open Jobs',
+                            kpi.openJobs.toString(),
+                            Icons.work,
+                            const Color(0xFF10B981),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildKpiCard(
+                            'Assets',
+                            '${kpi.assignedAssets}/${kpi.totalAssets}',
+                            Icons.devices,
+                            const Color(0xFFF59E0B),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildKpiCard('Open Jobs', kpi.openJobs.toString(), Icons.work, const Color(0xFF10B981)),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildKpiCard('Assets', '${kpi.assignedAssets}/${kpi.totalAssets}', Icons.devices, const Color(0xFFF59E0B)),
-                    ),
-                  ],
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: CircularProgressIndicator(),
+                  ),
                 ),
-                const SizedBox(height: 24),
-              ],
-            ),
-            loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator())),
-            error: (e, _) => Container(
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(color: AppColors.dangerLight, borderRadius: BorderRadius.circular(12)),
-              child: Text('Error loading KPIs: $e', style: const TextStyle(color: AppColors.danger)),
-            ),
-          ),
+                error: (e, _) => Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    color: AppColors.dangerLight,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'Error loading KPIs: $e',
+                    style: const TextStyle(color: AppColors.danger),
+                  ),
+                ),
+              ),
           // ── Quick Operations Grid Menu
           const Text(
             'Quick Operations',
@@ -395,12 +485,12 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                title: 'Recruitment',
-                description: 'Jobs & candidates',
-                icon: Icons.work_outline_rounded,
-                color: const Color(0xFFF97316),
-                routePath: AppRoutes.adminRecruitment,
-              ),
+                  title: 'Recruitment',
+                  description: 'Jobs & candidates',
+                  icon: Icons.work_outline_rounded,
+                  color: const Color(0xFFF97316),
+                  routePath: AppRoutes.adminRecruitment,
+                ),
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
@@ -473,7 +563,11 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
                     color: Color(0xFFEFF6FF),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.info_outline_rounded, color: Color(0xFF2563EB), size: 24),
+                  child: const Icon(
+                    Icons.info_outline_rounded,
+                    color: Color(0xFF2563EB),
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 const Expanded(
@@ -518,14 +612,21 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.grey200),
         boxShadow: [
-          BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black.withAlpha(5),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(color: color.withAlpha(20), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: color.withAlpha(20),
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 12),
@@ -533,9 +634,24 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 12, color: AppColors.grey500, fontFamily: 'Inter')),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.grey500,
+                    fontFamily: 'Inter',
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey800, fontFamily: 'Inter')),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey800,
+                    fontFamily: 'Inter',
+                  ),
+                ),
               ],
             ),
           ),
@@ -544,7 +660,10 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWelcomeBanner({required String name, required String companyName}) {
+  Widget _buildWelcomeBanner({
+    required String name,
+    required String companyName,
+  }) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -582,7 +701,10 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withAlpha(50),
                     borderRadius: BorderRadius.circular(20),
@@ -607,7 +729,11 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
               color: Colors.white.withAlpha(15),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.business_center_rounded, color: Colors.white, size: 32),
+            child: const Icon(
+              Icons.business_center_rounded,
+              color: Colors.white,
+              size: 32,
+            ),
           ),
         ],
       ),

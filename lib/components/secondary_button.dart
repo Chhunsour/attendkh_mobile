@@ -18,7 +18,7 @@ class SecondaryButton extends StatelessWidget {
   });
 
   static const _height = 55.0;
-  static const _radius = 28.0;
+  static const _radius = 18.0;
   static const _borderColor = Color(0xFF4F7DF3);
 
   @override
