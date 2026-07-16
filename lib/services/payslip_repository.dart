@@ -12,12 +12,14 @@ class PayslipData {
   final double taxDeduction;
   final double insuranceDeduction;
   final double lateDeduction;
+  final double earlyLeaveDeduction;
   final double totalDeductions;
   final String? payDate;
   final String status;
   final int workingDays;
   final int presentDays;
   final int lateDays;
+  final int earlyLeaveDays;
   final int overtimeHours;
 
   const PayslipData({
@@ -31,12 +33,14 @@ class PayslipData {
     required this.taxDeduction,
     required this.insuranceDeduction,
     required this.lateDeduction,
+    this.earlyLeaveDeduction = 0,
     required this.totalDeductions,
     this.payDate,
     this.status = 'draft',
     this.workingDays = 0,
     this.presentDays = 0,
     this.lateDays = 0,
+    this.earlyLeaveDays = 0,
     this.overtimeHours = 0,
   });
 
@@ -52,12 +56,14 @@ class PayslipData {
       taxDeduction: (json['tax_deduction'] as num?)?.toDouble() ?? 0,
       insuranceDeduction: (json['insurance_deduction'] as num?)?.toDouble() ?? 0,
       lateDeduction: (json['late_deduction'] as num?)?.toDouble() ?? 0,
+      earlyLeaveDeduction: (json['early_leave_deduction'] as num?)?.toDouble() ?? 0,
       totalDeductions: (json['total_deductions'] as num?)?.toDouble() ?? 0,
       payDate: json['pay_date'] as String? ?? json['paid_at'] as String?,
       status: json['status'] as String? ?? 'draft',
       workingDays: json['working_days'] as int? ?? 0,
       presentDays: json['present_days'] as int? ?? 0,
       lateDays: json['late_days'] as int? ?? 0,
+      earlyLeaveDays: json['early_leave_days'] as int? ?? 0,
       overtimeHours: json['overtime_hours'] as int? ?? 0,
     );
   }

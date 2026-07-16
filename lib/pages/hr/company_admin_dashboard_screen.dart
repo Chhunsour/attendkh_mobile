@@ -444,7 +444,7 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
                   description: 'View inbox',
                   icon: Icons.notifications_rounded,
                   color: const Color(0xFFEF4444),
-                  routePath: AppRoutes.adminNotifications,
+                  routePath: AppRoutes.notifications,
                 ),
             ],
           ),

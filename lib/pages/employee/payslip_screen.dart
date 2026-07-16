@@ -280,6 +280,7 @@ class _WalletCardState extends State<_WalletCard> {
                   if (p.taxDeduction > 0) _detailRow('Tax', '-\$${p.taxDeduction.toStringAsFixed(2)}', color: AppColors.danger),
                   if (p.insuranceDeduction > 0) _detailRow('Insurance', '-\$${p.insuranceDeduction.toStringAsFixed(2)}', color: AppColors.danger),
                   if (p.lateDeduction > 0) _detailRow('Late Deduction', '-\$${p.lateDeduction.toStringAsFixed(2)}', color: AppColors.warning),
+                  if (p.earlyLeaveDeduction > 0) _detailRow('Early Leave Deduction', '-\$${p.earlyLeaveDeduction.toStringAsFixed(2)}', color: AppColors.warning),
                   const SizedBox(height: 4),
                   _detailRow('Total Deductions', '-\$${p.totalDeductions.toStringAsFixed(2)}', color: AppColors.danger, bold: true),
                   const Divider(height: 16),
@@ -291,6 +292,8 @@ class _WalletCardState extends State<_WalletCard> {
                       _statChip('Working Days', p.workingDays.toString(), AppColors.primary),
                       _statChip('Present', p.presentDays.toString(), AppColors.success),
                       _statChip('Late', p.lateDays.toString(), AppColors.warning),
+                      if (p.earlyLeaveDays > 0)
+                        _statChip('Early Out', p.earlyLeaveDays.toString(), Colors.orange),
                       _statChip('OT Hours', p.overtimeHours.toString(), AppColors.info),
                     ],
                   ),

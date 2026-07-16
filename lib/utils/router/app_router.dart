@@ -48,7 +48,7 @@ import 'package:mpg_hr_mobile_app/pages/hr/admin_send_notification_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_payroll_detail_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_documents_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_policies_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/admin_notifications_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/notifications_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/branch_manager_view_screen.dart';
 
 /// Route paths
@@ -97,7 +97,7 @@ class AppRoutes {
   static const adminPayrollDetail = '/company-admin/payroll/:period';
   static const adminDocuments = '/company-admin/documents';
   static const adminPolicies = '/company-admin/policies';
-  static const adminNotifications = '/company-admin/notifications';
+  static const notifications = '/notifications';
   static const adminCompanies = '/admin/companies';
   static const adminAnnouncements = '/admin/announcements';
   static const adminAuditLogs = '/admin/audit-logs';
@@ -383,8 +383,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AdminPoliciesScreen(),
       ),
       GoRoute(
-        path: AppRoutes.adminNotifications,
-        builder: (context, state) => const AdminNotificationsScreen(),
+        path: AppRoutes.notifications,
+        builder: (context, state) => const NotificationsScreen(),
       ),
       // Branch impersonation view
       GoRoute(

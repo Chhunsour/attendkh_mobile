@@ -51,7 +51,6 @@ dependencies:
   geolocator: ^14.0.2
   geocoding: ^3.0.0
   camera: ^0.11.1
-  qr_code_scanner: ^1.0.1
 
   # Utilities
   intl: ^0.20.2
@@ -64,6 +63,7 @@ dependencies:
   open_filex: ^4.7.0
   flutter_image_compress: ^2.4.0
   table_calendar: ^3.2.0
+  mobile_scanner: ^7.2.1
 
 dev_dependencies:
   flutter_test:

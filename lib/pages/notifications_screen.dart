@@ -4,14 +4,14 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
-class AdminNotificationsScreen extends ConsumerStatefulWidget {
-  const AdminNotificationsScreen({super.key});
+class NotificationsScreen extends ConsumerStatefulWidget {
+  const NotificationsScreen({super.key});
 
   @override
-  ConsumerState<AdminNotificationsScreen> createState() => _AdminNotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
-class _AdminNotificationsScreenState extends ConsumerState<AdminNotificationsScreen> {
+class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   late Future<List<NotificationItem>> _notifFuture;
 
   @override

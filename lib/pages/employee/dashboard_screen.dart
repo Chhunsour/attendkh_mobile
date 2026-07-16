@@ -269,8 +269,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, color: AppColors.grey700),
+            onPressed: () => context.push(AppRoutes.notifications),
+          ),
           Padding(
-            padding: const EdgeInsets.only(right: 20),
+            padding: const EdgeInsets.only(right: 20, left: 8),
             child: GestureDetector(
               onTap: () => context.push(AppRoutes.profile),
               child: Container(
