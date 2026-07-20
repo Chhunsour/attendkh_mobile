@@ -308,7 +308,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                       const SizedBox(height: 8),
                       InkWell(
                         onTap: () async {
-                          final result = await FilePicker.platform.pickFiles(
+                          final result = await FilePicker.pickFiles(
                             type: FileType.custom,
                             allowedExtensions: ['jpg', 'png', 'pdf'],
                           );

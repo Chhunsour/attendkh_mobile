@@ -506,45 +506,60 @@ class AdminPayslipDetailData {
 // ── Payroll Settings ────────────────────────────────────────────────────────
 class PayrollSettingsData {
   final bool overtimeEnabled;
-  final double overtimeMultiplier;
   final double overtimeThreshold;
-  final double weekendOvertimeMultiplier;
-  final double holidayOvertimeMultiplier;
-  final int maxOvertimeHoursPerDay;
-  final int maxOvertimeHoursPerWeek;
   final bool lateDeductionEnabled;
-  final double lateDeductionPerMinute;
-  final double lateDeductionAmount;
-  final String lateDeductionCalculation;
-  final int gracePeriodMinutes;
-  final String payrollPeriod;
-  final int payrollStartDay;
-  final int payrollWorkingDays;
-  final String currency;
-  final String currencySymbol;
   final double halfDayHours;
   final double halfDayDeductionPercentage;
+  final String payrollPeriod;
+  final int payrollStartDay;
+  final String currency;
+  final String currencySymbol;
+  
+  final int lateGracePeriodMinutes;
+  final String lateDeductionType;
+  final double lateDeductionRate;
+  
+  final String earlyLeaveDeductionType;
+  final double earlyLeaveDeductionRate;
+  final int earlyLeaveGracePeriodMinutes;
+  
+  final double regularOtMultiplier;
+  final double restDayOtMultiplier;
+  final double publicHolidayOtMultiplier;
+  final double companyHolidayOtMultiplier;
+  
+  final String earlyClockInPolicy;
+  final double preShiftOtMultiplier;
+  final int maxPreShiftOtMinutes;
+  
+  final String workingDaysType;
+  final int fixedWorkingDays;
 
   const PayrollSettingsData({
     required this.overtimeEnabled,
-    required this.overtimeMultiplier,
     required this.overtimeThreshold,
-    required this.weekendOvertimeMultiplier,
-    required this.holidayOvertimeMultiplier,
-    required this.maxOvertimeHoursPerDay,
-    required this.maxOvertimeHoursPerWeek,
     required this.lateDeductionEnabled,
-    required this.lateDeductionPerMinute,
-    required this.lateDeductionAmount,
-    required this.lateDeductionCalculation,
-    required this.gracePeriodMinutes,
-    required this.payrollPeriod,
-    required this.payrollStartDay,
-    required this.payrollWorkingDays,
-    required this.currency,
-    required this.currencySymbol,
     required this.halfDayHours,
     required this.halfDayDeductionPercentage,
+    required this.payrollPeriod,
+    required this.payrollStartDay,
+    required this.currency,
+    required this.currencySymbol,
+    required this.lateGracePeriodMinutes,
+    required this.lateDeductionType,
+    required this.lateDeductionRate,
+    required this.earlyLeaveDeductionType,
+    required this.earlyLeaveDeductionRate,
+    required this.earlyLeaveGracePeriodMinutes,
+    required this.regularOtMultiplier,
+    required this.restDayOtMultiplier,
+    required this.publicHolidayOtMultiplier,
+    required this.companyHolidayOtMultiplier,
+    required this.earlyClockInPolicy,
+    required this.preShiftOtMultiplier,
+    required this.maxPreShiftOtMinutes,
+    required this.workingDaysType,
+    required this.fixedWorkingDays,
   });
 
   factory PayrollSettingsData.fromJson(Map<String, dynamic> json) {
@@ -565,24 +580,29 @@ class PayrollSettingsData {
 
     return PayrollSettingsData(
       overtimeEnabled: json['overtime_enabled'] == 1 || json['overtime_enabled'] == true,
-      overtimeMultiplier: parseDouble(json['overtime_multiplier'], 1.5),
       overtimeThreshold: parseDouble(json['overtime_threshold'], 1.0),
-      weekendOvertimeMultiplier: parseDouble(json['weekend_overtime_multiplier'], 2.0),
-      holidayOvertimeMultiplier: parseDouble(json['holiday_overtime_multiplier'], 3.0),
-      maxOvertimeHoursPerDay: parseInt(json['max_overtime_hours_per_day'], 4),
-      maxOvertimeHoursPerWeek: parseInt(json['max_overtime_hours_per_week'], 20),
       lateDeductionEnabled: json['late_deduction_enabled'] == 1 || json['late_deduction_enabled'] == true,
-      lateDeductionPerMinute: parseDouble(json['late_deduction_per_minute'], 0.0),
-      lateDeductionAmount: parseDouble(json['late_deduction_amount'], 0.0),
-      lateDeductionCalculation: json['late_deduction_calculation'] as String? ?? 'flat',
-      gracePeriodMinutes: parseInt(json['grace_period_minutes'], 15),
-      payrollPeriod: json['payroll_period'] as String? ?? 'monthly',
-      payrollStartDay: parseInt(json['payroll_start_day'], 1),
-      payrollWorkingDays: parseInt(json['payroll_working_days'], 22),
-      currency: json['currency'] as String? ?? 'USD',
-      currencySymbol: json['currency_symbol'] as String? ?? '\$',
       halfDayHours: parseDouble(json['half_day_hours'], 4.0),
       halfDayDeductionPercentage: parseDouble(json['half_day_deduction_percentage'], 50.0),
+      payrollPeriod: json['payroll_period'] as String? ?? 'monthly',
+      payrollStartDay: parseInt(json['payroll_start_day'], 1),
+      currency: json['currency'] as String? ?? 'USD',
+      currencySymbol: json['currency_symbol'] as String? ?? '\$',
+      lateGracePeriodMinutes: parseInt(json['late_grace_period_minutes'], 15),
+      lateDeductionType: json['late_deduction_type'] as String? ?? 'per_minute',
+      lateDeductionRate: parseDouble(json['late_deduction_rate'], 1.0),
+      earlyLeaveDeductionType: json['early_leave_deduction_type'] as String? ?? 'per_minute',
+      earlyLeaveDeductionRate: parseDouble(json['early_leave_deduction_rate'], 1.0),
+      earlyLeaveGracePeriodMinutes: parseInt(json['early_leave_grace_period_minutes'], 0),
+      regularOtMultiplier: parseDouble(json['regular_ot_multiplier'], 1.5),
+      restDayOtMultiplier: parseDouble(json['rest_day_ot_multiplier'], 2.0),
+      publicHolidayOtMultiplier: parseDouble(json['public_holiday_ot_multiplier'], 2.0),
+      companyHolidayOtMultiplier: parseDouble(json['company_holiday_ot_multiplier'], 1.5),
+      earlyClockInPolicy: json['early_clock_in_policy'] as String? ?? 'ignore',
+      preShiftOtMultiplier: parseDouble(json['pre_shift_ot_multiplier'], 1.25),
+      maxPreShiftOtMinutes: parseInt(json['max_pre_shift_ot_minutes'], 120),
+      workingDaysType: json['working_days_type'] as String? ?? 'calendar_days',
+      fixedWorkingDays: parseInt(json['fixed_working_days'], 22),
     );
   }
 }

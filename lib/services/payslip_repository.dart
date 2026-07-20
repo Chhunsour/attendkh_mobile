@@ -44,27 +44,41 @@ class PayslipData {
     this.overtimeHours = 0,
   });
 
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
   factory PayslipData.fromJson(Map<String, dynamic> json) {
     return PayslipData(
-      id: json['id'] as int?,
+      id: _parseInt(json['id']),
       period: json['payroll_period'] as String? ?? json['pay_period'] as String? ?? json['period'] as String? ?? '',
-      netPay: (json['net_salary'] as num?)?.toDouble() ?? (json['net_pay'] as num?)?.toDouble() ?? 0,
-      grossPay: (json['gross_salary'] as num?)?.toDouble() ?? (json['gross_pay'] as num?)?.toDouble() ?? 0,
-      basicSalary: (json['basic_salary'] as num?)?.toDouble() ?? 0,
-      overtimePay: (json['overtime_pay'] as num?)?.toDouble() ?? 0,
-      allowances: (json['allowances'] as num?)?.toDouble() ?? 0,
-      taxDeduction: (json['tax_deduction'] as num?)?.toDouble() ?? 0,
-      insuranceDeduction: (json['insurance_deduction'] as num?)?.toDouble() ?? 0,
-      lateDeduction: (json['late_deduction'] as num?)?.toDouble() ?? 0,
-      earlyLeaveDeduction: (json['early_leave_deduction'] as num?)?.toDouble() ?? 0,
-      totalDeductions: (json['total_deductions'] as num?)?.toDouble() ?? 0,
+      netPay: _parseDouble(json['net_salary'] ?? json['net_pay']),
+      grossPay: _parseDouble(json['gross_salary'] ?? json['gross_pay']),
+      basicSalary: _parseDouble(json['basic_salary']),
+      overtimePay: _parseDouble(json['overtime_pay']),
+      allowances: _parseDouble(json['allowances']),
+      taxDeduction: _parseDouble(json['tax_deduction']),
+      insuranceDeduction: _parseDouble(json['insurance_deduction']),
+      lateDeduction: _parseDouble(json['late_deduction']),
+      earlyLeaveDeduction: _parseDouble(json['early_leave_deduction']),
+      totalDeductions: _parseDouble(json['total_deductions']),
       payDate: json['pay_date'] as String? ?? json['paid_at'] as String?,
       status: json['status'] as String? ?? 'draft',
-      workingDays: json['working_days'] as int? ?? 0,
-      presentDays: json['present_days'] as int? ?? 0,
-      lateDays: json['late_days'] as int? ?? 0,
-      earlyLeaveDays: json['early_leave_days'] as int? ?? 0,
-      overtimeHours: json['overtime_hours'] as int? ?? 0,
+      workingDays: _parseInt(json['working_days']),
+      presentDays: _parseInt(json['present_days']),
+      lateDays: _parseInt(json['late_days']),
+      earlyLeaveDays: _parseInt(json['early_leave_days']),
+      overtimeHours: _parseInt(json['overtime_hours']),
     );
   }
 }

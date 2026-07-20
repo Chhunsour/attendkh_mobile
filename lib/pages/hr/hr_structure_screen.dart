@@ -721,6 +721,11 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
   String _earlyClockInPolicy = 'ignore';
   late TextEditingController _preShiftOtCtrl;
   late TextEditingController _maxPreShiftCtrl;
+  late TextEditingController _earlyLeaveDedRateCtrl;
+  late TextEditingController _earlyLeaveGraceCtrl;
+  String _earlyLeaveDedType = 'per_minute';
+  String _workingDaysType = 'calendar_days';
+  late TextEditingController _fixedWorkingDaysCtrl;
 
   @override
   void initState() {
@@ -754,6 +759,11 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
     _earlyClockInPolicy = p?.earlyClockInPolicy ?? 'ignore';
     _preShiftOtCtrl = TextEditingController(text: p?.preShiftOtMultiplier.toString() ?? '1.25');
     _maxPreShiftCtrl = TextEditingController(text: p?.maxPreShiftOtMinutes.toString() ?? '120');
+    _earlyLeaveDedRateCtrl = TextEditingController(text: p?.earlyLeaveDeductionRate.toString() ?? '1.0');
+    _earlyLeaveGraceCtrl = TextEditingController(text: p?.earlyLeaveGracePeriodMinutes.toString() ?? '0');
+    _earlyLeaveDedType = p?.earlyLeaveDeductionType ?? 'per_minute';
+    _workingDaysType = p?.workingDaysType ?? 'calendar_days';
+    _fixedWorkingDaysCtrl = TextEditingController(text: p?.fixedWorkingDays.toString() ?? '22');
   }
 
   @override
@@ -775,6 +785,9 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
     _compHolOtCtrl.dispose();
     _preShiftOtCtrl.dispose();
     _maxPreShiftCtrl.dispose();
+    _earlyLeaveDedRateCtrl.dispose();
+    _earlyLeaveGraceCtrl.dispose();
+    _fixedWorkingDaysCtrl.dispose();
     super.dispose();
   }
 
@@ -830,6 +843,11 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
       'early_clock_in_policy': _earlyClockInPolicy,
       'pre_shift_ot_multiplier': double.tryParse(_preShiftOtCtrl.text),
       'max_pre_shift_ot_minutes': int.tryParse(_maxPreShiftCtrl.text),
+      'early_leave_deduction_type': _earlyLeaveDedType,
+      'early_leave_deduction_rate': double.tryParse(_earlyLeaveDedRateCtrl.text),
+      'early_leave_grace_period_minutes': int.tryParse(_earlyLeaveGraceCtrl.text),
+      'working_days_type': _workingDaysType,
+      'fixed_working_days': int.tryParse(_fixedWorkingDaysCtrl.text),
     } : null;
 
     try {
@@ -1259,6 +1277,48 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                             Expanded(child: TextFormField(controller: _maxPreShiftCtrl, decoration: const InputDecoration(labelText: 'Max Mins Allowed'), keyboardType: TextInputType.number)),
                           ],
                         ),
+                        const SizedBox(height: 16),
+                        const Text('Early Leave Penalties', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary)),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(child: TextFormField(controller: _earlyLeaveGraceCtrl, decoration: const InputDecoration(labelText: 'Grace Mins'), keyboardType: TextInputType.number)),
+                            const SizedBox(width: 8),
+                            Expanded(child: TextFormField(controller: _earlyLeaveDedRateCtrl, decoration: const InputDecoration(labelText: 'Ded. Rate'), keyboardType: TextInputType.numberWithOptions(decimal: true))),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
+                          initialValue: _earlyLeaveDedType,
+                          decoration: const InputDecoration(labelText: 'Deduction Type'),
+                          items: const [
+                            DropdownMenuItem(value: 'per_minute', child: Text('Per Minute')),
+                            DropdownMenuItem(value: 'fixed_amount', child: Text('Fixed Amount')),
+                            DropdownMenuItem(value: 'half_day', child: Text('Half Day')),
+                          ],
+                          onChanged: (v) => setState(() => _earlyLeaveDedType = v!),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('Working Days Calculation', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.primary)),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<String>(
+                          initialValue: _workingDaysType,
+                          decoration: const InputDecoration(labelText: 'Calculation Type'),
+                          items: const [
+                            DropdownMenuItem(value: 'fixed', child: Text('Fixed Days')),
+                            DropdownMenuItem(value: 'calendar_days', child: Text('Calendar Days')),
+                            DropdownMenuItem(value: 'calendar_minus_holidays', child: Text('Calendar Minus Holidays')),
+                          ],
+                          onChanged: (v) => setState(() => _workingDaysType = v!),
+                        ),
+                        if (_workingDaysType == 'fixed') ...[
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _fixedWorkingDaysCtrl,
+                            decoration: const InputDecoration(labelText: 'Fixed Days per Month'),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ],
                       ],
                     ],
                   ),

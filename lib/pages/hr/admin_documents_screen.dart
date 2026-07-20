@@ -97,7 +97,7 @@ class _State extends State<AdminDocumentsScreen> {
                     
                     GestureDetector(
                       onTap: () async {
-                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        FilePickerResult? result = await FilePicker.pickFiles();
                         if (result != null) {
                           setSheetState(() {
                             selectedFile = result.files.first;

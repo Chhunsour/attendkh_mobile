@@ -18,6 +18,11 @@ class BranchPayrollSettingsData {
   final String earlyClockInPolicy;
   final double preShiftOtMultiplier;
   final int maxPreShiftOtMinutes;
+  final String earlyLeaveDeductionType;
+  final double earlyLeaveDeductionRate;
+  final int earlyLeaveGracePeriodMinutes;
+  final String workingDaysType;
+  final int fixedWorkingDays;
 
   const BranchPayrollSettingsData({
     required this.id,
@@ -33,6 +38,11 @@ class BranchPayrollSettingsData {
     required this.earlyClockInPolicy,
     required this.preShiftOtMultiplier,
     required this.maxPreShiftOtMinutes,
+    required this.earlyLeaveDeductionType,
+    required this.earlyLeaveDeductionRate,
+    required this.earlyLeaveGracePeriodMinutes,
+    required this.workingDaysType,
+    required this.fixedWorkingDays,
   });
 
   factory BranchPayrollSettingsData.fromJson(Map<String, dynamic> json) {
@@ -50,6 +60,11 @@ class BranchPayrollSettingsData {
       earlyClockInPolicy: json['early_clock_in_policy'] as String? ?? 'ignore',
       preShiftOtMultiplier: double.tryParse(json['pre_shift_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
       maxPreShiftOtMinutes: json['max_pre_shift_ot_minutes'] as int? ?? 0,
+      earlyLeaveDeductionType: json['early_leave_deduction_type'] as String? ?? 'per_minute',
+      earlyLeaveDeductionRate: double.tryParse(json['early_leave_deduction_rate']?.toString() ?? '1.0') ?? 1.0,
+      earlyLeaveGracePeriodMinutes: json['early_leave_grace_period_minutes'] as int? ?? 0,
+      workingDaysType: json['working_days_type'] as String? ?? 'calendar_days',
+      fixedWorkingDays: json['fixed_working_days'] as int? ?? 22,
     );
   }
 }
