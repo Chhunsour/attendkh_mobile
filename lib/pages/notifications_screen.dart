@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
+import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
@@ -113,30 +114,32 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 onTap: isUnread ? () => _markRead(n.id) : null,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isUnread ? AppColors.primaryLight : AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(12),
+                    color: isUnread ? const Color(0xFFFFF7ED) : Colors.white, // orange-50 or white
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
+                    ],
                     border: Border.all(
-                      color: isUnread ? AppColors.primary.withAlpha(50) : AppColors.grey200,
+                      color: isUnread ? const Color(0xFFFED7AA) : AppColors.grey200, // orange-200 or grey
                     ),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        width: 44,
-                        height: 44,
+                        width: 48,
+                        height: 48,
                         decoration: BoxDecoration(
-                          color: isUnread
-                              ? AppColors.primary.withAlpha(20)
-                              : AppColors.grey200,
-                          borderRadius: BorderRadius.circular(10),
+                          color: isUnread ? const Color(0xFFFFEDD5) : const Color(0xFFF1F5F9), // orange-100 or grey-100
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: isUnread ? const Color(0xFFFED7AA) : AppColors.grey200)
                         ),
                         child: Icon(
                           isUnread ? Icons.notifications_active : Icons.notifications_outlined,
-                          color: isUnread ? AppColors.primary : AppColors.grey500,
-                          size: 22,
+                          color: isUnread ? const Color(0xFFF97316) : AppColors.grey500, // orange-500
+                          size: 24,
                         ),
                       ),
                       const SizedBox(width: 14),
@@ -164,7 +167,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 6),
                             Row(
                               children: [
                                 if (isUnread)
@@ -178,7 +181,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                     ),
                                   ),
                                 Text(
-                                  n.createdAt,
+                                  formatDateTime(n.createdAt),
                                   style: const TextStyle(fontSize: 11, color: AppColors.grey400),
                                 ),
                               ],

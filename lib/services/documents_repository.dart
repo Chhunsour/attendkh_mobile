@@ -129,15 +129,34 @@ class DocumentsRepository {
     String? departmentId,
     bool isPublic = false,
     String? expiresAt,
+    String? filePath,
   }) async {
-    final data = {
-      'title': title,
-      if (description != null && description.isNotEmpty) 'description': description,
-      if (departmentId != null && departmentId.isNotEmpty && departmentId != 'all') 'department_id': departmentId,
-      'is_public': isPublic ? 1 : 0,
-      if (expiresAt != null && expiresAt.isNotEmpty) 'expires_at': expiresAt,
-    };
-    await _api.put('/company/documents/$id', data: data);
+    if (filePath != null && filePath.isNotEmpty) {
+      final file = await MultipartFile.fromFile(filePath);
+      final formData = FormData.fromMap({
+        '_method': 'PUT',
+        'file': file,
+        'title': title,
+        if (description != null && description.isNotEmpty) 'description': description,
+        if (departmentId != null && departmentId.isNotEmpty && departmentId != 'all') 'department_id': departmentId,
+        'is_public': isPublic ? 1 : 0,
+        if (expiresAt != null && expiresAt.isNotEmpty) 'expires_at': expiresAt,
+      });
+      await _api.post('/company/documents/$id', data: formData);
+    } else {
+      final data = {
+        'title': title,
+        if (description != null && description.isNotEmpty) 'description': description,
+        if (departmentId != null && departmentId.isNotEmpty && departmentId != 'all') 'department_id': departmentId,
+        'is_public': isPublic ? 1 : 0,
+        if (expiresAt != null && expiresAt.isNotEmpty) 'expires_at': expiresAt,
+      };
+      await _api.put('/company/documents/$id', data: data);
+    }
+  }
+
+  Future<void> downloadDocument(int id, String savePath) async {
+    await _api.download('/company/documents/$id/download', savePath, method: 'GET');
   }
 
   Future<void> deleteDocument(int id) async => _api.delete('/company/documents/$id');

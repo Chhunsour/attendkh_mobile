@@ -364,6 +364,10 @@ class _JobCandidatesSheet extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       height: MediaQuery.of(context).size.height * 0.9,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -385,75 +389,156 @@ class _JobCandidatesSheet extends ConsumerWidget {
                       itemBuilder: (ctx, i) {
                         final c = items[i];
                         return Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(border: Border.all(color: AppColors.grey200), borderRadius: BorderRadius.circular(10)),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(backgroundColor: AppColors.primaryLight, child: Text(c.name.substring(0, 1).toUpperCase(), style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))),
-                                  const SizedBox(width: 12),
-                                  Expanded(child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(c.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                      if (c.email != null) Text(c.email!, style: TextStyle(fontSize: 13, color: AppColors.grey600)),
-                                      if (c.phone != null) Text(c.phone!, style: TextStyle(fontSize: 13, color: AppColors.grey600)),
-                                    ],
-                                  )),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Wrap(
-                                spacing: 8, runSpacing: 8,
-                                children: [
-                                  if (c.yearsOfExperience != null) Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(6)), child: Text('${c.yearsOfExperience} yrs exp', style: const TextStyle(fontSize: 11))),
-                                  if (c.expectedSalary != null) Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(6)), child: Text('Exp \$${c.expectedSalary}', style: const TextStyle(fontSize: 11, color: Color(0xFFD97706)))),
-                                ],
-                              ),
-                              if (c.resume != null) ...[
-                                const SizedBox(height: 8),
-                                OutlinedButton.icon(
-                                  onPressed: () {}, // Download/view resume
-                                  icon: const Icon(Icons.description, size: 16),
-                                  label: const Text('View Resume'),
-                                  style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 36)),
-                                )
-                              ],
-                              const Divider(height: 24),
-                              Row(
-                                children: [
-                                  const Text('Stage: ', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
-                                  Expanded(
-                                    child: DropdownButtonFormField<String>(
-                                      initialValue: ['applied', 'screening', 'interview', 'offer', 'hired', 'rejected'].contains(c.stage) ? c.stage : 'applied',
-                                      isExpanded: true,
-                                      decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8), border: OutlineInputBorder()),
-                                      items: const [
-                                        DropdownMenuItem(value: 'applied', child: Text('Applied')),
-                                        DropdownMenuItem(value: 'screening', child: Text('Screening')),
-                                        DropdownMenuItem(value: 'interview', child: Text('Interview')),
-                                        DropdownMenuItem(value: 'offer', child: Text('Offer')),
-                                        DropdownMenuItem(value: 'hired', child: Text('Hired')),
-                                        DropdownMenuItem(value: 'rejected', child: Text('Rejected')),
-                                      ],
-                                      onChanged: (val) async {
-                                        if (val != null && val != c.stage) {
-                                          try {
-                                            await RecruitmentRepository().updateCandidateStatus(c.id, val);
-                                            ref.invalidate(jobCandidatesProvider(job.id));
-                                            ref.invalidate(recruitmentJobsProvider);
-                                          } catch (e) {
-                                            if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
-                                          }
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          margin: const EdgeInsets.only(bottom: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
                             ],
+                            border: Border.all(color: AppColors.grey200),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: 50, height: 50,
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(colors: [AppColors.primaryLight, Colors.white], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(color: AppColors.primaryLight)
+                                      ),
+                                      child: Center(
+                                        child: Text(c.name.substring(0, 1).toUpperCase(), style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 20)),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(c.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87)),
+                                        const SizedBox(height: 4),
+                                        if (c.email != null) Row(
+                                          children: [
+                                            const Icon(Icons.email_outlined, size: 14, color: AppColors.grey500),
+                                            const SizedBox(width: 6),
+                                            Expanded(child: Text(c.email!, style: const TextStyle(fontSize: 13, color: AppColors.grey700))),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 2),
+                                        if (c.phone != null) Row(
+                                          children: [
+                                            const Icon(Icons.phone_outlined, size: 14, color: AppColors.grey500),
+                                            const SizedBox(width: 6),
+                                            Expanded(child: Text(c.phone!, style: const TextStyle(fontSize: 13, color: AppColors.grey700))),
+                                          ],
+                                        ),
+                                      ],
+                                    )),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Wrap(
+                                  spacing: 8, runSpacing: 8,
+                                  children: [
+                                    if (c.yearsOfExperience != null) 
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), 
+                                        decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.grey200)), 
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.work_history_outlined, size: 14, color: AppColors.grey600),
+                                            const SizedBox(width: 6),
+                                            Text('${c.yearsOfExperience} yrs exp', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                                          ],
+                                        ),
+                                      ),
+                                    if (c.expectedSalary != null) 
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), 
+                                        decoration: BoxDecoration(color: const Color(0xFFFEF9C3), borderRadius: BorderRadius.circular(8), border: Border.all(color: const Color(0xFFFEF08A))), 
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.attach_money, size: 14, color: Color(0xFFCA8A04)),
+                                            const SizedBox(width: 4),
+                                            Text('Exp \$${c.expectedSalary}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFCA8A04))),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                if (c.resume != null) ...[
+                                  const SizedBox(height: 16),
+                                  ElevatedButton.icon(
+                                    onPressed: () {}, 
+                                    icon: const Icon(Icons.description_outlined, size: 18),
+                                    label: const Text('View Resume', style: TextStyle(fontWeight: FontWeight.w600)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFF1F5F9),
+                                      foregroundColor: AppColors.primary,
+                                      elevation: 0,
+                                      minimumSize: const Size(double.infinity, 44),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
+                                    ),
+                                  )
+                                ],
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                  child: Divider(height: 1, color: AppColors.grey200),
+                                ),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.track_changes_outlined, size: 18, color: AppColors.grey500),
+                                    const SizedBox(width: 8),
+                                    const Text('Stage', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.grey700)),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: DropdownButtonFormField<String>(
+                                        initialValue: ['applied', 'screening', 'interview', 'offer', 'hired', 'rejected'].contains(c.stage) ? c.stage : 'applied',
+                                        isExpanded: true,
+                                        icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.grey500),
+                                        decoration: InputDecoration(
+                                          isDense: true, 
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), 
+                                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.grey300)),
+                                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.grey300)),
+                                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+                                          filled: true,
+                                          fillColor: const Color(0xFFF8FAFC)
+                                        ),
+                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                        items: const [
+                                          DropdownMenuItem(value: 'applied', child: Text('Applied')),
+                                          DropdownMenuItem(value: 'screening', child: Text('Screening')),
+                                          DropdownMenuItem(value: 'interview', child: Text('Interview')),
+                                          DropdownMenuItem(value: 'offer', child: Text('Offer')),
+                                          DropdownMenuItem(value: 'hired', child: Text('Hired')),
+                                          DropdownMenuItem(value: 'rejected', child: Text('Rejected')),
+                                        ],
+                                        onChanged: (val) async {
+                                          if (val != null && val != c.stage) {
+                                            try {
+                                              await RecruitmentRepository().updateCandidateStatus(c.id, val);
+                                              ref.invalidate(jobCandidatesProvider(job.id));
+                                              ref.invalidate(recruitmentJobsProvider);
+                                            } catch (e) {
+                                              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },

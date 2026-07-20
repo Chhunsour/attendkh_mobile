@@ -6,7 +6,7 @@ class NotificationItem {
   final String? body;
   final String type;
   final bool isRead;
-  final String? data;
+  final Map<String, dynamic>? data;
   final String createdAt;
 
   const NotificationItem({
@@ -23,10 +23,10 @@ class NotificationItem {
     return NotificationItem(
       id: json['id'] as int,
       title: json['data']?['title'] as String? ?? json['title'] as String? ?? 'Notification',
-      body: json['data']?['body'] as String? ?? json['body'] as String?,
+      body: json['data']?['body'] as String? ?? json['body'] as String? ?? json['message'] as String?,
       type: json['type'] as String? ?? 'info',
       isRead: json['read_at'] != null,
-      data: json['data']?.toString(),
+      data: json['data'] is Map ? json['data'] as Map<String, dynamic> : null,
       createdAt: json['created_at'] as String? ?? '',
     );
   }
@@ -43,8 +43,14 @@ class NotificationsRepository {
     if (data is List) {
       return data.map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList();
     }
-    if (data is Map && data['data'] != null) {
-      return (data['data'] as List).map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList();
+    if (data is Map) {
+      if (data['notifications'] is Map && data['notifications']['data'] is List) {
+        return (data['notifications']['data'] as List).map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList();
+      } else if (data['notifications'] is List) {
+        return (data['notifications'] as List).map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList();
+      } else if (data['data'] is List) {
+        return (data['data'] as List).map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList();
+      }
     }
     return [];
   }

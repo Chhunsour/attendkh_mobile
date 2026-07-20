@@ -422,6 +422,15 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
               if (authState.isCompanyAdmin || authState.isBranchManager)
                 _buildGridItem(
                   context,
+                  title: 'Attendance',
+                  description: 'View logs',
+                  icon: Icons.fingerprint_rounded,
+                  color: const Color(0xFF14B8A6), // Teal
+                  routePath: AppRoutes.adminAttendance,
+                ),
+              if (authState.isCompanyAdmin || authState.isBranchManager)
+                _buildGridItem(
+                  context,
                   title: 'Shift Rules',
                   description: 'Work schedules',
                   icon: Icons.schedule_rounded,

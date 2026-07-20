@@ -29,34 +29,71 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen> w
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          color: AppColors.surfaceLight,
-          child: TabBar(
-            controller: _tabController,
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.grey500,
-            indicatorColor: AppColors.primary,
-            tabs: const [
-              Tab(text: 'Daily Logs'),
-              Tab(text: 'Corrections'),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.fingerprint_rounded,
+                  color: AppColors.primary, size: 20),
+            ),
+            const SizedBox(width: 10),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Attendance Logs',
+                    style: TextStyle(
+                        color: AppColors.grey800,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2)),
+                Text('Daily logs & corrections',
+                    style: TextStyle(
+                        color: AppColors.grey400,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w400)),
+              ],
+            ),
+          ],
         ),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _DailyLogsTab(),
-              _CorrectionsTab(),
-            ],
-          ),
+        centerTitle: false,
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: AppColors.primary,
+          unselectedLabelColor: AppColors.grey500,
+          indicatorColor: AppColors.primary,
+          indicatorWeight: 2.5,
+          labelStyle:
+              const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+          unselectedLabelStyle:
+              const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          tabs: const [
+            Tab(text: 'Daily Logs'),
+            Tab(text: 'Corrections'),
+          ],
         ),
-      ],
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _DailyLogsTab(),
+          _CorrectionsTab(),
+        ],
+      ),
     );
   }
 }
+
 
 class _DailyLogsTab extends ConsumerWidget {
   @override

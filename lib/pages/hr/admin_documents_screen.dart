@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
@@ -45,6 +47,26 @@ class _State extends State<AdminDocumentsScreen> {
     }
   }
 
+  Future<void> _downloadFile(DocumentData doc) async {
+    try {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Downloading...'), backgroundColor: AppColors.primary));
+      
+      final dir = await getApplicationDocumentsDirectory();
+      final savePath = '${dir.path}/${doc.fileName ?? 'document_${doc.id}'}';
+      
+      await _repo.downloadDocument(doc.id, savePath);
+      
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Downloaded successfully'), backgroundColor: AppColors.success));
+      
+      final result = await OpenFilex.open(savePath);
+      if (result.type != ResultType.done && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Cannot open file: ${result.message}'), backgroundColor: AppColors.warning));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ Download failed: $e'), backgroundColor: AppColors.danger));
+    }
+  }
+
   void _showForm([DocumentData? item]) {
     final isEdit = item != null;
     final titleCtrl = TextEditingController(text: isEdit ? item.title : '');
@@ -73,38 +95,40 @@ class _State extends State<AdminDocumentsScreen> {
                     Text(isEdit ? 'Edit Document' : 'Upload Document', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
                     const SizedBox(height: 24),
                     
-                    if (!isEdit) ...[
-                      GestureDetector(
-                        onTap: () async {
-                          FilePickerResult? result = await FilePicker.platform.pickFiles();
-                          if (result != null) {
-                            setSheetState(() {
-                              selectedFile = result.files.first;
-                              if (titleCtrl.text.isEmpty) {
-                                titleCtrl.text = selectedFile!.name;
-                              }
-                            });
-                          }
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF7ED),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.primary, width: 2, style: BorderStyle.none),
-                          ),
-                          child: Column(
-                            children: [
-                              const Icon(Icons.upload_file, size: 40, color: AppColors.primary),
-                              const SizedBox(height: 8),
-                              Text(selectedFile?.name ?? 'Tap to select file', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                            ],
-                          ),
+                    GestureDetector(
+                      onTap: () async {
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+                        if (result != null) {
+                          setSheetState(() {
+                            selectedFile = result.files.first;
+                            if (titleCtrl.text.isEmpty) {
+                              titleCtrl.text = selectedFile!.name;
+                            }
+                          });
+                        }
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7ED),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.primary, width: 2, style: BorderStyle.none),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.upload_file, size: 40, color: AppColors.primary),
+                            const SizedBox(height: 8),
+                            Text(
+                              selectedFile?.name ?? (isEdit ? 'Tap to select replacement file (optional)' : 'Tap to select file'), 
+                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold), 
+                              textAlign: TextAlign.center
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                    ],
+                    ),
+                    const SizedBox(height: 16),
 
                     TextField(controller: titleCtrl, decoration: InputDecoration(labelText: 'Title *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
                     const SizedBox(height: 16),
@@ -173,6 +197,7 @@ class _State extends State<AdminDocumentsScreen> {
                                 departmentId: selectedDeptId.isEmpty ? null : selectedDeptId,
                                 isPublic: isPublic,
                                 expiresAt: expCtrl.text.trim().isEmpty ? null : expCtrl.text.trim(),
+                                filePath: selectedFile?.path,
                               );
                             } else {
                               await _repo.uploadDocument(
@@ -339,6 +364,12 @@ class _State extends State<AdminDocumentsScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
+                                    TextButton.icon(
+                                      onPressed: () => _downloadFile(doc),
+                                      icon: const Icon(Icons.download, size: 16, color: Colors.blue),
+                                      label: const Text('Download', style: TextStyle(color: Colors.blue)),
+                                    ),
+                                    const Spacer(),
                                     TextButton.icon(
                                       onPressed: () => _showForm(doc),
                                       icon: const Icon(Icons.edit, size: 16, color: AppColors.grey600),

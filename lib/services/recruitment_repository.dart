@@ -110,7 +110,7 @@ class RecruitmentRepository {
 
   Future<RecruitmentJobsResponse> getJobs() async {
     final response = await _api.get('/company/recruitment/jobs');
-    final data = response.data['data'];
+    final data = response.data; // ApiResponse automatically extracts the 'data' envelope
     
     List<JobPostingData> jobs = [];
     List<DepartmentData> depts = [];
@@ -144,7 +144,7 @@ class RecruitmentRepository {
 
   Future<List<CandidateData>> getCandidates(int jobId) async {
     final response = await _api.get('/company/recruitment/jobs/$jobId/candidates');
-    final List list = response.data['data'] is Map && response.data['data']['data'] != null ? response.data['data']['data'] : (response.data['data'] is List ? response.data['data'] : []);
+    final List list = response.data as List? ?? [];
     return list.map((e) => CandidateData.fromJson(e)).toList();
   }
 

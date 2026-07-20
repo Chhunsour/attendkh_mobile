@@ -656,8 +656,9 @@ class AdminOperationsRepository {
     final queryParams = <String, dynamic>{};
     if (branchId != null) queryParams['branch_id'] = branchId;
     final response = await _api.get('/company/attendance', queryParameters: queryParams.isEmpty ? null : queryParams);
-    // The response returns { data: { attendances: [...] } }
-    final dynamic data = response.data['data']?['attendances'] ?? [];
+    // The API returns { status: 'success', data: { attendances: [...] } }
+    // ApiResponse automatically extracts the 'data' field, so response.data is the inner object.
+    final dynamic data = response.data['attendances'] ?? [];
     return _parseList(data, AdminAttendanceRecord.fromJson);
   }
 

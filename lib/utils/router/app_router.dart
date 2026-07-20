@@ -32,6 +32,7 @@ import 'package:mpg_hr_mobile_app/pages/hr/company_admin_dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_holidays_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/hr_structure_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employees_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_attendance_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_leave_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_payroll_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_shifts_screen.dart';
@@ -81,6 +82,7 @@ class AppRoutes {
   static const hrStructure = '/company-admin/hr-structure';
   static const adminHolidays = '/company-admin/holidays';
   static const adminEmployees = '/company-admin/employees';
+  static const adminAttendance = '/company-admin/attendance';
   static const adminLeave = '/company-admin/leave';
   static const adminPayroll = '/company-admin/payroll';
   static const adminShifts = '/company-admin/shifts';
@@ -311,6 +313,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminEmployees,
         builder: (context, state) => const AdminEmployeesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminAttendance,
+        builder: (context, state) => const AdminAttendanceScreen(),
       ),
       GoRoute(
         path: AppRoutes.adminLeave,

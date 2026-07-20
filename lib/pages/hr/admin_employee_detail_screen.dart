@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employee_form_screen.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 // Status config
 const _statusConfig = {
@@ -137,8 +138,21 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
                       shape: BoxShape.circle,
                       border: Border.all(color: cfg.color.withAlpha(60), width: 3),
                     ),
-                    child: emp.avatar != null
-                        ? ClipOval(child: Image.network(emp.avatar!, fit: BoxFit.cover))
+                    child: emp.avatar != null && emp.avatar!.isNotEmpty
+                        ? ClipOval(
+                            child: Image.network(
+                              emp.avatar!.startsWith('http') 
+                                  ? emp.avatar! 
+                                  : '${DioClient.storageUrl}/${emp.avatar!.startsWith('/') ? emp.avatar!.substring(1) : emp.avatar!}',
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stack) => Center(
+                                child: Text(
+                                  emp.name.isNotEmpty ? emp.name.substring(0, 1).toUpperCase() : 'E',
+                                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.primary),
+                                ),
+                              ),
+                            ),
+                          )
                         : Center(
                             child: Text(
                               emp.name.isNotEmpty ? emp.name.substring(0, 1).toUpperCase() : 'E',
