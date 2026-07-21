@@ -5,7 +5,7 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:geolocator/geolocator.dart';
-
+import 'branch_payroll_settings_screen.dart';
 class HrStructureScreen extends ConsumerStatefulWidget {
   const HrStructureScreen({super.key});
 
@@ -399,6 +399,19 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                         backgroundColor: Colors.transparent,
                         builder: (_) => _BranchFormDialog(branch: item),
                       ),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.payments_rounded,
+                        size: 18,
+                        color: Colors.teal,
+                      ),
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => BranchPayrollSettingsScreen(branchId: item.id, branchName: item.name)
+                        ));
+                      },
                       visualDensity: VisualDensity.compact,
                     ),
                     IconButton(

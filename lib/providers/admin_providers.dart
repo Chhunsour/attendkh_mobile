@@ -174,6 +174,18 @@ final payrollSettingsProvider = FutureProvider.autoDispose<PayrollSettingsData>(
   return ref.watch(adminOpsRepositoryProvider).getPayrollSettings();
 });
 
+final companyFormulasProvider = FutureProvider.autoDispose<PayrollSettingsData>((ref) {
+  return ref.watch(adminOpsRepositoryProvider).getCompanyFormulas();
+});
+
+final branchPayrollSettingsProvider = FutureProvider.autoDispose.family<PayrollSettingsData, int>((ref, branchId) {
+  return ref.watch(adminOpsRepositoryProvider).getBranchPayrollSettings(branchId);
+});
+
+final branchFormulasProvider = FutureProvider.autoDispose.family<PayrollSettingsData, int>((ref, branchId) {
+  return ref.watch(adminOpsRepositoryProvider).getBranchFormulas(branchId);
+});
+
 final employeeDetailProvider = FutureProvider.autoDispose.family<EmployeeData, int>((ref, id) {
   return ref.watch(hrRepositoryProvider).getEmployee(id);
 });

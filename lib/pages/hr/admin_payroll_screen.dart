@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'formulas_screen.dart';
 
 class AdminPayrollScreen extends ConsumerStatefulWidget {
   const AdminPayrollScreen({super.key});
@@ -499,6 +500,28 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [Color(0xFF0D9488), Color(0xFF047857)]),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [BoxShadow(color: Colors.teal.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 4))],
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  leading: const Icon(Icons.calculate, color: Colors.white, size: 32),
+                  title: const Text('Formulas Handbook', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  subtitle: const Text('View active payroll calculations', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+                  onTap: () async {
+                    final s = await ref.read(companyFormulasProvider.future);
+                    if (mounted) {
+                      // ignore: use_build_context_synchronously
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => FormulasScreen(settings: s)));
+                    }
+                  },
+                ),
+              ),
               _sectionHeader('General Settings'),
               const SizedBox(height: 12),
               _dropdownField(

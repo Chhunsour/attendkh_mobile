@@ -505,6 +505,7 @@ class AdminPayslipDetailData {
 
 // ── Payroll Settings ────────────────────────────────────────────────────────
 class PayrollSettingsData {
+  final bool isCustom;
   final bool overtimeEnabled;
   final double overtimeThreshold;
   final bool lateDeductionEnabled;
@@ -536,6 +537,7 @@ class PayrollSettingsData {
   final int fixedWorkingDays;
 
   const PayrollSettingsData({
+    this.isCustom = false,
     required this.overtimeEnabled,
     required this.overtimeThreshold,
     required this.lateDeductionEnabled,
@@ -579,6 +581,7 @@ class PayrollSettingsData {
     }
 
     return PayrollSettingsData(
+      isCustom: json['is_custom'] as bool? ?? false,
       overtimeEnabled: json['overtime_enabled'] == 1 || json['overtime_enabled'] == true,
       overtimeThreshold: parseDouble(json['overtime_threshold'], 1.0),
       lateDeductionEnabled: json['late_deduction_enabled'] == 1 || json['late_deduction_enabled'] == true,
@@ -940,6 +943,25 @@ class AdminOperationsRepository {
 
   Future<void> updatePayrollSettings(Map<String, dynamic> data) async {
     await _api.put('/company/payroll/settings', data: data);
+  }
+
+  Future<PayrollSettingsData> getCompanyFormulas() async {
+    final response = await _api.get('/company/payroll/formulas');
+    return PayrollSettingsData.fromJson(response.data['data'] ?? response.data);
+  }
+
+  Future<PayrollSettingsData> getBranchPayrollSettings(int branchId) async {
+    final response = await _api.get('/company/branches/$branchId/payroll-settings');
+    return PayrollSettingsData.fromJson(response.data['data'] ?? response.data);
+  }
+
+  Future<void> updateBranchPayrollSettings(int branchId, Map<String, dynamic> data) async {
+    await _api.put('/company/branches/$branchId/payroll-settings', data: data);
+  }
+
+  Future<PayrollSettingsData> getBranchFormulas(int branchId) async {
+    final response = await _api.get('/company/branches/$branchId/formulas');
+    return PayrollSettingsData.fromJson(response.data['data'] ?? response.data);
   }
 
   Future<PayrollRunDetailData> getPayrollRunDetail(String period) async {
