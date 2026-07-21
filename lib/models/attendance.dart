@@ -7,7 +7,7 @@ enum AttendanceStatus {
   halfDay,
   onLeave,
   holiday,
-  weekend;
+  restDay;
 
   String get label {
     switch (this) {
@@ -17,7 +17,7 @@ enum AttendanceStatus {
       case AttendanceStatus.halfDay: return 'Half Day';
       case AttendanceStatus.onLeave: return 'On Leave';
       case AttendanceStatus.holiday: return 'Holiday';
-      case AttendanceStatus.weekend: return 'Weekend';
+      case AttendanceStatus.restDay: return 'Rest Day';
     }
   }
 }

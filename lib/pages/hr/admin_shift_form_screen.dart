@@ -682,7 +682,7 @@ class _DayRow extends StatelessWidget {
                     ],
                   )
                 : Text(
-                    isWeekend ? 'Weekend — day off' : 'Day off',
+                    isWeekend ? 'Scheduled Day Off' : 'Day off',
                     style: const TextStyle(
                         fontSize: 12, color: AppColors.grey400, fontStyle: FontStyle.italic),
                   ),

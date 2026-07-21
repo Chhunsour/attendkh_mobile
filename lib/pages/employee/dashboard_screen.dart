@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -43,6 +45,38 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Future<void> _startLocationTracking() async {
     try {
+      bool isPhysicalDevice = true;
+      try {
+        final deviceInfo = DeviceInfoPlugin();
+        if (defaultTargetPlatform == TargetPlatform.android) {
+          final androidInfo = await deviceInfo.androidInfo;
+          isPhysicalDevice = androidInfo.isPhysicalDevice;
+        } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+          final iosInfo = await deviceInfo.iosInfo;
+          isPhysicalDevice = iosInfo.isPhysicalDevice;
+        }
+      } catch (_) {}
+
+      if (!isPhysicalDevice) {
+        if (mounted) {
+          setState(() {
+            _currentPosition = Position(
+              longitude: 104.9282,
+              latitude: 11.5564, 
+              timestamp: DateTime.now(),
+              accuracy: 10,
+              altitude: 0,
+              heading: 0,
+              speed: 0,
+              speedAccuracy: 0,
+              altitudeAccuracy: 0,
+              headingAccuracy: 0,
+            );
+          });
+        }
+        return;
+      }
+
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         return;
@@ -639,6 +673,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           icon: Icons.school_outlined,
           color: AppColors.primary,
           onTap: () => context.push(AppRoutes.training),
+        ),
+        _GridItem(
+          title: 'Holidays',
+          description: 'Company calendar',
+          icon: Icons.celebration_outlined,
+          color: const Color(0xFFEAB308), // Yellow/Gold
+          onTap: () => context.push(AppRoutes.employeeHolidays),
+        ),
+        _GridItem(
+          title: 'Rules',
+          description: 'Company policies',
+          icon: Icons.shield_outlined,
+          color: Colors.teal,
+          onTap: () => context.push(AppRoutes.companyRules),
         ),
       ],
     );

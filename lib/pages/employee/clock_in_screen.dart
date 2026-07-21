@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:device_marketing_names/device_marketing_names.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -98,6 +99,61 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
     }
   }
 
+  String _mapIosMachineToName(String machine) {
+    const map = {
+      'iPhone14,2': 'iPhone 13 Pro',
+      'iPhone14,3': 'iPhone 13 Pro Max',
+      'iPhone14,4': 'iPhone 13 Mini',
+      'iPhone14,5': 'iPhone 13',
+      'iPhone14,6': 'iPhone SE (3rd Gen)',
+      'iPhone14,7': 'iPhone 14',
+      'iPhone14,8': 'iPhone 14 Plus',
+      'iPhone15,2': 'iPhone 14 Pro',
+      'iPhone15,3': 'iPhone 14 Pro Max',
+      'iPhone15,4': 'iPhone 15',
+      'iPhone15,5': 'iPhone 15 Plus',
+      'iPhone16,1': 'iPhone 15 Pro',
+      'iPhone16,2': 'iPhone 15 Pro Max',
+      'iPhone17,1': 'iPhone 16 Pro',
+      'iPhone17,2': 'iPhone 16 Pro Max',
+      'iPhone17,3': 'iPhone 16',
+      'iPhone17,4': 'iPhone 16 Plus',
+      'iPhone18,1': 'iPhone 17 Pro',
+      'iPhone18,2': 'iPhone 17 Pro Max',
+      'iPhone18,3': 'iPhone 17',
+      'iPhone18,4': 'iPhone 17 Plus',
+    };
+    return map[machine] ?? machine;
+  }
+
+  Future<String> _getDeviceName() async {
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        final androidInfo = await deviceInfo.androidInfo;
+        final brand = androidInfo.brand.isNotEmpty 
+            ? androidInfo.brand[0].toUpperCase() + androidInfo.brand.substring(1) 
+            : 'Android';
+        final model = androidInfo.model;
+        try {
+          final deviceNames = DeviceMarketingNames();
+          final String marketingName = await deviceNames.getSingleName();
+          if (marketingName.isNotEmpty) {
+            return '$brand $marketingName'.trim();
+          }
+        } catch (_) {}
+        return '$brand $model'.trim();
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        final machine = iosInfo.utsname.machine;
+        return _mapIosMachineToName(machine);
+      }
+    } catch (e) {
+      // Ignore fallback
+    }
+    return 'app';
+  }
+
   Future<void> _submitClockIn() async {
     if (_photoPath == null) return;
     
@@ -127,12 +183,14 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
     
     try {
       final repo = ref.read(attendanceRepositoryProvider);
+      final String deviceName = await _getDeviceName();
+
       if (widget.args.isClockIn) {
         if (widget.args.isOvertime) {
           await repo.overtimeIn(
             lat: widget.args.latitude,
             lng: widget.args.longitude,
-            deviceId: 'app',
+            deviceId: deviceName,
             isGeoValid: isGeoValid,
           );
         } else {
@@ -140,7 +198,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
             lat: widget.args.latitude,
             lng: widget.args.longitude,
             photoPath: _photoPath!,
-            deviceId: 'app',
+            deviceId: deviceName,
             isGeoValid: isGeoValid,
           );
         }
@@ -149,7 +207,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
           await repo.overtimeOut(
             lat: widget.args.latitude,
             lng: widget.args.longitude,
-            deviceId: 'app',
+            deviceId: deviceName,
             isGeoValid: isGeoValid,
           );
         } else {
@@ -157,7 +215,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
             lat: widget.args.latitude,
             lng: widget.args.longitude,
             photoPath: _photoPath!,
-            deviceId: 'app',
+            deviceId: deviceName,
             isGeoValid: isGeoValid,
           );
         }
