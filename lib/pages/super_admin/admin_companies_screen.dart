@@ -215,8 +215,24 @@ class AdminCompaniesScreen extends ConsumerWidget {
                 ),
                 const SizedBox(width: 4),
                 PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert_rounded,
-                      color: AppColors.grey400, size: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  color: Colors.white,
+                  surfaceTintColor: Colors.transparent,
+                  elevation: 8,
+                  position: PopupMenuPosition.under,
+                  offset: const Offset(0, 4),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.grey50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.grey200),
+                    ),
+                    child: const Icon(Icons.more_horiz_rounded,
+                        color: AppColors.grey700, size: 20),
+                  ),
                   onSelected: (action) {
                     if (action == 'edit') {
                       _showCreateEditDialog(context, ref, company: company);
@@ -233,59 +249,65 @@ class AdminCompaniesScreen extends ConsumerWidget {
                   itemBuilder: (_) => [
                     const PopupMenuItem(
                       value: 'edit',
+                      height: 44,
                       child: Row(
                         children: [
-                          Icon(Icons.edit_rounded, size: 18),
-                          SizedBox(width: 8),
-                          Text('Edit'),
+                          Icon(Icons.edit_rounded, size: 20, color: AppColors.grey600),
+                          SizedBox(width: 12),
+                          Text('Edit', style: TextStyle(color: AppColors.grey800, fontWeight: FontWeight.w600, fontSize: 14)),
                         ],
                       ),
                     ),
                     const PopupMenuItem(
                       value: 'stats',
+                      height: 44,
                       child: Row(
                         children: [
-                          Icon(Icons.bar_chart_rounded, size: 18, color: AppColors.info),
-                          SizedBox(width: 8),
-                          Text('Stats'),
+                          Icon(Icons.bar_chart_rounded, size: 20, color: AppColors.info),
+                          SizedBox(width: 12),
+                          Text('Stats', style: TextStyle(color: AppColors.grey800, fontWeight: FontWeight.w600, fontSize: 14)),
                         ],
                       ),
                     ),
                     if (isActive)
                       PopupMenuItem(
                         value: 'suspend',
+                        height: 44,
                         child: Row(
                           children: [
                             Icon(Icons.block_rounded,
-                                size: 18, color: AppColors.danger),
-                            const SizedBox(width: 8),
+                                size: 20, color: AppColors.danger),
+                            const SizedBox(width: 12),
                             const Text('Suspend',
-                                style: TextStyle(color: AppColors.danger)),
+                                style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600, fontSize: 14)),
                           ],
                         ),
                       ),
                     if (!isActive)
                       PopupMenuItem(
                         value: 'activate',
+                        height: 44,
                         child: Row(
                           children: [
                             Icon(Icons.check_circle_rounded,
-                                size: 18, color: AppColors.success),
-                            const SizedBox(width: 8),
+                                size: 20, color: AppColors.success),
+                            const SizedBox(width: 12),
                             const Text('Activate',
-                                style: TextStyle(color: AppColors.success)),
+                                style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w600, fontSize: 14)),
                           ],
                         ),
                       ),
-                    PopupMenuItem(
+                    const PopupMenuDivider(),
+                    const PopupMenuItem(
                       value: 'delete',
+                      height: 44,
                       child: Row(
                         children: [
-                          Icon(Icons.delete_forever_rounded,
-                              size: 18, color: AppColors.danger),
-                          const SizedBox(width: 8),
-                          const Text('Delete',
-                              style: TextStyle(color: AppColors.danger)),
+                          Icon(Icons.delete_outline_rounded,
+                              size: 20, color: AppColors.danger),
+                          SizedBox(width: 12),
+                          Text('Delete',
+                              style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600, fontSize: 14)),
                         ],
                       ),
                     ),

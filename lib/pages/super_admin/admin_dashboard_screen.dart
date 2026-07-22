@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_dashboard_repository.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
 
 // ── Riverpod provider ──────────────────────────────────────────────────────
 final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((
@@ -24,6 +25,7 @@ class AdminDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final dashAsync = ref.watch(adminDashboardProvider);
+    final unreadCountAsync = ref.watch(unreadCountProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -63,6 +65,39 @@ class AdminDashboardScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(Icons.notifications_outlined, color: Colors.black87),
+                if (unreadCountAsync.valueOrNull != null && unreadCountAsync.valueOrNull! > 0)
+                  Positioned(
+                    right: -4,
+                    top: -4,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.danger,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '${unreadCountAsync.valueOrNull}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            onPressed: () {
+              context.push(AppRoutes.notifications).then((_) {
+                ref.invalidate(unreadCountProvider);
+              });
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.logout_rounded, color: Colors.black87),
             onPressed: () => showLogoutConfirmation(context, ref),
           ),
@@ -71,7 +106,10 @@ class AdminDashboardScreen extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         color: AppColors.primary,
-        onRefresh: () async => ref.invalidate(adminDashboardProvider),
+        onRefresh: () async {
+          ref.invalidate(adminDashboardProvider);
+          ref.invalidate(unreadCountProvider);
+        },
         child: dashAsync.when(
           loading: () => _buildLoading(),
           error: (err, _) => _buildError(err, ref),
