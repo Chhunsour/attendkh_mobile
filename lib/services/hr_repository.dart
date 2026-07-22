@@ -283,6 +283,7 @@ class EmployeeData {
   final List<LeaveBalanceData>? leaveBalances;
   final List<AdminLeaveRequestData>? recentLeaveRequests;
   final List<AdminAttendanceRecord>? recentAttendances;
+  final String? role;
 
   const EmployeeData({
     required this.id,
@@ -318,6 +319,7 @@ class EmployeeData {
     this.leaveBalances,
     this.recentLeaveRequests,
     this.recentAttendances,
+    this.role,
   });
 
   factory EmployeeData.fromJson(Map<String, dynamic> json) {
@@ -369,6 +371,9 @@ class EmployeeData {
           : (json['recent_attendances'] as List)
               .map((e) => AdminAttendanceRecord.fromJson(e as Map<String, dynamic>))
               .toList(),
+      role: json['user'] != null && json['user']['roles'] != null && (json['user']['roles'] as List).isNotEmpty
+          ? json['user']['roles'][0]['name'] as String
+          : null,
     );
   }
 }
@@ -698,6 +703,7 @@ class HrRepository {
     String? notes,
     String? probationEndDate,
     String? terminationDate,
+    String? role,
     File? photo,
   }) async {
     final Map<String, dynamic> dataMap = {
@@ -727,6 +733,7 @@ class HrRepository {
       'notes': ?notes,
       'probation_end_date': ?probationEndDate,
       'termination_date': ?terminationDate,
+      'role': ?role,
     };
 
     if (photo != null) {
@@ -768,6 +775,7 @@ class HrRepository {
     String? notes,
     String? probationEndDate,
     String? terminationDate,
+    String? role,
     File? photo,
   }) async {
     final Map<String, dynamic> dataMap = {
@@ -798,6 +806,7 @@ class HrRepository {
       'notes': ?notes,
       'probation_end_date': ?probationEndDate,
       'termination_date': ?terminationDate,
+      'role': ?role,
     };
 
     if (photo != null) {

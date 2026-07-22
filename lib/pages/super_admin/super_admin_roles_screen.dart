@@ -41,7 +41,7 @@ class SuperAdminRolesScreen extends ConsumerWidget {
                 separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (context, i) {
                   final r = items[i];
-                  final isSystem = ['super_admin', 'company_owner', 'branch_manager', 'employee'].contains(r.name);
+                  final isSystem = ['super_admin', 'company_owner', 'company_admin', 'branch_manager', 'employee'].contains(r.name);
                   return Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
@@ -106,7 +106,7 @@ class SuperAdminRolesScreen extends ConsumerWidget {
 
   void _showRoleModal(BuildContext context, WidgetRef ref, SuperAdminRolesPayload payload, {RoleData? role}) {
     final isEditing = role != null;
-    final isSystemRole = isEditing && ['super_admin', 'company_owner', 'branch_manager', 'employee'].contains(role.name);
+    final isSystemRole = isEditing && ['super_admin', 'company_owner', 'company_admin', 'branch_manager', 'employee'].contains(role.name);
     
     final nameCtrl = TextEditingController(text: role?.name ?? '');
     final Set<String> selectedPermissions = Set.from(role?.permissions ?? []);

@@ -97,6 +97,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
   late TextEditingController _terminationDateCtrl;
   String? _employmentType;
   String? _employmentStatus;
+  String? _role;
   int? _departmentId;
   int? _positionId;
   int? _branchId;
@@ -138,6 +139,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     _terminationDateCtrl = TextEditingController(text: e?.terminationDate ?? '');
     _employmentType   = e?.employmentType ?? 'full_time';
     _employmentStatus = e?.employmentStatus ?? 'active';
+    _role             = e?.role ?? 'employee';
     _departmentId     = e?.departmentId;
     _positionId       = e?.positionId;
     _branchId         = e?.branchId;
@@ -238,6 +240,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
           emergencyContactRelationship: _emergRelCtrl.text.trim().isEmpty ? null : _emergRelCtrl.text.trim(),
           emergencyContactPhone:        _emergPhoneCtrl.text.trim().isEmpty ? null : _emergPhoneCtrl.text.trim(),
           notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+          role:  _role,
           photo: _pickedPhoto,
         );
       } else {
@@ -269,6 +272,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
           emergencyContactRelationship: _emergRelCtrl.text.trim().isEmpty ? null : _emergRelCtrl.text.trim(),
           emergencyContactPhone:        _emergPhoneCtrl.text.trim().isEmpty ? null : _emergPhoneCtrl.text.trim(),
           notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+          role: _role,
           photo: _pickedPhoto,
         );
       }
@@ -441,6 +445,19 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
                     const SizedBox(height: 12),
                     _buildDateField(label: 'Termination Date', ctrl: _terminationDateCtrl),
                   ],
+                  const SizedBox(height: 12),
+                  _buildDropdown<String>(
+                    label: 'System Role *',
+                    value: _role,
+                    required: true,
+                    items: const {
+                      'employee': 'Employee',
+                      'branch_manager': 'Branch Manager',
+                      'company_admin': 'Company Admin',
+                      'company_owner': 'Company Owner',
+                    },
+                    onChanged: (v) => setState(() => _role = v),
+                  ),
                   const SizedBox(height: 12),
                   _buildRow([
                     _buildDepartmentDropdown(),
