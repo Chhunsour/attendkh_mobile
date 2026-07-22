@@ -14,6 +14,7 @@ import 'package:mpg_hr_mobile_app/pages/employee/leave_request_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/payslip_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/expense_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/training_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/employee/kpi_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/holiday_calendar_screen.dart' as mpg_holiday;
 import 'package:mpg_hr_mobile_app/pages/employee/company_rules_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
@@ -28,6 +29,7 @@ import 'package:mpg_hr_mobile_app/pages/super_admin/admin_announcements_screen.d
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_audit_logs_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_support_tickets_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_settings_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/super_admin/super_admin_roles_screen.dart';
 
 // Company Admin imports
 import 'package:mpg_hr_mobile_app/pages/hr/company_admin_dashboard_screen.dart';
@@ -71,6 +73,7 @@ class AppRoutes {
   static const payslip = '/main/payslip';
   static const expense = '/main/expense';
   static const training = '/main/training';
+  static const kpi = '/main/kpi';
   static const profile = '/main/profile';
   static const editProfile = '/main/profile/edit';
   static const employeeHolidays = '/main/holidays';
@@ -80,6 +83,7 @@ class AppRoutes {
   static const admin = '/admin';
   static const adminDashboard = '/admin/dashboard';
   static const adminProfile = '/admin/profile';
+  static const superAdminRoles = '/admin/roles';
 
   // Company Admin
   static const companyAdmin = '/company-admin';
@@ -191,7 +195,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           debugPrint('🚫 Security Alert: unauthorized access to company-admin route → redirect to $target');
           return target;
         }
-        if (isVisitingEmployee && (authState.isSuperAdmin || (authState.isCompanyAdmin && !authState.isBranchManager))) {
+        if (isVisitingEmployee && location != AppRoutes.kpi && (authState.isSuperAdmin || (authState.isCompanyAdmin && !authState.isBranchManager))) {
           final target = authState.isSuperAdmin ? AppRoutes.adminDashboard : AppRoutes.companyAdmin;
           debugPrint('🚫 Security Alert: unauthorized access to employee route → redirect to $target');
           return target;
@@ -259,6 +263,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const TrainingScreen(),
       ),
       GoRoute(
+        path: AppRoutes.kpi,
+        builder: (context, state) => const KpiScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.employeeHolidays,
         builder: (context, state) => const mpg_holiday.HolidayCalendarScreen(),
       ),
@@ -307,6 +315,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminSettings,
         builder: (context, state) => const AdminSettingsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.superAdminRoles,
+        builder: (context, state) => const SuperAdminRolesScreen(),
       ),
 
       // ---- Company Admin (dashboard centric) ----

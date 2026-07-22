@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -140,19 +141,22 @@ class AdminAuditLogsScreen extends ConsumerWidget {
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 4),
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(6),
-                  blurRadius: 4,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
+          child: InkWell(
+            onTap: () => _showDetails(context, log),
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(6),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
             child: Row(
               children: [
                 Container(
@@ -191,7 +195,7 @@ class AdminAuditLogsScreen extends ConsumerWidget {
                             [
                               if (log.performedBy != null)
                                 'By ${log.performedBy}',
-                              if (log.createdAt != null) '• ${log.createdAt}',
+                              if (log.createdAt != null) '• ${_formatDate(log.createdAt)}',
                             ].join(' '),
                             style: TextStyle(
                               fontSize: 11,
@@ -208,10 +212,11 @@ class AdminAuditLogsScreen extends ConsumerWidget {
               ],
             ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 
   String _formatAction(String action) {
     return action
@@ -220,5 +225,175 @@ class AdminAuditLogsScreen extends ConsumerWidget {
           RegExp(r'\b\w'),
           (m) => m.group(0)!.toUpperCase(),
         );
+  }
+
+  String _formatDate(String? rawDate) {
+    if (rawDate == null) return '';
+    try {
+      final dt = DateTime.parse(rawDate).toLocal();
+      return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return rawDate;
+    }
+  }
+
+  void _showDetails(BuildContext context, AdminAuditLog log) {
+    if (log.changes == null || log.changes!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('No details available for this log'),
+          backgroundColor: AppColors.grey800,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final changes = log.changes!;
+    final attributes = changes['attributes'] as Map<String, dynamic>? ?? {};
+    final old = changes['old'] as Map<String, dynamic>? ?? {};
+
+    final hasStandardStructure = attributes.isNotEmpty || old.isNotEmpty;
+    final dataToShow = hasStandardStructure ? attributes : changes;
+    final keys = dataToShow.keys.where((k) => k != 'created_at' && k != 'updated_at').toList();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            top: 24,
+            left: 24,
+            right: 24,
+            bottom: MediaQuery.of(context).padding.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Changes',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.grey900,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.5,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.grey200),
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: keys.length,
+                  separatorBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(color: AppColors.grey200, height: 1),
+                  ),
+                  itemBuilder: (context, index) {
+                    final key = keys[index];
+                    final newValue = dataToShow[key]?.toString() ?? 'null';
+                    final oldValue = hasStandardStructure ? (old[key]?.toString() ?? 'null') : null;
+                    
+                    final displayKey = key.replaceAll('_', ' ').replaceAllMapped(
+                        RegExp(r'\b\w'), (m) => m.group(0)!.toUpperCase());
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayKey,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.grey500,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        if (hasStandardStructure && old.containsKey(key))
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  oldValue!,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.danger,
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Icon(Icons.arrow_forward_rounded, size: 16, color: AppColors.grey400),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  newValue,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.success,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        else
+                          Text(
+                            newValue,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: AppColors.grey800,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

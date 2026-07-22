@@ -430,14 +430,17 @@ class _AnnouncementFormSheetState
                       decoration: _inputDecoration('Body'),
                     ),
                     const SizedBox(height: 14),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Publish immediately',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w600)),
-                      value: _isPublished,
-                      activeThumbColor: AppColors.primary,
-                      onChanged: (v) => setState(() => _isPublished = v),
+                    Material(
+                      color: Colors.transparent,
+                      child: SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Publish immediately',
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w600)),
+                        value: _isPublished,
+                        activeThumbColor: AppColors.primary,
+                        onChanged: (v) => setState(() => _isPublished = v),
+                      ),
                     ),
                     const SizedBox(height: 24),
                     SizedBox(

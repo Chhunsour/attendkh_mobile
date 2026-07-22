@@ -27,7 +27,7 @@ class AdminSupportTicket {
     return AdminSupportTicket(
       id: json['id'] as int? ?? 0,
       subject: json['subject'] as String? ?? '',
-      description: json['description'] as String?,
+      description: json['message'] as String?,
       status: json['status'] as String? ?? 'open',
       userName: user?['name'] as String?,
       companyName: company?['name'] as String?,

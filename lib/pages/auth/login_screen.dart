@@ -97,32 +97,51 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final size = MediaQuery.of(context).size;
+    final viewInsets = MediaQuery.of(context).viewInsets;
+    final padding = MediaQuery.of(context).padding;
+    double formTop = size.height * 0.40 - viewInsets.bottom;
+    if (formTop < padding.top + 20) {
+      formTop = padding.top + 20;
+    }
 
     return Scaffold(
       backgroundColor: _white,
       body: Stack(
         children: [
           // ── Layer 1: Full-screen garage/workshop background image ──
-          Image.asset(
-            'assets/images/background_image_without_logo.png',
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF1A1A2E),
-                    Color(0xFF16213E),
-                    Color(0xFF0F3460),
-                  ],
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: size.height,
+            child: Image.asset(
+              'assets/images/background_image_without_logo.png',
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF1A1A2E),
+                      Color(0xFF16213E),
+                      Color(0xFF0F3460),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
 
           // ── Layer 2: Dark overlay (45 % opacity) ──
-          Container(color: const Color(0x73000000)),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: size.height,
+            child: Container(color: const Color(0x73000000)),
+          ),
 
           // ── Layer 3: Logo + branding (top-center, absolute) ──
           FadeTransition(
@@ -140,7 +159,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             left: 0,
             right: 0,
             bottom: 0,
-            top: MediaQuery.of(context).size.height * 0.40,
+            top: formTop,
+
             child: SlideTransition(
               position: _slideAnim,
               child: ClipRRect(

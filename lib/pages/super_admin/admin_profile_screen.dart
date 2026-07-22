@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
+import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 
@@ -18,6 +21,11 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
 
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _addressController;
+
+  String? _gender;
+  DateTime? _dateOfBirth;
 
   final _currentPasswordController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -25,6 +33,8 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
 
   bool _isSavingProfile = false;
   bool _isSavingPassword = false;
+  
+  File? _photo;
 
   late final ProfileRepository _profileRepo;
 
@@ -37,16 +47,50 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
     final auth = ref.read(authProvider);
     _nameController = TextEditingController(text: auth.userName ?? '');
     _emailController = TextEditingController(text: auth.userEmail ?? '');
+    _phoneController = TextEditingController();
+    _addressController = TextEditingController();
+
+    // After first frame, fetch profile to get additional fields
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProfileData();
+    });
+  }
+
+  Future<void> _loadProfileData() async {
+    try {
+      final profile = await _profileRepo.getProfile();
+      if (!mounted) return;
+      setState(() {
+        _phoneController.text = profile.phone ?? '';
+        _addressController.text = profile.address ?? '';
+        _gender = profile.gender;
+        if (profile.dateOfBirth != null) {
+          _dateOfBirth = DateTime.tryParse(profile.dateOfBirth!);
+        }
+      });
+    } catch (e) {
+      // Handle error or ignore
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
     _currentPasswordController.dispose();
     _passwordController.dispose();
     _passwordConfirmController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() => _photo = File(pickedFile.path));
+    }
   }
 
   Future<void> _saveProfile() async {
@@ -54,9 +98,15 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
 
     setState(() => _isSavingProfile = true);
     try {
+      final String phone = _phoneController.text.trim();
       await _profileRepo.updateProfile(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
+        phone: phone.isNotEmpty ? phone : null,
+        gender: _gender,
+        dateOfBirth: _dateOfBirth != null ? "${_dateOfBirth!.year}-${_dateOfBirth!.month.toString().padLeft(2, '0')}-${_dateOfBirth!.day.toString().padLeft(2, '0')}" : null,
+        address: _addressController.text.trim().isNotEmpty ? _addressController.text.trim() : null,
+        photo: _photo,
       );
 
       // We should ideally sync this back to AuthNotifier, but the easiest
@@ -64,6 +114,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
       // or we can manually update the state if we wanted. 
       // For now, checkAuthStatus will refresh the whole user.
       await ref.read(authProvider.notifier).checkAuthStatus();
+      ref.invalidate(profileProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -170,6 +221,47 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     const Text('Update your account\'s profile information and email address.', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
                     const SizedBox(height: 24),
 
+                    // Profile Photo
+                    Center(
+                      child: GestureDetector(
+                        onTap: _pickImage,
+                        child: Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            CircleAvatar(
+                              radius: 40,
+                              backgroundColor: AppColors.grey200,
+                              backgroundImage: _photo != null
+                                  ? FileImage(_photo!)
+                                  : (ref.watch(profileProvider).value?.photoUrl != null 
+                                      ? NetworkImage(ref.watch(profileProvider).value!.photoUrl!) 
+                                      : null) as ImageProvider?,
+                              child: (_photo == null && ref.watch(profileProvider).value?.photoUrl == null)
+                                  ? const Icon(Icons.person, size: 40, color: AppColors.grey400)
+                                  : null,
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: AppColors.grey200, width: 1),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withAlpha(20),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(Icons.camera_alt_outlined, size: 14, color: Colors.black87),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
                     // Name
                     _buildLabel('Name'),
                     TextFormField(
@@ -185,6 +277,69 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) => v!.trim().isEmpty ? 'Required' : null,
+                      decoration: _inputDecoration(),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Phone
+                    _buildLabel('Phone'),
+                    TextFormField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      decoration: _inputDecoration(),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Gender Dropdown
+                    _buildLabel('Gender'),
+                    DropdownButtonFormField<String>(
+                      initialValue: _gender,
+                      decoration: _inputDecoration(),
+                      items: const [
+                        DropdownMenuItem(value: 'male', child: Text('Male')),
+                        DropdownMenuItem(value: 'female', child: Text('Female')),
+                        DropdownMenuItem(value: 'other', child: Text('Other')),
+                      ],
+                      onChanged: (val) => setState(() => _gender = val),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Date of Birth
+                    _buildLabel('Date of Birth'),
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: _dateOfBirth ?? DateTime(2000),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+                        if (picked != null) {
+                          setState(() => _dateOfBirth = picked);
+                        }
+                      },
+                      child: Container(
+                        height: 48,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.grey200),
+                          borderRadius: BorderRadius.circular(8),
+                          color: const Color(0xFFF8FAFC),
+                        ),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _dateOfBirth != null ? "${_dateOfBirth!.year}-${_dateOfBirth!.month.toString().padLeft(2, '0')}-${_dateOfBirth!.day.toString().padLeft(2, '0')}" : 'Select Date',
+                          style: TextStyle(fontSize: 14, color: _dateOfBirth != null ? Colors.black87 : AppColors.grey500),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Address
+                    _buildLabel('Address'),
+                    TextFormField(
+                      controller: _addressController,
+                      maxLines: 3,
                       decoration: _inputDecoration(),
                     ),
                     const SizedBox(height: 24),

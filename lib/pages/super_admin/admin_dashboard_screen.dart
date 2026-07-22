@@ -8,7 +8,9 @@ import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 
 // ── Riverpod provider ──────────────────────────────────────────────────────
-final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((ref) {
+final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((
+  ref,
+) {
   return AdminDashboardRepository().getDashboard();
 });
 
@@ -38,16 +40,23 @@ class AdminDashboardScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 color: AppColors.primary.withAlpha(20),
               ),
-              child: const Icon(Icons.shield_rounded, color: AppColors.primary, size: 18),
+              child: const Icon(
+                Icons.shield_rounded,
+                color: AppColors.primary,
+                size: 18,
+              ),
             ),
             const SizedBox(width: 10),
-            const Text(
-              'Platform Admin',
-              style: TextStyle(
-                color: Colors.black87,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                fontFamily: 'Inter',
+            const Flexible(
+              child: Text(
+                'Platform Admin',
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Inter',
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -118,7 +127,11 @@ class AdminDashboardScreen extends ConsumerWidget {
                 color: AppColors.danger.withAlpha(15),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 36),
+              child: Icon(
+                Icons.wifi_off_rounded,
+                color: AppColors.danger,
+                size: 36,
+              ),
             ),
             const SizedBox(height: 20),
             const Text(
@@ -148,8 +161,13 @@ class AdminDashboardScreen extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -159,7 +177,11 @@ class AdminDashboardScreen extends ConsumerWidget {
   }
 
   // ── Main Content ───────────────────────────────────────────────────────────
-  Widget _buildContent(BuildContext context, AdminDashboardData data, AuthState auth) {
+  Widget _buildContent(
+    BuildContext context,
+    AdminDashboardData data,
+    AuthState auth,
+  ) {
     final stats = data.stats;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
@@ -197,12 +219,29 @@ class AdminDashboardScreen extends ConsumerWidget {
             ),
             _buildGridItem(
               context,
+              title: 'Roles',
+              description: 'Manage access',
+              icon: Icons.shield_rounded,
+              color: const Color(0xFF8B5CF6),
+              routePath: AppRoutes.superAdminRoles,
+            ),
+            _buildGridItem(
+              context,
               title: 'Support Tickets',
               description: 'User queries',
               icon: Icons.support_agent_rounded,
               color: const Color(0xFFF59E0B),
               routePath: AppRoutes.adminSupportTickets,
             ),
+            _buildGridItem(
+              context,
+              title: 'KPIs',
+              description: 'Performance goals',
+              icon: Icons.track_changes_outlined,
+              color: AppColors.primary,
+              routePath: AppRoutes.kpi,
+            ),
+
             _buildGridItem(
               context,
               title: 'Announcements',
@@ -309,27 +348,37 @@ class AdminDashboardScreen extends ConsumerWidget {
 
         // ── Recent Company Signups
         if (data.recentSignups.isNotEmpty) ...[
-          _buildSectionHeader('Recent Company Signups', Icons.business_center_rounded),
+          _buildSectionHeader(
+            'Recent Company Signups',
+            Icons.business_center_rounded,
+          ),
           const SizedBox(height: 12),
-          ...data.recentSignups.map((item) => _ActivityTile(
-                item: item,
-                icon: Icons.business_rounded,
-                iconBg: const Color(0xFFEEF2FF),
-                iconColor: const Color(0xFF6366F1),
-              )),
+          ...data.recentSignups.map(
+            (item) => _ActivityTile(
+              item: item,
+              icon: Icons.business_rounded,
+              iconBg: const Color(0xFFEEF2FF),
+              iconColor: const Color(0xFF6366F1),
+            ),
+          ),
           const SizedBox(height: 24),
         ],
 
         // ── Recent Support Tickets
         if (data.recentTickets.isNotEmpty) ...[
-          _buildSectionHeader('Recent Support Tickets', Icons.support_agent_rounded),
+          _buildSectionHeader(
+            'Recent Support Tickets',
+            Icons.support_agent_rounded,
+          ),
           const SizedBox(height: 12),
-          ...data.recentTickets.map((item) => _ActivityTile(
-                item: item,
-                icon: Icons.confirmation_number_rounded,
-                iconBg: const Color(0xFFFFFBEB),
-                iconColor: const Color(0xFFF59E0B),
-              )),
+          ...data.recentTickets.map(
+            (item) => _ActivityTile(
+              item: item,
+              icon: Icons.confirmation_number_rounded,
+              iconBg: const Color(0xFFFFFBEB),
+              iconColor: const Color(0xFFF59E0B),
+            ),
+          ),
         ],
       ],
     );
@@ -434,7 +483,10 @@ class AdminDashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withAlpha(50),
                     borderRadius: BorderRadius.circular(20),
@@ -459,7 +511,11 @@ class AdminDashboardScreen extends ConsumerWidget {
               color: Colors.white.withAlpha(15),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.shield_rounded, color: Colors.white, size: 32),
+            child: const Icon(
+              Icons.shield_rounded,
+              color: Colors.white,
+              size: 32,
+            ),
           ),
         ],
       ),
@@ -683,9 +739,10 @@ class _ShimmerEffectState extends State<_ShimmerEffect>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat();
-    _anim = Tween<double>(begin: -1, end: 2).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
+    _anim = Tween<double>(
+      begin: -1,
+      end: 2,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override

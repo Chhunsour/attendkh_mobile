@@ -675,6 +675,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           onTap: () => context.push(AppRoutes.training),
         ),
         _GridItem(
+          title: 'My KPIs',
+          description: 'Performance goals',
+          icon: Icons.track_changes_outlined,
+          color: AppColors.primary,
+          onTap: () => context.push(AppRoutes.kpi),
+        ),
+        _GridItem(
           title: 'Holidays',
           description: 'Company calendar',
           icon: Icons.celebration_outlined,

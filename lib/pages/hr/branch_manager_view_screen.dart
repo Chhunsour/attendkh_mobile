@@ -7,6 +7,7 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
+import 'branch_payroll_settings_screen.dart';
 
 // ── Scoped providers for branch-specific data ─────────────────────────────────
 
@@ -264,6 +265,18 @@ class BranchManagerViewScreen extends ConsumerWidget {
                     color: const Color(0xFF8B5CF6),
                     routePath: AppRoutes.adminEmployees,
                   ),
+                  _buildGridItem(
+                    context,
+                    title: 'Payroll Settings',
+                    description: 'Rules & overtime',
+                    icon: Icons.calculate_rounded,
+                    color: const Color(0xFFF59E0B),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => BranchPayrollSettingsScreen(branchId: branchId, branchName: branchName),
+                      ));
+                    },
+                  ),
                 ],
               ),
 
@@ -420,10 +433,13 @@ class BranchManagerViewScreen extends ConsumerWidget {
     required String description,
     required IconData icon,
     required Color color,
-    required String routePath,
+    String? routePath,
+    VoidCallback? onTap,
   }) {
     return InkWell(
-      onTap: () => context.push(routePath),
+      onTap: onTap ?? () {
+        if (routePath != null) context.push(routePath);
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(14),

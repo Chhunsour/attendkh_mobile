@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:geolocator/geolocator.dart';
 import 'branch_payroll_settings_screen.dart';
@@ -3453,8 +3454,10 @@ class _OrgChartTab extends ConsumerStatefulWidget {
 
 class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
   late TextEditingController _searchCtrl;
+  final TransformationController _transformCtrl = TransformationController();
   String _searchQuery = '';
   int _maxDepth = 2;
+  String _layoutMode = 'hybrid';
 
   // Dept colors for visual grouping
   static const _deptColors = [
@@ -3501,7 +3504,18 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _transformCtrl.dispose();
     super.dispose();
+  }
+
+  void _zoom(double factor) {
+    final matrix = _transformCtrl.value.clone();
+    final currentScale = matrix.getMaxScaleOnAxis();
+    final targetScale = (currentScale * factor).clamp(0.2, 3.0);
+    final actualFactor = targetScale / currentScale;
+    // ignore: deprecated_member_use
+    matrix.scale(actualFactor);
+    _transformCtrl.value = matrix;
   }
 
   bool _nodeMatches(OrgNode node, String query) {
@@ -3588,8 +3602,16 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(colors: [Color(0xFF374151), Color(0xFF111827)], begin: Alignment.topLeft, end: Alignment.bottomRight),
                         borderRadius: BorderRadius.circular(12),
+                        image: node.photo != null && node.photo!.isNotEmpty
+                            ? DecorationImage(
+                                image: NetworkImage(node.photo!.startsWith('http') ? node.photo! : '${DioClient.storageUrl}/${node.photo!.startsWith('/') ? node.photo!.substring(1) : node.photo!}'),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
                       ),
-                      child: Center(child: Text(node.initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16))),
+                      child: node.photo == null || node.photo!.isEmpty
+                          ? Center(child: Text(node.initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)))
+                          : null,
                     ),
                     Positioned(
                       bottom: -2, right: -2,
@@ -3640,7 +3662,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
       return Padding(padding: const EdgeInsets.only(bottom: 12), child: nodeCard);
     }
 
-    if (depth == 0) {
+    if (depth == 0 && _layoutMode == 'hybrid') {
       // Horizontal layout for root's children
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -3708,11 +3730,9 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                         ),
                       ),
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 12.0),
-                        child: _buildNode(child, depth + 1),
-                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: _buildNode(child, depth + 1),
                     ),
                   ],
                 ),
@@ -3849,58 +3869,77 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                         ),
                       ),
                       const Spacer(),
-                      // Depth label
-                      const Text(
-                        'Depth',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey400),
+                      // Layout Toggle
+                      Container(
+                        height: 34,
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: AppColors.grey50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.grey200),
+                        ),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => setState(() => _layoutMode = 'hybrid'),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: _layoutMode == 'hybrid' ? Colors.white : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: _layoutMode == 'hybrid' ? [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 4, offset: const Offset(0, 2))] : null,
+                                ),
+                                child: Icon(Icons.account_tree_rounded, size: 16, color: _layoutMode == 'hybrid' ? AppColors.primary : AppColors.grey400),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => setState(() => _layoutMode = 'vertical'),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: _layoutMode == 'vertical' ? Colors.white : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: _layoutMode == 'vertical' ? [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 4, offset: const Offset(0, 2))] : null,
+                                ),
+                                child: Icon(Icons.format_list_bulleted_rounded, size: 16, color: _layoutMode == 'vertical' ? AppColors.primary : AppColors.grey400),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      // Depth buttons
-                      ...[1, 2, 3, 4, 5].map((level) {
-                        final active = _maxDepth == level;
-                        return GestureDetector(
-                          key: ValueKey('depth$level'),
-                          onTap: () => setState(() => _maxDepth = level),
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            margin: const EdgeInsets.symmetric(horizontal: 2),
-                            decoration: BoxDecoration(
-                              color: active ? AppColors.primary : AppColors.grey100,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '$level',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: active ? Colors.white : AppColors.grey500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                      const SizedBox(width: 4),
-                      GestureDetector(
-                        onTap: () => setState(() => _maxDepth = _maxDepth == -1 ? 2 : -1),
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: _maxDepth == -1 ? AppColors.primary : AppColors.grey100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '∞',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: _maxDepth == -1 ? Colors.white : AppColors.grey500,
-                              ),
-                            ),
+                      // Depth Dropdown
+                      Container(
+                        height: 34,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.grey50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.grey200),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<int>(
+                            value: _maxDepth,
+                            icon: const Icon(Icons.unfold_more_rounded, size: 16, color: AppColors.grey500),
+                            iconSize: 16,
+                            elevation: 4,
+                            dropdownColor: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            isDense: true,
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700),
+                            onChanged: (int? newValue) {
+                              if (newValue != null) {
+                                setState(() => _maxDepth = newValue);
+                              }
+                            },
+                            items: const [
+                              DropdownMenuItem(value: -1, child: Text('Expand All')),
+                              DropdownMenuItem(value: 1, child: Text('Show 1 Level')),
+                              DropdownMenuItem(value: 2, child: Text('Show 2 Levels')),
+                              DropdownMenuItem(value: 3, child: Text('Show 3 Levels')),
+                              DropdownMenuItem(value: 4, child: Text('Show 4 Levels')),
+                              DropdownMenuItem(value: 5, child: Text('Show 5 Levels')),
+                            ],
                           ),
                         ),
                       ),
@@ -3914,19 +3953,48 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
             Expanded(
               child: Container(
                 color: const Color(0xFFF1F5F9), // Slight gray background for contrast
-                child: InteractiveViewer(
-                  minScale: 0.2,
-                  maxScale: 3.0,
-                  constrained: false,
-                  boundaryMargin: const EdgeInsets.all(500), // Lots of pan room
-                  child: Padding(
-                    padding: const EdgeInsets.all(64.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: tree.map((root) => _buildNode(root, 0)).toList(),
+                child: Stack(
+                  children: [
+                    InteractiveViewer(
+                      transformationController: _transformCtrl,
+                      minScale: 0.2,
+                      maxScale: 3.0,
+                      constrained: false,
+                      boundaryMargin: const EdgeInsets.all(500), // Lots of pan room
+                      child: Padding(
+                        padding: const EdgeInsets.all(64.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: tree.map((root) => _buildNode(root, 0)).toList(),
+                        ),
+                      ),
                     ),
-                  ),
+                    Positioned(
+                      right: 16,
+                      bottom: 16,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FloatingActionButton.small(
+                            heroTag: 'zoomIn',
+                            onPressed: () => _zoom(1.3),
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppColors.grey700,
+                            child: const Icon(Icons.add_rounded),
+                          ),
+                          const SizedBox(height: 8),
+                          FloatingActionButton.small(
+                            heroTag: 'zoomOut',
+                            onPressed: () => _zoom(1 / 1.3),
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppColors.grey700,
+                            child: const Icon(Icons.remove_rounded),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

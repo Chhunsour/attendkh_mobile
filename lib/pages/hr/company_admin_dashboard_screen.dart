@@ -9,6 +9,8 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
+import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
+import 'branch_payroll_settings_screen.dart';
 
 class CompanyAdminDashboardScreen extends ConsumerWidget {
   const CompanyAdminDashboardScreen({super.key});
@@ -128,13 +130,16 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 10),
-            const Text(
-              'HR Dashboard',
-              style: TextStyle(
-                color: Colors.black87,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                fontFamily: 'Inter',
+            const Flexible(
+              child: Text(
+                'HR Dashboard',
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Inter',
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -413,6 +418,15 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
               if (authState.isCompanyAdmin || authState.isBranchManager)
                 _buildGridItem(
                   context,
+                  title: 'KPIs',
+                  description: 'Performance goals',
+                  icon: Icons.track_changes_outlined,
+                  color: AppColors.primary,
+                  routePath: AppRoutes.kpi,
+                ),
+              if (authState.isCompanyAdmin || authState.isBranchManager)
+                _buildGridItem(
+                  context,
                   title: 'Employees',
                   description: 'Manage staff',
                   icon: Icons.people_rounded,
@@ -454,6 +468,29 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
                   icon: Icons.event_busy_rounded,
                   color: const Color(0xFFEF4444),
                   routePath: AppRoutes.adminLeave,
+                ),
+              if (authState.isBranchManager && !authState.isCompanyAdmin)
+                _buildGridItem(
+                  context,
+                  title: 'Branch Settings',
+                  description: 'Payroll & rules',
+                  icon: Icons.settings_applications_rounded,
+                  color: const Color(0xFFF97316),
+                  onTap: () {
+                    final profile = ref.read(profileProvider).value;
+                    if (profile != null && profile.branchId != null) {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (_) => BranchPayrollSettingsScreen(
+                          branchId: profile.branchId!,
+                          branchName: profile.branchName ?? 'Branch',
+                        ),
+                      ));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Branch information is missing. Please refresh profile.')),
+                      );
+                    }
+                  },
                 ),
               if (authState.isCompanyAdmin)
                 _buildGridItem(
@@ -755,10 +792,13 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
     required String description,
     required IconData icon,
     required Color color,
-    required String routePath,
+    String? routePath,
+    VoidCallback? onTap,
   }) {
     return InkWell(
-      onTap: () => context.push(routePath),
+      onTap: onTap ?? () {
+        if (routePath != null) context.push(routePath);
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(14),

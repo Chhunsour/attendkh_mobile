@@ -10,6 +10,7 @@ class ProfileData {
   final int companyId;
   final List<String> roles;
   final String? companyName;
+  final int? branchId;
   final String? branchName;
   final double? branchLat;
   final double? branchLng;
@@ -28,6 +29,7 @@ class ProfileData {
     this.email,
     required this.companyId,
     this.companyName,
+    this.branchId,
     this.branchName,
     this.branchLat,
     this.branchLng,
@@ -55,6 +57,7 @@ class ProfileData {
       email: user['email'] as String?,
       companyId: companyIdRaw is int ? companyIdRaw : 0,
       companyName: company?['name'] as String?,
+      branchId: user['branch_id'] as int?,
       branchName: user['branch_name'] as String?,
       branchLat: user['branch_lat'] != null ? double.tryParse(user['branch_lat'].toString()) : null,
       branchLng: user['branch_lng'] != null ? double.tryParse(user['branch_lng'].toString()) : null,

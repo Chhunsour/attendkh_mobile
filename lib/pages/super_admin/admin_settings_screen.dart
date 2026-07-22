@@ -8,25 +8,12 @@ final adminSettingsProvider =
   return AdminSettingsRepository().getSettings();
 });
 
-/// Keys that should be rendered as toggle switches (boolean values).
-/// All other keys render as text fields.
-const _booleanSettingKeys = {
-  'auto_approve_companies',
-  'send_welcome_email',
-  'registration_open',
-  'require_email_verification',
-  'enforce_2fa',
-  'new_company_alert',
-  'suspicious_activity_alert',
-  'new_ticket_notification',
-};
-
 /// Defaults used when the server doesn't provide a value.
 const _defaults = <String, String>{
-  'language': 'English',
-  'timezone': 'UTC+7',
-  'currency': 'USD',
-  'session_timeout': '8',
+  'app_name': 'MPG HR',
+  'support_email': 'support@example.com',
+  'default_timezone': 'Asia/Phnom_Penh',
+  'default_currency': 'USD',
 };
 
 class AdminSettingsScreen extends ConsumerWidget {
@@ -119,22 +106,13 @@ class _SettingsEditor extends ConsumerStatefulWidget {
 class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
   bool _isSaving = false;
 
-  /// Holds the mutable local values.  String keys → TextEditingControllers,
-  /// boolean keys → plain bool stored directly in [_boolValues].
+  /// Holds the mutable local values.
   late final Map<String, TextEditingController> _controllers;
-  late final Map<String, bool> _boolValues;
 
   @override
   void initState() {
     super.initState();
     _controllers = {};
-    _boolValues = {};
-
-    // Populate from server data
-    for (final key in _booleanSettingKeys) {
-      final raw = widget.settings[key];
-      _boolValues[key] = _parseBool(raw, _defaults[key] == 'true');
-    }
   }
 
   TextEditingController _getController(String key) {
@@ -145,13 +123,6 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
       );
     }
     return _controllers[key]!;
-  }
-
-  bool _parseBool(dynamic value, bool fallback) {
-    if (value is bool) return value;
-    if (value is String) return value.toLowerCase() == 'true';
-    if (value is int) return value == 1;
-    return fallback;
   }
 
   @override
@@ -170,9 +141,6 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
       final data = <String, String>{};
       for (final entry in _controllers.entries) {
         data[entry.key] = entry.value.text.trim();
-      }
-      for (final entry in _boolValues.entries) {
-        data[entry.key] = entry.value.toString();
       }
 
       await AdminSettingsRepository().updateSettings(data);
@@ -204,56 +172,55 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
   Widget _buildTextField(String key, String label, IconData icon,
       {TextInputType keyboardType = TextInputType.text}) {
     final ctrl = _getController(key);
-    return _SettingsRow(
-      icon: icon,
-      label: label,
-      trailing: SizedBox(
-        width: 130,
-        child: TextFormField(
-          controller: ctrl,
-          textAlign: TextAlign.end,
-          keyboardType: keyboardType,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.primary,
-            fontFamily: 'Inter',
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: AppColors.grey500),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.grey700,
+                ),
+              ),
+            ],
           ),
-          decoration: InputDecoration(
-            isDense: true,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppColors.grey200),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: ctrl,
+            keyboardType: keyboardType,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black87,
+              fontFamily: 'Inter',
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppColors.grey200),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AppColors.primary),
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppColors.grey200),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppColors.grey200),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: AppColors.primary),
+              ),
+              filled: true,
+              fillColor: Colors.white,
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  // ── Switch toggle for boolean settings ────────────────────────────────────
-  Widget _buildSwitch(String key, String label, IconData icon) {
-    final value = _boolValues[key] ?? false;
-    return _SettingsRow(
-      icon: icon,
-      label: label,
-      trailing: SizedBox(
-        height: 28,
-        child: Switch(
-          value: value,
-          activeThumbColor: AppColors.primary,
-          onChanged: (v) => setState(() => _boolValues[key] = v),
-        ),
+        ],
       ),
     );
   }
@@ -263,82 +230,15 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // ── General ──
-        _SectionTitle(title: 'General'),
-        const SizedBox(height: 8),
-        _buildTextField('language', 'Default Language', Icons.language_rounded),
-        _buildTextField('timezone', 'Default Timezone', Icons.schedule_rounded),
-        _buildTextField(
-          'currency',
-          'Default Currency',
-          Icons.attach_money_rounded,
-        ),
+        // ── Global Settings ──
+        _SectionTitle(title: 'Global Settings'),
+        const SizedBox(height: 16),
+        _buildTextField('app_name', 'Application Name', Icons.app_shortcut_rounded),
+        _buildTextField('support_email', 'Support Email', Icons.email_rounded, keyboardType: TextInputType.emailAddress),
+        _buildTextField('default_timezone', 'Default Timezone', Icons.schedule_rounded),
+        _buildTextField('default_currency', 'Default Currency', Icons.attach_money_rounded),
 
         const SizedBox(height: 24),
-
-        // ── Registration ──
-        _SectionTitle(title: 'Registration'),
-        const SizedBox(height: 8),
-        _buildSwitch(
-          'auto_approve_companies',
-          'Auto-approve Companies',
-          Icons.person_add_rounded,
-        ),
-        _buildSwitch(
-          'send_welcome_email',
-          'Send Welcome Email',
-          Icons.email_rounded,
-        ),
-        _buildSwitch(
-          'registration_open',
-          'Registration Open',
-          Icons.app_registration_rounded,
-        ),
-
-        const SizedBox(height: 24),
-
-        // ── Security ──
-        _SectionTitle(title: 'Security'),
-        const SizedBox(height: 8),
-        _buildSwitch(
-          'require_email_verification',
-          'Require Email Verification',
-          Icons.verified_user_rounded,
-        ),
-        _buildSwitch(
-          'enforce_2fa',
-          'Enforce 2FA for Admins',
-          Icons.security_rounded,
-        ),
-        _buildTextField(
-          'session_timeout',
-          'Session Timeout (hours)',
-          Icons.timer_rounded,
-          keyboardType: TextInputType.number,
-        ),
-
-        const SizedBox(height: 24),
-
-        // ── Notifications ──
-        _SectionTitle(title: 'Notifications'),
-        const SizedBox(height: 8),
-        _buildSwitch(
-          'new_company_alert',
-          'New Company Alert',
-          Icons.notifications_active_rounded,
-        ),
-        _buildSwitch(
-          'suspicious_activity_alert',
-          'Suspicious Activity Alert',
-          Icons.report_rounded,
-        ),
-        _buildSwitch(
-          'new_ticket_notification',
-          'New Ticket Notification',
-          Icons.confirmation_number_rounded,
-        ),
-
-        const SizedBox(height: 28),
 
         // ── Save Button ──
         SizedBox(
@@ -375,47 +275,6 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
         ),
         const SizedBox(height: 32),
       ],
-    );
-  }
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-//  Reusable row widget
-// ══════════════════════════════════════════════════════════════════════════════
-class _SettingsRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Widget trailing;
-
-  const _SettingsRow({
-    required this.icon,
-    required this.label,
-    required this.trailing,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 2),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: AppColors.grey100)),
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: Icon(icon, color: AppColors.grey500, size: 20),
-        title: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: AppColors.grey800,
-            fontFamily: 'Inter',
-          ),
-        ),
-        trailing: trailing,
-      ),
     );
   }
 }

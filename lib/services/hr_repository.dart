@@ -436,8 +436,8 @@ class OrgNode {
       phone: json['phone'] as String?,
       positionName: json['position']?['name'] as String?,
       departmentName: json['department']?['name'] as String?,
-      subordinates: json['subordinates'] != null
-          ? (json['subordinates'] as List)
+      subordinates: (json['all_subordinates'] ?? json['subordinates']) != null
+          ? ((json['all_subordinates'] ?? json['subordinates']) as List)
               .map((e) => OrgNode.fromJson(e as Map<String, dynamic>))
               .toList()
           : null,
