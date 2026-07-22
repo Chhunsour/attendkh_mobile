@@ -19,6 +19,7 @@ import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/providers/dashboard_provider.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
+import 'package:mpg_hr_mobile_app/services/announcements_repository.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -337,14 +338,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildClockCard(context, ref, today, profileAsync: profileAsync),
-              
               summaryAsync.maybeWhen(
-                data: (summary) => _buildLateWarningBanner(summary),
-                orElse: () => const SizedBox(),
+                data: (summary) => Column(
+                  children: [
+                    _buildAnnouncements(summary, isUrgent: true),
+                    _buildClockCard(context, ref, today, profileAsync: profileAsync),
+                    _buildLateWarningBanner(summary),
+                  ],
+                ),
+                orElse: () => _buildClockCard(context, ref, today, profileAsync: profileAsync),
               ),
               
               const SizedBox(height: 28),
+
+              summaryAsync.maybeWhen(
+                data: (summary) => _buildAnnouncements(summary, isUrgent: false),
+                orElse: () => const SizedBox(),
+              ),
 
               const Text(
                 'Quick Features',
@@ -446,6 +456,95 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ],
         ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _buildAnnouncements(Map<String, dynamic> summary, {required bool isUrgent}) {
+    if (summary['announcements'] == null) return const SizedBox();
+    
+    final allAnnouncements = (summary['announcements'] as List)
+        .map((e) => AnnouncementData.fromJson(e as Map<String, dynamic>))
+        .toList();
+        
+    final targetAnnouncements = allAnnouncements.where((a) {
+      if (isUrgent) {
+        return a.priority == 'urgent' || a.priority == 'high';
+      }
+      return a.priority != 'urgent' && a.priority != 'high';
+    }).toList();
+
+    if (targetAnnouncements.isEmpty) return const SizedBox();
+
+    if (isUrgent) {
+      return Column(
+        children: targetAnnouncements.map((a) => Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: a.priority == 'urgent' ? Colors.red.shade50 : Colors.orange.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: a.priority == 'urgent' ? Colors.red.shade200 : Colors.orange.shade200),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.campaign, color: a.priority == 'urgent' ? Colors.red.shade700 : Colors.orange.shade700, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(a.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: a.priority == 'urgent' ? Colors.red.shade900 : Colors.orange.shade900)),
+                    const SizedBox(height: 4),
+                    Text(a.content, style: TextStyle(color: a.priority == 'urgent' ? Colors.red.shade800 : Colors.orange.shade800)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        )).toList(),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Company Announcements',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
+        ),
+        const SizedBox(height: 12),
+        ...targetAnnouncements.map((a) => Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.grey200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              )
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(a.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.grey900)),
+              const SizedBox(height: 4),
+              Text(a.content, style: const TextStyle(color: AppColors.grey700)),
+              const SizedBox(height: 8),
+              Text(
+                a.publishedAt != null ? DateFormat('MMM dd, yyyy').format(DateTime.parse(a.publishedAt!).toLocal()) : '',
+                style: const TextStyle(fontSize: 12, color: AppColors.grey500),
+              ),
+            ],
+          ),
+        )),
         const SizedBox(height: 20),
       ],
     );
@@ -690,10 +789,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         _GridItem(
           title: 'Rules',
-          description: 'Company policies',
+          description: 'Company guidelines',
           icon: Icons.shield_outlined,
           color: Colors.teal,
           onTap: () => context.push(AppRoutes.companyRules),
+        ),
+        _GridItem(
+          title: 'Policies',
+          description: 'Legal & Compliance',
+          icon: Icons.gavel_outlined,
+          color: Colors.indigo,
+          onTap: () => context.push(AppRoutes.companyPolicies),
+        ),
+        _GridItem(
+          title: 'Documents',
+          description: 'Company files',
+          icon: Icons.folder_copy_outlined,
+          color: Colors.blueGrey,
+          onTap: () => context.push(AppRoutes.companyDocuments),
         ),
       ],
     );

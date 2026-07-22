@@ -5,6 +5,7 @@ class AnnouncementData {
   final String title;
   final String content;
   final bool isImportant;
+  final String priority;
   final bool isPublished;
   final String? publishedAt;
   final String createdAt;
@@ -14,6 +15,7 @@ class AnnouncementData {
     required this.title,
     required this.content,
     required this.isImportant,
+    this.priority = 'normal',
     required this.isPublished,
     this.publishedAt,
     required this.createdAt,
@@ -25,6 +27,7 @@ class AnnouncementData {
       title: json['title'] as String,
       content: json['content'] as String? ?? json['body'] as String? ?? '',
       isImportant: json['is_important'] as bool? ?? false,
+      priority: json['priority'] as String? ?? 'normal',
       isPublished: json['is_published'] as bool? ?? true,
       publishedAt: json['published_at'] as String?,
       createdAt: json['created_at'] as String? ?? '',

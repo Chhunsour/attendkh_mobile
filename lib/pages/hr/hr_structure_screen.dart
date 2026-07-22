@@ -101,6 +101,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
   void initState() {
     super.initState();
     _searchCtrl = TextEditingController();
+    Future.microtask(() => ref.invalidate(branchesProvider));
   }
 
   @override
@@ -190,19 +191,32 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                         email.contains(_searchQuery);
                   }).toList();
 
-                  return filteredItems.isEmpty
-                      ? _buildEmptyState(
-                          context,
-                          isFiltered: _searchQuery.isNotEmpty,
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-                          itemCount: filteredItems.length,
-                          separatorBuilder: (_, _) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, i) =>
-                              _buildItem(context, ref, filteredItems[i]),
-                        );
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      ref.invalidate(branchesProvider);
+                      return await ref.read(branchesProvider.future);
+                    },
+                    child: filteredItems.isEmpty
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.5,
+                                child: _buildEmptyState(
+                                  context,
+                                  isFiltered: _searchQuery.isNotEmpty,
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+                            itemCount: filteredItems.length,
+                            separatorBuilder: (_, _) => const SizedBox(height: 12),
+                            itemBuilder: (context, i) => _buildItem(context, ref, filteredItems[i]),
+                          ),
+                  );
                 },
                 loading: () =>
                     const LoadingIndicator(message: 'Loading branches...'),
@@ -1572,21 +1586,36 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                     return matchesSearch && matchesBranch;
                   }).toList();
 
-                  return filteredItems.isEmpty
-                      ? _buildEmptyState(
-                          context,
-                          isFiltered:
-                              _searchQuery.isNotEmpty ||
-                              _filterBranchId != null,
-                        )
-                      : ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-                          itemCount: filteredItems.length,
-                          separatorBuilder: (_, _) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, i) =>
-                              _buildItem(context, ref, filteredItems[i]),
-                        );
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      ref.invalidate(departmentsProvider);
+                      return await ref.read(departmentsProvider.future);
+                    },
+                    child: filteredItems.isEmpty
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.5,
+                                child: _buildEmptyState(
+                                  context,
+                                  isFiltered:
+                                      _searchQuery.isNotEmpty ||
+                                      _filterBranchId != null,
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+                            itemCount: filteredItems.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, i) =>
+                                _buildItem(context, ref, filteredItems[i]),
+                          ),
+                  );
                 },
                 loading: () =>
                     const LoadingIndicator(message: 'Loading departments...'),

@@ -28,6 +28,7 @@ class DocumentData {
   final String? expiresAt;
   final String? createdAt;
   final String? uploaderName;
+  final String? downloadUrl;
 
   const DocumentData({
     required this.id,
@@ -42,6 +43,7 @@ class DocumentData {
     this.expiresAt,
     this.createdAt,
     this.uploaderName,
+    this.downloadUrl,
   });
 
   factory DocumentData.fromJson(Map<String, dynamic> json) {
@@ -58,6 +60,7 @@ class DocumentData {
       expiresAt: json['expires_at'] as String?,
       createdAt: json['created_at'] as String?,
       uploaderName: json['uploader']?['name'] as String?,
+      downloadUrl: json['download_url'] as String?,
     );
   }
 }
@@ -160,4 +163,17 @@ class DocumentsRepository {
   }
 
   Future<void> deleteDocument(int id) async => _api.delete('/company/documents/$id');
+
+  // Employee endpoint
+  Future<List<DocumentData>> getEmployeeDocuments() async {
+    final response = await _api.get('/documents');
+    final data = response.data;
+    if (data is List) {
+      return data.map((e) => DocumentData.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List).map((e) => DocumentData.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    return [];
+  }
 }

@@ -17,6 +17,8 @@ import 'package:mpg_hr_mobile_app/pages/employee/training_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/kpi_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/holiday_calendar_screen.dart' as mpg_holiday;
 import 'package:mpg_hr_mobile_app/pages/employee/company_rules_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/employee/policies_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/employee/documents_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/profile/profile_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/profile/edit_profile_screen.dart';
@@ -78,6 +80,8 @@ class AppRoutes {
   static const editProfile = '/main/profile/edit';
   static const employeeHolidays = '/main/holidays';
   static const companyRules = '/main/company-rules';
+  static const companyPolicies = '/main/policies';
+  static const companyDocuments = '/main/documents';
 
   // Super Admin
   static const admin = '/admin';
@@ -273,6 +277,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.companyRules,
         builder: (context, state) => const CompanyRulesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.companyPolicies,
+        builder: (context, state) => const PoliciesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.companyDocuments,
+        builder: (context, state) => const DocumentsScreen(),
       ),
       GoRoute(
         path: AppRoutes.profile,

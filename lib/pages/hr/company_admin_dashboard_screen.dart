@@ -295,9 +295,15 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
           const SizedBox(width: 8),
         ],
       ),
-      body: ListView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-      children: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(dashboardStatsProvider);
+          ref.invalidate(branchesProvider);
+          return await ref.read(dashboardStatsProvider.future);
+        },
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+          children: [
           // ── Welcome Banner
           _buildWelcomeBanner(
             name: authState.userName ?? 'Manager',
@@ -646,6 +652,7 @@ class CompanyAdminDashboardScreen extends ConsumerWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

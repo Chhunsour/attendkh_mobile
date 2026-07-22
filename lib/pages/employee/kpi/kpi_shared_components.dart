@@ -109,13 +109,13 @@ class KpiSharedComponents {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: isMock ? Colors.orange[50] : Colors.green[50],
+                            color: isMock ? Colors.amber[50] : Colors.green[50],
                             borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: isMock ? Colors.orange[200]! : Colors.green[200]!),
+                            border: Border.all(color: isMock ? Colors.amber[200]! : Colors.green[200]!),
                           ),
                           child: Text(
-                            isMock ? 'Simulated Data' : 'Live Data',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isMock ? Colors.orange[700] : Colors.green[700]),
+                            isMock ? 'Estimated' : 'Live Data',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isMock ? Colors.amber[800] : Colors.green[700]),
                           ),
                         ),
                       ],

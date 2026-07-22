@@ -6,6 +6,7 @@ class KpiItem {
   final String unit;
   final num score;
   final String type;
+  final Map<String, dynamic> extra;
 
   KpiItem({
     required this.title,
@@ -15,6 +16,7 @@ class KpiItem {
     required this.unit,
     required this.score,
     required this.type,
+    this.extra = const {},
   });
 
   factory KpiItem.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class KpiItem {
       unit: json['unit'] ?? '',
       score: json['score'] ?? 0,
       type: json['type'] ?? '',
+      extra: (json['extra'] as Map<String, dynamic>?) ?? {},
     );
   }
 }

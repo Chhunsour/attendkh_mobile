@@ -12,6 +12,10 @@ class Policy {
   final String? effectiveDate;
   final String? reviewDate;
   final String createdAt;
+  
+  // Employee context fields
+  final bool isAcknowledged;
+  final String? acknowledgedAt;
 
   const Policy({
     required this.id,
@@ -24,6 +28,8 @@ class Policy {
     this.effectiveDate,
     this.reviewDate,
     required this.createdAt,
+    this.isAcknowledged = false,
+    this.acknowledgedAt,
   });
 
   factory Policy.fromJson(Map<String, dynamic> json) {
@@ -38,6 +44,8 @@ class Policy {
       effectiveDate: json['effective_date'] as String?,
       reviewDate: json['review_date'] as String?,
       createdAt: json['created_at'] as String? ?? '',
+      isAcknowledged: json['is_acknowledged'] as bool? ?? false,
+      acknowledgedAt: json['acknowledged_at'] as String?,
     );
   }
 }
@@ -124,4 +132,33 @@ class PoliciesRepository {
   Future<void> deletePolicy(int id) async => _api.delete('/company/policies/$id');
   Future<void> publishPolicy(int id) async => _api.post('/company/policies/$id/publish');
   Future<void> archivePolicy(int id) async => _api.post('/company/policies/$id/archive');
+
+  // ---------------------------------------------------------------------------
+  // Employee Endpoints
+  // ---------------------------------------------------------------------------
+
+  Future<List<Policy>> getEmployeePolicies() async {
+    final response = await _api.get('/policies');
+    final data = response.data;
+    if (data is List) {
+      return data.map((e) => Policy.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List).map((e) => Policy.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    return [];
+  }
+
+  Future<Policy> getEmployeePolicy(int id) async {
+    final response = await _api.get('/policies/$id');
+    final data = response.data;
+    if (data is Map && data['data'] != null) {
+      return Policy.fromJson(data['data'] as Map<String, dynamic>);
+    }
+    return Policy.fromJson(data as Map<String, dynamic>);
+  }
+
+  Future<void> acknowledgePolicy(int id) async {
+    await _api.post('/policies/$id/acknowledge');
+  }
 }
