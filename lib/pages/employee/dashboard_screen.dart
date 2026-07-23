@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -28,58 +27,41 @@ class DashboardScreen extends ConsumerStatefulWidget {
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsBindingObserver {
   bool _isClocking = false;
   Position? _currentPosition;
+  bool? _locationPermissionGranted;
   StreamSubscription<Position>? _positionStreamSubscription;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _startLocationTracking();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Re-check permissions when returning from settings
+      _startLocationTracking();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _positionStreamSubscription?.cancel();
     super.dispose();
   }
 
   Future<void> _startLocationTracking() async {
+    
     try {
-      bool isPhysicalDevice = true;
-      try {
-        final deviceInfo = DeviceInfoPlugin();
-        if (defaultTargetPlatform == TargetPlatform.android) {
-          final androidInfo = await deviceInfo.androidInfo;
-          isPhysicalDevice = androidInfo.isPhysicalDevice;
-        } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-          final iosInfo = await deviceInfo.iosInfo;
-          isPhysicalDevice = iosInfo.isPhysicalDevice;
-        }
-      } catch (_) {}
 
-      if (!isPhysicalDevice) {
-        if (mounted) {
-          setState(() {
-            _currentPosition = Position(
-              longitude: 104.9282,
-              latitude: 11.5564, 
-              timestamp: DateTime.now(),
-              accuracy: 10,
-              altitude: 0,
-              heading: 0,
-              speed: 0,
-              speedAccuracy: 0,
-              altitudeAccuracy: 0,
-              headingAccuracy: 0,
-            );
-          });
-        }
-        return;
-      }
 
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
+        if (mounted) setState(() => _locationPermissionGranted = false);
         return;
       }
 
@@ -87,13 +69,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
+          if (mounted) setState(() => _locationPermissionGranted = false);
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
+        if (mounted) setState(() => _locationPermissionGranted = false);
         return;
       }
+
+      if (mounted) setState(() => _locationPermissionGranted = true);
+
 
       // ignore: deprecated_member_use
       final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
@@ -108,6 +95,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         if (mounted) setState(() => _currentPosition = position);
       });
     } catch (e) {
+      if (mounted) setState(() => _locationPermissionGranted = false);
       AppLogger.e('Location tracking error', e);
     }
   }
@@ -676,23 +664,58 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           if (!isOvertimeCompleted)
             profileAsync.maybeWhen(
               data: (profile) {
+                if (_locationPermissionGranted == false && !isClockedIn && !isOvertimeIn && !isCompleted) {
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(color: Colors.white.withAlpha(20), borderRadius: BorderRadius.circular(16)),
+                    child: Column(
+                      children: [
+                        const Icon(Icons.location_disabled, color: Colors.white70, size: 32),
+                        const SizedBox(height: 8),
+                        const Text('Location Access Required', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        const Text('We need location access to verify your check-in distance.', style: TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () async {
+                            LocationPermission permission = await Geolocator.checkPermission();
+                            if (permission == LocationPermission.denied) {
+                              permission = await Geolocator.requestPermission();
+                            }
+                            if (permission == LocationPermission.deniedForever) {
+                              // Only open settings if permanently denied
+                              await Geolocator.openAppSettings();
+                            }
+                            _startLocationTracking();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppColors.primary,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: const Text('Enable Location', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
                 if (profile.branchLat == null || profile.branchLng == null || profile.branchRadius == null) {
                   return _buildClockButton(context, ref, isClockedIn, profile, today);
                 }
                 
                 final distance = _calculateDistance(profile);
-                if (distance == null) {
+                if (distance == null && !isClockedIn && !isOvertimeIn && !isCompleted) {
                    return const Padding(
                      padding: EdgeInsets.only(top: 8),
                      child: Text('Calculating location...', style: TextStyle(color: Colors.white70)),
                    );
                 }
 
-                if (isClockedIn || isOvertimeIn || distance <= profile.branchRadius!) {
+                if (isClockedIn || isOvertimeIn || isCompleted || (distance != null && distance <= profile.branchRadius!)) {
                   return Column(
                     children: [
                       if (!isClockedIn && !isOvertimeIn && !isCompleted)
-                        Text('Within radius (${distance.toStringAsFixed(0)}m / ${profile.branchRadius}m)', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        Text('Within radius (${distance?.toStringAsFixed(0) ?? '0'}m / ${profile.branchRadius}m)', style: const TextStyle(color: Colors.white70, fontSize: 12)),
                       if (isClockedIn || isOvertimeIn)
                         const Text('You can clock out from anywhere.', style: TextStyle(color: Colors.white70, fontSize: 12)),
                       const SizedBox(height: 8),
@@ -707,7 +730,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       children: [
                         const Icon(Icons.location_off, color: Colors.white70),
                         const SizedBox(height: 8),
-                        Text('You are ${distance.toStringAsFixed(0)}m away.', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text('You are ${distance?.toStringAsFixed(0) ?? '0'}m away.', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                         Text('Must be within ${profile.branchRadius}m to clock in.', style: const TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center),
                       ],
                     ),
