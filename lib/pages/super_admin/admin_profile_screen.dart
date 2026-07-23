@@ -7,6 +7,7 @@ import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
+import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 
 class AdminProfileScreen extends ConsumerStatefulWidget {
   const AdminProfileScreen({super.key});
@@ -89,7 +90,8 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() => _photo = File(pickedFile.path));
+      final compressed = await ImageCompressor.compressToWebp(pickedFile.path);
+      setState(() => _photo = compressed);
     }
   }
 

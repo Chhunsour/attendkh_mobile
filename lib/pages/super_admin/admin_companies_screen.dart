@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path_provider/path_provider.dart';
+// removed
+import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
@@ -569,27 +569,8 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
   Future<void> _pickLogo() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
     if (picked != null) {
-      try {
-        final tempDir = await getTemporaryDirectory();
-        final targetPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.webp';
-        
-        final compressedFile = await FlutterImageCompress.compressAndGetFile(
-          picked.path,
-          targetPath,
-          format: CompressFormat.webp,
-          quality: 80,
-          minWidth: 800,
-          minHeight: 800,
-        );
-        
-        if (compressedFile != null) {
-          setState(() => _logoFile = File(compressedFile.path));
-        } else {
-          setState(() => _logoFile = File(picked.path));
-        }
-      } catch (e) {
-        setState(() => _logoFile = File(picked.path));
-      }
+      final compressedFile = await ImageCompressor.compressToWebp(picked.path);
+      setState(() => _logoFile = compressedFile);
     }
   }
 

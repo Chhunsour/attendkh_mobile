@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/attendance_provider.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
+import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 
 class ClockInArgs {
   final bool isClockIn;
@@ -88,8 +89,9 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
       final picker = ImagePicker();
       final photo = await picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.front, maxWidth: 600);
       if (photo != null) {
+        final compressed = await ImageCompressor.compressToWebp(photo.path);
         setState(() {
-          _photoPath = photo.path;
+          _photoPath = compressed.path;
         });
       }
     } catch (e) {

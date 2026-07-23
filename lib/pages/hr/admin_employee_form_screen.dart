@@ -7,6 +7,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
+import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -229,7 +230,10 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
   Future<void> _pickPhoto() async {
     final picker = ImagePicker();
     final img = await picker.pickImage(source: ImageSource.gallery, maxWidth: 800, imageQuality: 80);
-    if (img != null) setState(() => _pickedPhoto = File(img.path));
+    if (img != null) {
+      final compressed = await ImageCompressor.compressToWebp(img.path);
+      setState(() => _pickedPhoto = compressed);
+    }
   }
 
   Future<void> _save() async {

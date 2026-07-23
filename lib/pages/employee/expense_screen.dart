@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/providers/expense_provider.dart';
 import 'package:mpg_hr_mobile_app/services/expense_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
+import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 
 class ExpenseScreen extends ConsumerWidget {
   const ExpenseScreen({super.key});
@@ -503,7 +504,8 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
     );
     
     if (picked != null) {
-      setState(() => _receipt = File(picked.path));
+      final compressed = await ImageCompressor.compressToWebp(picked.path);
+      setState(() => _receipt = compressed);
     }
   }
 

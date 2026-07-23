@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/services/performance_repository.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
 import 'package:mpg_hr_mobile_app/services/directory_repository.dart' show EmployeeData;
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 
 class AdminPerformanceScreen extends StatefulWidget {
   const AdminPerformanceScreen({super.key});
@@ -423,7 +424,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                       child: GestureDetector(
                         onTap: () async {
                           final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-                          if (picked != null) setSheetState(() => coverImageFile = File(picked.path));
+                          if (picked != null) {
+                            final compressed = await ImageCompressor.compressToWebp(picked.path);
+                            setSheetState(() => coverImageFile = compressed);
+                          }
                         },
                         child: Container(
                           width: double.infinity, height: 160,

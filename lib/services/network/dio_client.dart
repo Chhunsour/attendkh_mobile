@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
@@ -8,22 +7,17 @@ import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
 /// - Android Emulator : 10.0.2.2 maps to the host machine's localhost.
 /// - Real device (WiFi): Use the Mac's LAN IP so the device can reach the server.
 /// Change [_devServerIp] to match your machine's current IP when on a real device.
-const String _devServerIp = '192.168.100.252';
+const String _devServerIp = 'phplaravel-1627268-6571483.cloudwaysapps.com';
+const String _r2StorageUrl = 'https://pub-ccd9b4a59b6e4eddb12ef2a2c45e75c7.r2.dev';
 
 String get _baseUrl {
-  if (Platform.isAndroid) {
-    // Android emulator uses 10.0.2.2 to reach the host
-    // For a real Android device on same WiFi, use the Mac's LAN IP
-    return 'http://$_devServerIp:8000/api';
-  }
-  // iOS simulator and iOS real device
-  return 'http://$_devServerIp:8000/api';
+  return 'https://$_devServerIp/api';
 }
 
 class DioClient {
   static Dio? _dio;
 
-  static String get storageUrl => 'http://$_devServerIp:8000/storage';
+  static String get storageUrl => _r2StorageUrl;
 
   static void init() {
     _dio = Dio(
