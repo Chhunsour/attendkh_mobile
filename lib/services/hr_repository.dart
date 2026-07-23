@@ -658,8 +658,10 @@ class HrRepository {
     int? branchId,
     String? employmentStatus,
     String? employmentType,
+    int? perPage,
   }) async {
     final response = await _api.get('/company/employees', queryParameters: {
+      'per_page': ?perPage,
       if (search != null && search.isNotEmpty) 'search': search,
       'department_id': ?departmentId,
       'branch_id': ?branchId,
@@ -682,6 +684,7 @@ class HrRepository {
     required String employmentType,
     required String employmentStatus,
     required String hireDate,
+    String? employeeId,
     String? email,
     String? phone,
     double? salary,
@@ -705,6 +708,8 @@ class HrRepository {
     String? terminationDate,
     String? role,
     File? photo,
+    bool? createAccount,
+    String? password,
   }) async {
     final Map<String, dynamic> dataMap = {
       'first_name': firstName,
@@ -712,6 +717,7 @@ class HrRepository {
       'employment_type': employmentType,
       'employment_status': employmentStatus,
       'hire_date': hireDate,
+      'employee_id': ?employeeId,
       'email': ?email,
       'phone': ?phone,
       'salary': ?salary,
@@ -734,6 +740,8 @@ class HrRepository {
       'probation_end_date': ?probationEndDate,
       'termination_date': ?terminationDate,
       'role': ?role,
+      if (createAccount != null) 'create_account': createAccount ? 1 : 0,
+      'password': ?password,
     };
 
     if (photo != null) {
@@ -754,6 +762,7 @@ class HrRepository {
     String? employmentType,
     String? employmentStatus,
     String? hireDate,
+    String? employeeId,
     String? email,
     String? phone,
     double? salary,
@@ -777,6 +786,8 @@ class HrRepository {
     String? terminationDate,
     String? role,
     File? photo,
+    bool? createAccount,
+    String? password,
   }) async {
     final Map<String, dynamic> dataMap = {
       '_method': 'PUT', // Spoofing PUT for Laravel when sending FormData
@@ -784,6 +795,7 @@ class HrRepository {
       'last_name': ?lastName,
       'employment_type': ?employmentType,
       'employment_status': ?employmentStatus,
+      'employee_id': ?employeeId,
       'hire_date': ?hireDate,
       'email': ?email,
       'phone': ?phone,
@@ -807,6 +819,8 @@ class HrRepository {
       'probation_end_date': ?probationEndDate,
       'termination_date': ?terminationDate,
       'role': ?role,
+      if (createAccount != null) 'create_account': createAccount ? 1 : 0,
+      'password': ?password,
     };
 
     if (photo != null) {
@@ -856,5 +870,10 @@ class HrRepository {
     if (data is List) return data.map((e) => fromJson(e as Map<String, dynamic>)).toList();
     if (data is Map && data['data'] != null) return (data['data'] as List).map((e) => fromJson(e as Map<String, dynamic>)).toList();
     return [];
+  }
+
+  Future<String> getNextEmployeeId() async {
+    final response = await _api.get('/company/employees/next-id');
+    return response.data['data']['next_employee_id'] as String;
   }
 }

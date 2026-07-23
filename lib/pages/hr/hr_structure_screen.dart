@@ -1096,32 +1096,36 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                       ),
                       const SizedBox(height: 12),
                       employeesAsync.when(
-                        data: (employees) => DropdownButtonFormField<int>(
-                          initialValue: _managerId,
-                          decoration: const InputDecoration(
-                            labelText: 'Branch Manager',
-                            prefixIcon: Icon(
-                              Icons.person_outline_rounded,
-                              color: AppColors.grey400,
-                              size: 20,
+                        data: (employees) {
+                          final hasManager = _managerId != null && employees.any((e) => e.userId == _managerId);
+                          final initialManagerId = hasManager ? _managerId : null;
+                          return DropdownButtonFormField<int>(
+                            initialValue: initialManagerId,
+                            decoration: const InputDecoration(
+                              labelText: 'Branch Manager',
+                              prefixIcon: Icon(
+                                Icons.person_outline_rounded,
+                                color: AppColors.grey400,
+                                size: 20,
+                              ),
                             ),
-                          ),
-                          items: [
-                            const DropdownMenuItem<int>(
-                              value: null,
-                              child: Text('No Manager'),
-                            ),
-                            ...employees
-                                .where((e) => e.userId != null)
-                                .map(
-                                  (e) => DropdownMenuItem<int>(
-                                    value: e.userId,
-                                    child: Text(e.name),
+                            items: [
+                              const DropdownMenuItem<int>(
+                                value: null,
+                                child: Text('No Manager'),
+                              ),
+                              ...employees
+                                  .where((e) => e.userId != null)
+                                  .map(
+                                    (e) => DropdownMenuItem<int>(
+                                      value: e.userId,
+                                      child: Text(e.name),
+                                    ),
                                   ),
-                                ),
-                          ],
-                          onChanged: (val) => setState(() => _managerId = val),
-                        ),
+                            ],
+                            onChanged: (val) => setState(() => _managerId = val),
+                          );
+                        },
                         loading: () => const SizedBox(
                           height: 54,
                           child: Center(child: CircularProgressIndicator()),
@@ -4348,32 +4352,36 @@ class _DepartmentFormDialogState extends ConsumerState<_DepartmentFormDialog> {
 
                       // Manager Dropdown
                       employeesAsync.when(
-                        data: (employees) => DropdownButtonFormField<int>(
-                          initialValue: _managerId,
-                          decoration: const InputDecoration(
-                            labelText: 'Department Manager',
-                            prefixIcon: Icon(
-                              Icons.person_outline_rounded,
-                              color: AppColors.grey400,
-                              size: 20,
+                        data: (employees) {
+                          final hasManager = _managerId != null && employees.any((e) => e.userId == _managerId);
+                          final initialManagerId = hasManager ? _managerId : null;
+                          return DropdownButtonFormField<int>(
+                            initialValue: initialManagerId,
+                            decoration: const InputDecoration(
+                              labelText: 'Department Manager',
+                              prefixIcon: Icon(
+                                Icons.person_outline_rounded,
+                                color: AppColors.grey400,
+                                size: 20,
+                              ),
                             ),
-                          ),
-                          items: [
-                            const DropdownMenuItem<int>(
-                              value: null,
-                              child: Text('No Manager'),
-                            ),
-                            ...employees
-                                .where((e) => e.userId != null)
-                                .map(
-                                  (e) => DropdownMenuItem<int>(
-                                    value: e.userId,
-                                    child: Text(e.name),
+                            items: [
+                              const DropdownMenuItem<int>(
+                                value: null,
+                                child: Text('No Manager'),
+                              ),
+                              ...employees
+                                  .where((e) => e.userId != null)
+                                  .map(
+                                    (e) => DropdownMenuItem<int>(
+                                      value: e.userId,
+                                      child: Text(e.name),
+                                    ),
                                   ),
-                                ),
-                          ],
-                          onChanged: (val) => setState(() => _managerId = val),
-                        ),
+                            ],
+                            onChanged: (val) => setState(() => _managerId = val),
+                          );
+                        },
                         loading: () => const SizedBox(
                           height: 54,
                           child: Center(child: CircularProgressIndicator()),
@@ -4948,26 +4956,30 @@ class _TeamFormDialogState extends ConsumerState<_TeamFormDialog> {
 
                       // Leader Dropdown
                       employeesAsync.when(
-                        data: (employees) => DropdownButtonFormField<int>(
-                          initialValue: _leaderId,
-                          decoration: const InputDecoration(
-                            labelText: 'Team Leader',
-                            prefixIcon: Icon(Icons.shield_outlined, color: AppColors.grey400, size: 20),
-                          ),
-                          items: [
-                            const DropdownMenuItem<int>(
-                              value: null,
-                              child: Text('No Leader Assigned'),
+                        data: (employees) {
+                          final hasLeader = _leaderId != null && employees.any((e) => e.userId == _leaderId);
+                          final initialLeaderId = hasLeader ? _leaderId : null;
+                          return DropdownButtonFormField<int>(
+                            initialValue: initialLeaderId,
+                            decoration: const InputDecoration(
+                              labelText: 'Team Leader',
+                              prefixIcon: Icon(Icons.shield_outlined, color: AppColors.grey400, size: 20),
                             ),
-                            ...employees
-                                .where((e) => e.userId != null)
-                                .map((e) => DropdownMenuItem<int>(
-                                      value: e.userId,
-                                      child: Text(e.name),
-                                    )),
-                          ],
-                          onChanged: (val) => setState(() => _leaderId = val),
-                        ),
+                            items: [
+                              const DropdownMenuItem<int>(
+                                value: null,
+                                child: Text('No Leader Assigned'),
+                              ),
+                              ...employees
+                                  .where((e) => e.userId != null)
+                                  .map((e) => DropdownMenuItem<int>(
+                                        value: e.userId,
+                                        child: Text(e.name),
+                                      )),
+                            ],
+                            onChanged: (val) => setState(() => _leaderId = val),
+                          );
+                        },
                         loading: () => const SizedBox(height: 54, child: Center(child: CircularProgressIndicator())),
                         error: (err, _) => Text('Error loading employees: $err', style: const TextStyle(color: AppColors.danger)),
                       ),

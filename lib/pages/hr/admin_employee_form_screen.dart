@@ -10,10 +10,11 @@ import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-InputDecoration _fieldDecor(String label, {IconData? icon}) {
+InputDecoration _fieldDecor(String label, {IconData? icon, Widget? suffixIcon}) {
   return InputDecoration(
     labelText: label,
     prefixIcon: icon != null ? Icon(icon, size: 18, color: AppColors.grey400) : null,
+    suffixIcon: suffixIcon,
     filled: true,
     fillColor: Colors.white,
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -115,6 +116,13 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
   late TextEditingController _emergRelCtrl;
   late TextEditingController _emergPhoneCtrl;
 
+  late TextEditingController _employeeIdCtrl;
+
+  // System Access
+  bool _createAccount = true;
+  bool _showPassword = false;
+  late TextEditingController _passwordCtrl;
+
   @override
   void initState() {
     super.initState();
@@ -123,6 +131,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     // Personal
     _firstNameCtrl  = TextEditingController(text: e?.firstName ?? '');
     _lastNameCtrl   = TextEditingController(text: e?.lastName ?? '');
+    _employeeIdCtrl = TextEditingController(text: e?.employeeId ?? '');
     _emailCtrl      = TextEditingController(text: e?.email ?? '');
     _phoneCtrl      = TextEditingController(text: e?.phone ?? '');
     _nationalIdCtrl = TextEditingController(text: e?.nationalId ?? '');
@@ -154,7 +163,26 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     final ec         = e?.emergencyContact;
     _emergNameCtrl   = TextEditingController(text: ec?['name'] as String? ?? '');
     _emergRelCtrl    = TextEditingController(text: ec?['relationship'] as String? ?? '');
-    _emergPhoneCtrl  = TextEditingController(text: ec?['phone'] as String? ?? '');
+    _emergPhoneCtrl = TextEditingController(text: ec?['phone'] as String? ?? '');
+
+    _passwordCtrl   = TextEditingController();
+    _createAccount  = e == null;
+
+    if (e == null) {
+      _fetchNextEmployeeId();
+    }
+  }
+
+  Future<void> _fetchNextEmployeeId() async {
+    try {
+      final repo = ref.read(hrRepositoryProvider);
+      final nextId = await repo.getNextEmployeeId();
+      if (mounted) {
+        setState(() {
+          _employeeIdCtrl.text = nextId;
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -163,7 +191,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
       _firstNameCtrl, _lastNameCtrl, _emailCtrl, _phoneCtrl, _nationalIdCtrl,
       _addressCtrl, _hireDateCtrl, _probationEndCtrl, _terminationDateCtrl, _notesCtrl,
       _salaryCtrl, _bankNameCtrl, _bankAccountCtrl,
-      _emergNameCtrl, _emergRelCtrl, _emergPhoneCtrl,
+      _emergNameCtrl, _emergRelCtrl, _emergPhoneCtrl, _passwordCtrl,
     ]) { c.dispose(); }
     super.dispose();
   }
@@ -216,6 +244,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
         await repo.createEmployee(
           firstName: _firstNameCtrl.text.trim(),
           lastName:  _lastNameCtrl.text.trim(),
+          employeeId: _employeeIdCtrl.text.trim().isEmpty ? null : _employeeIdCtrl.text.trim(),
           email:     _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
           phone:     _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
           salary:    double.tryParse(_salaryCtrl.text),
@@ -242,12 +271,15 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
           notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
           role:  _role,
           photo: _pickedPhoto,
+          createAccount: _createAccount,
+          password: _createAccount && _passwordCtrl.text.isNotEmpty ? _passwordCtrl.text : null,
         );
       } else {
         await repo.updateEmployee(
           widget.employee!.id,
           firstName: _firstNameCtrl.text.trim(),
           lastName:  _lastNameCtrl.text.trim(),
+          employeeId: _employeeIdCtrl.text.trim().isEmpty ? null : _employeeIdCtrl.text.trim(),
           email:     _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
           phone:     _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
           salary:    double.tryParse(_salaryCtrl.text),
@@ -274,6 +306,8 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
           notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
           role: _role,
           photo: _pickedPhoto,
+          createAccount: _createAccount,
+          password: _createAccount && _passwordCtrl.text.isNotEmpty ? _passwordCtrl.text : null,
         );
       }
 
@@ -377,7 +411,19 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
                     ),
                   ]),
                   const SizedBox(height: 12),
-                  _buildField(controller: _emailCtrl, label: 'Email Address', icon: Icons.email_outlined, keyboard: TextInputType.emailAddress),
+                  _buildField(
+                    controller: _employeeIdCtrl,
+                    label: 'Employee ID (Leave blank to auto-generate)',
+                    icon: Icons.badge_outlined,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildField(
+                    controller: _emailCtrl,
+                    label: (!isEditing && _createAccount) ? 'Email Address *' : 'Email Address',
+                    icon: Icons.email_outlined,
+                    keyboard: TextInputType.emailAddress,
+                    required: !isEditing && _createAccount,
+                  ),
                   const SizedBox(height: 12),
                   _buildField(controller: _phoneCtrl, label: 'Phone Number', icon: Icons.phone_outlined, keyboard: TextInputType.phone),
                   const SizedBox(height: 12),
@@ -509,6 +555,49 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
 
               const SizedBox(height: 20),
 
+              _Section(
+                title: 'System Access',
+                icon: Icons.computer_outlined,
+                children: [
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _createAccount,
+                        onChanged: (v) => setState(() => _createAccount = v ?? true),
+                        activeColor: AppColors.primary,
+                      ),
+                      Expanded(
+                        child: Text(
+                          isEditing 
+                            ? 'Reset password or create login account'
+                            : 'Create a login account for this employee',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_createAccount) ...[
+                    const SizedBox(height: 12),
+                    _buildField(
+                      controller: _passwordCtrl,
+                      label: 'Password *',
+                      icon: Icons.lock_outline,
+                      required: true,
+                      obscureText: !_showPassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
+                        onPressed: () => setState(() => _showPassword = !_showPassword),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Employee will use their email and this password to log in.',
+                        style: TextStyle(fontSize: 12, color: Colors.black54),
+                      ),
+                    ],
+                  ],
+                ),
+
               // ── Save Button ────────────────────────────────────────
               ElevatedButton.icon(
                 onPressed: _isLoading ? null : _save,
@@ -616,13 +705,16 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     IconData? icon,
     TextInputType? keyboard,
     int maxLines = 1,
+    bool obscureText = false,
+    Widget? suffixIcon,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboard,
       maxLines: maxLines,
+      obscureText: obscureText,
       style: const TextStyle(fontSize: 14),
-      decoration: _fieldDecor(label, icon: icon),
+      decoration: _fieldDecor(label, icon: icon, suffixIcon: suffixIcon),
       validator: required ? (v) => (v == null || v.trim().isEmpty) ? 'Required' : null : null,
     );
   }

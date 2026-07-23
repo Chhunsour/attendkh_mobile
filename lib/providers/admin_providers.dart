@@ -85,7 +85,7 @@ const _sentinel = Object();
 
 /// Simple provider that fetches all employees without filters (used by dropdowns, e.g. manager picker).
 final allEmployeesProvider = FutureProvider.autoDispose<List<EmployeeData>>((ref) {
-  return ref.watch(hrRepositoryProvider).getEmployees();
+  return ref.watch(hrRepositoryProvider).getEmployees(perPage: 1000);
 });
 
 /// Family provider used by AdminEmployeesScreen (supports search + filters).
