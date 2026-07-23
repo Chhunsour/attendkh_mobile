@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/app_logo.dart';
+import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -20,6 +21,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FcmService.instance.init();
+    });
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
