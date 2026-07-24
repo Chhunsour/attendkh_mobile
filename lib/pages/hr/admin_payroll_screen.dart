@@ -349,7 +349,8 @@ class _PayrollRunsTab extends ConsumerWidget {
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         try {
-                          await AdminOperationsRepository()
+                          await ref
+                              .read(adminOpsRepositoryProvider)
                               .generatePayroll(
                             periodStart: periodStartCtrl.text,
                             periodEnd: periodEndCtrl.text,
