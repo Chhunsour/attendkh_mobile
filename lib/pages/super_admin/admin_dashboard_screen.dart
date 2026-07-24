@@ -7,6 +7,7 @@ import 'package:mpg_hr_mobile_app/services/admin_dashboard_repository.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
+import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
 
 // ── Riverpod provider ──────────────────────────────────────────────────────
 final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((
@@ -18,11 +19,26 @@ final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((
 // ══════════════════════════════════════════════════════════════════════════════
 //  Admin Dashboard Screen
 // ══════════════════════════════════════════════════════════════════════════════
-class AdminDashboardScreen extends ConsumerWidget {
+class AdminDashboardScreen extends ConsumerStatefulWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+}
+
+class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        FcmService.instance.checkAndPromptNotificationPermission(context);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final dashAsync = ref.watch(adminDashboardProvider);
     final unreadCountAsync = ref.watch(unreadCountProvider);

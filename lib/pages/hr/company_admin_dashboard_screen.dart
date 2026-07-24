@@ -11,12 +11,28 @@ import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'branch_payroll_settings_screen.dart';
+import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
 
-class CompanyAdminDashboardScreen extends ConsumerWidget {
+class CompanyAdminDashboardScreen extends ConsumerStatefulWidget {
   const CompanyAdminDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CompanyAdminDashboardScreen> createState() => _CompanyAdminDashboardScreenState();
+}
+
+class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        FcmService.instance.checkAndPromptNotificationPermission(context);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final branchSwitchState = ref.watch(branchSwitchProvider);
 

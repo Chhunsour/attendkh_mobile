@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
@@ -130,9 +131,18 @@ class FcmService {
       
       if (Platform.isIOS) {
         // For Apple platforms, ensure the APNS token is available before making a request
-        final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+        String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+        if (apnsToken == null) {
+          // Sometimes it takes a little bit of time for the APNS token to be generated
+          await Future<void>.delayed(const Duration(seconds: 3));
+          apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+        }
+        
         if (apnsToken != null) {
           token = await FirebaseMessaging.instance.getToken();
+        } else {
+          AppLogger.w('APNS token is null, skipping FCM token fetch (expected on iOS Simulator)');
+          return;
         }
       } else {
         token = await FirebaseMessaging.instance.getToken();
@@ -147,6 +157,37 @@ class FcmService {
       }
     } catch (e) {
       AppLogger.e('Error syncing FCM token with backend: $e');
+    }
+  }
+
+  /// Checks if notification permission is denied and prompts the user to open settings.
+  Future<void> checkAndPromptNotificationPermission(BuildContext context) async {
+    final status = await Permission.notification.status;
+    
+    // If the permission is denied or permanently denied, show the settings prompt.
+    if (status.isDenied || status.isPermanentlyDenied) {
+      if (!context.mounted) return;
+      
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Enable Notifications'),
+          content: const Text('It looks like notifications are disabled. Please enable them in your phone settings to receive important updates.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Dismiss'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                openAppSettings();
+              },
+              child: const Text('Open Settings'),
+            ),
+          ],
+        ),
+      );
     }
   }
 }

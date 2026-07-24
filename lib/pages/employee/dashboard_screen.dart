@@ -19,6 +19,7 @@ import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/providers/dashboard_provider.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
 import 'package:mpg_hr_mobile_app/services/announcements_repository.dart';
+import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -37,6 +38,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _startLocationTracking();
+    
+    // Check if notifications are disabled and prompt if necessary
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        FcmService.instance.checkAndPromptNotificationPermission(context);
+      }
+    });
   }
 
   @override
