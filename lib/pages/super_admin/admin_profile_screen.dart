@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
+import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
 
 class AdminProfileScreen extends ConsumerStatefulWidget {
   const AdminProfileScreen({super.key});
@@ -315,20 +316,32 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                           initialDate: _dateOfBirth ?? DateTime(2000),
                           firstDate: DateTime(1900),
                           lastDate: DateTime.now(),
+                          builder: (context, child) {
+                            return Theme(
+                              data: Theme.of(context).copyWith(
+                                colorScheme: const ColorScheme.light(
+                                  primary: AppColors.primary,
+                                  onPrimary: Colors.white,
+                                  onSurface: AppColors.grey900,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
                         );
                         if (picked != null) {
                           setState(() => _dateOfBirth = picked);
                         }
                       },
-                      child: Container(
-                        height: 48,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.grey200),
-                          borderRadius: BorderRadius.circular(8),
-                          color: const Color(0xFFF8FAFC),
+                      child: InputDecorator(
+                        decoration: _inputDecoration().copyWith(
+                          suffixIcon: const Icon(Icons.calendar_today_outlined, size: 20, color: AppColors.grey500),
                         ),
-                        alignment: Alignment.centerLeft,
                         child: Text(
                           _dateOfBirth != null ? "${_dateOfBirth!.year}-${_dateOfBirth!.month.toString().padLeft(2, '0')}-${_dateOfBirth!.day.toString().padLeft(2, '0')}" : 'Select Date',
                           style: TextStyle(fontSize: 14, color: _dateOfBirth != null ? Colors.black87 : AppColors.grey500),
@@ -445,6 +458,45 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Testing & Debugging
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.grey200),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 10, offset: const Offset(0, 4)),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Testing & Debugging', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                  const SizedBox(height: 6),
+                  const Text('Use these tools to verify app functionality.', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        FcmService.instance.testLocalNotification();
+                      },
+                      icon: const Icon(Icons.notifications_active, size: 20),
+                      label: const Text('Test Local Notification', style: TextStyle(fontWeight: FontWeight.w600)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 32),

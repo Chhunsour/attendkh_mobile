@@ -130,6 +130,8 @@ class _RouterNotifier extends ChangeNotifier {
   }
 }
 
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 /// Single stable GoRouter provider — never recreated.
 /// Uses refreshListenable so redirect re-runs on auth changes without
 /// rebuilding the GoRouter instance.
@@ -137,6 +139,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = _RouterNotifier(ref);
 
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     refreshListenable: notifier,

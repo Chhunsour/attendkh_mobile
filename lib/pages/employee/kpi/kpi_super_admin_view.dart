@@ -10,8 +10,9 @@ class KpiSuperAdminView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
+    return SingleChildScrollView(
+      child: Column(
+        children: [
         KpiSharedComponents.buildSummaryCard(
           title: 'Platform Global Health',
           score: data.metrics.companyAverage,
@@ -81,13 +82,14 @@ class KpiSuperAdminView extends StatelessWidget {
             ],
           ),
         ),
-        Expanded(
-          child: KpiSharedComponents.buildKpiList(
-            kpis: data.ownerKpis,
-            themeColor: Colors.blue,
-          ),
+        KpiSharedComponents.buildKpiList(
+          kpis: data.ownerKpis,
+          themeColor: Colors.blue,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
         ),
       ],
+      ),
     );
   }
 }

@@ -57,6 +57,8 @@ class KpiSharedComponents {
   static Widget buildKpiList({
     required List<KpiItem> kpis,
     required Color themeColor,
+    bool shrinkWrap = false,
+    ScrollPhysics? physics,
   }) {
     if (kpis.isEmpty) {
       return Center(
@@ -72,6 +74,8 @@ class KpiSharedComponents {
     }
 
     return ListView.builder(
+      shrinkWrap: shrinkWrap,
+      physics: physics,
       padding: const EdgeInsets.all(16),
       itemCount: kpis.length,
       itemBuilder: (context, index) {
