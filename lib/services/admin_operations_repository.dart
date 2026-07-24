@@ -978,6 +978,10 @@ class AdminOperationsRepository {
     });
   }
 
+  Future<void> updatePayrollRunStatus(int id, String status) async {
+    await _api.post('/company/payroll/runs/$id/status', data: {'status': status});
+  }
+
   Future<PayrollSettingsData> getPayrollSettings() async {
     final response = await _api.get('/company/payroll/settings');
     return PayrollSettingsData.fromJson(response.data['data'] ?? response.data);

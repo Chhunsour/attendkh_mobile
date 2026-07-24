@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
+import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'formulas_screen.dart';
 
@@ -105,7 +106,11 @@ class _PayrollRunsTab extends ConsumerWidget {
                               : AppColors.warning;
                       return GestureDetector(
                         onTap: () {
-                          context.push('/company-admin/payroll/${r.period}');
+                          if (r.status == 'draft') {
+                            _showStatusDialog(context, ref, r);
+                          } else {
+                            context.push('/company-admin/payroll/${r.period}');
+                          }
                         },
                         child: Container(
                           padding: const EdgeInsets.all(14),
@@ -169,6 +174,40 @@ class _PayrollRunsTab extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _showStatusDialog(BuildContext context, WidgetRef ref, PayrollRunData run) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Payroll Run ${run.period}'),
+        content: const Text('Would you like to mark this Payroll Run as COMPLETED or view Payslips?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.push('/company-admin/payroll/${run.period}');
+            },
+            child: const Text('View Payslips'),
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.check),
+            label: const Text('Mark Completed'),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await ref.read(adminOpsRepositoryProvider).updatePayrollRunStatus(run.id, 'completed');
+              ref.invalidate(payrollRunsProvider);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('🎉 Payroll Run marked as COMPLETED!'), backgroundColor: AppColors.success),
+                );
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 
