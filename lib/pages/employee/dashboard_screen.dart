@@ -20,6 +20,7 @@ import 'package:mpg_hr_mobile_app/providers/dashboard_provider.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
 import 'package:mpg_hr_mobile_app/services/announcements_repository.dart';
 import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
+import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -281,6 +282,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     final authState = ref.watch(authProvider);
     final profileAsync = ref.watch(profileProvider);
     final summaryAsync = ref.watch(employeeDashboardSummaryProvider);
+    final unreadCountAsync = ref.watch(unreadCountProvider);
+    final unreadCount = unreadCountAsync.valueOrNull ?? 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -300,9 +303,40 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: AppColors.grey700),
-            onPressed: () => context.push(AppRoutes.notifications),
+          Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined, color: AppColors.grey700),
+                onPressed: () async {
+                  await context.push(AppRoutes.notifications);
+                  ref.invalidate(unreadCountProvider);
+                },
+              ),
+              if (unreadCount > 0)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: AppColors.danger,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                    child: Text(
+                      unreadCount > 99 ? '99+' : '$unreadCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.only(right: 20, left: 8),

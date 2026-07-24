@@ -587,7 +587,17 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                   label: 'Calculation Method',
                   value: _lateCalcMethod,
                   items: const ['per_minute', 'fixed_amount', 'half_day'],
-                  onChanged: (v) => setState(() => _lateCalcMethod = v),
+                  onChanged: (v) {
+                    setState(() {
+                      _lateCalcMethod = v;
+                      final currentRate = double.tryParse(_lateDeductionCtrl.text) ?? 1.0;
+                      if (v == 'per_minute' && currentRate > 5) {
+                        _lateDeductionCtrl.text = '1.0';
+                      } else if (v == 'fixed_amount' && currentRate <= 2) {
+                        _lateDeductionCtrl.text = '5.0';
+                      }
+                    });
+                  },
                 ),
                 if (_lateCalcMethod != 'half_day') ...[
                   const SizedBox(height: 12),
@@ -608,7 +618,17 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                 label: 'Deduction Type',
                 value: _earlyLeaveDedType,
                 items: const ['per_minute', 'fixed_amount', 'half_day'],
-                onChanged: (v) => setState(() => _earlyLeaveDedType = v),
+                onChanged: (v) {
+                  setState(() {
+                    _earlyLeaveDedType = v;
+                    final currentRate = double.tryParse(_earlyLeaveRateCtrl.text) ?? 1.0;
+                    if (v == 'per_minute' && currentRate > 5) {
+                      _earlyLeaveRateCtrl.text = '1.0';
+                    } else if (v == 'fixed_amount' && currentRate <= 2) {
+                      _earlyLeaveRateCtrl.text = '5.0';
+                    }
+                  });
+                },
               ),
               if (_earlyLeaveDedType != 'half_day') ...[
                 const SizedBox(height: 12),
