@@ -70,8 +70,19 @@ class NotificationsRepository {
     try {
       final response = await _api.get('/company/notifications/unread-count');
       final data = response.data;
-      if (data is Map && data['data'] != null) {
-        return (data['data'] as num?)?.toInt() ?? 0;
+      if (data is Map) {
+        if (data['data'] is Map && data['data']['count'] != null) {
+          return (data['data']['count'] as num).toInt();
+        }
+        if (data['data'] is num) {
+          return (data['data'] as num).toInt();
+        }
+        if (data['count'] is num) {
+          return (data['count'] as num).toInt();
+        }
+        if (data['unread_count'] is num) {
+          return (data['unread_count'] as num).toInt();
+        }
       }
       if (data is num) return data.toInt();
       return 0;
