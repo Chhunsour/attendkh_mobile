@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'formulas_screen.dart';
 
@@ -587,7 +586,7 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                 _dropdownField(
                   label: 'Calculation Method',
                   value: _lateCalcMethod,
-                  items: const ['flat', 'hourly', 'per_minute', 'half_day'],
+                  items: const ['per_minute', 'fixed_amount', 'half_day'],
                   onChanged: (v) => setState(() => _lateCalcMethod = v),
                 ),
                 const SizedBox(height: 12),
@@ -602,7 +601,7 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
               _dropdownField(
                 label: 'Deduction Type',
                 value: _earlyLeaveDedType,
-                items: const ['flat', 'hourly', 'per_minute', 'half_day'],
+                items: const ['per_minute', 'fixed_amount', 'half_day'],
                 onChanged: (v) => setState(() => _earlyLeaveDedType = v),
               ),
               const SizedBox(height: 12),
@@ -617,10 +616,12 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                 items: const ['ignore', 'treat_as_ot', 'paid_outside'],
                 onChanged: (v) => setState(() => _earlyClockInPolicy = v),
               ),
-              const SizedBox(height: 12),
-              _textField(_preShiftOtCtrl, 'Pre-Shift OT Multiplier', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
-              const SizedBox(height: 12),
-              _textField(_maxPreShiftCtrl, 'Max Allowed Early Minutes', keyboardType: TextInputType.number),
+              if (_earlyClockInPolicy == 'treat_as_ot') ...[
+                const SizedBox(height: 12),
+                _textField(_preShiftOtCtrl, 'Pre-Shift OT Multiplier', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                const SizedBox(height: 12),
+                _textField(_maxPreShiftCtrl, 'Max Allowed Early Minutes', keyboardType: TextInputType.number),
+              ],
 
               const SizedBox(height: 28),
               _sectionHeader('Half-Day Settings'),
@@ -655,7 +656,7 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
 
   Future<void> _saveSettings() async {
     try {
-      await AdminOperationsRepository().updatePayrollSettings({
+      await ref.read(adminOpsRepositoryProvider).updatePayrollSettings({
         'payroll_period': _periodCtrl.text,
         'payroll_start_day': int.tryParse(_startDayCtrl.text) ?? 1,
         'working_days_type': _workingDaysType,
