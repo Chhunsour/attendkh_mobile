@@ -589,8 +589,14 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                   items: const ['per_minute', 'fixed_amount', 'half_day'],
                   onChanged: (v) => setState(() => _lateCalcMethod = v),
                 ),
-                const SizedBox(height: 12),
-                _textField(_lateDeductionCtrl, 'Deduction Rate / Amount', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                if (_lateCalcMethod != 'half_day') ...[
+                  const SizedBox(height: 12),
+                  _textField(
+                    _lateDeductionCtrl,
+                    _lateCalcMethod == 'fixed_amount' ? 'Fixed Penalty Amount (\$)' : 'Per-Minute Multiplier (e.g. 1.0 = exact salary)',
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                ],
               ],
 
               const SizedBox(height: 28),
@@ -604,8 +610,14 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                 items: const ['per_minute', 'fixed_amount', 'half_day'],
                 onChanged: (v) => setState(() => _earlyLeaveDedType = v),
               ),
-              const SizedBox(height: 12),
-              _textField(_earlyLeaveRateCtrl, 'Deduction Rate / Amount', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+              if (_earlyLeaveDedType != 'half_day') ...[
+                const SizedBox(height: 12),
+                _textField(
+                  _earlyLeaveRateCtrl,
+                  _earlyLeaveDedType == 'fixed_amount' ? 'Fixed Penalty Amount (\$)' : 'Per-Minute Multiplier (e.g. 1.0 = exact salary)',
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                ),
+              ],
 
               const SizedBox(height: 28),
               _sectionHeader('Pre-Shift & Early Clock-In'),
