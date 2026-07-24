@@ -3,6 +3,14 @@ import 'package:dio/dio.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 
+int? _safeInt(dynamic val) {
+  if (val == null) return null;
+  if (val is int) return val;
+  if (val is num) return val.toInt();
+  if (val is String) return int.tryParse(val);
+  return null;
+}
+
 // ── Branch Payroll Settings ───────────────────────────────────────────────────
 class BranchPayrollSettingsData {
   final int id;
@@ -324,13 +332,13 @@ class EmployeeData {
 
   factory EmployeeData.fromJson(Map<String, dynamic> json) {
     return EmployeeData(
-      id: json['id'] as int,
-      userId: json['user_id'] as int?,
+      id: _safeInt(json['id']) ?? 0,
+      userId: _safeInt(json['user_id']),
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
       name: json['name'] as String? ?? '${json['first_name'] ?? ''} ${json['last_name'] ?? ''}'.trim(),
       email: json['email'] as String?,
-      employeeId: json['employee_id'] as String?,
+      employeeId: json['employee_id']?.toString(),
       department: json['department']?['name'] as String? ?? json['department'] as String?,
       position: json['position']?['name'] as String? ?? json['position'] as String?,
       branch: json['branch']?['name'] as String? ?? json['branch'] as String?,
@@ -342,9 +350,9 @@ class EmployeeData {
       terminationDate: json['termination_date'] as String?,
       avatar: json['avatar'] as String? ?? json['photo'] as String?,
       salary: json['salary'] != null ? double.tryParse(json['salary'].toString()) : null,
-      departmentId: json['department_id'] as int?,
-      positionId: json['position_id'] as int?,
-      branchId: json['branch_id'] as int?,
+      departmentId: _safeInt(json['department_id']),
+      positionId: _safeInt(json['position_id']),
+      branchId: _safeInt(json['branch_id']),
       gender: json['gender'] as String?,
       dateOfBirth: json['date_of_birth'] as String?,
       maritalStatus: json['marital_status'] as String?,

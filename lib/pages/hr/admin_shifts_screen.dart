@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
+import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 // ─── Accent colors (work on white backgrounds) ───────────────────────────────
@@ -749,11 +750,16 @@ class _AssignShiftSheet extends ConsumerStatefulWidget {
   ConsumerState<_AssignShiftSheet> createState() => _AssignShiftSheetState();
 }
 
+final shiftAssignmentsProvider = FutureProvider.autoDispose<List<ShiftAssignmentData>>((ref) async {
+  return ref.read(adminOpsRepositoryProvider).getShiftAssignments();
+});
+
 class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
   final Set<int> _selectedIds = {};
   final TextEditingController _searchCtrl = TextEditingController();
   String _searchQuery = '';
   bool _isLoading = false;
+  bool _initializedAssignments = false;
 
   @override
   void dispose() {
@@ -764,6 +770,33 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
   @override
   Widget build(BuildContext context) {
     final employeesAsync = ref.watch(allEmployeesProvider);
+    final assignmentsAsync = ref.watch(shiftAssignmentsProvider);
+
+    final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+
+    final Map<int, ShiftAssignmentData> activeAssignments = {};
+    if (assignmentsAsync.value != null) {
+      for (final a in assignmentsAsync.value!) {
+        if (a.endDate == null || a.endDate!.isEmpty) {
+          activeAssignments[a.employeeId] = a;
+        }
+      }
+      if (!_initializedAssignments && employeesAsync.value != null) {
+        _initializedAssignments = true;
+        final validEmpIds = employeesAsync.value!
+            .where((e) => e.employmentStatus != 'terminated' && (activeBranchId == null || e.branchId == null || e.branchId == activeBranchId))
+            .map((e) => e.id)
+            .toSet();
+
+        for (final a in assignmentsAsync.value!) {
+          if (a.shiftId == widget.shift.id && (a.endDate == null || a.endDate!.isEmpty)) {
+            if (validEmpIds.contains(a.employeeId)) {
+              _selectedIds.add(a.employeeId);
+            }
+          }
+        }
+      }
+    }
 
     return Container(
       decoration: const BoxDecoration(
@@ -866,13 +899,19 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
           Expanded(
             child: employeesAsync.when(
               data: (allEmployees) {
-                final filtered = _searchQuery.isEmpty
-                    ? allEmployees
-                    : allEmployees
-                        .where((e) =>
-                            e.name.toLowerCase().contains(_searchQuery) ||
-                            (e.employeeId ?? '').toLowerCase().contains(_searchQuery))
-                        .toList();
+                var filtered = allEmployees.where((e) {
+                  if (e.employmentStatus == 'terminated') return false;
+                  if (activeBranchId != null && e.branchId != null && e.branchId != activeBranchId) return false;
+                  return true;
+                }).toList();
+
+                if (_searchQuery.isNotEmpty) {
+                  filtered = filtered
+                      .where((e) =>
+                          e.name.toLowerCase().contains(_searchQuery) ||
+                          (e.employeeId ?? '').toLowerCase().contains(_searchQuery))
+                      .toList();
+                }
 
                 if (filtered.isEmpty) {
                   return const Center(
@@ -952,6 +991,10 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                         itemBuilder: (_, i) {
                           final emp = filtered[i];
                           final isSelected = _selectedIds.contains(emp.id);
+                          final activeAssign = activeAssignments[emp.id];
+                          final isThisShift = activeAssign?.shiftId == widget.shift.id;
+                          final isOtherShift = activeAssign != null && !isThisShift;
+
                           return GestureDetector(
                             onTap: () {
                               setState(() {
@@ -1008,15 +1051,59 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          emp.name,
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                            color: isSelected
-                                                ? AppColors.primary
-                                                : AppColors.grey800,
-                                          ),
+                                        Row(
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                emp.name,
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: isSelected
+                                                      ? AppColors.primary
+                                                      : AppColors.grey800,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            if (isThisShift) ...[
+                                              const SizedBox(width: 6),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.success.withAlpha(25),
+                                                  borderRadius: BorderRadius.circular(6),
+                                                  border: Border.all(color: AppColors.success.withAlpha(60)),
+                                                ),
+                                                child: const Text(
+                                                  'Assigned',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: AppColors.success,
+                                                  ),
+                                                ),
+                                              ),
+                                            ] else if (isOtherShift) ...[
+                                              const SizedBox(width: 6),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.info.withAlpha(25),
+                                                  borderRadius: BorderRadius.circular(6),
+                                                  border: Border.all(color: AppColors.info.withAlpha(60)),
+                                                ),
+                                                child: Text(
+                                                  activeAssign.shiftName ?? 'Other Shift',
+                                                  style: const TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: AppColors.info,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ],
                                         ),
                                         if (emp.employeeId != null)
                                           Text(emp.employeeId!,

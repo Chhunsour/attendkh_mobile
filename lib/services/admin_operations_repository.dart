@@ -322,6 +322,40 @@ class ShiftData {
   }
 }
 
+class ShiftAssignmentData {
+  final int id;
+  final int employeeId;
+  final int shiftId;
+  final String? effectiveDate;
+  final String? endDate;
+  final String? shiftName;
+  final String? employeeName;
+
+  const ShiftAssignmentData({
+    required this.id,
+    required this.employeeId,
+    required this.shiftId,
+    this.effectiveDate,
+    this.endDate,
+    this.shiftName,
+    this.employeeName,
+  });
+
+  factory ShiftAssignmentData.fromJson(Map<String, dynamic> json) {
+    return ShiftAssignmentData(
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      employeeId: int.tryParse(json['employee_id']?.toString() ?? '') ?? 0,
+      shiftId: int.tryParse(json['shift_id']?.toString() ?? '') ?? 0,
+      effectiveDate: json['effective_date']?.toString(),
+      endDate: json['end_date']?.toString(),
+      shiftName: json['shift']?['name']?.toString(),
+      employeeName: json['employee'] != null
+          ? '${json['employee']['first_name'] ?? ''} ${json['employee']['last_name'] ?? ''}'.trim()
+          : null,
+    );
+  }
+}
+
 // ── Holiday ─────────────────────────────────────────────────────────────────
 class HolidayData {
   final int id;
@@ -845,7 +879,15 @@ class AdminOperationsRepository {
   }
 
   Future<void> deleteShift(int id) async => _api.delete('/company/shifts/$id');
-  Future<void> assignShift(int shiftId, int employeeId) async => _api.post('/company/shifts/$shiftId/assign', data: {'employee_id': employeeId});
+  Future<void> assignShift(int shiftId, int employeeId, {String? effectiveDate}) async => _api.post('/company/shifts/$shiftId/assign', data: {
+    'employee_id': employeeId,
+    'effective_date': effectiveDate ?? DateTime.now().toIso8601String().substring(0, 10),
+  });
+
+  Future<List<ShiftAssignmentData>> getShiftAssignments() async {
+    final response = await _api.get('/company/shifts/assignments');
+    return _parseList(response.data, ShiftAssignmentData.fromJson);
+  }
 
   // ── Holidays ────────────────────────────────────────────────────────────
   Future<List<HolidayData>> getHolidays() async {
