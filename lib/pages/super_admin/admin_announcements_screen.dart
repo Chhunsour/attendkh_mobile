@@ -302,6 +302,7 @@ class _AnnouncementFormSheetState
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleCtrl;
   late final TextEditingController _bodyCtrl;
+  String _audience = 'all';
   bool _isPublished = false;
   bool _isSaving = false;
 
@@ -332,6 +333,7 @@ class _AnnouncementFormSheetState
       final data = {
         'title': _titleCtrl.text.trim(),
         'content': _bodyCtrl.text.trim(),
+        'audience': _audience,
         'is_published': _isPublished,
       };
 
@@ -424,10 +426,23 @@ class _AnnouncementFormSheetState
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _bodyCtrl,
-                      maxLines: 6,
+                      maxLines: 4,
                       validator: (v) =>
                           v == null || v.trim().isEmpty ? 'Required' : null,
                       decoration: _inputDecoration('Body'),
+                    ),
+                    const SizedBox(height: 14),
+                    DropdownButtonFormField<String>(
+                      initialValue: _audience,
+                      decoration: _inputDecoration('Target Audience'),
+                      items: const [
+                        DropdownMenuItem(value: 'all', child: Text('🌐 All Employees (Company-Wide)')),
+                        DropdownMenuItem(value: 'managers', child: Text('👔 Managers & Team Leads')),
+                        DropdownMenuItem(value: 'hr', child: Text('👥 HR Team Only')),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) setState(() => _audience = v);
+                      },
                     ),
                     const SizedBox(height: 14),
                     Material(
