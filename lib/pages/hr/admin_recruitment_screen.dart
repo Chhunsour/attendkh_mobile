@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart' show PositionData;
@@ -151,6 +153,7 @@ class _JobFormSheetState extends State<_JobFormSheet> {
   String? selPos;
   String selType = 'full_time';
   String selStatus = 'open';
+  bool _isLocating = false;
 
   @override
   void initState() {
@@ -167,6 +170,82 @@ class _JobFormSheetState extends State<_JobFormSheet> {
       selPos = widget.job!.position?.id.toString();
       selType = widget.job!.employmentType ?? 'full_time';
       selStatus = widget.job!.status;
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    setState(() => _isLocating = true);
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location services are disabled.'), backgroundColor: AppColors.danger),
+          );
+        }
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Location permission denied.'), backgroundColor: AppColors.danger),
+            );
+          }
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are permanently denied.'), backgroundColor: AppColors.danger),
+          );
+        }
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+      final placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+
+      if (placemarks.isNotEmpty) {
+        final place = placemarks.first;
+        final parts = <String>[];
+        if (place.subLocality != null && place.subLocality!.isNotEmpty) parts.add(place.subLocality!);
+        if (place.locality != null && place.locality!.isNotEmpty) parts.add(place.locality!);
+        if (place.administrativeArea != null && place.administrativeArea!.isNotEmpty && place.administrativeArea != place.locality) parts.add(place.administrativeArea!);
+        if (place.country != null && place.country!.isNotEmpty) parts.add(place.country!);
+
+        final formatted = parts.join(', ');
+
+        if (mounted) {
+          setState(() {
+            locCtrl.text = formatted.isNotEmpty ? formatted : '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}';
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('📍 Location updated: ${locCtrl.text}'), backgroundColor: AppColors.success),
+          );
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            locCtrl.text = '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}';
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not fetch location: $e'), backgroundColor: AppColors.danger),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLocating = false);
     }
   }
 
@@ -278,7 +357,22 @@ class _JobFormSheetState extends State<_JobFormSheet> {
                   _buildSectionTitle('Location & Salary', Icons.place_outlined),
                   TextField(
                     controller: locCtrl,
-                    decoration: _inputDecor('Location', Icons.location_on_outlined),
+                    decoration: _inputDecor('Location', Icons.location_on_outlined).copyWith(
+                      suffixIcon: _isLocating
+                          ? const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                              ),
+                            )
+                          : IconButton(
+                              icon: const Icon(Icons.my_location_rounded, color: AppColors.primary),
+                              tooltip: 'Get Current Location',
+                              onPressed: _getCurrentLocation,
+                            ),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(
