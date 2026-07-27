@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/performance_repository.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
-import 'package:mpg_hr_mobile_app/services/directory_repository.dart' show EmployeeData;
+import 'package:mpg_hr_mobile_app/services/directory_repository.dart' show DirectoryRepository, EmployeeData;
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 
@@ -640,6 +640,7 @@ class _TrainingTabState extends State<_TrainingTab> {
   bool _loading = true;
   List<TrainingCourseData> _trainings = [];
   List<DepartmentData> _departments = [];
+  List<EmployeeData> _employees = [];
 
   String _search = '';
   String _departmentId = 'all';
@@ -655,9 +656,11 @@ class _TrainingTabState extends State<_TrainingTab> {
     setState(() => _loading = true);
     try {
       final res = await _repo.getTrainings(search: _search, departmentId: _departmentId);
+      final empsList = await DirectoryRepository().getEmployees();
       setState(() {
         _trainings = res.trainings;
         _departments = res.departments;
+        _employees = empsList;
         _loading = false;
       });
     } catch (e) {
@@ -1040,9 +1043,26 @@ class _TrainingTabState extends State<_TrainingTab> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (t.coverImage != null && t.coverImage!.isNotEmpty)
-                        Container(
-                          width: double.infinity, height: 140, margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), image: DecorationImage(image: NetworkImage(t.coverImage!), fit: BoxFit.cover)),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: double.infinity, height: 140, margin: const EdgeInsets.only(bottom: 12),
+                            color: const Color(0xFFF1F5F9),
+                            child: Image.network(
+                              t.coverImage!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stack) => const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.school_rounded, size: 40, color: AppColors.grey400),
+                                    SizedBox(height: 4),
+                                    Text('Cover Image', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1061,11 +1081,58 @@ class _TrainingTabState extends State<_TrainingTab> {
                           Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Text(t.level?.toUpperCase() ?? 'BEGINNER', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
                         ],
                       ),
-                      const Divider(height: 32),
+                      const Divider(height: 24),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          TextButton.icon(onPressed: () => _showForm(t), icon: const Icon(Icons.edit, size: 16), label: const Text('Edit')),
+                          TextButton.icon(
+                            onPressed: () => _showEnrollmentSheet(t),
+                            icon: const Icon(Icons.people_alt_outlined, size: 16, color: AppColors.primary),
+                            label: const Text('Enrollments', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                          ),
+                          Row(
+                            children: [
+                              TextButton.icon(
+                                onPressed: () => _showForm(t),
+                                icon: const Icon(Icons.edit_outlined, size: 16),
+                                label: const Text('Edit'),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                      title: const Text('Delete Training'),
+                                      content: Text('Are you sure you want to delete "${t.title}"?'),
+                                      actions: [
+                                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
+                                          onPressed: () async {
+                                            Navigator.pop(ctx);
+                                            try {
+                                              await _repo.deleteTraining(t.id);
+                                              _fetchData();
+                                              if (ctx.mounted) {
+                                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                                  const SnackBar(content: Text('🗑️ Training course deleted successfully'), backgroundColor: AppColors.success),
+                                                );
+                                              }
+                                            } catch (e) {
+                                              if (ctx.mounted) ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
+                                            }
+                                          },
+                                          child: const Text('Delete', style: TextStyle(color: Colors.white)),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       )
                     ],
@@ -1076,6 +1143,169 @@ class _TrainingTabState extends State<_TrainingTab> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showEnrollmentSheet(TrainingCourseData t) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        String? selectedEmpIdToEnroll;
+        bool loadingEnrollments = true;
+        List<Map<String, dynamic>> enrollments = [];
+
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            void fetchEnrollments() async {
+              try {
+                final list = await _repo.getTrainingEnrollments(t.id);
+                setSheetState(() {
+                  enrollments = list;
+                  loadingEnrollments = false;
+                });
+              } catch (e) {
+                setSheetState(() => loadingEnrollments = false);
+              }
+            }
+
+            if (loadingEnrollments) {
+              fetchEnrollments();
+            }
+
+            return Container(
+              padding: EdgeInsets.only(
+                left: 20, right: 20, top: 20,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+              ),
+              height: MediaQuery.of(context).size.height * 0.8,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Enrollments: ${t.title}',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                          maxLines: 1, overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      IconButton(onPressed: () => Navigator.pop(ctx), icon: const Icon(Icons.close)),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Enroll Employee Selector Row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          initialValue: selectedEmpIdToEnroll,
+                          decoration: InputDecoration(
+                            hintText: 'Select Employee to Enroll',
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          items: _employees.map((e) => DropdownMenuItem(
+                            value: e.id.toString(),
+                            child: Text('${e.firstName} ${e.lastName}'),
+                          )).toList(),
+                          onChanged: (val) => setSheetState(() => selectedEmpIdToEnroll = val),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        ),
+                        onPressed: selectedEmpIdToEnroll == null ? null : () async {
+                          try {
+                            await _repo.enrollEmployee(t.id, int.parse(selectedEmpIdToEnroll!));
+                            setSheetState(() {
+                              selectedEmpIdToEnroll = null;
+                              loadingEnrollments = true;
+                            });
+                            if (ctx.mounted) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(
+                                const SnackBar(content: Text('🎉 Employee enrolled successfully & notification sent!'), backgroundColor: AppColors.success),
+                              );
+                            }
+                          } catch (e) {
+                            if (ctx.mounted) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(
+                                SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger),
+                              );
+                            }
+                          }
+                        },
+                        child: const Text('Enroll', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text('Enrolled Participants (${enrollments.length})', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey700)),
+                  const SizedBox(height: 10),
+
+                  Expanded(
+                    child: loadingEnrollments
+                        ? const Center(child: CircularProgressIndicator())
+                        : enrollments.isEmpty
+                            ? const Center(child: Text('No employees enrolled yet.', style: TextStyle(color: AppColors.grey500)))
+                            : ListView.separated(
+                                itemCount: enrollments.length,
+                                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                                itemBuilder: (ctx, index) {
+                                  final en = enrollments[index];
+                                  final emp = en['employee'] ?? {};
+                                  final empName = '${emp['first_name'] ?? ''} ${emp['last_name'] ?? ''}'.trim();
+                                  final status = (en['status'] ?? 'enrolled').toString().toUpperCase();
+                                  final progress = en['progress_percentage'] ?? 0;
+
+                                  return Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF8FAFC),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: AppColors.grey200),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundColor: AppColors.primary.withAlpha(26),
+                                          child: Text(empName.isNotEmpty ? empName[0] : 'E', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(empName.isEmpty ? 'Employee' : empName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                              Text('Progress: $progress% | Status: $status', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
