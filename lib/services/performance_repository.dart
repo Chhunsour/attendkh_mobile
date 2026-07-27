@@ -105,6 +105,10 @@ class TrainingCourseData {
       }
     }
 
+    if (raw.contains('/storage/storage/')) {
+      raw = raw.replaceAll('/storage/storage/', '/storage/');
+    }
+
     if (!raw.startsWith('http')) {
       final cleanPath = raw.startsWith('/') ? raw : '/$raw';
       raw = 'https://phplaravel-1627268-6571483.cloudwaysapps.com$cleanPath';
