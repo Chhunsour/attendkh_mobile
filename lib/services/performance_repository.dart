@@ -93,11 +93,27 @@ class TrainingCourseData {
     this.notes,
   });
 
-  factory TrainingCourseData.fromJson(Map<String, dynamic> json) {
-    String? rawCover = json['cover_image'] as String?;
-    if (rawCover != null && rawCover.isNotEmpty && !rawCover.startsWith('http')) {
-      rawCover = 'https://phplaravel-1627268-6571483.cloudwaysapps.com${rawCover.startsWith('/') ? '' : '/'}$rawCover';
+  static String? _resolveImageUrl(dynamic jsonVal) {
+    if (jsonVal == null) return null;
+    String raw = jsonVal.toString().trim();
+    if (raw.isEmpty) return null;
+
+    if (raw.contains('192.168.') || raw.contains('localhost') || raw.contains('127.0.0.1')) {
+      final uri = Uri.tryParse(raw);
+      if (uri != null && uri.path.isNotEmpty) {
+        raw = uri.path;
+      }
     }
+
+    if (!raw.startsWith('http')) {
+      final cleanPath = raw.startsWith('/') ? raw : '/$raw';
+      raw = 'https://phplaravel-1627268-6571483.cloudwaysapps.com$cleanPath';
+    }
+    return raw;
+  }
+
+  factory TrainingCourseData.fromJson(Map<String, dynamic> json) {
+    final rawCover = _resolveImageUrl(json['cover_image_url'] ?? json['cover_image']);
 
     return TrainingCourseData(
       id: json['id'] as int,

@@ -716,14 +716,36 @@ class _TrainingTabState extends State<_TrainingTab> {
                             setSheetState(() => coverImageFile = compressed);
                           }
                         },
-                        child: Container(
-                          width: double.infinity, height: 160,
-                          decoration: BoxDecoration(
-                            color: AppColors.grey100, borderRadius: BorderRadius.circular(16),
-                            image: coverImageFile != null ? DecorationImage(image: FileImage(coverImageFile!), fit: BoxFit.cover) : 
-                                   (item?.coverImage != null ? DecorationImage(image: NetworkImage(item!.coverImage!), fit: BoxFit.cover) : null),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            width: double.infinity,
+                            height: 160,
+                            color: const Color(0xFFF1F5F9),
+                            child: coverImageFile != null
+                                ? Image.file(coverImageFile!, fit: BoxFit.cover)
+                                : (item?.coverImage != null && item!.coverImage!.isNotEmpty)
+                                    ? Image.network(
+                                        item.coverImage!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (ctx, err, stack) => const Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.image, size: 48, color: AppColors.grey400),
+                                            SizedBox(height: 8),
+                                            Text('Tap to replace cover image', style: TextStyle(color: AppColors.grey500)),
+                                          ],
+                                        ),
+                                      )
+                                    : const Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.image, size: 48, color: AppColors.grey400),
+                                          SizedBox(height: 8),
+                                          Text('Tap to upload cover image', style: TextStyle(color: AppColors.grey500)),
+                                        ],
+                                      ),
                           ),
-                          child: (coverImageFile == null && item?.coverImage == null) ? const Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.image, size: 48, color: AppColors.grey400), SizedBox(height: 8), Text('Tap to upload cover image', style: TextStyle(color: AppColors.grey500))]) : null,
                         ),
                       ),
                     ),
