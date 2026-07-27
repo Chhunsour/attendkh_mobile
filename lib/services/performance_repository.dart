@@ -60,42 +60,62 @@ class TrainingCourseData {
   final int id;
   final String title;
   final String? description;
+  final String? content;
   final DepartmentData? department;
   final int? departmentId;
   final String? coverImage;
   final String? level;
   final int? durationHours;
+  final String? instructor;
+  final String? location;
+  final int? maxParticipants;
   final String status;
   final String? startDate;
   final String? endDate;
+  final String? notes;
 
   const TrainingCourseData({
     required this.id,
     required this.title,
     this.description,
+    this.content,
     this.department,
     this.departmentId,
     this.coverImage,
     this.level,
     this.durationHours,
+    this.instructor,
+    this.location,
+    this.maxParticipants,
     required this.status,
     this.startDate,
     this.endDate,
+    this.notes,
   });
 
   factory TrainingCourseData.fromJson(Map<String, dynamic> json) {
+    String? rawCover = json['cover_image'] as String?;
+    if (rawCover != null && rawCover.isNotEmpty && !rawCover.startsWith('http')) {
+      rawCover = 'https://phplaravel-1627268-6571483.cloudwaysapps.com${rawCover.startsWith('/') ? '' : '/'}$rawCover';
+    }
+
     return TrainingCourseData(
       id: json['id'] as int,
       title: json['title'] as String? ?? '',
       description: json['description'] as String?,
+      content: json['content'] as String?,
       department: json['department'] != null ? DepartmentData.fromJson(json['department']) : null,
       departmentId: json['department_id'] as int?,
-      coverImage: json['cover_image'] as String?,
+      coverImage: rawCover,
       level: json['level'] as String?,
       durationHours: json['duration_hours'] != null ? int.tryParse(json['duration_hours'].toString()) : null,
+      instructor: json['instructor'] as String?,
+      location: json['location'] as String?,
+      maxParticipants: json['max_participants'] != null ? int.tryParse(json['max_participants'].toString()) : null,
       status: json['status'] as String? ?? 'draft',
       startDate: json['start_date'] as String?,
       endDate: json['end_date'] as String?,
+      notes: json['notes'] as String?,
     );
   }
 }

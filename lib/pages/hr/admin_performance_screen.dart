@@ -670,8 +670,18 @@ class _TrainingTabState extends State<_TrainingTab> {
     final isEdit = item != null;
     final titleCtrl = TextEditingController(text: isEdit ? item.title : '');
     final descCtrl = TextEditingController(text: isEdit ? (item.description ?? '') : '');
+    final contentCtrl = TextEditingController(text: isEdit ? (item.content ?? '') : '');
+    final durationCtrl = TextEditingController(text: isEdit ? (item.durationHours?.toString() ?? '') : '');
+    final instructorCtrl = TextEditingController(text: isEdit ? (item.instructor ?? '') : '');
+    final locationCtrl = TextEditingController(text: isEdit ? (item.location ?? '') : '');
+    final maxParticipantsCtrl = TextEditingController(text: isEdit ? (item.maxParticipants?.toString() ?? '') : '');
+    final startDateCtrl = TextEditingController(text: isEdit ? (item.startDate ?? '') : '');
+    final endDateCtrl = TextEditingController(text: isEdit ? (item.endDate ?? '') : '');
+    final notesCtrl = TextEditingController(text: isEdit ? (item.notes ?? '') : '');
+
     String selectedDeptId = isEdit ? (item.departmentId?.toString() ?? '') : '';
     String selectedLevel = isEdit ? (item.level ?? 'beginner') : 'beginner';
+    String selectedStatus = isEdit ? item.status : 'draft';
     File? coverImageFile;
 
     showModalBottomSheet(
@@ -708,7 +718,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                           decoration: BoxDecoration(
                             color: AppColors.grey100, borderRadius: BorderRadius.circular(16),
                             image: coverImageFile != null ? DecorationImage(image: FileImage(coverImageFile!), fit: BoxFit.cover) : 
-                                   (item?.coverImage != null ? DecorationImage(image: NetworkImage('http://192.168.100.252:8000${item!.coverImage}'), fit: BoxFit.cover) : null),
+                                   (item?.coverImage != null ? DecorationImage(image: NetworkImage(item!.coverImage!), fit: BoxFit.cover) : null),
                           ),
                           child: (coverImageFile == null && item?.coverImage == null) ? const Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.image, size: 48, color: AppColors.grey400), SizedBox(height: 8), Text('Tap to upload cover image', style: TextStyle(color: AppColors.grey500))]) : null,
                         ),
@@ -730,19 +740,211 @@ class _TrainingTabState extends State<_TrainingTab> {
                     ),
                     const SizedBox(height: 16),
                     
-                    DropdownButtonFormField<String>(
-                      isExpanded: true, initialValue: selectedLevel,
-                      decoration: InputDecoration(labelText: 'Level', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                      items: const [
-                        DropdownMenuItem(value: 'beginner', child: Text('Beginner')),
-                        DropdownMenuItem(value: 'intermediate', child: Text('Intermediate')),
-                        DropdownMenuItem(value: 'advanced', child: Text('Advanced')),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            isExpanded: true, initialValue: selectedLevel,
+                            decoration: InputDecoration(labelText: 'Level', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            items: const [
+                              DropdownMenuItem(value: 'beginner', child: Text('Beginner')),
+                              DropdownMenuItem(value: 'intermediate', child: Text('Intermediate')),
+                              DropdownMenuItem(value: 'advanced', child: Text('Advanced')),
+                            ],
+                            onChanged: (val) => setSheetState(() => selectedLevel = val ?? 'beginner'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            isExpanded: true, initialValue: selectedStatus,
+                            decoration: InputDecoration(labelText: 'Status', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            items: const [
+                              DropdownMenuItem(value: 'draft', child: Text('Draft')),
+                              DropdownMenuItem(value: 'published', child: Text('Published')),
+                              DropdownMenuItem(value: 'ongoing', child: Text('Ongoing')),
+                              DropdownMenuItem(value: 'completed', child: Text('Completed')),
+                              DropdownMenuItem(value: 'cancelled', child: Text('Cancelled')),
+                            ],
+                            onChanged: (val) => setSheetState(() => selectedStatus = val ?? 'draft'),
+                          ),
+                        ),
                       ],
-                      onChanged: (val) => setSheetState(() => selectedLevel = val ?? 'beginner'),
                     ),
                     const SizedBox(height: 16),
 
-                    TextField(controller: descCtrl, maxLines: 3, decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: durationCtrl,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(labelText: 'Duration (Hours)', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: maxParticipantsCtrl,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(labelText: 'Max Capacity', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: instructorCtrl,
+                            decoration: InputDecoration(labelText: 'Instructor Name', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: locationCtrl,
+                            decoration: InputDecoration(labelText: 'Location / Link', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () async {
+                              final init = startDateCtrl.text.isNotEmpty ? (DateTime.tryParse(startDateCtrl.text) ?? DateTime.now()) : DateTime.now();
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: init,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2030),
+                                builder: (ctx, child) => Theme(
+                                  data: Theme.of(ctx).copyWith(
+                                    colorScheme: const ColorScheme.light(
+                                      primary: AppColors.primary,
+                                      onPrimary: Colors.white,
+                                      surface: Colors.white,
+                                      onSurface: AppColors.grey900,
+                                    ),
+                                    dialogTheme: DialogThemeData(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                    ),
+                                  ),
+                                  child: child!,
+                                ),
+                              );
+                              if (picked != null) {
+                                setSheetState(() => startDateCtrl.text = picked.toIso8601String().substring(0, 10));
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.grey300),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Start Date', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        startDateCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(startDateCtrl.text)) : 'Select date...',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: startDateCtrl.text.isNotEmpty ? FontWeight.w700 : FontWeight.w400,
+                                          color: startDateCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 18),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () async {
+                              final init = endDateCtrl.text.isNotEmpty ? (DateTime.tryParse(endDateCtrl.text) ?? DateTime.now()) : DateTime.now();
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: init,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2030),
+                                builder: (ctx, child) => Theme(
+                                  data: Theme.of(ctx).copyWith(
+                                    colorScheme: const ColorScheme.light(
+                                      primary: AppColors.primary,
+                                      onPrimary: Colors.white,
+                                      surface: Colors.white,
+                                      onSurface: AppColors.grey900,
+                                    ),
+                                    dialogTheme: DialogThemeData(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                    ),
+                                  ),
+                                  child: child!,
+                                ),
+                              );
+                              if (picked != null) {
+                                setSheetState(() => endDateCtrl.text = picked.toIso8601String().substring(0, 10));
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.grey300),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('End Date', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        endDateCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(endDateCtrl.text)) : 'Select date...',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: endDateCtrl.text.isNotEmpty ? FontWeight.w700 : FontWeight.w400,
+                                          color: endDateCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 18),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    TextField(controller: descCtrl, maxLines: 2, decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                    const SizedBox(height: 16),
+                    TextField(controller: contentCtrl, maxLines: 3, decoration: InputDecoration(labelText: 'Course Content / Syllabus', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                    const SizedBox(height: 16),
+                    TextField(controller: notesCtrl, maxLines: 2, decoration: InputDecoration(labelText: 'Internal Notes', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
                     
                     const SizedBox(height: 24),
                     SizedBox(
@@ -758,8 +960,17 @@ class _TrainingTabState extends State<_TrainingTab> {
                             final data = {
                               'title': titleCtrl.text.trim(),
                               'description': descCtrl.text.trim(),
+                              'content': contentCtrl.text.trim(),
                               if (selectedDeptId.isNotEmpty) 'department_id': selectedDeptId,
                               'level': selectedLevel,
+                              'status': selectedStatus,
+                              if (durationCtrl.text.isNotEmpty) 'duration_hours': int.tryParse(durationCtrl.text.trim()),
+                              if (maxParticipantsCtrl.text.isNotEmpty) 'max_participants': int.tryParse(maxParticipantsCtrl.text.trim()),
+                              if (instructorCtrl.text.isNotEmpty) 'instructor': instructorCtrl.text.trim(),
+                              if (locationCtrl.text.isNotEmpty) 'location': locationCtrl.text.trim(),
+                              if (startDateCtrl.text.isNotEmpty) 'start_date': startDateCtrl.text.trim(),
+                              if (endDateCtrl.text.isNotEmpty) 'end_date': endDateCtrl.text.trim(),
+                              if (notesCtrl.text.isNotEmpty) 'notes': notesCtrl.text.trim(),
                             };
                             if (isEdit) {
                               await _repo.updateTraining(item.id, data, coverImagePath: coverImageFile?.path);
@@ -828,10 +1039,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (t.coverImage != null)
+                      if (t.coverImage != null && t.coverImage!.isNotEmpty)
                         Container(
-                          width: double.infinity, height: 120, margin: const EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), image: DecorationImage(image: NetworkImage('http://192.168.100.252:8000${t.coverImage}'), fit: BoxFit.cover)),
+                          width: double.infinity, height: 140, margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), image: DecorationImage(image: NetworkImage(t.coverImage!), fit: BoxFit.cover)),
                         ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
