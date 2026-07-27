@@ -16,6 +16,97 @@ final adminCompaniesProvider =
   return AdminCompaniesRepository().getCompanies();
 });
 
+String _getLogoUrl(String logo) {
+  if (logo.startsWith('http://') || logo.startsWith('https://')) {
+    return logo;
+  }
+  var cleanPath = logo;
+  if (cleanPath.startsWith('/storage/')) {
+    cleanPath = cleanPath.substring('/storage/'.length);
+  } else if (cleanPath.startsWith('storage/')) {
+    cleanPath = cleanPath.substring('storage/'.length);
+  }
+  if (cleanPath.startsWith('/')) {
+    cleanPath = cleanPath.substring(1);
+  }
+  return '${DioClient.storageUrl}/$cleanPath';
+}
+
+class CompanyLogoImage extends StatelessWidget {
+  final String logo;
+  final double? width;
+  final double? height;
+  final BoxFit fit;
+  final Widget? fallbackIcon;
+
+  const CompanyLogoImage({
+    super.key,
+    required this.logo,
+    this.width,
+    this.height,
+    this.fit = BoxFit.cover,
+    this.fallbackIcon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (logo.isEmpty) {
+      return fallbackIcon ?? const Icon(Icons.business_rounded, color: AppColors.grey400);
+    }
+
+    final primaryUrl = _getLogoUrl(logo);
+
+    var cleanPath = logo;
+    if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
+      cleanPath = '';
+    } else {
+      if (cleanPath.startsWith('/storage/')) {
+        cleanPath = cleanPath.substring('/storage/'.length);
+      } else if (cleanPath.startsWith('storage/')) {
+        cleanPath = cleanPath.substring('storage/'.length);
+      }
+      if (cleanPath.startsWith('/')) {
+        cleanPath = cleanPath.substring(1);
+      }
+    }
+
+    final secondaryUrl = cleanPath.isNotEmpty
+        ? '${DioClient.instance.options.baseUrl.replaceAll('/api', '/storage/')}$cleanPath'
+        : null;
+
+    return CachedNetworkImage(
+      imageUrl: primaryUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      placeholder: (context, url) => SizedBox(
+        width: width,
+        height: height,
+        child: const Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
+      ),
+      errorWidget: (context, url, error) {
+        if (secondaryUrl != null && secondaryUrl != primaryUrl) {
+          return CachedNetworkImage(
+            imageUrl: secondaryUrl,
+            width: width,
+            height: height,
+            fit: fit,
+            placeholder: (context, url) => SizedBox(
+              width: width,
+              height: height,
+              child: const Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
+            ),
+            errorWidget: (context, url, error) =>
+                fallbackIcon ?? const Icon(Icons.business_rounded, color: AppColors.grey400),
+          );
+        }
+        return fallbackIcon ?? const Icon(Icons.business_rounded, color: AppColors.grey400);
+      },
+    );
+  }
+}
+
+
 class AdminCompaniesScreen extends ConsumerWidget {
   const AdminCompaniesScreen({super.key});
 
@@ -156,12 +247,11 @@ class AdminCompaniesScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.grey200),
                   ),
-                  child: company.logo != null
-                      ? CachedNetworkImage(
-                          imageUrl: '${DioClient.instance.options.baseUrl.replaceAll('/api', '/storage/')}${company.logo}',
+                  child: (company.logo != null && company.logo!.isNotEmpty)
+                      ? CompanyLogoImage(
+                          logo: company.logo!,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => const Icon(Icons.image, color: AppColors.grey300),
-                          errorWidget: (context, url, error) => Icon(
+                          fallbackIcon: Icon(
                             Icons.business_rounded,
                             color: isActive ? const Color(0xFF6366F1) : AppColors.danger,
                           ),
@@ -483,6 +573,9 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
   late final TextEditingController _addressCtrl;
   late final TextEditingController _timezoneCtrl;
   late final TextEditingController _currencyCtrl;
+  late final TextEditingController _adminNameCtrl;
+  late final TextEditingController _adminEmailCtrl;
+  late final TextEditingController _adminPasswordCtrl;
   String _status = 'active';
   bool _isSaving = false;
   bool _isLoadingLocation = false;
@@ -504,6 +597,9 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     _addressCtrl = TextEditingController(text: c?.address ?? '');
     _timezoneCtrl = TextEditingController(text: c?.timezone ?? 'UTC+7');
     _currencyCtrl = TextEditingController(text: c?.currency ?? 'USD');
+    _adminNameCtrl = TextEditingController();
+    _adminEmailCtrl = TextEditingController();
+    _adminPasswordCtrl = TextEditingController();
     _status = c?.status ?? 'active';
 
     if (sm != null) {
@@ -527,6 +623,9 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     _addressCtrl.dispose();
     _timezoneCtrl.dispose();
     _currencyCtrl.dispose();
+    _adminNameCtrl.dispose();
+    _adminEmailCtrl.dispose();
+    _adminPasswordCtrl.dispose();
     super.dispose();
   }
 
@@ -591,26 +690,68 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
         'status': _status,
       };
 
+      if (!_isEditing) {
+        if (_adminNameCtrl.text.trim().isNotEmpty) {
+          data['admin_name'] = _adminNameCtrl.text.trim();
+        }
+        if (_adminEmailCtrl.text.trim().isNotEmpty) {
+          data['admin_email'] = _adminEmailCtrl.text.trim();
+        }
+        if (_adminPasswordCtrl.text.trim().isNotEmpty) {
+          data['admin_password'] = _adminPasswordCtrl.text.trim();
+        }
+      }
+
       final repo = AdminCompaniesRepository();
       final logoPath = _logoFile?.path;
+      AdminCompanyCreationResult? createRes;
       if (_isEditing) {
         await repo.updateCompany(widget.company!.id, data, logoPath: logoPath);
       } else {
-        await repo.createCompany(data, logoPath: logoPath);
+        createRes = await repo.createCompany(data, logoPath: logoPath);
       }
 
       widget.ref.invalidate(adminCompaniesProvider);
 
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_isEditing
-                ? 'Company updated successfully'
-                : 'Company created successfully'),
-            backgroundColor: AppColors.success,
-          ),
-        );
+        if (createRes != null && createRes.ownerEmail != null) {
+          final email = createRes.ownerEmail;
+          final pass = createRes.ownerPassword ?? 'Password123!';
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Text('Company Created'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Company Owner account created successfully! Use these credentials to log in:'),
+                  const SizedBox(height: 12),
+                  SelectableText('Email: $email', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  SelectableText('Password: $pass', style: const TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(_isEditing
+                  ? 'Company updated successfully'
+                  : 'Company created successfully'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -683,6 +824,37 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                         keyboardType: TextInputType.emailAddress,
                         validator: (v) =>
                             v == null || v.trim().isEmpty ? 'Required' : null),
+                    if (!_isEditing) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7ED),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFFEDD5)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Company Owner Account',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF9A3412)),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Account automatically created for the owner. Leave blank to default to company email and password Password123!.',
+                              style: TextStyle(fontSize: 11, color: Colors.orange.shade800),
+                            ),
+                            const SizedBox(height: 10),
+                            _buildField('Owner Name', _adminNameCtrl),
+                            const SizedBox(height: 10),
+                            _buildField('Owner Login Email', _adminEmailCtrl, keyboardType: TextInputType.emailAddress),
+                            const SizedBox(height: 10),
+                            _buildField('Owner Password', _adminPasswordCtrl),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 14),
                     _buildField('Phone', _phoneCtrl,
                         keyboardType: TextInputType.phone),
@@ -891,23 +1063,62 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                       fit: BoxFit.contain,
                                     ),
                                   )
-                                : Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.cloud_upload_outlined,
-                                          color: AppColors.grey400, size: 22),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        widget.company?.logo != null
-                                            ? 'Tap to change logo'
-                                            : 'Tap to upload logo',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: AppColors.grey500,
+                                : (widget.company?.logo != null && widget.company!.logo!.isNotEmpty)
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            CompanyLogoImage(
+                                              logo: widget.company!.logo!,
+                                              height: 100,
+                                              width: double.infinity,
+                                              fit: BoxFit.contain,
+                                              fallbackIcon: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(Icons.business_rounded, color: AppColors.grey400, size: 22),
+                                                  const SizedBox(width: 8),
+                                                  Text('Tap to change logo', style: TextStyle(fontSize: 14, color: AppColors.grey500)),
+                                                ],
+                                              ),
+                                            ),
+                                            Positioned(
+                                              bottom: 4,
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black.withValues(alpha: 0.6),
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                child: const Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(Icons.edit, color: Colors.white, size: 12),
+                                                    SizedBox(width: 4),
+                                                    Text('Tap to change logo', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.cloud_upload_outlined,
+                                              color: AppColors.grey400, size: 22),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'Tap to upload logo',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: AppColors.grey500,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
                           ),
                         ),
                       ],

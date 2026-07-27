@@ -67,6 +67,18 @@ class AdminCompany {
       };
 }
 
+class AdminCompanyCreationResult {
+  final AdminCompany company;
+  final String? ownerEmail;
+  final String? ownerPassword;
+
+  AdminCompanyCreationResult({
+    required this.company,
+    this.ownerEmail,
+    this.ownerPassword,
+  });
+}
+
 class AdminCompaniesRepository {
   final ApiRepository _api;
 
@@ -100,7 +112,7 @@ class AdminCompaniesRepository {
 
   /// POST /api/v1/admin/companies
   /// Supports JSON data (no file) or FormData with file uploads.
-  Future<AdminCompany> createCompany(Map<String, dynamic> data, {String? logoPath}) async {
+  Future<AdminCompanyCreationResult> createCompany(Map<String, dynamic> data, {String? logoPath}) async {
     final dynamic body;
     if (logoPath != null) {
       body = FormData.fromMap({
@@ -111,26 +123,43 @@ class AdminCompaniesRepository {
       body = data;
     }
     final response = await _api.post('/admin/companies', data: body);
-    final company = _unwrapSingle(response.data);
-    return AdminCompany.fromJson(company);
+    final rawData = _unwrapSingle(response.data);
+    final company = AdminCompany.fromJson(rawData);
+
+    String? ownerEmail;
+    String? ownerPassword;
+    if (rawData['owner_credentials'] is Map) {
+      ownerEmail = rawData['owner_credentials']['email']?.toString();
+      ownerPassword = rawData['owner_credentials']['password']?.toString();
+    }
+
+    return AdminCompanyCreationResult(
+      company: company,
+      ownerEmail: ownerEmail,
+      ownerPassword: ownerPassword,
+    );
   }
 
   /// PUT /api/v1/admin/companies/{id}
   /// Supports JSON data (no file) or FormData with file uploads.
   Future<AdminCompany> updateCompany(int id, Map<String, dynamic> data, {String? logoPath}) async {
     final dynamic body;
+    final ApiResponse<dynamic> response;
     if (logoPath != null) {
       body = FormData.fromMap({
         ...data,
+        '_method': 'PUT',
         'logo': await MultipartFile.fromFile(logoPath),
       });
+      response = await _api.post('/admin/companies/$id', data: body);
     } else {
       body = data;
+      response = await _api.put('/admin/companies/$id', data: body);
     }
-    final response = await _api.put('/admin/companies/$id', data: body);
     final company = _unwrapSingle(response.data);
     return AdminCompany.fromJson(company);
   }
+
 
   /// Unwrap single-entity response that may be { data: { ... } }
   Map<String, dynamic> _unwrapSingle(dynamic raw) {
