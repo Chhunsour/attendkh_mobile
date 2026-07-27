@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
 
 class AdminDocumentsScreen extends StatefulWidget {
   const AdminDocumentsScreen({super.key});
@@ -148,32 +150,70 @@ class _State extends State<AdminDocumentsScreen> {
                     TextField(controller: descCtrl, decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), maxLines: 2),
                     const SizedBox(height: 16),
 
+                    GestureDetector(
+                      onTap: () async {
+                        final initial = expCtrl.text.isNotEmpty ? (DateTime.tryParse(expCtrl.text) ?? DateTime.now()) : DateTime.now();
+                        final picked = await showCustomDatePicker(
+                          context,
+                          initialDate: initial,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2030),
+                        );
+                        if (picked != null) {
+                          setSheetState(() => expCtrl.text = DateFormat('yyyy-MM-dd').format(picked));
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.grey300),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Expires At', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                const SizedBox(height: 4),
+                                Text(
+                                  expCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(expCtrl.text)) : 'No expiration (Optional)',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: expCtrl.text.isNotEmpty ? FontWeight.w700 : FontWeight.w400,
+                                    color: expCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                if (expCtrl.text.isNotEmpty)
+                                  GestureDetector(
+                                    onTap: () => setSheetState(() => expCtrl.clear()),
+                                    child: const Padding(
+                                      padding: EdgeInsets.only(right: 8),
+                                      child: Icon(Icons.close_rounded, color: AppColors.grey400, size: 18),
+                                    ),
+                                  ),
+                                const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 18),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(
-                          child: TextField(
-                            controller: expCtrl,
-                            readOnly: true,
-                            decoration: InputDecoration(labelText: 'Expires At', suffixIcon: const Icon(Icons.calendar_today), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                            onTap: () async {
-                              final picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2030));
-                              if (picked != null) {
-                                expCtrl.text = picked.toString().substring(0, 10);
-                              }
-                            },
-                          ),
+                        Checkbox(
+                          value: isPublic,
+                          activeColor: AppColors.primary,
+                          onChanged: (val) => setSheetState(() => isPublic = val ?? false),
                         ),
-                        const SizedBox(width: 16),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: isPublic,
-                              activeColor: AppColors.primary,
-                              onChanged: (val) => setSheetState(() => isPublic = val ?? false),
-                            ),
-                            const Text('Public', style: TextStyle(fontWeight: FontWeight.bold)),
-                          ],
-                        )
+                        const Text('Public Document', style: TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
 
@@ -349,12 +389,39 @@ class _State extends State<AdminDocumentsScreen> {
                                 const SizedBox(height: 12),
                                 Wrap(
                                   spacing: 8,
+                                  runSpacing: 8,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE2E8F0))),
                                       child: Text(doc.department?.name ?? 'Company-Wide', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
                                     ),
+                                    if (doc.expiresAt != null && doc.expiresAt!.isNotEmpty)
+                                      Builder(builder: (_) {
+                                        final expDate = DateTime.tryParse(doc.expiresAt!);
+                                        final isExpired = expDate != null && expDate.isBefore(DateTime.now());
+                                        final formattedDate = expDate != null ? DateFormat('dd MMM yyyy').format(expDate) : doc.expiresAt!;
+                                        return Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: isExpired ? AppColors.dangerLight : const Color(0xFFFEF3C7),
+                                            borderRadius: BorderRadius.circular(12),
+                                            border: Border.all(color: isExpired ? AppColors.danger.withAlpha(50) : const Color(0xFFFDE68A)),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(isExpired ? Icons.event_busy_rounded : Icons.event_available_rounded, size: 12, color: isExpired ? AppColors.danger : const Color(0xFFD97706)),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                isExpired ? 'Expired ($formattedDate)' : 'Expires: $formattedDate',
+                                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isExpired ? AppColors.danger : const Color(0xFFD97706)),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }),
                                     if (doc.fileSize != null) Text('${(doc.fileSize! / 1024 / 1024).toStringAsFixed(1)} MB', style: const TextStyle(fontSize: 12, color: AppColors.grey400)),
                                   ],
                                 ),

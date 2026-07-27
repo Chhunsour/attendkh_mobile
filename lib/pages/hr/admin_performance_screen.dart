@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show Depar
 import 'package:mpg_hr_mobile_app/services/directory_repository.dart' show DirectoryRepository, EmployeeData;
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
+import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
 
 class AdminPerformanceScreen extends StatefulWidget {
   const AdminPerformanceScreen({super.key});
@@ -174,25 +175,11 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                           child: InkWell(
                             onTap: () async {
                               final init = pStartCtrl.text.isNotEmpty ? (DateTime.tryParse(pStartCtrl.text) ?? DateTime.now()) : DateTime.now();
-                              final picked = await showDatePicker(
-                                context: context,
+                              final picked = await showCustomDatePicker(
+                                context,
                                 initialDate: init,
                                 firstDate: DateTime(2000),
                                 lastDate: DateTime(2030),
-                                builder: (ctx, child) => Theme(
-                                  data: Theme.of(ctx).copyWith(
-                                    colorScheme: const ColorScheme.light(
-                                      primary: AppColors.primary,
-                                      onPrimary: Colors.white,
-                                      surface: Colors.white,
-                                      onSurface: AppColors.grey900,
-                                    ),
-                                    dialogTheme: DialogThemeData(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                    ),
-                                  ),
-                                  child: child!,
-                                ),
                               );
                               if (picked != null) {
                                 setSheetState(() => pStartCtrl.text = picked.toIso8601String().substring(0, 10));
@@ -235,25 +222,11 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                           child: InkWell(
                             onTap: () async {
                               final init = pEndCtrl.text.isNotEmpty ? (DateTime.tryParse(pEndCtrl.text) ?? DateTime.now()) : DateTime.now();
-                              final picked = await showDatePicker(
-                                context: context,
+                              final picked = await showCustomDatePicker(
+                                context,
                                 initialDate: init,
                                 firstDate: DateTime(2000),
                                 lastDate: DateTime(2030),
-                                builder: (ctx, child) => Theme(
-                                  data: Theme.of(ctx).copyWith(
-                                    colorScheme: const ColorScheme.light(
-                                      primary: AppColors.primary,
-                                      onPrimary: Colors.white,
-                                      surface: Colors.white,
-                                      onSurface: AppColors.grey900,
-                                    ),
-                                    dialogTheme: DialogThemeData(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                    ),
-                                  ),
-                                  child: child!,
-                                ),
                               );
                               if (picked != null) {
                                 setSheetState(() => pEndCtrl.text = picked.toIso8601String().substring(0, 10));
@@ -844,25 +817,11 @@ class _TrainingTabState extends State<_TrainingTab> {
                           child: InkWell(
                             onTap: () async {
                               final init = startDateCtrl.text.isNotEmpty ? (DateTime.tryParse(startDateCtrl.text) ?? DateTime.now()) : DateTime.now();
-                              final picked = await showDatePicker(
-                                context: context,
+                              final picked = await showCustomDatePicker(
+                                context,
                                 initialDate: init,
                                 firstDate: DateTime(2000),
                                 lastDate: DateTime(2030),
-                                builder: (ctx, child) => Theme(
-                                  data: Theme.of(ctx).copyWith(
-                                    colorScheme: const ColorScheme.light(
-                                      primary: AppColors.primary,
-                                      onPrimary: Colors.white,
-                                      surface: Colors.white,
-                                      onSurface: AppColors.grey900,
-                                    ),
-                                    dialogTheme: DialogThemeData(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                    ),
-                                  ),
-                                  child: child!,
-                                ),
                               );
                               if (picked != null) {
                                 setSheetState(() => startDateCtrl.text = picked.toIso8601String().substring(0, 10));
@@ -905,25 +864,11 @@ class _TrainingTabState extends State<_TrainingTab> {
                           child: InkWell(
                             onTap: () async {
                               final init = endDateCtrl.text.isNotEmpty ? (DateTime.tryParse(endDateCtrl.text) ?? DateTime.now()) : DateTime.now();
-                              final picked = await showDatePicker(
-                                context: context,
+                              final picked = await showCustomDatePicker(
+                                context,
                                 initialDate: init,
                                 firstDate: DateTime(2000),
                                 lastDate: DateTime(2030),
-                                builder: (ctx, child) => Theme(
-                                  data: Theme.of(ctx).copyWith(
-                                    colorScheme: const ColorScheme.light(
-                                      primary: AppColors.primary,
-                                      onPrimary: Colors.white,
-                                      surface: Colors.white,
-                                      onSurface: AppColors.grey900,
-                                    ),
-                                    dialogTheme: DialogThemeData(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                    ),
-                                  ),
-                                  child: child!,
-                                ),
                               );
                               if (picked != null) {
                                 setSheetState(() => endDateCtrl.text = picked.toIso8601String().substring(0, 10));
