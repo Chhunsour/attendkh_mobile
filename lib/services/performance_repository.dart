@@ -98,22 +98,16 @@ class TrainingCourseData {
     String raw = jsonVal.toString().trim();
     if (raw.isEmpty) return null;
 
-    if (raw.contains('192.168.') || raw.contains('localhost') || raw.contains('127.0.0.1')) {
-      final uri = Uri.tryParse(raw);
-      if (uri != null && uri.path.isNotEmpty) {
-        raw = uri.path;
-      }
+    if (raw.startsWith('http://') || raw.startsWith('https://')) {
+      return raw;
     }
 
-    if (raw.contains('/storage/storage/')) {
-      raw = raw.replaceAll('/storage/storage/', '/storage/');
+    String cleanPath = raw.startsWith('/') ? raw.substring(1) : raw;
+    if (cleanPath.startsWith('storage/')) {
+      cleanPath = cleanPath.substring(8);
     }
 
-    if (!raw.startsWith('http')) {
-      final cleanPath = raw.startsWith('/') ? raw : '/$raw';
-      raw = 'https://phplaravel-1627268-6571483.cloudwaysapps.com$cleanPath';
-    }
-    return raw;
+    return 'https://pub-ccd9b4a59b6e4eddb12ef2a2c45e75c7.r2.dev/$cleanPath';
   }
 
   factory TrainingCourseData.fromJson(Map<String, dynamic> json) {
