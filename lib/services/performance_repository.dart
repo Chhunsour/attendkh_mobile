@@ -222,7 +222,14 @@ class PerformanceRepository {
   Future<TrainingCourseData> createTraining(Map<String, dynamic> data, {String? coverImagePath}) async {
     FormData formData = FormData.fromMap(data);
     if (coverImagePath != null) {
-      formData.files.add(MapEntry('cover_image', await MultipartFile.fromFile(coverImagePath)));
+      final fileName = coverImagePath.split('/').last;
+      formData.files.add(MapEntry(
+        'cover_image',
+        await MultipartFile.fromFile(
+          coverImagePath,
+          filename: fileName.contains('.') ? fileName : 'cover_image.webp',
+        ),
+      ));
     }
     final response = await _api.post('/company/performance/trainings', data: formData);
     return TrainingCourseData.fromJson(response.data as Map<String, dynamic>);
@@ -233,7 +240,14 @@ class PerformanceRepository {
     data['_method'] = 'PUT';
     FormData formData = FormData.fromMap(data);
     if (coverImagePath != null) {
-      formData.files.add(MapEntry('cover_image', await MultipartFile.fromFile(coverImagePath)));
+      final fileName = coverImagePath.split('/').last;
+      formData.files.add(MapEntry(
+        'cover_image',
+        await MultipartFile.fromFile(
+          coverImagePath,
+          filename: fileName.contains('.') ? fileName : 'cover_image.webp',
+        ),
+      ));
     }
     await _api.post('/company/performance/trainings/$id', data: formData);
   }
