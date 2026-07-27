@@ -253,7 +253,11 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => _AdminExpenseDetailSheet(expense: e, statusColor: statusColor),
+      builder: (_) => _AdminExpenseDetailSheet(
+        expense: e,
+        statusColor: statusColor,
+        onEdit: () => _showEditExpenseSheet(context, e),
+      ),
     );
   }
 
@@ -447,10 +451,13 @@ class _AdminExpenseCard extends StatelessWidget {
                 if (onApprove != null)
                   Expanded(child: ElevatedButton.icon(onPressed: onApprove, icon: const Icon(Icons.check, size: 16), label: const Text('Approve'))),
               ]),
-            ],
-            if (expense.status == 'approved' && (onPay != null || onDelete != null)) ...[
+            ] else if (expense.status == 'approved') ...[
               const SizedBox(height: 10),
               Row(children: [
+                if (onEdit != null) ...[
+                  IconButton(icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.primary), onPressed: onEdit, tooltip: 'Edit'),
+                  const SizedBox(width: 4),
+                ],
                 if (onPay != null)
                   Expanded(child: OutlinedButton.icon(onPressed: onPay, icon: const Icon(Icons.payment, size: 16), label: const Text('Mark as Paid'), style: OutlinedButton.styleFrom(foregroundColor: AppColors.info, side: const BorderSide(color: AppColors.info)))),
                 if (onDelete != null) ...[
@@ -458,12 +465,16 @@ class _AdminExpenseCard extends StatelessWidget {
                   IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger), onPressed: onDelete),
                 ],
               ]),
-            ],
-            if ((expense.status == 'rejected' || expense.status == 'paid') && onDelete != null) ...[
+            ] else ...[
               const SizedBox(height: 10),
-              Align(
-                alignment: Alignment.centerRight,
-                child: IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger), onPressed: onDelete),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (onEdit != null)
+                    IconButton(icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.primary), onPressed: onEdit, tooltip: 'Edit'),
+                  if (onDelete != null)
+                    IconButton(icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.danger), onPressed: onDelete, tooltip: 'Delete'),
+                ],
               ),
             ],
           ],
@@ -502,8 +513,13 @@ class _AdminExpenseCard extends StatelessWidget {
 class _AdminExpenseDetailSheet extends StatelessWidget {
   final ExpenseData expense;
   final Color statusColor;
+  final VoidCallback? onEdit;
 
-  const _AdminExpenseDetailSheet({required this.expense, required this.statusColor});
+  const _AdminExpenseDetailSheet({
+    required this.expense,
+    required this.statusColor,
+    this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -572,6 +588,27 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ],
+          if (onEdit != null) ...[
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  onEdit!();
+                },
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: const Text('Edit Expense Claim'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
+              ),
             ),
           ],
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
@@ -283,20 +284,63 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                               Expanded(
                                 child: InkWell(
                                   onTap: () async {
-                                    final date = await showDatePicker(context: ctx, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
+                                    final initialDate = _purchaseDate != null ? (DateTime.tryParse(_purchaseDate!) ?? DateTime.now()) : DateTime.now();
+                                    final date = await showDatePicker(
+                                      context: ctx,
+                                      initialDate: initialDate,
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                      builder: (context, child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme: const ColorScheme.light(
+                                              primary: AppColors.primary,
+                                              onPrimary: Colors.white,
+                                              surface: Colors.white,
+                                              onSurface: AppColors.grey900,
+                                            ),
+                                            dialogTheme: DialogThemeData(
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                            ),
+                                          ),
+                                          child: child!,
+                                        );
+                                      },
+                                    );
                                     if (date != null) setSheetState(() => _purchaseDate = date.toIso8601String().substring(0, 10));
                                   },
-                                  child: InputDecorator(
-                                    decoration: InputDecoration(
-                                      labelText: 'Purchase Date',
-                                      labelStyle: const TextStyle(color: AppColors.grey600, fontSize: 14),
-                                      filled: true,
-                                      fillColor: AppColors.grey50,
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF8FAFC),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: AppColors.grey300),
                                     ),
-                                    child: Text(_purchaseDate ?? 'Select date...', style: TextStyle(color: _purchaseDate != null ? AppColors.grey900 : AppColors.grey400, fontSize: 15)),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'Purchase Date',
+                                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              _purchaseDate != null ? DateFormat('dd MMM yyyy').format(DateTime.parse(_purchaseDate!)) : 'Select date...',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: _purchaseDate != null ? FontWeight.w700 : FontWeight.w400,
+                                                color: _purchaseDate != null ? AppColors.grey900 : AppColors.grey400,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 18),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -319,20 +363,65 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                           const SizedBox(height: 16),
                           InkWell(
                             onTap: () async {
-                              final date = await showDatePicker(context: ctx, initialDate: DateTime.now().add(const Duration(days: 365)), firstDate: DateTime.now(), lastDate: DateTime(2100));
+                              final initialDate = _warrantyExpiryDate != null
+                                  ? (DateTime.tryParse(_warrantyExpiryDate!) ?? DateTime.now().add(const Duration(days: 365)))
+                                  : DateTime.now().add(const Duration(days: 365));
+                              final date = await showDatePicker(
+                                context: ctx,
+                                initialDate: initialDate,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      colorScheme: const ColorScheme.light(
+                                        primary: AppColors.primary,
+                                        onPrimary: Colors.white,
+                                        surface: Colors.white,
+                                        onSurface: AppColors.grey900,
+                                      ),
+                                      dialogTheme: DialogThemeData(
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
                               if (date != null) setSheetState(() => _warrantyExpiryDate = date.toIso8601String().substring(0, 10));
                             },
-                            child: InputDecorator(
-                              decoration: InputDecoration(
-                                labelText: 'Warranty Expiry Date',
-                                labelStyle: const TextStyle(color: AppColors.grey600, fontSize: 14),
-                                filled: true,
-                                fillColor: AppColors.grey50,
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.grey300),
                               ),
-                              child: Text(_warrantyExpiryDate ?? 'Select date...', style: TextStyle(color: _warrantyExpiryDate != null ? AppColors.grey900 : AppColors.grey400, fontSize: 15)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Warranty Expiry Date',
+                                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _warrantyExpiryDate != null ? DateFormat('dd MMM yyyy').format(DateTime.parse(_warrantyExpiryDate!)) : 'Select date...',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: _warrantyExpiryDate != null ? FontWeight.w700 : FontWeight.w400,
+                                          color: _warrantyExpiryDate != null ? AppColors.grey900 : AppColors.grey400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Icon(Icons.verified_user_outlined, color: AppColors.primary, size: 20),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 16),
