@@ -576,6 +576,8 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
   late final TextEditingController _adminNameCtrl;
   late final TextEditingController _adminEmailCtrl;
   late final TextEditingController _adminPasswordCtrl;
+  String _selectedTimezone = 'Asia/Phnom_Penh';
+  String _selectedCurrency = 'USD';
   String _status = 'active';
   bool _isSaving = false;
   bool _isLoadingLocation = false;
@@ -595,8 +597,10 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     _emailCtrl = TextEditingController(text: c?.email ?? '');
     _phoneCtrl = TextEditingController(text: c?.phone ?? '');
     _addressCtrl = TextEditingController(text: c?.address ?? '');
-    _timezoneCtrl = TextEditingController(text: c?.timezone ?? 'UTC+7');
+    _timezoneCtrl = TextEditingController(text: c?.timezone ?? 'Asia/Phnom_Penh');
     _currencyCtrl = TextEditingController(text: c?.currency ?? 'USD');
+    _selectedTimezone = c?.timezone ?? 'Asia/Phnom_Penh';
+    _selectedCurrency = c?.currency ?? 'USD';
     _adminNameCtrl = TextEditingController();
     _adminEmailCtrl = TextEditingController();
     _adminPasswordCtrl = TextEditingController();
@@ -684,22 +688,20 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
         'email': _emailCtrl.text.trim(),
         'phone': _phoneCtrl.text.trim(),
         'address': _addressCtrl.text.trim(),
-        'timezone': _timezoneCtrl.text.trim(),
-        'currency': _currencyCtrl.text.trim(),
+        'timezone': _selectedTimezone,
+        'currency': _selectedCurrency,
         'social_media': _socialMediaList,
         'status': _status,
       };
 
-      if (!_isEditing) {
-        if (_adminNameCtrl.text.trim().isNotEmpty) {
-          data['admin_name'] = _adminNameCtrl.text.trim();
-        }
-        if (_adminEmailCtrl.text.trim().isNotEmpty) {
-          data['admin_email'] = _adminEmailCtrl.text.trim();
-        }
-        if (_adminPasswordCtrl.text.trim().isNotEmpty) {
-          data['admin_password'] = _adminPasswordCtrl.text.trim();
-        }
+      if (_adminNameCtrl.text.trim().isNotEmpty) {
+        data['admin_name'] = _adminNameCtrl.text.trim();
+      }
+      if (_adminEmailCtrl.text.trim().isNotEmpty) {
+        data['admin_email'] = _adminEmailCtrl.text.trim();
+      }
+      if (_adminPasswordCtrl.text.trim().isNotEmpty) {
+        data['admin_password'] = _adminPasswordCtrl.text.trim();
       }
 
       final repo = AdminCompaniesRepository();
@@ -824,37 +826,37 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                         keyboardType: TextInputType.emailAddress,
                         validator: (v) =>
                             v == null || v.trim().isEmpty ? 'Required' : null),
-                    if (!_isEditing) ...[
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF7ED),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFFFEDD5)),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Company Owner Account',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF9A3412)),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Account automatically created for the owner. Leave blank to default to company email and password Password123!.',
-                              style: TextStyle(fontSize: 11, color: Colors.orange.shade800),
-                            ),
-                            const SizedBox(height: 10),
-                            _buildField('Owner Name', _adminNameCtrl),
-                            const SizedBox(height: 10),
-                            _buildField('Owner Login Email', _adminEmailCtrl, keyboardType: TextInputType.emailAddress),
-                            const SizedBox(height: 10),
-                            _buildField('Owner Password', _adminPasswordCtrl),
-                          ],
-                        ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF7ED),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFFEDD5)),
                       ),
-                    ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Company Owner Account',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF9A3412)),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _isEditing
+                                ? 'Update owner details or enter a new password to reset account access.'
+                                : 'Account automatically created for the owner. Leave blank to default to company email and password Password123!.',
+                            style: TextStyle(fontSize: 11, color: Colors.orange.shade800),
+                          ),
+                          const SizedBox(height: 10),
+                          _buildField('Owner Name', _adminNameCtrl),
+                          const SizedBox(height: 10),
+                          _buildField('Owner Login Email', _adminEmailCtrl, keyboardType: TextInputType.emailAddress),
+                          const SizedBox(height: 10),
+                          _buildField(_isEditing ? 'New Password (Optional)' : 'Owner Password', _adminPasswordCtrl),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 14),
                     _buildField('Phone', _phoneCtrl,
                         keyboardType: TextInputType.phone),
@@ -893,11 +895,71 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                     Row(
                       children: [
                         Expanded(
-                          child: _buildField('Timezone', _timezoneCtrl),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Timezone', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                              const SizedBox(height: 6),
+                              DropdownButtonFormField<String>(
+                                initialValue: ['Asia/Phnom_Penh', 'UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo', 'Asia/Bangkok', 'Asia/Singapore'].contains(_selectedTimezone)
+                                    ? _selectedTimezone
+                                    : 'Asia/Phnom_Penh',
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
+                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
+                                  filled: true,
+                                  fillColor: const Color(0xFFF8FAFC),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: 'Asia/Phnom_Penh', child: Text('Asia/Phnom_Penh', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
+                                  DropdownMenuItem(value: 'UTC', child: Text('UTC', style: TextStyle(fontSize: 13))),
+                                  DropdownMenuItem(value: 'America/New_York', child: Text('America/New_York', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
+                                  DropdownMenuItem(value: 'Europe/London', child: Text('Europe/London', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
+                                  DropdownMenuItem(value: 'Asia/Tokyo', child: Text('Asia/Tokyo', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
+                                  DropdownMenuItem(value: 'Asia/Bangkok', child: Text('Asia/Bangkok', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
+                                  DropdownMenuItem(value: 'Asia/Singapore', child: Text('Asia/Singapore', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
+                                ],
+                                onChanged: (val) {
+                                  if (val != null) setState(() => _selectedTimezone = val);
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _buildField('Currency', _currencyCtrl),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Currency', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                              const SizedBox(height: 6),
+                              DropdownButtonFormField<String>(
+                                initialValue: ['USD', 'EUR', 'GBP', 'JPY', 'KHR'].contains(_selectedCurrency)
+                                    ? _selectedCurrency
+                                    : 'USD',
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
+                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
+                                  filled: true,
+                                  fillColor: const Color(0xFFF8FAFC),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(value: 'USD', child: Text('USD (\$)', style: TextStyle(fontSize: 13))),
+                                  DropdownMenuItem(value: 'EUR', child: Text('EUR (€)', style: TextStyle(fontSize: 13))),
+                                  DropdownMenuItem(value: 'GBP', child: Text('GBP (£)', style: TextStyle(fontSize: 13))),
+                                  DropdownMenuItem(value: 'JPY', child: Text('JPY (¥)', style: TextStyle(fontSize: 13))),
+                                  DropdownMenuItem(value: 'KHR', child: Text('KHR (៛)', style: TextStyle(fontSize: 13))),
+                                ],
+                                onChanged: (val) {
+                                  if (val != null) setState(() => _selectedCurrency = val);
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
