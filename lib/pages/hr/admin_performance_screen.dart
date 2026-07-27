@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/performance_repository.dart';
@@ -106,15 +107,19 @@ class _ReviewsTabState extends State<_ReviewsTab> {
 
   void _showForm([PerformanceReviewData? item]) {
     final isEdit = item != null;
+    int selectedRating = isEdit ? (item.overallRating ?? 0) : 0;
     String selectedEmpId = isEdit ? (item.employee?.id.toString() ?? '') : '';
     String selectedType = isEdit ? item.reviewType : 'manager';
     final periodCtrl = TextEditingController(text: isEdit ? (item.reviewPeriod ?? '') : '');
-    final ratingCtrl = TextEditingController(text: isEdit ? (item.overallRating?.toString() ?? '') : '');
-    final strengthsCtrl = TextEditingController();
+    final strengthsCtrl = TextEditingController(text: isEdit ? (item.strengths ?? '') : '');
+    final improvementsCtrl = TextEditingController(text: isEdit ? (item.areasForImprovement ?? '') : '');
+    final goalsCtrl = TextEditingController(text: isEdit ? (item.goals ?? '') : '');
+    final commentsCtrl = TextEditingController(text: isEdit ? (item.comments ?? '') : '');
+    String selectedStatus = isEdit ? item.status : 'draft';
     
     // Default dates for new reviews
-    final pStartCtrl = TextEditingController();
-    final pEndCtrl = TextEditingController();
+    final pStartCtrl = TextEditingController(text: isEdit ? (item.periodStart ?? '') : '');
+    final pEndCtrl = TextEditingController(text: isEdit ? (item.periodEnd ?? '') : '');
     final revDateCtrl = TextEditingController(text: isEdit ? (item.reviewDate ?? '') : DateTime.now().toString().substring(0, 10));
 
     showModalBottomSheet(
@@ -165,41 +170,231 @@ class _ReviewsTabState extends State<_ReviewsTab> {
 
                     Row(
                       children: [
-                        Expanded(child: TextField(
-                          controller: pStartCtrl, readOnly: true, decoration: InputDecoration(labelText: 'Start Date *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                          onTap: () async {
-                            final picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2030));
-                            if (picked != null) pStartCtrl.text = picked.toString().substring(0, 10);
-                          },
-                        )),
-                        const SizedBox(width: 16),
-                        Expanded(child: TextField(
-                          controller: pEndCtrl, readOnly: true, decoration: InputDecoration(labelText: 'End Date *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                          onTap: () async {
-                            final picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2030));
-                            if (picked != null) pEndCtrl.text = picked.toString().substring(0, 10);
-                          },
-                        )),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () async {
+                              final init = pStartCtrl.text.isNotEmpty ? (DateTime.tryParse(pStartCtrl.text) ?? DateTime.now()) : DateTime.now();
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: init,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2030),
+                                builder: (ctx, child) => Theme(
+                                  data: Theme.of(ctx).copyWith(
+                                    colorScheme: const ColorScheme.light(
+                                      primary: AppColors.primary,
+                                      onPrimary: Colors.white,
+                                      surface: Colors.white,
+                                      onSurface: AppColors.grey900,
+                                    ),
+                                    dialogTheme: DialogThemeData(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                    ),
+                                  ),
+                                  child: child!,
+                                ),
+                              );
+                              if (picked != null) {
+                                setSheetState(() => pStartCtrl.text = picked.toIso8601String().substring(0, 10));
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.grey300),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Start Date *', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        pStartCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(pStartCtrl.text)) : 'Select date...',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: pStartCtrl.text.isNotEmpty ? FontWeight.w700 : FontWeight.w400,
+                                          color: pStartCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 18),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () async {
+                              final init = pEndCtrl.text.isNotEmpty ? (DateTime.tryParse(pEndCtrl.text) ?? DateTime.now()) : DateTime.now();
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: init,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2030),
+                                builder: (ctx, child) => Theme(
+                                  data: Theme.of(ctx).copyWith(
+                                    colorScheme: const ColorScheme.light(
+                                      primary: AppColors.primary,
+                                      onPrimary: Colors.white,
+                                      surface: Colors.white,
+                                      onSurface: AppColors.grey900,
+                                    ),
+                                    dialogTheme: DialogThemeData(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                    ),
+                                  ),
+                                  child: child!,
+                                ),
+                              );
+                              if (picked != null) {
+                                setSheetState(() => pEndCtrl.text = picked.toIso8601String().substring(0, 10));
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.grey300),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('End Date *', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        pEndCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(pEndCtrl.text)) : 'Select date...',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: pEndCtrl.text.isNotEmpty ? FontWeight.w700 : FontWeight.w400,
+                                          color: pEndCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 18),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
-                    Row(
-                      children: [
-                        Expanded(child: TextField(
-                          controller: revDateCtrl, readOnly: true, decoration: InputDecoration(labelText: 'Review Date *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                          onTap: () async {
-                            final picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2030));
-                            if (picked != null) revDateCtrl.text = picked.toString().substring(0, 10);
-                          },
-                        )),
-                        const SizedBox(width: 16),
-                        Expanded(child: TextField(controller: ratingCtrl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: 'Rating (1-5)', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))))),
+                    InkWell(
+                      onTap: () async {
+                        final init = revDateCtrl.text.isNotEmpty ? (DateTime.tryParse(revDateCtrl.text) ?? DateTime.now()) : DateTime.now();
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: init,
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2030),
+                          builder: (ctx, child) => Theme(
+                            data: Theme.of(ctx).copyWith(
+                              colorScheme: const ColorScheme.light(
+                                primary: AppColors.primary,
+                                onPrimary: Colors.white,
+                                surface: Colors.white,
+                                onSurface: AppColors.grey900,
+                              ),
+                              dialogTheme: DialogThemeData(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                              ),
+                            ),
+                            child: child!,
+                          ),
+                        );
+                        if (picked != null) {
+                          setSheetState(() => revDateCtrl.text = picked.toIso8601String().substring(0, 10));
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.grey300),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Review Date *', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                const SizedBox(height: 4),
+                                Text(
+                                  revDateCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(revDateCtrl.text)) : 'Select date...',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: revDateCtrl.text.isNotEmpty ? FontWeight.w700 : FontWeight.w400,
+                                    color: revDateCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 18),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _StarRatingPicker(
+                      rating: selectedRating,
+                      onChanged: (val) => setSheetState(() => selectedRating = val),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      initialValue: selectedStatus,
+                      decoration: InputDecoration(labelText: 'Status *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      items: const [
+                        DropdownMenuItem(value: 'draft', child: Text('Draft')),
+                        DropdownMenuItem(value: 'submitted', child: Text('Submitted')),
+                        DropdownMenuItem(value: 'acknowledged', child: Text('Acknowledged')),
+                        DropdownMenuItem(value: 'completed', child: Text('Completed')),
                       ],
+                      onChanged: (val) => setSheetState(() => selectedStatus = val ?? 'draft'),
                     ),
                     const SizedBox(height: 16),
 
-                    TextField(controller: strengthsCtrl, maxLines: 3, decoration: InputDecoration(labelText: 'Notes / Strengths', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                    TextField(
+                      controller: strengthsCtrl,
+                      maxLines: 2,
+                      decoration: InputDecoration(labelText: 'Key Strengths', hintText: 'Key accomplishments...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: improvementsCtrl,
+                      maxLines: 2,
+                      decoration: InputDecoration(labelText: 'Areas for Improvement', hintText: 'Areas to develop or improve...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: goalsCtrl,
+                      maxLines: 2,
+                      decoration: InputDecoration(labelText: 'Future Goals & Objectives', hintText: 'Target goals for next period...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: commentsCtrl,
+                      maxLines: 2,
+                      decoration: InputDecoration(labelText: 'Manager / Reviewer Comments', hintText: 'Final reviewer comments...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                    ),
                     
                     const SizedBox(height: 24),
                     SizedBox(
@@ -219,8 +414,12 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                               if (pStartCtrl.text.isNotEmpty) 'period_start': pStartCtrl.text.trim(),
                               if (pEndCtrl.text.isNotEmpty) 'period_end': pEndCtrl.text.trim(),
                               'review_date': revDateCtrl.text.trim(),
-                              if (ratingCtrl.text.isNotEmpty) 'overall_rating': int.parse(ratingCtrl.text.trim()),
+                              if (selectedRating > 0) 'overall_rating': selectedRating,
                               if (strengthsCtrl.text.isNotEmpty) 'strengths': strengthsCtrl.text.trim(),
+                              if (improvementsCtrl.text.isNotEmpty) 'areas_for_improvement': improvementsCtrl.text.trim(),
+                              if (goalsCtrl.text.isNotEmpty) 'goals': goalsCtrl.text.trim(),
+                              if (commentsCtrl.text.isNotEmpty) 'comments': commentsCtrl.text.trim(),
+                              'status': selectedStatus,
                             };
                             if (isEdit) {
                               await _repo.updateReview(item.id, data);
@@ -333,7 +532,18 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                       children: [
                         Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Text('Period: ${r.reviewPeriod ?? 'N/A'}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
                         if (r.overallRating != null)
-                          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(12)), child: Text('Rating: ${r.overallRating}/5', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFD97706)))),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(12)),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.star_rounded, size: 14, color: Color(0xFFD97706)),
+                                const SizedBox(width: 4),
+                                Text('${r.overallRating} / 5', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
                     const Divider(height: 32),
@@ -355,7 +565,71 @@ class _ReviewsTabState extends State<_ReviewsTab> {
   }
 }
 
-// ── TRAININGS TAB ───────────────────────────────────────────────────────────
+// ─── STAR RATING PICKER COMPONENT ──────────────────────────────────────────
+
+class _StarRatingPicker extends StatelessWidget {
+  final int rating;
+  final ValueChanged<int> onChanged;
+
+  const _StarRatingPicker({
+    required this.rating,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.grey300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Overall Rating',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+              ),
+              Text(
+                rating > 0 ? '$rating / 5' : 'Not Rated',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: rating > 0 ? const Color(0xFFD97706) : AppColors.grey400,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(5, (index) {
+              final starValue = index + 1;
+              final isFilled = starValue <= rating;
+              return GestureDetector(
+                onTap: () => onChanged(starValue == rating ? 0 : starValue),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Icon(
+                    isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
+                    color: isFilled ? const Color(0xFFF59E0B) : AppColors.grey400,
+                    size: 28,
+                  ),
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+}
 class _TrainingTab extends StatefulWidget {
   const _TrainingTab();
   @override

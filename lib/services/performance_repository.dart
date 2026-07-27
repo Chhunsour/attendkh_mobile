@@ -11,7 +11,13 @@ class PerformanceReviewData {
   final String reviewType;
   final String status;
   final String? reviewDate;
+  final String? periodStart;
+  final String? periodEnd;
   final int? overallRating;
+  final String? strengths;
+  final String? areasForImprovement;
+  final String? goals;
+  final String? comments;
 
   const PerformanceReviewData({
     required this.id,
@@ -21,7 +27,13 @@ class PerformanceReviewData {
     required this.reviewType,
     required this.status,
     this.reviewDate,
+    this.periodStart,
+    this.periodEnd,
     this.overallRating,
+    this.strengths,
+    this.areasForImprovement,
+    this.goals,
+    this.comments,
   });
 
   factory PerformanceReviewData.fromJson(Map<String, dynamic> json) {
@@ -33,7 +45,13 @@ class PerformanceReviewData {
       reviewType: json['review_type'] as String? ?? 'manager',
       status: json['status'] as String? ?? 'draft',
       reviewDate: json['review_date'] as String?,
+      periodStart: json['period_start'] as String?,
+      periodEnd: json['period_end'] as String?,
       overallRating: json['overall_rating'] != null ? int.tryParse(json['overall_rating'].toString()) : null,
+      strengths: json['strengths'] as String?,
+      areasForImprovement: json['areas_for_improvement'] as String?,
+      goals: json['goals'] as String?,
+      comments: json['comments'] as String?,
     );
   }
 }
