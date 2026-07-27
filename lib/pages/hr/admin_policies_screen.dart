@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/policies_repository.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
 
 class AdminPoliciesScreen extends StatefulWidget {
   const AdminPoliciesScreen({super.key});
@@ -55,6 +57,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
     final effCtrl = TextEditingController(text: isEdit ? (item.effectiveDate ?? '') : '');
     final revCtrl = TextEditingController(text: isEdit ? (item.reviewDate ?? '') : '');
     String selectedDeptId = isEdit ? (item.departmentId?.toString() ?? '') : '';
+    String selectedStatus = isEdit ? item.status : 'draft';
 
     showModalBottomSheet(
       context: context,
@@ -78,31 +81,60 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                     TextField(controller: titleCtrl, decoration: InputDecoration(labelText: 'Title *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
                     const SizedBox(height: 16),
                     
-                    DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      initialValue: selectedDeptId.isEmpty ? null : selectedDeptId,
-                      decoration: InputDecoration(labelText: 'Department', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                      items: [
-                        const DropdownMenuItem(value: null, child: Text('Company-Wide')),
-                        ..._departments.map((d) => DropdownMenuItem(value: d.id.toString(), child: Text(d.name))),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: selectedDeptId.isEmpty ? null : selectedDeptId,
+                            decoration: InputDecoration(labelText: 'Department', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            items: [
+                              const DropdownMenuItem(value: null, child: Text('Company-Wide')),
+                              ..._departments.map((d) => DropdownMenuItem(value: d.id.toString(), child: Text(d.name))),
+                            ],
+                            onChanged: (val) => setSheetState(() => selectedDeptId = val ?? ''),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: selectedStatus,
+                            decoration: InputDecoration(labelText: 'Status', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            items: const [
+                              DropdownMenuItem(value: 'draft', child: Text('Draft')),
+                              DropdownMenuItem(value: 'published', child: Text('Published')),
+                              DropdownMenuItem(value: 'archived', child: Text('Archived')),
+                            ],
+                            onChanged: (val) => setSheetState(() => selectedStatus = val ?? 'draft'),
+                          ),
+                        ),
                       ],
-                      onChanged: (val) => setSheetState(() => selectedDeptId = val ?? ''),
                     ),
                     const SizedBox(height: 16),
 
                     Row(
                       children: [
                         Expanded(child: TextField(controller: versionCtrl, decoration: InputDecoration(labelText: 'Version *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))))),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
                         Expanded(
-                          child: TextField(
-                            controller: effCtrl,
-                            readOnly: true,
-                            decoration: InputDecoration(labelText: 'Effective Date', suffixIcon: const Icon(Icons.calendar_today, size: 20), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                          child: InkWell(
                             onTap: () async {
-                              final picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2030));
-                              if (picked != null) effCtrl.text = picked.toString().substring(0, 10);
+                              final initial = effCtrl.text.isNotEmpty ? (DateTime.tryParse(effCtrl.text) ?? DateTime.now()) : DateTime.now();
+                              final picked = await showCustomDatePicker(context, initialDate: initial, firstDate: DateTime(2000), lastDate: DateTime(2030));
+                              if (picked != null) setSheetState(() => effCtrl.text = DateFormat('yyyy-MM-dd').format(picked));
                             },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey300)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text(effCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(effCtrl.text)) : 'Effective Date', style: TextStyle(fontSize: 12, fontWeight: effCtrl.text.isNotEmpty ? FontWeight.bold : FontWeight.w400, color: effCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400), overflow: TextOverflow.ellipsis)),
+                                  const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -112,7 +144,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                     TextField(
                       controller: contentCtrl,
                       decoration: InputDecoration(labelText: 'Content *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                      maxLines: 4,
+                      maxLines: 5,
                     ),
                     
                     const SizedBox(height: 24),
@@ -134,6 +166,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                                 content: contentCtrl.text.trim(),
                                 departmentId: selectedDeptId.isEmpty ? null : selectedDeptId,
                                 version: versionCtrl.text.trim(),
+                                status: selectedStatus,
                                 effectiveDate: effCtrl.text.trim().isEmpty ? null : effCtrl.text.trim(),
                                 reviewDate: revCtrl.text.trim().isEmpty ? null : revCtrl.text.trim(),
                               );
@@ -143,6 +176,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                                 content: contentCtrl.text.trim(),
                                 departmentId: selectedDeptId.isEmpty ? null : selectedDeptId,
                                 version: versionCtrl.text.trim(),
+                                status: selectedStatus,
                                 effectiveDate: effCtrl.text.trim().isEmpty ? null : effCtrl.text.trim(),
                                 reviewDate: revCtrl.text.trim().isEmpty ? null : revCtrl.text.trim(),
                               );
@@ -164,6 +198,63 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
           );
         }
       )
+    );
+  }
+
+  void _showDetail(Policy p) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(child: Text(p.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900))),
+                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8, runSpacing: 8,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: AppColors.infoLight, borderRadius: BorderRadius.circular(6)),
+                  child: Text(p.status.toUpperCase(), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.info)),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(6)),
+                  child: Text(p.department?.name ?? 'Company-Wide', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF475569))),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(6)),
+                  child: Text('v${p.version}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF475569))),
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                  child: Text(p.content, style: const TextStyle(fontSize: 14, height: 1.6, color: AppColors.grey800)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -355,10 +446,48 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                                       ),
                                   ],
                                 ),
+                                if (p.status == 'published' && p.stats != null) ...[
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF8FAFC),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: AppColors.grey200),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Acknowledged: ${p.stats!.acknowledged}/${p.stats!.target}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                                            Text('${p.stats!.percentage}%', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.success)),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 6),
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(4),
+                                          child: LinearProgressIndicator(
+                                            value: p.stats!.percentage / 100.0,
+                                            backgroundColor: const Color(0xFFE2E8F0),
+                                            color: AppColors.success,
+                                            minHeight: 6,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                                 const Divider(height: 32),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
+                                    TextButton.icon(
+                                      onPressed: () => _showDetail(p),
+                                      icon: const Icon(Icons.visibility, size: 16, color: AppColors.info),
+                                      label: const Text('View', style: TextStyle(color: AppColors.info)),
+                                    ),
                                     if (p.status != 'published')
                                       TextButton.icon(
                                         onPressed: () => _changeStatus(p.id, 'publish'),

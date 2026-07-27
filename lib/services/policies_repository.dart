@@ -1,6 +1,26 @@
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
 
+class PolicyStats {
+  final int target;
+  final int acknowledged;
+  final int percentage;
+
+  const PolicyStats({
+    required this.target,
+    required this.acknowledged,
+    required this.percentage,
+  });
+
+  factory PolicyStats.fromJson(Map<String, dynamic> json) {
+    return PolicyStats(
+      target: json['target'] as int? ?? 0,
+      acknowledged: json['acknowledged'] as int? ?? 0,
+      percentage: json['percentage'] as int? ?? 0,
+    );
+  }
+}
+
 class Policy {
   final int id;
   final String title;
@@ -12,6 +32,7 @@ class Policy {
   final String? effectiveDate;
   final String? reviewDate;
   final String createdAt;
+  final PolicyStats? stats;
   
   // Employee context fields
   final bool isAcknowledged;
@@ -28,6 +49,7 @@ class Policy {
     this.effectiveDate,
     this.reviewDate,
     required this.createdAt,
+    this.stats,
     this.isAcknowledged = false,
     this.acknowledgedAt,
   });
@@ -44,6 +66,7 @@ class Policy {
       effectiveDate: json['effective_date'] as String?,
       reviewDate: json['review_date'] as String?,
       createdAt: json['created_at'] as String? ?? '',
+      stats: json['stats'] != null ? PolicyStats.fromJson(json['stats'] as Map<String, dynamic>) : null,
       isAcknowledged: json['is_acknowledged'] as bool? ?? false,
       acknowledgedAt: json['acknowledged_at'] as String?,
     );
@@ -95,6 +118,7 @@ class PoliciesRepository {
     required String content,
     String? departmentId,
     required String version,
+    String? status,
     String? effectiveDate,
     String? reviewDate,
   }) async {
@@ -103,6 +127,7 @@ class PoliciesRepository {
       'content': content,
       if (departmentId != null && departmentId != 'all') 'department_id': departmentId,
       'version': version,
+      if (status != null && status.isNotEmpty) 'status': status,
       if (effectiveDate != null && effectiveDate.isNotEmpty) 'effective_date': effectiveDate,
       if (reviewDate != null && reviewDate.isNotEmpty) 'review_date': reviewDate,
     };
@@ -115,6 +140,7 @@ class PoliciesRepository {
     required String content,
     String? departmentId,
     required String version,
+    String? status,
     String? effectiveDate,
     String? reviewDate,
   }) async {
@@ -123,6 +149,7 @@ class PoliciesRepository {
       'content': content,
       if (departmentId != null && departmentId != 'all') 'department_id': departmentId,
       'version': version,
+      if (status != null && status.isNotEmpty) 'status': status,
       if (effectiveDate != null && effectiveDate.isNotEmpty) 'effective_date': effectiveDate,
       if (reviewDate != null && reviewDate.isNotEmpty) 'review_date': reviewDate,
     };
