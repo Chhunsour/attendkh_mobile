@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -718,31 +719,14 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
       if (mounted) {
         Navigator.pop(context);
         if (createRes != null && createRes.ownerEmail != null) {
-          final email = createRes.ownerEmail;
+          final companyName = data['name']?.toString() ?? 'Company';
+          final email = createRes.ownerEmail!;
           final pass = createRes.ownerPassword ?? 'Password123!';
-          showDialog(
+          _showCompanyCreatedDialog(
             context: context,
-            builder: (ctx) => AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Text('Company Created'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Company Owner account created successfully! Use these credentials to log in:'),
-                  const SizedBox(height: 12),
-                  SelectableText('Email: $email', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  SelectableText('Password: $pass', style: const TextStyle(fontWeight: FontWeight.bold)),
-                ],
-              ),
-              actions: [
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
+            companyName: companyName,
+            email: email,
+            password: pass,
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1367,6 +1351,282 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
                           ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+void _showCompanyCreatedDialog({
+  required BuildContext context,
+  required String companyName,
+  required String email,
+  required String password,
+}) {
+  showDialog(
+    context: context,
+    builder: (ctx) => _CompanyCreatedSuccessDialog(
+      companyName: companyName,
+      email: email,
+      password: password,
+    ),
+  );
+}
+
+class _CompanyCreatedSuccessDialog extends StatefulWidget {
+  final String companyName;
+  final String email;
+  final String password;
+
+  const _CompanyCreatedSuccessDialog({
+    required this.companyName,
+    required this.email,
+    required this.password,
+  });
+
+  @override
+  State<_CompanyCreatedSuccessDialog> createState() =>
+      _CompanyCreatedSuccessDialogState();
+}
+
+class _CompanyCreatedSuccessDialogState
+    extends State<_CompanyCreatedSuccessDialog> {
+  bool _copiedEmail = false;
+  bool _copiedPassword = false;
+  bool _copiedAll = false;
+
+  void _copy(String text, String type) {
+    Clipboard.setData(ClipboardData(text: text));
+    setState(() {
+      if (type == 'Email') _copiedEmail = true;
+      if (type == 'Password') _copiedPassword = true;
+      if (type == 'Credentials') _copiedAll = true;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$type copied to clipboard!'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.grey900,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 0,
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Icon Header Badge
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.check_circle_rounded,
+                color: AppColors.success,
+                size: 38,
+              ),
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              'Company Created!',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: AppColors.grey900,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Owner credentials generated for "${widget.companyName}"',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.grey600,
+                height: 1.3,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Credentials Card Container
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.grey200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Email Field
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'OWNER EMAIL',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.grey500,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () => _copy(widget.email, 'Email'),
+                        borderRadius: BorderRadius.circular(6),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _copiedEmail ? Icons.check : Icons.copy_rounded,
+                                size: 13,
+                                color: _copiedEmail
+                                    ? AppColors.success
+                                    : AppColors.primary,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _copiedEmail ? 'Copied' : 'Copy',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: _copiedEmail
+                                      ? AppColors.success
+                                      : AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  SelectableText(
+                    widget.email,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.grey900,
+                    ),
+                  ),
+                  const Divider(height: 20, color: AppColors.grey200),
+
+                  // Password Field
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'OWNER PASSWORD',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.grey500,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () => _copy(widget.password, 'Password'),
+                        borderRadius: BorderRadius.circular(6),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _copiedPassword ? Icons.check : Icons.copy_rounded,
+                                size: 13,
+                                color: _copiedPassword
+                                    ? AppColors.success
+                                    : AppColors.primary,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _copiedPassword ? 'Copied' : 'Copy',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: _copiedPassword
+                                      ? AppColors.success
+                                      : AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  SelectableText(
+                    widget.password,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.grey900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _copy(
+                        'Email: ${widget.email}\nPassword: ${widget.password}',
+                        'Credentials'),
+                    icon: Icon(
+                        _copiedAll ? Icons.check : Icons.share_rounded,
+                        size: 16),
+                    label: Text(_copiedAll ? 'Copied All' : 'Copy All'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                      side: const BorderSide(color: AppColors.grey300),
+                      foregroundColor: AppColors.grey800,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                      elevation: 0,
+                    ),
+                    child: const Text('Done',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
