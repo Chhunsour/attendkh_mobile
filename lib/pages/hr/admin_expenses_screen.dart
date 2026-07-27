@@ -650,8 +650,24 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
     final date = await showDatePicker(
       context: context,
       initialDate: _expenseDate,
-      firstDate: DateTime.now().subtract(const Duration(days: 90)),
-      lastDate: DateTime.now(),
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 30)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: AppColors.grey900,
+            ),
+            dialogTheme: DialogThemeData(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
     if (date != null) {
       setState(() => _expenseDate = date);
@@ -797,9 +813,34 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
               const SizedBox(height: 16),
               InkWell(
                 onTap: _pickDate,
-                child: InputDecorator(
-                  decoration: const InputDecoration(labelText: 'Expense Date *', border: OutlineInputBorder(), suffixIcon: Icon(Icons.calendar_today)),
-                  child: Text(DateFormat('dd MMM yyyy').format(_expenseDate), style: const TextStyle(fontSize: 15, color: AppColors.grey800)),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.grey300),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Expense Date *',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            DateFormat('EEE, dd MMM yyyy').format(_expenseDate),
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.grey900),
+                          ),
+                        ],
+                      ),
+                      const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 20),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
