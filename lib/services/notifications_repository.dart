@@ -44,12 +44,33 @@ class NotificationsRepository {
       return data.map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList();
     }
     if (data is Map) {
+      final innerData = data['data'];
+      if (innerData is Map) {
+        if (innerData['notifications'] is Map && innerData['notifications']['data'] is List) {
+          return (innerData['notifications']['data'] as List)
+              .map((e) => NotificationItem.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } else if (innerData['notifications'] is List) {
+          return (innerData['notifications'] as List)
+              .map((e) => NotificationItem.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } else if (innerData['data'] is List) {
+          return (innerData['data'] as List)
+              .map((e) => NotificationItem.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      } else if (innerData is List) {
+        return innerData.map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList();
+      }
+
       if (data['notifications'] is Map && data['notifications']['data'] is List) {
-        return (data['notifications']['data'] as List).map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList();
+        return (data['notifications']['data'] as List)
+            .map((e) => NotificationItem.fromJson(e as Map<String, dynamic>))
+            .toList();
       } else if (data['notifications'] is List) {
-        return (data['notifications'] as List).map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList();
-      } else if (data['data'] is List) {
-        return (data['data'] as List).map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList();
+        return (data['notifications'] as List)
+            .map((e) => NotificationItem.fromJson(e as Map<String, dynamic>))
+            .toList();
       }
     }
     return [];

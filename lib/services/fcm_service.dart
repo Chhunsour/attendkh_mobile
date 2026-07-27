@@ -12,15 +12,24 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:mpg_hr_mobile_app/firebase_options.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   } catch (e) {
     // Ignore initialization errors in background if options are missing
   }
   AppLogger.d("Handling a background message: ${message.messageId}");
+
+  // If the message already contains a notification payload, Firebase SDK handles
+  // native system notification display on Android/iOS in background. Skip manual local notification to avoid duplicate popup.
+  if (message.notification != null) {
+    return;
+  }
 
   if (!kIsWeb) {
     final data = message.data;
@@ -158,7 +167,9 @@ class FcmService {
 
     try {
       try {
-        await Firebase.initializeApp();
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
       } catch (e) {
         // Ignore duplicate app initialization errors
       }
