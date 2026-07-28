@@ -852,27 +852,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           color: const Color(0xFFEAB308), // Yellow/Gold
           onTap: () => context.push(AppRoutes.employeeHolidays),
         ),
-        _GridItem(
-          title: 'Rules',
-          description: 'Company guidelines',
-          icon: Icons.shield_outlined,
-          color: Colors.teal,
-          onTap: () => context.push(AppRoutes.companyRules),
-        ),
-        _GridItem(
-          title: 'Policies',
-          description: 'Legal & Compliance',
-          icon: Icons.gavel_outlined,
-          color: Colors.indigo,
-          onTap: () => context.push(AppRoutes.companyPolicies),
-        ),
-        _GridItem(
-          title: 'Documents',
-          description: 'Company files',
-          icon: Icons.folder_copy_outlined,
-          color: Colors.blueGrey,
-          onTap: () => context.push(AppRoutes.companyDocuments),
-        ),
+
       ],
     );
   }

@@ -140,6 +140,26 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
+
+                    InkWell(
+                      onTap: () async {
+                        final initial = revCtrl.text.isNotEmpty ? (DateTime.tryParse(revCtrl.text) ?? DateTime.now()) : DateTime.now();
+                        final picked = await showCustomDatePicker(context, initialDate: initial, firstDate: DateTime(2000), lastDate: DateTime(2030));
+                        if (picked != null) setSheetState(() => revCtrl.text = DateFormat('yyyy-MM-dd').format(picked));
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                        decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey300)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(revCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(revCtrl.text)) : 'Next Review Date (Optional)', style: TextStyle(fontSize: 12, fontWeight: revCtrl.text.isNotEmpty ? FontWeight.bold : FontWeight.w400, color: revCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400)),
+                            const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     
                     TextField(
                       controller: contentCtrl,

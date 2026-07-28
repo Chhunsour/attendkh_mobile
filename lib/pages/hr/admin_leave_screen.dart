@@ -9,10 +9,14 @@ import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 // ─── Color helpers ─────────────────────────────────────────────────────────
 Color _statusColor(String s) {
   switch (s) {
-    case 'approved': return AppColors.success;
-    case 'rejected': return AppColors.danger;
-    case 'cancelled': return AppColors.grey400;
-    default: return AppColors.warning;
+    case 'approved':
+      return AppColors.success;
+    case 'rejected':
+      return AppColors.danger;
+    case 'cancelled':
+      return AppColors.grey400;
+    default:
+      return AppColors.warning;
   }
 }
 
@@ -66,24 +70,33 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
                 color: AppColors.primaryLight,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.event_available_rounded,
-                  color: AppColors.primary, size: 20),
+              child: const Icon(
+                Icons.event_available_rounded,
+                color: AppColors.primary,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 10),
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Leave Management',
-                    style: TextStyle(
-                        color: AppColors.grey800,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2)),
-                Text('Requests, balances & types',
-                    style: TextStyle(
-                        color: AppColors.grey400,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400)),
+                Text(
+                  'Leave Management',
+                  style: TextStyle(
+                    color: AppColors.grey800,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                  ),
+                ),
+                Text(
+                  'Requests, balances & types',
+                  style: TextStyle(
+                    color: AppColors.grey400,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
               ],
             ),
           ],
@@ -95,10 +108,14 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
           unselectedLabelColor: AppColors.grey500,
           indicatorColor: AppColors.primary,
           indicatorWeight: 2.5,
-          labelStyle:
-              const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          unselectedLabelStyle:
-              const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          labelStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
           tabs: const [
             Tab(text: 'Requests'),
             Tab(text: 'Balances'),
@@ -108,11 +125,7 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          _RequestsTab(),
-          _LeaveBalancesTab(),
-          _LeaveTypesTab(),
-        ],
+        children: const [_RequestsTab(), _LeaveBalancesTab(), _LeaveTypesTab()],
       ),
     );
   }
@@ -146,77 +159,83 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
       children: [
         Column(
           children: [
-        // ── Filter chips ───────────────────────────────────────────────
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: _filters.map((f) {
-                final isActive = _filter == f.$1;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => setState(() => _filter = f.$1),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 7),
-                      decoration: BoxDecoration(
-                        color:
-                            isActive ? AppColors.primary : AppColors.grey100,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        f.$2,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: isActive ? Colors.white : AppColors.grey600,
+            // ── Filter chips ───────────────────────────────────────────────
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _filters.map((f) {
+                    final isActive = _filter == f.$1;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: GestureDetector(
+                        onTap: () => setState(() => _filter = f.$1),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 7,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? AppColors.primary
+                                : AppColors.grey100,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            f.$2,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: isActive
+                                  ? Colors.white
+                                  : AppColors.grey600,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-        const Divider(height: 1, color: AppColors.grey100),
-
-        // ── List ─────────────────────────────────────────────────────
-        Expanded(
-          child: requestsAsync.when(
-            data: (items) {
-              final filtered = _filter == 'all'
-                  ? items
-                  : items.where((r) => r.status == _filter).toList();
-              if (filtered.isEmpty) {
-                return _EmptyPlaceholder(
-                  icon: Icons.inbox_rounded,
-                  message: _filter == 'all'
-                      ? 'No leave requests'
-                      : 'No $_filter requests',
-                );
-              }
-              return ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                itemCount: filtered.length,
-                itemBuilder: (context, i) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _RequestCard(request: filtered[i]),
+                    );
+                  }).toList(),
                 ),
-              );
-            },
-            loading: () =>
-                const LoadingIndicator(message: 'Loading requests...'),
-            error: (e, _) => _ErrorRetry(
-                onRetry: () => ref.invalidate(allLeaveRequestsProvider)),
-          ),
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.grey100),
+
+            // ── List ─────────────────────────────────────────────────────
+            Expanded(
+              child: requestsAsync.when(
+                data: (items) {
+                  final filtered = _filter == 'all'
+                      ? items
+                      : items.where((r) => r.status == _filter).toList();
+                  if (filtered.isEmpty) {
+                    return _EmptyPlaceholder(
+                      icon: Icons.inbox_rounded,
+                      message: _filter == 'all'
+                          ? 'No leave requests'
+                          : 'No $_filter requests',
+                    );
+                  }
+                  return ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, i) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _RequestCard(request: filtered[i]),
+                    ),
+                  );
+                },
+                loading: () =>
+                    const LoadingIndicator(message: 'Loading requests...'),
+                error: (e, _) => _ErrorRetry(
+                  onRetry: () => ref.invalidate(allLeaveRequestsProvider),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
-    ),
         Positioned(
           right: 16,
           bottom: 20,
@@ -252,7 +271,10 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
 class _AddRequestSheet extends ConsumerStatefulWidget {
   final ScrollController scrollController;
   final VoidCallback onSaved;
-  const _AddRequestSheet({required this.scrollController, required this.onSaved});
+  const _AddRequestSheet({
+    required this.scrollController,
+    required this.onSaved,
+  });
 
   @override
   ConsumerState<_AddRequestSheet> createState() => _AddRequestSheetState();
@@ -265,7 +287,7 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
   bool _halfDay = false;
   String _halfDayPeriod = 'morning';
   bool _loading = false;
-  
+
   int? _selectedEmpId;
   int? _selectedTypeId;
 
@@ -292,7 +314,10 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
               margin: const EdgeInsets.only(top: 12, bottom: 4),
               width: 40,
               height: 4,
-              decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(
+                color: AppColors.grey300,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
           Padding(
@@ -302,16 +327,36 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.note_add_rounded, color: AppColors.primary, size: 20),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.note_add_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('New Leave Request', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.grey800)),
-                      Text('Submit a leave application', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                      Text(
+                        'New Leave Request',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: AppColors.grey800,
+                        ),
+                      ),
+                      Text(
+                        'Submit a leave application',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.grey500,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -328,14 +373,37 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Employee picker
-                    const Text('Employee *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                    const Text(
+                      'Employee *',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.grey700,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     employeesAsync.when(
                       data: (emps) => DropdownButtonFormField<int>(
                         initialValue: _selectedEmpId,
                         decoration: _dropDec(),
-                        hint: const Text('Select employee', style: TextStyle(fontSize: 13, color: AppColors.grey400)),
-                        items: emps.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name, style: const TextStyle(fontSize: 13)))).toList(),
+                        hint: const Text(
+                          'Select employee',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.grey400,
+                          ),
+                        ),
+                        items: emps
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e.id,
+                                child: Text(
+                                  e.name,
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            )
+                            .toList(),
                         onChanged: (v) => setSt(() => _selectedEmpId = v),
                       ),
                       loading: () => const LinearProgressIndicator(),
@@ -344,14 +412,38 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                     const SizedBox(height: 14),
 
                     // Leave type picker
-                    const Text('Leave Type *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                    const Text(
+                      'Leave Type *',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.grey700,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     leaveTypesAsync.when(
                       data: (types) => DropdownButtonFormField<int>(
                         initialValue: _selectedTypeId,
                         decoration: _dropDec(),
-                        hint: const Text('Select leave type', style: TextStyle(fontSize: 13, color: AppColors.grey400)),
-                        items: types.where((t) => t.isActive).map((t) => DropdownMenuItem(value: t.id, child: Text(t.name, style: const TextStyle(fontSize: 13)))).toList(),
+                        hint: const Text(
+                          'Select leave type',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.grey400,
+                          ),
+                        ),
+                        items: types
+                            .where((t) => t.isActive)
+                            .map(
+                              (t) => DropdownMenuItem(
+                                value: t.id,
+                                child: Text(
+                                  t.name,
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            )
+                            .toList(),
                         onChanged: (v) => setSt(() => _selectedTypeId = v),
                       ),
                       loading: () => const LinearProgressIndicator(),
@@ -366,7 +458,14 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Start Date *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                              const Text(
+                                'Start Date *',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.grey700,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               TextFormField(
                                 initialValue: _startDate,
@@ -382,7 +481,14 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('End Date *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                              const Text(
+                                'End Date *',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.grey700,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               TextFormField(
                                 initialValue: _endDate,
@@ -405,7 +511,13 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                           onChanged: (v) => setSt(() => _halfDay = v ?? false),
                           activeColor: AppColors.primary,
                         ),
-                        const Text('Half Day', style: TextStyle(fontSize: 13, color: AppColors.grey800)),
+                        const Text(
+                          'Half Day',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.grey800,
+                          ),
+                        ),
                         if (_halfDay) ...[
                           const SizedBox(width: 16),
                           Expanded(
@@ -413,24 +525,46 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                               initialValue: _halfDayPeriod,
                               decoration: _dropDec(),
                               items: const [
-                                DropdownMenuItem(value: 'morning', child: Text('Morning', style: TextStyle(fontSize: 13))),
-                                DropdownMenuItem(value: 'afternoon', child: Text('Afternoon', style: TextStyle(fontSize: 13))),
+                                DropdownMenuItem(
+                                  value: 'morning',
+                                  child: Text(
+                                    'Morning',
+                                    style: TextStyle(fontSize: 13),
+                                  ),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'afternoon',
+                                  child: Text(
+                                    'Afternoon',
+                                    style: TextStyle(fontSize: 13),
+                                  ),
+                                ),
                               ],
-                              onChanged: (v) => setSt(() => _halfDayPeriod = v!),
+                              onChanged: (v) =>
+                                  setSt(() => _halfDayPeriod = v!),
                             ),
                           ),
-                        ]
+                        ],
                       ],
                     ),
                     const SizedBox(height: 14),
 
                     // Reason
-                    const Text('Reason *', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                    const Text(
+                      'Reason *',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.grey700,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     TextFormField(
                       controller: _reasonCtrl,
                       maxLines: 3,
-                      decoration: _dropDec().copyWith(hintText: 'Reason for leave...'),
+                      decoration: _dropDec().copyWith(
+                        hintText: 'Reason for leave...',
+                      ),
                       style: const TextStyle(fontSize: 13),
                     ),
                     const SizedBox(height: 24),
@@ -441,37 +575,72 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                       child: FilledButton(
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
-                        onPressed: (_loading || _selectedEmpId == null || _selectedTypeId == null || _reasonCtrl.text.trim().isEmpty) ? null : () async {
-                          setSt(() => _loading = true);
-                          try {
-                            await ref.read(adminOpsRepositoryProvider).createLeaveRequest(
-                              employeeId: _selectedEmpId!,
-                              leaveTypeId: _selectedTypeId!,
-                              startDate: _startDate,
-                              endDate: _endDate,
-                              reason: _reasonCtrl.text.trim(),
-                              halfDay: _halfDay,
-                              halfDayPeriod: _halfDay ? _halfDayPeriod : null,
-                            );
-                            widget.onSaved();
-                            if (ctx.mounted) Navigator.pop(ctx);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Request submitted'), backgroundColor: AppColors.success));
-                            }
-                          } catch (e) {
-                            if (ctx.mounted) Navigator.pop(ctx);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: AppColors.danger));
-                            }
-                          } finally {
-                            setSt(() => _loading = false);
-                          }
-                        },
+                        onPressed:
+                            (_loading ||
+                                _selectedEmpId == null ||
+                                _selectedTypeId == null ||
+                                _reasonCtrl.text.trim().isEmpty)
+                            ? null
+                            : () async {
+                                setSt(() => _loading = true);
+                                try {
+                                  await ref
+                                      .read(adminOpsRepositoryProvider)
+                                      .createLeaveRequest(
+                                        employeeId: _selectedEmpId!,
+                                        leaveTypeId: _selectedTypeId!,
+                                        startDate: _startDate,
+                                        endDate: _endDate,
+                                        reason: _reasonCtrl.text.trim(),
+                                        halfDay: _halfDay,
+                                        halfDayPeriod: _halfDay
+                                            ? _halfDayPeriod
+                                            : null,
+                                      );
+                                  widget.onSaved();
+                                  if (ctx.mounted) Navigator.pop(ctx);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Request submitted'),
+                                        backgroundColor: AppColors.success,
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (ctx.mounted) Navigator.pop(ctx);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Failed: $e'),
+                                        backgroundColor: AppColors.danger,
+                                      ),
+                                    );
+                                  }
+                                } finally {
+                                  setSt(() => _loading = false);
+                                }
+                              },
                         child: _loading
-                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                            : const Text('Submit Request', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Submit Request',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -486,13 +655,22 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
   }
 
   InputDecoration _dropDec() => InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        filled: true,
-        fillColor: AppColors.grey50,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
-      );
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    filled: true,
+    fillColor: AppColors.grey50,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: AppColors.grey200),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: AppColors.grey200),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: AppColors.primary, width: 2),
+    ),
+  );
 }
 
 class _RequestCard extends ConsumerWidget {
@@ -510,9 +688,10 @@ class _RequestCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withAlpha(8),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+            color: Colors.black.withAlpha(8),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: IntrinsicHeight(
@@ -554,9 +733,10 @@ class _RequestCard extends ConsumerWidget {
                                   ? request.employeeName[0].toUpperCase()
                                   : '?',
                               style: TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 16,
-                                  color: tc),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                                color: tc,
+                              ),
                             ),
                           ),
                         ),
@@ -565,41 +745,53 @@ class _RequestCard extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(request.employeeName,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14,
-                                      color: AppColors.grey800)),
+                              Text(
+                                request.employeeName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: AppColors.grey800,
+                                ),
+                              ),
                               const SizedBox(height: 3),
                               Row(
                                 children: [
                                   Container(
-                                      width: 8,
-                                      height: 8,
-                                      decoration: BoxDecoration(
-                                          color: tc,
-                                          shape: BoxShape.circle)),
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: tc,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
                                   const SizedBox(width: 5),
-                                  Text(request.leaveTypeName,
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          color: AppColors.grey600,
-                                          fontWeight: FontWeight.w500)),
+                                  Text(
+                                    request.leaveTypeName,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.grey600,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                   if (request.halfDay) ...[
                                     const SizedBox(width: 6),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 1),
+                                        horizontal: 6,
+                                        vertical: 1,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFF5F3FF),
-                                        borderRadius:
-                                            BorderRadius.circular(4),
+                                        borderRadius: BorderRadius.circular(4),
                                       ),
-                                      child: const Text('Half-day',
-                                          style: TextStyle(
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.w700,
-                                              color: Color(0xFF7C3AED))),
+                                      child: const Text(
+                                        'Half-day',
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF7C3AED),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ],
@@ -613,14 +805,17 @@ class _RequestCard extends ConsumerWidget {
                             Text(
                               '${request.days}d',
                               style: TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 15,
-                                  color: sc),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15,
+                                color: sc,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
                                 color: sc.withAlpha(18),
                                 borderRadius: BorderRadius.circular(20),
@@ -628,9 +823,10 @@ class _RequestCard extends ConsumerWidget {
                               child: Text(
                                 _capitalize(request.status),
                                 style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: sc),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: sc,
+                                ),
                               ),
                             ),
                           ],
@@ -643,13 +839,18 @@ class _RequestCard extends ConsumerWidget {
                     // Date range
                     Row(
                       children: [
-                        const Icon(Icons.calendar_today_rounded,
-                            size: 12, color: AppColors.grey400),
+                        const Icon(
+                          Icons.calendar_today_rounded,
+                          size: 12,
+                          color: AppColors.grey400,
+                        ),
                         const SizedBox(width: 5),
                         Text(
                           formatDateRange(request.startDate, request.endDate),
                           style: const TextStyle(
-                              fontSize: 12, color: AppColors.grey500),
+                            fontSize: 12,
+                            color: AppColors.grey500,
+                          ),
                         ),
                       ],
                     ),
@@ -661,7 +862,9 @@ class _RequestCard extends ConsumerWidget {
                       Text(
                         request.reason!,
                         style: const TextStyle(
-                            fontSize: 12, color: AppColors.grey600),
+                          fontSize: 12,
+                          color: AppColors.grey600,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -683,13 +886,19 @@ class _RequestCard extends ConsumerWidget {
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.danger,
                                 side: const BorderSide(
-                                    color: AppColors.danger, width: 1.2),
+                                  color: AppColors.danger,
+                                  width: 1.2,
+                                ),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
                                 textStyle: const TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 13),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ),
@@ -703,11 +912,15 @@ class _RequestCard extends ConsumerWidget {
                               style: FilledButton.styleFrom(
                                 backgroundColor: AppColors.success,
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
                                 textStyle: const TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 13),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ),
@@ -728,7 +941,11 @@ class _RequestCard extends ConsumerWidget {
       s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 
   Future<void> _action(
-      BuildContext context, WidgetRef ref, int id, String action) async {
+    BuildContext context,
+    WidgetRef ref,
+    int id,
+    String action,
+  ) async {
     try {
       final repo = ref.read(adminOpsRepositoryProvider);
       if (action == 'approve') {
@@ -738,23 +955,33 @@ class _RequestCard extends ConsumerWidget {
       }
       ref.invalidate(allLeaveRequestsProvider);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Row(children: [
-            const Icon(Icons.check_circle_rounded,
-                color: Colors.white, size: 16),
-            const SizedBox(width: 8),
-            Text('Request ${action}d'),
-          ]),
-          backgroundColor:
-              action == 'approve' ? AppColors.success : AppColors.danger,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text('Request ${action}d'),
+              ],
+            ),
+            backgroundColor: action == 'approve'
+                ? AppColors.success
+                : AppColors.danger,
+          ),
+        );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Failed: $e'),
-          backgroundColor: AppColors.danger,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed: $e'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
       }
     }
   }
@@ -781,7 +1008,8 @@ class _LeaveBalancesTabState extends ConsumerState<_LeaveBalancesTab> {
           data: (items) => items.isEmpty
               ? const _EmptyPlaceholder(
                   icon: Icons.account_balance_wallet_rounded,
-                  message: 'No leave balances found')
+                  message: 'No leave balances found',
+                )
               : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 20, 16, 90),
                   itemCount: items.length,
@@ -790,8 +1018,7 @@ class _LeaveBalancesTabState extends ConsumerState<_LeaveBalancesTab> {
                     child: _BalanceCard(balance: items[i]),
                   ),
                 ),
-          loading: () =>
-              const LoadingIndicator(message: 'Loading balances...'),
+          loading: () => const LoadingIndicator(message: 'Loading balances...'),
           error: (e, _) =>
               _ErrorRetry(onRetry: () => ref.invalidate(leaveBalancesProvider)),
         ),
@@ -837,14 +1064,13 @@ class _BalanceCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final remaining =
         balance.allocatedDays + balance.carriedForward - balance.usedDays;
-    final total =
-        balance.allocatedDays > 0 ? balance.allocatedDays : 1;
+    final total = balance.allocatedDays > 0 ? balance.allocatedDays : 1;
     final pct = ((remaining / total) * 100).clamp(0, 100).toDouble();
     final barColor = pct > 50
         ? AppColors.success
         : pct > 20
-            ? AppColors.warning
-            : AppColors.danger;
+        ? AppColors.warning
+        : AppColors.danger;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -853,9 +1079,10 @@ class _BalanceCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withAlpha(8),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+            color: Colors.black.withAlpha(8),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -877,9 +1104,10 @@ class _BalanceCard extends ConsumerWidget {
                         ? balance.employeeName[0].toUpperCase()
                         : '?',
                     style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                        color: AppColors.primary),
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
+                      color: AppColors.primary,
+                    ),
                   ),
                 ),
               ),
@@ -888,15 +1116,22 @@ class _BalanceCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(balance.employeeName,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            color: AppColors.grey800)),
+                    Text(
+                      balance.employeeName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: AppColors.grey800,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text('${balance.leaveTypeName} · ${balance.year}',
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.grey500)),
+                    Text(
+                      '${balance.leaveTypeName} · ${balance.year}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.grey500,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -910,8 +1145,11 @@ class _BalanceCard extends ConsumerWidget {
                     color: AppColors.primaryLight,
                     borderRadius: BorderRadius.circular(9),
                   ),
-                  child: const Icon(Icons.edit_rounded,
-                      size: 16, color: AppColors.primary),
+                  child: const Icon(
+                    Icons.edit_rounded,
+                    size: 16,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
             ],
@@ -922,22 +1160,26 @@ class _BalanceCard extends ConsumerWidget {
           Row(
             children: [
               _BalanceStat(
-                  label: 'Allocated',
-                  value: balance.allocatedDays,
-                  color: AppColors.primary),
+                label: 'Allocated',
+                value: balance.allocatedDays,
+                color: AppColors.primary,
+              ),
               _BalanceStat(
-                  label: 'Used',
-                  value: balance.usedDays,
-                  color: AppColors.warning),
+                label: 'Used',
+                value: balance.usedDays,
+                color: AppColors.warning,
+              ),
               _BalanceStat(
-                  label: 'Carried',
-                  value: balance.carriedForward,
-                  color: const Color(0xFF8B5CF6)),
+                label: 'Carried',
+                value: balance.carriedForward,
+                color: const Color(0xFF8B5CF6),
+              ),
               _BalanceStat(
-                  label: 'Remaining',
-                  value: remaining,
-                  color: barColor,
-                  bold: true),
+                label: 'Remaining',
+                value: remaining,
+                color: barColor,
+                bold: true,
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -957,26 +1199,23 @@ class _BalanceCard extends ConsumerWidget {
     );
   }
 
-  void _editBalance(
-      BuildContext context, WidgetRef ref, LeaveBalanceData b) {
-    final allocCtrl =
-        TextEditingController(text: b.allocatedDays.toString());
-    final carriedCtrl =
-        TextEditingController(text: b.carriedForward.toString());
+  void _editBalance(BuildContext context, WidgetRef ref, LeaveBalanceData b) {
+    final allocCtrl = TextEditingController(text: b.allocatedDays.toString());
+    final carriedCtrl = TextEditingController(
+      text: b.carriedForward.toString(),
+    );
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius:
-                BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -987,36 +1226,45 @@ class _BalanceCard extends ConsumerWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                      color: AppColors.grey300,
-                      borderRadius: BorderRadius.circular(2)),
+                    color: AppColors.grey300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Edit Balance — ${b.employeeName}',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      color: AppColors.grey800)),
-              Text(b.leaveTypeName,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.grey500)),
+              Text(
+                'Edit Balance — ${b.employeeName}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                  color: AppColors.grey800,
+                ),
+              ),
+              Text(
+                b.leaveTypeName,
+                style: const TextStyle(fontSize: 12, color: AppColors.grey500),
+              ),
               const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
                     child: _SheetField(
-                        controller: allocCtrl,
-                        label: 'Allocated Days',
-                        keyboard: const TextInputType.numberWithOptions(
-                            decimal: true)),
+                      controller: allocCtrl,
+                      label: 'Allocated Days',
+                      keyboard: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _SheetField(
-                        controller: carriedCtrl,
-                        label: 'Carried Forward',
-                        keyboard: const TextInputType.numberWithOptions(
-                            decimal: true)),
+                      controller: carriedCtrl,
+                      label: 'Carried Forward',
+                      keyboard: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -1028,42 +1276,47 @@ class _BalanceCard extends ConsumerWidget {
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   onPressed: () async {
                     try {
                       await ref
                           .read(adminOpsRepositoryProvider)
                           .updateLeaveBalance(b.id, {
-                        'allocated_days':
-                            double.tryParse(allocCtrl.text) ??
+                            'allocated_days':
+                                double.tryParse(allocCtrl.text) ??
                                 b.allocatedDays,
-                        'carried_forward':
-                            double.tryParse(carriedCtrl.text) ??
+                            'carried_forward':
+                                double.tryParse(carriedCtrl.text) ??
                                 b.carriedForward,
-                      });
+                          });
                       ref.invalidate(leaveBalancesProvider);
                       if (ctx.mounted) Navigator.pop(ctx);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Balance updated'),
-                              backgroundColor: AppColors.success),
+                            content: Text('Balance updated'),
+                            backgroundColor: AppColors.success,
+                          ),
                         );
                       }
                     } catch (e) {
                       if (ctx.mounted) Navigator.pop(ctx);
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('Failed: $e'),
-                          backgroundColor: AppColors.danger,
-                        ));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Failed: $e'),
+                            backgroundColor: AppColors.danger,
+                          ),
+                        );
                       }
                     }
                   },
-                  child: const Text('Save Changes',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 15)),
+                  child: const Text(
+                    'Save Changes',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -1080,11 +1333,12 @@ class _BalanceStat extends StatelessWidget {
   final double value;
   final Color color;
   final bool bold;
-  const _BalanceStat(
-      {required this.label,
-      required this.value,
-      required this.color,
-      this.bold = false});
+  const _BalanceStat({
+    required this.label,
+    required this.value,
+    required this.color,
+    this.bold = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1102,11 +1356,14 @@ class _BalanceStat extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 10,
-                  color: AppColors.grey400,
-                  fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 10,
+              color: AppColors.grey400,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -1116,8 +1373,10 @@ class _BalanceStat extends StatelessWidget {
 class _AddBalanceSheet extends ConsumerStatefulWidget {
   final ScrollController scrollController;
   final VoidCallback onSaved;
-  const _AddBalanceSheet(
-      {required this.scrollController, required this.onSaved});
+  const _AddBalanceSheet({
+    required this.scrollController,
+    required this.onSaved,
+  });
 
   @override
   ConsumerState<_AddBalanceSheet> createState() => _AddBalanceSheetState();
@@ -1143,6 +1402,8 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
 
     int? selectedEmpId;
     int? selectedTypeId;
+    bool bulkMode = false;
+    final List<int> selectedEmpIds = [];
 
     return Container(
       decoration: const BoxDecoration(
@@ -1157,8 +1418,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                  color: AppColors.grey300,
-                  borderRadius: BorderRadius.circular(2)),
+                color: AppColors.grey300,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
           Padding(
@@ -1169,24 +1431,35 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.account_balance_wallet_rounded,
-                      color: AppColors.primary, size: 20),
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.account_balance_wallet_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Add Leave Balance',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                              color: AppColors.grey800)),
-                      Text('Allocate days to an employee',
-                          style: TextStyle(
-                              fontSize: 12, color: AppColors.grey500)),
+                      Text(
+                        'Add Leave Balance',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: AppColors.grey800,
+                        ),
+                      ),
+                      Text(
+                        'Allocate days to an employee',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.grey500,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1202,59 +1475,241 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                 builder: (ctx, setSt) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Employee picker
-                    const Text('Employee *',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.grey700)),
-                    const SizedBox(height: 6),
-                    employeesAsync.when(
-                      data: (emps) => DropdownButtonFormField<int>(
-                        initialValue: selectedEmpId,
-                        decoration: _dropDec(),
-                        hint: const Text('Select employee',
-                            style: TextStyle(
-                                fontSize: 13, color: AppColors.grey400)),
-                        items: emps
-                            .map((e) => DropdownMenuItem(
-                                value: e.id,
-                                child: Text(e.name,
-                                    style: const TextStyle(fontSize: 13))))
-                            .toList(),
-                        onChanged: (v) => setSt(() => selectedEmpId = v),
+                    // Single / Bulk mode toggle
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppColors.grey100,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      loading: () => const LinearProgressIndicator(),
-                      error: (_, _) =>
-                          const Text('Failed to load employees'),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setSt(() => bulkMode = false),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: !bulkMode
+                                      ? Colors.white
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'Single Employee',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: !bulkMode
+                                        ? AppColors.grey800
+                                        : AppColors.grey500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setSt(() => bulkMode = true),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: bulkMode
+                                      ? Colors.white
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'Multiple / All Employees',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: bulkMode
+                                        ? AppColors.grey800
+                                        : AppColors.grey500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 14),
 
-                    // Leave type picker
-                    const Text('Leave Type *',
+                    // Employee picker
+                    if (!bulkMode) ...[
+                      const Text(
+                        'Employee *',
                         style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.grey700)),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.grey700,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      employeesAsync.when(
+                        data: (emps) => DropdownButtonFormField<int>(
+                          initialValue: selectedEmpId,
+                          decoration: _dropDec(),
+                          hint: const Text(
+                            'Select employee',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.grey400,
+                            ),
+                          ),
+                          items: emps
+                              .map(
+                                (e) => DropdownMenuItem(
+                                  value: e.id,
+                                  child: Text(
+                                    e.name,
+                                    style: const TextStyle(fontSize: 13),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) => setSt(() => selectedEmpId = v),
+                        ),
+                        loading: () => const LinearProgressIndicator(),
+                        error: (_, _) => const Text('Failed to load employees'),
+                      ),
+                    ] else ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Employees *',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.grey700,
+                            ),
+                          ),
+                          employeesAsync.maybeWhen(
+                            data: (emps) => GestureDetector(
+                              onTap: () => setSt(() {
+                                if (selectedEmpIds.length == emps.length) {
+                                  selectedEmpIds.clear();
+                                } else {
+                                  selectedEmpIds
+                                    ..clear()
+                                    ..addAll(emps.map((e) => e.id));
+                                }
+                              }),
+                              child: Text(
+                                emps.isNotEmpty &&
+                                        selectedEmpIds.length == emps.length
+                                    ? 'Deselect All'
+                                    : 'Select All',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                            orElse: () => const SizedBox.shrink(),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      employeesAsync.when(
+                        data: (emps) => Container(
+                          constraints: const BoxConstraints(maxHeight: 200),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.grey200),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            itemCount: emps.length,
+                            separatorBuilder: (_, _) => const Divider(
+                              height: 1,
+                              color: AppColors.grey100,
+                            ),
+                            itemBuilder: (_, i) {
+                              final e = emps[i];
+                              final checked = selectedEmpIds.contains(e.id);
+                              return CheckboxListTile(
+                                dense: true,
+                                value: checked,
+                                title: Text(
+                                  e.name,
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                                activeColor: AppColors.primary,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                onChanged: (v) => setSt(() {
+                                  if (v == true) {
+                                    selectedEmpIds.add(e.id);
+                                  } else {
+                                    selectedEmpIds.remove(e.id);
+                                  }
+                                }),
+                              );
+                            },
+                          ),
+                        ),
+                        loading: () => const LinearProgressIndicator(),
+                        error: (_, _) => const Text('Failed to load employees'),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${selectedEmpIds.length} employee(s) selected',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.grey400,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 14),
+
+                    // Leave type picker
+                    const Text(
+                      'Leave Type *',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.grey700,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     leaveTypesAsync.when(
                       data: (types) => DropdownButtonFormField<int>(
                         initialValue: selectedTypeId,
                         decoration: _dropDec(),
-                        hint: const Text('Select leave type',
-                            style: TextStyle(
-                                fontSize: 13, color: AppColors.grey400)),
+                        hint: const Text(
+                          'Select leave type',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.grey400,
+                          ),
+                        ),
                         items: types
-                            .map((t) => DropdownMenuItem(
+                            .map(
+                              (t) => DropdownMenuItem(
                                 value: t.id,
-                                child: Text(t.name,
-                                    style: const TextStyle(fontSize: 13))))
+                                child: Text(
+                                  t.name,
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              ),
+                            )
                             .toList(),
                         onChanged: (v) => setSt(() => selectedTypeId = v),
                       ),
                       loading: () => const LinearProgressIndicator(),
-                      error: (_, _) =>
-                          const Text('Failed to load leave types'),
+                      error: (_, _) => const Text('Failed to load leave types'),
                     ),
                     const SizedBox(height: 14),
 
@@ -1265,19 +1720,23 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Year *',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.grey700)),
+                              const Text(
+                                'Year *',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.grey700,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               TextFormField(
                                 initialValue: _year.toString(),
                                 keyboardType: TextInputType.number,
                                 decoration: _dropDec(),
                                 style: const TextStyle(fontSize: 13),
-                                onChanged: (v) =>
-                                    setSt(() => _year = int.tryParse(v) ?? _year),
+                                onChanged: (v) => setSt(
+                                  () => _year = int.tryParse(v) ?? _year,
+                                ),
                               ),
                             ],
                           ),
@@ -1287,18 +1746,22 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Allocated Days *',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.grey700)),
+                              const Text(
+                                'Allocated Days *',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.grey700,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               _SheetField(
-                                  controller: _allocCtrl,
-                                  label: '',
-                                  keyboard:
-                                      const TextInputType.numberWithOptions(
-                                          decimal: true)),
+                                controller: _allocCtrl,
+                                label: '',
+                                keyboard: const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -1306,17 +1769,22 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                     ),
                     const SizedBox(height: 14),
 
-                    const Text('Carried Forward',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.grey700)),
+                    const Text(
+                      'Carried Forward',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.grey700,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     _SheetField(
-                        controller: _carriedCtrl,
-                        label: '',
-                        keyboard: const TextInputType.numberWithOptions(
-                            decimal: true)),
+                      controller: _carriedCtrl,
+                      label: '',
+                      keyboard: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                    ),
                     const SizedBox(height: 24),
 
                     SizedBox(
@@ -1326,47 +1794,66 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
-                        onPressed: (_loading ||
-                                selectedEmpId == null ||
-                                selectedTypeId == null)
+                        onPressed:
+                            (_loading ||
+                                selectedTypeId == null ||
+                                (!bulkMode && selectedEmpId == null) ||
+                                (bulkMode && selectedEmpIds.isEmpty))
                             ? null
                             : () async {
                                 setSt(() => _loading = true);
                                 try {
-                                  await ref
-                                      .read(adminOpsRepositoryProvider)
-                                      .createLeaveBalance(
-                                        employeeId: selectedEmpId!,
-                                        leaveTypeId: selectedTypeId!,
-                                        year: _year,
-                                        allocatedDays:
-                                            double.tryParse(_allocCtrl.text) ??
-                                                12,
-                                        carriedForward:
-                                            double.tryParse(
-                                                    _carriedCtrl.text) ??
-                                                0,
-                                      );
+                                  final allocatedDays =
+                                      double.tryParse(_allocCtrl.text) ?? 12;
+                                  final carriedForward =
+                                      double.tryParse(_carriedCtrl.text) ?? 0;
+                                  if (bulkMode) {
+                                    await ref
+                                        .read(adminOpsRepositoryProvider)
+                                        .bulkAssignLeaveBalance(
+                                          employeeIds: selectedEmpIds,
+                                          leaveTypeId: selectedTypeId!,
+                                          year: _year,
+                                          allocatedDays: allocatedDays,
+                                          carriedForward: carriedForward,
+                                        );
+                                  } else {
+                                    await ref
+                                        .read(adminOpsRepositoryProvider)
+                                        .createLeaveBalance(
+                                          employeeId: selectedEmpId!,
+                                          leaveTypeId: selectedTypeId!,
+                                          year: _year,
+                                          allocatedDays: allocatedDays,
+                                          carriedForward: carriedForward,
+                                        );
+                                  }
                                   widget.onSaved();
                                   if (ctx.mounted) Navigator.pop(ctx);
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(
-                                      content:
-                                          Text('Leave balance created'),
-                                      backgroundColor: AppColors.success,
-                                    ));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          bulkMode
+                                              ? 'Leave balance assigned to ${selectedEmpIds.length} employee(s)'
+                                              : 'Leave balance created',
+                                        ),
+                                        backgroundColor: AppColors.success,
+                                      ),
+                                    );
                                   }
                                 } catch (e) {
                                   if (ctx.mounted) Navigator.pop(ctx);
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text('Failed: $e'),
-                                      backgroundColor: AppColors.danger,
-                                    ));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Failed: $e'),
+                                        backgroundColor: AppColors.danger,
+                                      ),
+                                    );
                                   }
                                 } finally {
                                   setSt(() => _loading = false);
@@ -1377,11 +1864,19 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
-                                    color: Colors.white, strokeWidth: 2))
-                            : const Text('Add Balance',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 15)),
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                bulkMode
+                                    ? 'Assign to Employees'
+                                    : 'Add Balance',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -1396,20 +1891,22 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
   }
 
   InputDecoration _dropDec() => InputDecoration(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        filled: true,
-        fillColor: AppColors.grey50,
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.grey200)),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.grey200)),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.primary, width: 2)),
-      );
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    filled: true,
+    fillColor: AppColors.grey50,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: AppColors.grey200),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: AppColors.grey200),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: AppColors.primary, width: 2),
+    ),
+  );
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1427,7 +1924,9 @@ class _LeaveTypesTab extends ConsumerWidget {
         typesAsync.when(
           data: (items) => items.isEmpty
               ? const _EmptyPlaceholder(
-                  icon: Icons.label_rounded, message: 'No leave types')
+                  icon: Icons.label_rounded,
+                  message: 'No leave types',
+                )
               : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 20, 16, 90),
                   itemCount: items.length,
@@ -1456,16 +1955,32 @@ class _LeaveTypesTab extends ConsumerWidget {
     );
   }
 
-  void _showTypeSheet(BuildContext context, WidgetRef ref, [LeaveTypeData? type]) {
+  void _showTypeSheet(
+    BuildContext context,
+    WidgetRef ref, [
+    LeaveTypeData? type,
+  ]) {
     final isEdit = type != null;
     final nameCtrl = TextEditingController(text: type?.name ?? '');
-    final daysCtrl = TextEditingController(text: (type?.defaultDays ?? 12).toString());
+    final daysCtrl = TextEditingController(
+      text: (type?.defaultDays ?? 12).toString(),
+    );
     final codeCtrl = TextEditingController(text: type?.code ?? '');
-    final noticeCtrl = TextEditingController(text: (type?.noticePeriodDays ?? 0).toString());
-    final minTenureCtrl = TextEditingController(text: type?.minimumTenureDays?.toString() ?? '');
-    final maxConsecutiveCtrl = TextEditingController(text: type?.maxConsecutiveDays?.toString() ?? '');
-    final maxCarryForwardCtrl = TextEditingController(text: type?.maxCarryForward?.toString() ?? '');
-    final sortOrderCtrl = TextEditingController(text: (type?.sortOrder ?? 0).toString());
+    final noticeCtrl = TextEditingController(
+      text: (type?.noticePeriodDays ?? 0).toString(),
+    );
+    final minTenureCtrl = TextEditingController(
+      text: type?.minimumTenureDays?.toString() ?? '',
+    );
+    final maxConsecutiveCtrl = TextEditingController(
+      text: type?.maxConsecutiveDays?.toString() ?? '',
+    );
+    final maxCarryForwardCtrl = TextEditingController(
+      text: type?.maxCarryForward?.toString() ?? '',
+    );
+    final sortOrderCtrl = TextEditingController(
+      text: (type?.sortOrder ?? 0).toString(),
+    );
 
     bool isPaid = type?.isPaid ?? true;
     bool carryForward = type?.carryForward ?? false;
@@ -1497,17 +2012,21 @@ class _LeaveTypesTab extends ConsumerWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                      color: AppColors.grey300,
-                      borderRadius: BorderRadius.circular(2)),
+                    color: AppColors.grey300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                child: Text(isEdit ? 'Edit Leave Type' : 'Add Leave Type',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        color: AppColors.grey800)),
+                child: Text(
+                  isEdit ? 'Edit Leave Type' : 'Add Leave Type',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    color: AppColors.grey800,
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -1518,21 +2037,44 @@ class _LeaveTypesTab extends ConsumerWidget {
                     builder: (ctx2, setSt) {
                       String selectedColor = type?.color ?? '#f97316';
                       const colors = [
-                        '#f97316', '#3b82f6', '#10b981', '#ef4444',
-                        '#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b',
+                        '#f97316',
+                        '#3b82f6',
+                        '#10b981',
+                        '#ef4444',
+                        '#8b5cf6',
+                        '#ec4899',
+                        '#14b8a6',
+                        '#f59e0b',
                       ];
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // ── General Information ──────────────────────────
-                          const Text('General Information',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.grey800)),
+                          const Text(
+                            'General Information',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.grey800,
+                            ),
+                          ),
                           const SizedBox(height: 10),
                           Row(
                             children: [
-                              Expanded(child: _SheetField(controller: nameCtrl, label: 'Name *')),
+                              Expanded(
+                                child: _SheetField(
+                                  controller: nameCtrl,
+                                  label: 'Name *',
+                                ),
+                              ),
                               const SizedBox(width: 12),
-                              SizedBox(width: 100, child: _SheetField(controller: codeCtrl, label: 'Code')),
+                              SizedBox(
+                                width: 100,
+                                child: _SheetField(
+                                  controller: codeCtrl,
+                                  label: 'Code',
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 12),
@@ -1540,22 +2082,33 @@ class _LeaveTypesTab extends ConsumerWidget {
                             children: [
                               Expanded(
                                 child: _SheetField(
-                                    controller: daysCtrl,
-                                    label: 'Days per year',
-                                    keyboard: const TextInputType.numberWithOptions(decimal: true)),
+                                  controller: daysCtrl,
+                                  label: 'Days per year',
+                                  keyboard:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: _SheetField(
-                                    controller: sortOrderCtrl,
-                                    label: 'Sort Order',
-                                    keyboard: TextInputType.number),
+                                  controller: sortOrderCtrl,
+                                  label: 'Sort Order',
+                                  keyboard: TextInputType.number,
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 12),
-                          const Text('Color',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                          const Text(
+                            'Color',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.grey700,
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           StatefulBuilder(
                             builder: (_, setColor) => Wrap(
@@ -1564,7 +2117,8 @@ class _LeaveTypesTab extends ConsumerWidget {
                                 final col = _typeColor(c);
                                 final sel = selectedColor == c;
                                 return GestureDetector(
-                                  onTap: () => setColor(() => selectedColor = c),
+                                  onTap: () =>
+                                      setColor(() => selectedColor = c),
                                   child: Container(
                                     width: 32,
                                     height: 32,
@@ -1572,12 +2126,18 @@ class _LeaveTypesTab extends ConsumerWidget {
                                       color: col,
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: sel ? AppColors.grey800 : Colors.transparent,
+                                        color: sel
+                                            ? AppColors.grey800
+                                            : Colors.transparent,
                                         width: 2.5,
                                       ),
                                     ),
                                     child: sel
-                                        ? const Icon(Icons.check_rounded, color: Colors.white, size: 16)
+                                        ? const Icon(
+                                            Icons.check_rounded,
+                                            color: Colors.white,
+                                            size: 16,
+                                          )
                                         : null,
                                   ),
                                 );
@@ -1588,14 +2148,26 @@ class _LeaveTypesTab extends ConsumerWidget {
                           const SizedBox(height: 20),
 
                           // ── Accrual & Balances ───────────────────────────
-                          const Text('Accrual & Balances',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.grey800)),
+                          const Text(
+                            'Accrual & Balances',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.grey800,
+                            ),
+                          ),
                           const SizedBox(height: 10),
                           CheckboxListTile(
                             value: isProrated,
-                            onChanged: (v) => setSt(() => isProrated = v ?? false),
-                            title: const Text('Prorate Accrual (adjust for mid-year joiners)',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                            onChanged: (v) =>
+                                setSt(() => isProrated = v ?? false),
+                            title: const Text(
+                              'Prorate Accrual (adjust for mid-year joiners)',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                             dense: true,
                             contentPadding: EdgeInsets.zero,
                             controlAffinity: ListTileControlAffinity.leading,
@@ -1603,9 +2175,15 @@ class _LeaveTypesTab extends ConsumerWidget {
                           ),
                           CheckboxListTile(
                             value: carryForward,
-                            onChanged: (v) => setSt(() => carryForward = v ?? false),
-                            title: const Text('Allow Carry Forward',
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                            onChanged: (v) =>
+                                setSt(() => carryForward = v ?? false),
+                            title: const Text(
+                              'Allow Carry Forward',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                             dense: true,
                             contentPadding: EdgeInsets.zero,
                             controlAffinity: ListTileControlAffinity.leading,
@@ -1614,45 +2192,80 @@ class _LeaveTypesTab extends ConsumerWidget {
                           if (carryForward) ...[
                             const SizedBox(height: 4),
                             _SheetField(
-                                controller: maxCarryForwardCtrl,
-                                label: 'Max Carry Forward Days (empty = unlimited)',
-                                keyboard: TextInputType.number),
+                              controller: maxCarryForwardCtrl,
+                              label:
+                                  'Max Carry Forward Days (empty = unlimited)',
+                              keyboard: TextInputType.number,
+                            ),
                             const SizedBox(height: 8),
                           ],
 
                           const SizedBox(height: 12),
 
                           // ── Rules & Restrictions ─────────────────────────
-                          const Text('Rules & Restrictions',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.grey800)),
+                          const Text(
+                            'Rules & Restrictions',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.grey800,
+                            ),
+                          ),
                           const SizedBox(height: 10),
                           _SheetField(
-                              controller: noticeCtrl,
-                              label: 'Notice Period (days) *',
-                              keyboard: TextInputType.number),
+                            controller: noticeCtrl,
+                            label: 'Notice Period (days) *',
+                            keyboard: TextInputType.number,
+                          ),
                           const SizedBox(height: 12),
                           _SheetField(
-                              controller: minTenureCtrl,
-                              label: 'Minimum Tenure (days, 0 = none)',
-                              keyboard: TextInputType.number),
+                            controller: minTenureCtrl,
+                            label: 'Minimum Tenure (days, 0 = none)',
+                            keyboard: TextInputType.number,
+                          ),
                           const SizedBox(height: 12),
                           _SheetField(
-                              controller: maxConsecutiveCtrl,
-                              label: 'Max Consecutive Days (empty = unlimited)',
-                              keyboard: TextInputType.number),
+                            controller: maxConsecutiveCtrl,
+                            label: 'Max Consecutive Days (empty = unlimited)',
+                            keyboard: TextInputType.number,
+                          ),
                           const SizedBox(height: 12),
 
                           // Gender restriction
-                          const Text('Gender Restriction',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                          const Text(
+                            'Gender Restriction',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.grey700,
+                            ),
+                          ),
                           const SizedBox(height: 6),
                           DropdownButtonFormField<String>(
                             initialValue: genderSpecific,
                             decoration: _dropDec(),
                             items: const [
-                              DropdownMenuItem(value: 'all', child: Text('All Genders', style: TextStyle(fontSize: 13))),
-                              DropdownMenuItem(value: 'male', child: Text('Male Only', style: TextStyle(fontSize: 13))),
-                              DropdownMenuItem(value: 'female', child: Text('Female Only', style: TextStyle(fontSize: 13))),
+                              DropdownMenuItem(
+                                value: 'all',
+                                child: Text(
+                                  'All Genders',
+                                  style: TextStyle(fontSize: 13),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: 'male',
+                                child: Text(
+                                  'Male Only',
+                                  style: TextStyle(fontSize: 13),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: 'female',
+                                child: Text(
+                                  'Female Only',
+                                  style: TextStyle(fontSize: 13),
+                                ),
+                              ),
                             ],
                             onChanged: (v) => setSt(() => genderSpecific = v!),
                           ),
@@ -1660,13 +2273,25 @@ class _LeaveTypesTab extends ConsumerWidget {
                           const SizedBox(height: 16),
 
                           // ── Toggles ──────────────────────────────────────
-                          const Text('Options',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.grey800)),
+                          const Text(
+                            'Options',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.grey800,
+                            ),
+                          ),
                           const SizedBox(height: 6),
                           CheckboxListTile(
                             value: isPaid,
                             onChanged: (v) => setSt(() => isPaid = v ?? true),
-                            title: const Text('Paid Leave', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                            title: const Text(
+                              'Paid Leave',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                             dense: true,
                             contentPadding: EdgeInsets.zero,
                             controlAffinity: ListTileControlAffinity.leading,
@@ -1674,8 +2299,15 @@ class _LeaveTypesTab extends ConsumerWidget {
                           ),
                           CheckboxListTile(
                             value: allowHalfDay,
-                            onChanged: (v) => setSt(() => allowHalfDay = v ?? false),
-                            title: const Text('Allow Half-Day Requests', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                            onChanged: (v) =>
+                                setSt(() => allowHalfDay = v ?? false),
+                            title: const Text(
+                              'Allow Half-Day Requests',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                             dense: true,
                             contentPadding: EdgeInsets.zero,
                             controlAffinity: ListTileControlAffinity.leading,
@@ -1683,8 +2315,15 @@ class _LeaveTypesTab extends ConsumerWidget {
                           ),
                           CheckboxListTile(
                             value: requiresDocument,
-                            onChanged: (v) => setSt(() => requiresDocument = v ?? false),
-                            title: const Text('Requires Document', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                            onChanged: (v) =>
+                                setSt(() => requiresDocument = v ?? false),
+                            title: const Text(
+                              'Requires Document',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                             dense: true,
                             contentPadding: EdgeInsets.zero,
                             controlAffinity: ListTileControlAffinity.leading,
@@ -1693,8 +2332,15 @@ class _LeaveTypesTab extends ConsumerWidget {
                           if (isEdit)
                             CheckboxListTile(
                               value: isActive,
-                              onChanged: (v) => setSt(() => isActive = v ?? true),
-                              title: const Text('Active', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                              onChanged: (v) =>
+                                  setSt(() => isActive = v ?? true),
+                              title: const Text(
+                                'Active',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                               dense: true,
                               contentPadding: EdgeInsets.zero,
                               controlAffinity: ListTileControlAffinity.leading,
@@ -1710,35 +2356,56 @@ class _LeaveTypesTab extends ConsumerWidget {
                             child: FilledButton(
                               style: FilledButton.styleFrom(
                                 backgroundColor: AppColors.primary,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
                               ),
                               onPressed: () async {
                                 if (nameCtrl.text.trim().isEmpty) return;
                                 try {
-                                  final repo = ref.read(adminOpsRepositoryProvider);
+                                  final repo = ref.read(
+                                    adminOpsRepositoryProvider,
+                                  );
                                   if (isEdit) {
                                     await repo.updateLeaveType(type.id, {
                                       'name': nameCtrl.text.trim(),
                                       'code': codeCtrl.text.trim(),
-                                      'days_per_year': double.tryParse(daysCtrl.text) ?? 12,
+                                      'days_per_year':
+                                          double.tryParse(daysCtrl.text) ?? 12,
                                       'color': selectedColor,
                                       'is_paid': isPaid,
                                       'carry_forward': carryForward,
                                       'requires_document': requiresDocument,
                                       'is_active': isActive,
                                       'is_prorated': isProrated,
-                                      'minimum_tenure_days': minTenureCtrl.text.isNotEmpty ? int.tryParse(minTenureCtrl.text) : null,
+                                      'minimum_tenure_days':
+                                          minTenureCtrl.text.isNotEmpty
+                                          ? int.tryParse(minTenureCtrl.text)
+                                          : null,
                                       'allow_half_day': allowHalfDay,
-                                      'notice_period_days': int.tryParse(noticeCtrl.text) ?? 0,
-                                      'max_consecutive_days': maxConsecutiveCtrl.text.isNotEmpty ? int.tryParse(maxConsecutiveCtrl.text) : null,
-                                      'sort_order': int.tryParse(sortOrderCtrl.text) ?? 0,
-                                      'max_carry_forward': maxCarryForwardCtrl.text.isNotEmpty ? int.tryParse(maxCarryForwardCtrl.text) : null,
+                                      'notice_period_days':
+                                          int.tryParse(noticeCtrl.text) ?? 0,
+                                      'max_consecutive_days':
+                                          maxConsecutiveCtrl.text.isNotEmpty
+                                          ? int.tryParse(
+                                              maxConsecutiveCtrl.text,
+                                            )
+                                          : null,
+                                      'sort_order':
+                                          int.tryParse(sortOrderCtrl.text) ?? 0,
+                                      'max_carry_forward':
+                                          maxCarryForwardCtrl.text.isNotEmpty
+                                          ? int.tryParse(
+                                              maxCarryForwardCtrl.text,
+                                            )
+                                          : null,
                                       'gender_specific': genderSpecific,
                                     });
                                   } else {
                                     await repo.createLeaveType(
                                       name: nameCtrl.text.trim(),
-                                      defaultDays: double.tryParse(daysCtrl.text) ?? 12,
+                                      defaultDays:
+                                          double.tryParse(daysCtrl.text) ?? 12,
                                       color: selectedColor,
                                       code: codeCtrl.text.trim(),
                                       isPaid: isPaid,
@@ -1746,12 +2413,27 @@ class _LeaveTypesTab extends ConsumerWidget {
                                       requiresDocument: requiresDocument,
                                       isActive: isActive,
                                       isProrated: isProrated,
-                                      minimumTenureDays: minTenureCtrl.text.isNotEmpty ? int.tryParse(minTenureCtrl.text) : null,
+                                      minimumTenureDays:
+                                          minTenureCtrl.text.isNotEmpty
+                                          ? int.tryParse(minTenureCtrl.text)
+                                          : null,
                                       allowHalfDay: allowHalfDay,
-                                      noticePeriodDays: int.tryParse(noticeCtrl.text) ?? 0,
-                                      maxConsecutiveDays: maxConsecutiveCtrl.text.isNotEmpty ? int.tryParse(maxConsecutiveCtrl.text) : null,
-                                      sortOrder: int.tryParse(sortOrderCtrl.text) ?? 0,
-                                      maxCarryForward: maxCarryForwardCtrl.text.isNotEmpty ? int.tryParse(maxCarryForwardCtrl.text) : null,
+                                      noticePeriodDays:
+                                          int.tryParse(noticeCtrl.text) ?? 0,
+                                      maxConsecutiveDays:
+                                          maxConsecutiveCtrl.text.isNotEmpty
+                                          ? int.tryParse(
+                                              maxConsecutiveCtrl.text,
+                                            )
+                                          : null,
+                                      sortOrder:
+                                          int.tryParse(sortOrderCtrl.text) ?? 0,
+                                      maxCarryForward:
+                                          maxCarryForwardCtrl.text.isNotEmpty
+                                          ? int.tryParse(
+                                              maxCarryForwardCtrl.text,
+                                            )
+                                          : null,
                                       genderSpecific: genderSpecific,
                                     );
                                   }
@@ -1759,22 +2441,34 @@ class _LeaveTypesTab extends ConsumerWidget {
                                   if (ctx.mounted) Navigator.pop(ctx);
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text(isEdit ? 'Leave type updated' : 'Leave type created'),
-                                            backgroundColor: AppColors.success));
+                                      SnackBar(
+                                        content: Text(
+                                          isEdit
+                                              ? 'Leave type updated'
+                                              : 'Leave type created',
+                                        ),
+                                        backgroundColor: AppColors.success,
+                                      ),
+                                    );
                                   }
                                 } catch (e) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text('Failed: $e'),
-                                            backgroundColor: AppColors.danger));
+                                      SnackBar(
+                                        content: Text('Failed: $e'),
+                                        backgroundColor: AppColors.danger,
+                                      ),
+                                    );
                                   }
                                 }
                               },
-                              child: Text(isEdit ? 'Save Changes' : 'Create',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700, fontSize: 15)),
+                              child: Text(
+                                isEdit ? 'Save Changes' : 'Create',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -1792,19 +2486,22 @@ class _LeaveTypesTab extends ConsumerWidget {
   }
 
   InputDecoration _dropDec() => InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        filled: true,
-        fillColor: AppColors.grey50,
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.grey200)),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.grey200)),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.primary, width: 2)),
-      );
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    filled: true,
+    fillColor: AppColors.grey50,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: AppColors.grey200),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: AppColors.grey200),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: AppColors.primary, width: 2),
+    ),
+  );
 }
 
 class _LeaveTypeCard extends ConsumerWidget {
@@ -1822,9 +2519,10 @@ class _LeaveTypeCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withAlpha(8),
-              blurRadius: 8,
-              offset: const Offset(0, 2))
+            color: Colors.black.withAlpha(8),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: IntrinsicHeight(
@@ -1856,8 +2554,11 @@ class _LeaveTypeCard extends ConsumerWidget {
                             color: accent.withAlpha(18),
                             borderRadius: BorderRadius.circular(11),
                           ),
-                          child: Icon(Icons.event_note_rounded,
-                              color: accent, size: 20),
+                          child: Icon(
+                            Icons.event_note_rounded,
+                            color: accent,
+                            size: 20,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -1867,46 +2568,58 @@ class _LeaveTypeCard extends ConsumerWidget {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: Text(type.name,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 14,
-                                            color: AppColors.grey800)),
+                                    child: Text(
+                                      type.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                        color: AppColors.grey800,
+                                      ),
+                                    ),
                                   ),
                                   if (type.code != null &&
                                       type.code!.isNotEmpty)
                                     Container(
                                       margin: const EdgeInsets.only(left: 6),
-                                      padding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 7, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 7,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: accent.withAlpha(15),
-                                        borderRadius:
-                                            BorderRadius.circular(5),
+                                        borderRadius: BorderRadius.circular(5),
                                         border: Border.all(
-                                            color: accent.withAlpha(40)),
+                                          color: accent.withAlpha(40),
+                                        ),
                                       ),
-                                      child: Text(type.code!,
-                                          style: TextStyle(
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.w800,
-                                              color: accent)),
+                                      child: Text(
+                                        type.code!,
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w800,
+                                          color: accent,
+                                        ),
+                                      ),
                                     ),
                                 ],
                               ),
                               const SizedBox(height: 4),
-                              Text('${type.defaultDays.toStringAsFixed(0)} days/year',
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.grey500)),
+                              Text(
+                                '${type.defaultDays.toStringAsFixed(0)} days/year',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.grey500,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                         // Status badge
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: type.isActive
                                 ? const Color(0xFFDCFCE7)
@@ -1916,11 +2629,12 @@ class _LeaveTypeCard extends ConsumerWidget {
                           child: Text(
                             type.isActive ? 'ACTIVE' : 'INACTIVE',
                             style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w800,
-                                color: type.isActive
-                                    ? AppColors.success
-                                    : AppColors.grey500),
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              color: type.isActive
+                                  ? AppColors.success
+                                  : AppColors.grey500,
+                            ),
                           ),
                         ),
                       ],
@@ -1932,58 +2646,75 @@ class _LeaveTypeCard extends ConsumerWidget {
                       runSpacing: 4,
                       children: [
                         _PolicyBadge(
-                            label: type.isPaid ? 'Paid' : 'Unpaid',
-                            color: type.isPaid
-                                ? AppColors.success
-                                : AppColors.grey500,
-                            bg: type.isPaid
-                                ? const Color(0xFFDCFCE7)
-                                : AppColors.grey100),
+                          label: type.isPaid ? 'Paid' : 'Unpaid',
+                          color: type.isPaid
+                              ? AppColors.success
+                              : AppColors.grey500,
+                          bg: type.isPaid
+                              ? const Color(0xFFDCFCE7)
+                              : AppColors.grey100,
+                        ),
                         if (type.isProrated)
                           const _PolicyBadge(
-                              label: 'Prorated',
-                              color: Color(0xFF2563EB),
-                              bg: Color(0xFFDBEAFE)),
+                            label: 'Prorated',
+                            color: Color(0xFF2563EB),
+                            bg: Color(0xFFDBEAFE),
+                          ),
                         if (type.allowHalfDay)
                           const _PolicyBadge(
-                              label: 'Half-Day',
-                              color: Color(0xFF0F766E),
-                              bg: Color(0xFFCCFBF1)),
+                            label: 'Half-Day',
+                            color: Color(0xFF0F766E),
+                            bg: Color(0xFFCCFBF1),
+                          ),
                         if (type.carryForward) ...[
                           _PolicyBadge(
-                              label: type.maxCarryForward != null
-                                  ? 'Carry Fwd: ${type.maxCarryForward}d'
-                                  : 'Carry Forward',
-                              color: const Color(0xFF7C3AED),
-                              bg: const Color(0xFFF5F3FF)),
+                            label: type.maxCarryForward != null
+                                ? 'Carry Fwd: ${type.maxCarryForward}d'
+                                : 'Carry Forward',
+                            color: const Color(0xFF7C3AED),
+                            bg: const Color(0xFFF5F3FF),
+                          ),
                         ],
                         if (type.maxConsecutiveDays != null)
                           _PolicyBadge(
-                              label: 'Max Consec: ${type.maxConsecutiveDays}d',
-                              color: const Color(0xFFB45309),
-                              bg: const Color(0xFFFEF3C7)),
+                            label: 'Max Consec: ${type.maxConsecutiveDays}d',
+                            color: const Color(0xFFB45309),
+                            bg: const Color(0xFFFEF3C7),
+                          ),
                         if (type.requiresDocument)
                           const _PolicyBadge(
-                              label: 'Requires Doc',
-                              color: Color(0xFFB45309),
-                              bg: Color(0xFFFEF3C7)),
+                            label: 'Requires Doc',
+                            color: Color(0xFFB45309),
+                            bg: Color(0xFFFEF3C7),
+                          ),
                         if (type.genderSpecific != 'all')
                           _PolicyBadge(
-                              label: 'Gender: ${type.genderSpecific}',
-                              color: AppColors.grey600,
-                              bg: AppColors.grey100),
+                            label: 'Gender: ${type.genderSpecific}',
+                            color: AppColors.grey600,
+                            bg: AppColors.grey100,
+                          ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     // Additional info row
                     Row(
                       children: [
-                        Text('Notice: ${type.noticePeriodDays}d · Sort: ${type.sortOrder}',
-                            style: const TextStyle(fontSize: 10, color: AppColors.grey400)),
+                        Text(
+                          'Notice: ${type.noticePeriodDays}d · Sort: ${type.sortOrder}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.grey400,
+                          ),
+                        ),
                         if (type.minimumTenureDays != null) ...[
                           const SizedBox(width: 8),
-                          Text('Min Tenure: ${type.minimumTenureDays}d',
-                              style: const TextStyle(fontSize: 10, color: AppColors.grey400)),
+                          Text(
+                            'Min Tenure: ${type.minimumTenureDays}d',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.grey400,
+                            ),
+                          ),
                         ],
                       ],
                     ),
@@ -1995,16 +2726,30 @@ class _LeaveTypeCard extends ConsumerWidget {
                         GestureDetector(
                           onTap: () => onEdit(type),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: .08),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Row(
                               children: [
-                                Icon(Icons.edit_rounded, color: AppColors.primary, size: 13),
+                                Icon(
+                                  Icons.edit_rounded,
+                                  color: AppColors.primary,
+                                  size: 13,
+                                ),
                                 SizedBox(width: 4),
-                                Text('Edit', style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w700)),
+                                Text(
+                                  'Edit',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -2015,7 +2760,9 @@ class _LeaveTypeCard extends ConsumerWidget {
                               _confirmDelete(context, ref, type.id, type.name),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.dangerLight,
                               borderRadius: BorderRadius.circular(8),
@@ -2023,14 +2770,20 @@ class _LeaveTypeCard extends ConsumerWidget {
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.delete_rounded,
-                                    size: 13, color: AppColors.danger),
+                                Icon(
+                                  Icons.delete_rounded,
+                                  size: 13,
+                                  color: AppColors.danger,
+                                ),
                                 SizedBox(width: 5),
-                                Text('Delete',
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.danger)),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.danger,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -2048,178 +2801,181 @@ class _LeaveTypeCard extends ConsumerWidget {
   }
 
   Future<void> _confirmDelete(
-  BuildContext context,
-  WidgetRef ref,
-  int id,
-  String name,
-) async {
-  final confirmed = await showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (ctx) {
-      return Dialog(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Delete Icon
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: AppColors.danger.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.delete_forever_rounded,
-                  color: AppColors.danger,
-                  size: 40,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                "Delete Leave Type?",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 15,
-                    height: 1.5,
+    BuildContext context,
+    WidgetRef ref,
+    int id,
+    String name,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Delete Icon
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: AppColors.danger.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  children: [
-                    const TextSpan(
-                      text: "Are you sure you want to delete\n",
+                  child: const Icon(
+                    Icons.delete_forever_rounded,
+                    color: AppColors.danger,
+                    size: 40,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  "Delete Leave Type?",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 12),
+
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 15,
+                      height: 1.5,
                     ),
-                    TextSpan(
-                      text: '"$name"',
-                      style: const TextStyle(
-                        color: AppColors.danger,
-                        fontWeight: FontWeight.bold,
+                    children: [
+                      const TextSpan(text: "Are you sure you want to delete\n"),
+                      TextSpan(
+                        text: '"$name"',
+                        style: const TextStyle(
+                          color: AppColors.danger,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const TextSpan(
+                        text: "?\n\nThis action cannot be undone.",
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: Colors.grey),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                    const TextSpan(
-                      text: "?\n\nThis action cannot be undone.",
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        icon: const Icon(Icons.delete_outline),
+                        label: const Text("Delete"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.danger,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-
-              const SizedBox(height: 28),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        side: const BorderSide(
-                          color: Colors.grey,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      icon: const Icon(Icons.delete_outline),
-                      label: const Text("Delete"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.danger,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
 
-  if (confirmed == true) {
-    try {
-      await AdminOperationsRepository().deleteLeaveType(id);
+    if (confirmed == true) {
+      try {
+        await AdminOperationsRepository().deleteLeaveType(id);
 
-      ref.invalidate(leaveTypesProvider);
+        ref.invalidate(leaveTypesProvider);
 
-      if (!context.mounted) return;
+        if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("✅ Leave type deleted successfully"),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (e) {
-      if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("✅ Leave type deleted successfully"),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } catch (e) {
+        if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("❌ Failed: $e"),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("❌ Failed: $e"),
+            backgroundColor: AppColors.danger,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
-}
 }
 
 class _PolicyBadge extends StatelessWidget {
   final String label;
   final Color color;
   final Color bg;
-  const _PolicyBadge(
-      {required this.label, required this.color, required this.bg});
+  const _PolicyBadge({
+    required this.label,
+    required this.color,
+    required this.bg,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration:
-          BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
-      child: Text(label,
-          style: TextStyle(
-              fontSize: 10, fontWeight: FontWeight.w700, color: color)),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
     );
   }
 }
@@ -2230,10 +2986,11 @@ class _GradientFAB extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback onPressed;
-  const _GradientFAB(
-      {required this.label,
-      required this.icon,
-      required this.onPressed});
+  const _GradientFAB({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2266,11 +3023,14 @@ class _GradientFAB extends StatelessWidget {
               child: Icon(icon, color: Colors.white, size: 16),
             ),
             const SizedBox(width: 8),
-            Text(label,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 13)),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+              ),
+            ),
           ],
         ),
       ),
@@ -2282,10 +3042,11 @@ class _SheetField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final TextInputType keyboard;
-  const _SheetField(
-      {required this.controller,
-      required this.label,
-      this.keyboard = TextInputType.text});
+  const _SheetField({
+    required this.controller,
+    required this.label,
+    this.keyboard = TextInputType.text,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2296,23 +3057,28 @@ class _SheetField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label.isEmpty ? null : label,
         labelStyle: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: AppColors.grey600),
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.grey600,
+        ),
         filled: true,
         fillColor: AppColors.grey50,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.grey200)),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.grey200),
+        ),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.grey200)),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.grey200),
+        ),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide:
-                const BorderSide(color: AppColors.primary, width: 2)),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
       ),
     );
   }
@@ -2333,19 +3099,25 @@ class _EmptyPlaceholder extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(22)),
+              color: AppColors.primaryLight,
+              borderRadius: BorderRadius.circular(22),
+            ),
             child: Icon(icon, color: AppColors.primary, size: 36),
           ),
           const SizedBox(height: 16),
-          Text(message,
-              style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.grey700)),
+          Text(
+            message,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppColors.grey700,
+            ),
+          ),
           const SizedBox(height: 6),
-          const Text('Nothing to show here yet.',
-              style: TextStyle(fontSize: 13, color: AppColors.grey400)),
+          const Text(
+            'Nothing to show here yet.',
+            style: TextStyle(fontSize: 13, color: AppColors.grey400),
+          ),
         ],
       ),
     );
@@ -2362,20 +3134,28 @@ class _ErrorRetry extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.cloud_off_rounded,
-              size: 48, color: AppColors.danger),
+          const Icon(
+            Icons.cloud_off_rounded,
+            size: 48,
+            color: AppColors.danger,
+          ),
           const SizedBox(height: 12),
-          const Text('Failed to load data',
-              style: TextStyle(
-                  fontWeight: FontWeight.w600, color: AppColors.grey700)),
+          const Text(
+            'Failed to load data',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: AppColors.grey700,
+            ),
+          ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
             label: const Text('Try Again'),
             style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: const BorderSide(color: AppColors.primary)),
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+            ),
           ),
         ],
       ),

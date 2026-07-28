@@ -488,29 +488,19 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
   }
 
   Future<void> _pickReceipt() async {
-    final source = await showDialog<ImageSource>(
+    final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add Receipt'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take a Photo'),
-              onTap: () => Navigator.pop(ctx, ImageSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
-              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
-            ),
-          ],
-        ),
-      ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => _ReceiptPickerSheet(hasExisting: _receipt != null),
     );
 
+    // null means cancelled, -1 sentinel means "remove"
     if (source == null) return;
+
+    if (source == ImageSource.gallery && _receipt != null) {
+      // handled by remove button — remove sentinel not needed with enum trick
+    }
 
     final picker = ImagePicker();
     final picked = await picker.pickImage(
@@ -518,12 +508,14 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
       maxWidth: 2048,
       imageQuality: 85,
     );
-    
+
     if (picked != null) {
-      final compressed = await ImageCompressor.compressToWebp(picked.path);
+      final compressed = await ImageCompressor.compressToJpeg(picked.path);
       setState(() => _receipt = compressed);
     }
   }
+
+  void _removeReceipt() => setState(() => _receipt = null);
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -727,39 +719,132 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
               const SizedBox(height: 16),
               // Receipt upload — only for new claims, matching web behavior
               if (!_isEditing) ...[
-                InkWell(
-                  onTap: _pickReceipt,
-                  child: InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Receipt (optional)',
-                      border: OutlineInputBorder(),
-                      suffixIcon: Icon(Icons.upload_file),
-                    ),
-                    child: Text(
-                      _receipt != null
-                          ? _receipt!.path.split('/').last
-                          : 'Tap to select image (JPG, PNG)',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: _receipt != null ? AppColors.grey800 : AppColors.grey400,
+                const Text(
+                  'Receipt (optional)',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                ),
+                const SizedBox(height: 8),
+                if (_receipt == null)
+                  GestureDetector(
+                    onTap: _pickReceipt,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      height: 110,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight.withAlpha(80),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: AppColors.primary.withAlpha(120),
+                          width: 1.5,
+                          // dashed via custom paint equivalent: solid with opacity
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 46,
+                            height: 46,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withAlpha(20),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.add_photo_alternate_outlined,
+                                color: AppColors.primary, size: 26),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Tap to attach receipt',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Camera or Gallery  ·  JPG, PNG, WEBP',
+                            style: TextStyle(fontSize: 11, color: AppColors.grey400),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ),
-                if (_receipt != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withAlpha(15),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.success.withAlpha(80)),
+                    ),
                     child: Row(
                       children: [
-                        const Icon(Icons.check_circle, size: 14, color: AppColors.success),
-                        const SizedBox(width: 4),
-                        const Text('Receipt selected',
-                            style: TextStyle(fontSize: 11, color: AppColors.success)),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () => setState(() => _receipt = null),
-                          child: const Text('Remove',
-                              style: TextStyle(fontSize: 11, color: AppColors.danger)),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            _receipt!,
+                            width: 58,
+                            height: 58,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.check_circle_rounded,
+                                      size: 15, color: AppColors.success),
+                                  const SizedBox(width: 4),
+                                  const Text(
+                                    'Receipt attached',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.success,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                _receipt!.path.split('/').last,
+                                style: const TextStyle(
+                                    fontSize: 11, color: AppColors.grey600),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: _pickReceipt,
+                                    child: const Text(
+                                      'Change',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  GestureDetector(
+                                    onTap: _removeReceipt,
+                                    child: const Text(
+                                      'Remove',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.danger,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -784,6 +869,243 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                         _isEditing ? 'Update Claim' : 'Submit Claim',
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Receipt Picker Bottom Sheet ───────────────────────────────────────────
+
+class _ReceiptPickerSheet extends StatelessWidget {
+  final bool hasExisting;
+  const _ReceiptPickerSheet({this.hasExisting = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.only(top: 12),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppColors.grey300,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          // Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 4),
+            child: Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primary, AppColors.primaryDark],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.receipt_long_rounded,
+                      color: Colors.white, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Add Receipt',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.grey900,
+                      ),
+                    ),
+                    Text(
+                      'Choose how to attach your receipt',
+                      style: TextStyle(fontSize: 12, color: AppColors.grey400),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: AppColors.grey100,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.close_rounded,
+                        size: 18, color: AppColors.grey600),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Options
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _PickerOption(
+                    icon: Icons.camera_alt_rounded,
+                    label: 'Camera',
+                    subtitle: 'Take a photo',
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF6B35), Color(0xFFF97316)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    onTap: () => Navigator.pop(context, ImageSource.camera),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: _PickerOption(
+                    icon: Icons.photo_library_rounded,
+                    label: 'Gallery',
+                    subtitle: 'Choose image',
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    onTap: () => Navigator.pop(context, ImageSource.gallery),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              'Accepted formats: JPG, PNG, WEBP  ·  Max 10 MB',
+              style: TextStyle(fontSize: 11, color: AppColors.grey400),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 24),
+        ],
+      ),
+    );
+  }
+}
+
+class _PickerOption extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final LinearGradient gradient;
+  final VoidCallback onTap;
+
+  const _PickerOption({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.gradient,
+    required this.onTap,
+  });
+
+  @override
+  State<_PickerOption> createState() => _PickerOptionState();
+}
+
+class _PickerOptionState extends State<_PickerOption>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 120),
+      lowerBound: 0.0,
+      upperBound: 0.04,
+    );
+    _scale = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _ctrl.forward(),
+      onTapUp: (_) {
+        _ctrl.reverse();
+        widget.onTap();
+      },
+      onTapCancel: () => _ctrl.reverse(),
+      child: ScaleTransition(
+        scale: _scale,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 22),
+          decoration: BoxDecoration(
+            gradient: widget.gradient,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: widget.gradient.colors.first.withAlpha(70),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(40),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(widget.icon, color: Colors.white, size: 30),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                widget.label,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                widget.subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white.withAlpha(200),
+                ),
               ),
             ],
           ),

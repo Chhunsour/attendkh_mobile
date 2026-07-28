@@ -16,7 +16,6 @@ import 'package:mpg_hr_mobile_app/pages/employee/expense_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/training_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/kpi_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/holiday_calendar_screen.dart' as mpg_holiday;
-import 'package:mpg_hr_mobile_app/pages/employee/company_rules_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/policies_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/documents_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
@@ -279,7 +278,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.companyRules,
-        builder: (context, state) => const CompanyRulesScreen(),
+        builder: (context, state) => const PoliciesScreen(),
       ),
       GoRoute(
         path: AppRoutes.companyPolicies,

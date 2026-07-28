@@ -164,20 +164,45 @@ class PoliciesRepository {
   // Employee Endpoints
   // ---------------------------------------------------------------------------
 
+  /// Fetches published policies visible to the employee.
+  /// Uses /company/company-rules (Employee self-service endpoint — confirmed 200).
+  /// /company/policies is admin-only and returns 403 for employees.
   Future<List<Policy>> getEmployeePolicies() async {
-    final response = await _api.get('/policies');
+    final response = await _api.get('/company/company-rules');
     final data = response.data;
-    if (data is List) {
-      return data.map((e) => Policy.fromJson(e as Map<String, dynamic>)).toList();
+
+    List<dynamic> rawList = [];
+
+    if (data is Map) {
+      // Shape: { rules: [...] }
+      if (data['rules'] is List) {
+        rawList = data['rules'] as List;
+      } else if (data['data'] is List) {
+        rawList = data['data'] as List;
+      } else if (data['policies'] is List) {
+        rawList = data['policies'] as List;
+      }
+    } else if (data is List) {
+      rawList = data;
     }
-    if (data is Map && data['data'] != null) {
-      return (data['data'] as List).map((e) => Policy.fromJson(e as Map<String, dynamic>)).toList();
-    }
-    return [];
+
+    // Map company-rules fields → Policy model
+    return rawList.asMap().entries.map((entry) {
+      final json = entry.value as Map<String, dynamic>;
+      return Policy(
+        id: json['id'] as int? ?? entry.key,
+        title: json['title'] as String? ?? 'Company Rule',
+        content: json['description'] as String? ?? json['content'] as String? ?? '',
+        version: json['version'] as String? ?? '1.0',
+        status: 'published',
+        createdAt: json['created_at'] as String? ?? '',
+        isAcknowledged: false,
+      );
+    }).toList();
   }
 
   Future<Policy> getEmployeePolicy(int id) async {
-    final response = await _api.get('/policies/$id');
+    final response = await _api.get('/company/policies/$id');
     final data = response.data;
     if (data is Map && data['data'] != null) {
       return Policy.fromJson(data['data'] as Map<String, dynamic>);
@@ -186,6 +211,6 @@ class PoliciesRepository {
   }
 
   Future<void> acknowledgePolicy(int id) async {
-    await _api.post('/policies/$id/acknowledge');
+    await _api.post('/company/policies/$id/acknowledge');
   }
 }

@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/leave_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 
 class LeaveRequestScreen extends ConsumerStatefulWidget {
@@ -34,8 +35,8 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
   }
 
   Future<void> _pickDate(bool isStart) async {
-    final date = await showDatePicker(
-      context: context,
+    final date = await showCustomDatePicker(
+      context,
       initialDate: isStart ? _startDate : _endDate,
       firstDate: DateTime.now().subtract(const Duration(days: 30)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
@@ -118,10 +119,12 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
       String msg = 'Failed to submit leave request';
       if (e is AppException) {
         msg = e.message;
+      } else {
+        msg = e.toString().replaceAll('Exception: ', '');
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ $msg'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+          SnackBar(content: Text('❌ $msg'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating, duration: const Duration(seconds: 4)),
         );
       }
     } finally {
@@ -134,6 +137,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
   @override
   Widget build(BuildContext context) {
     final leaveTypesAsync = ref.watch(leaveTypesProvider);
+    final leaveBalancesAsync = ref.watch(leaveBalancesProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Request Leave')),
@@ -179,6 +183,70 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                         }).toList(),
                         onChanged: (v) => setState(() => _selectedLeaveTypeId = v),
                       ),
+                      const SizedBox(height: 12),
+
+                      // Balance Info Card
+                      leaveBalancesAsync.when(
+                        data: (balances) {
+                          final sel = _selectedLeaveTypeId;
+                          if (sel == null) return const SizedBox.shrink();
+                          try {
+                            final balance = balances.firstWhere((b) => b.leaveTypeId == sel);
+                            final remaining = balance.remaining;
+                            final isLow = remaining <= 1;
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: isLow ? const Color(0xFFFFF7ED) : const Color(0xFFF0FDF4),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: isLow ? AppColors.warning : AppColors.success),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(isLow ? Icons.warning_rounded : Icons.check_circle_rounded,
+                                      size: 18, color: isLow ? AppColors.warning : AppColors.success),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text.rich(
+                                      TextSpan(
+                                        text: '${balance.typeName} balance: ',
+                                        style: const TextStyle(fontSize: 13, color: AppColors.grey700),
+                                        children: [
+                                          TextSpan(
+                                            text: '${remaining.toStringAsFixed(remaining % 1 == 0 ? 0 : 1)} days remaining',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: isLow ? AppColors.warning : AppColors.success,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } catch (_) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF7ED),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.warning),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.info_outline_rounded, size: 18, color: AppColors.warning),
+                                  SizedBox(width: 8),
+                                  Text('No balance record found for this leave type.', style: TextStyle(fontSize: 13, color: AppColors.grey700)),
+                                ],
+                              ),
+                            );
+                          }
+                        },
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, _) => const SizedBox.shrink(),
+                      ),
                       const SizedBox(height: 16),
 
                       // Dates
@@ -188,18 +256,18 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Start Date', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
-                                const SizedBox(height: 8),
+                                const Text('Start Date', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                                const SizedBox(height: 6),
                                 InkWell(
                                   onTap: () => _pickDate(true),
                                   child: Container(
-                                    padding: const EdgeInsets.all(14),
-                                    decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppColors.grey300), borderRadius: BorderRadius.circular(12)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), border: Border.all(color: AppColors.grey300), borderRadius: BorderRadius.circular(12)),
                                     child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Icon(Icons.calendar_today, size: 18, color: AppColors.grey500),
-                                        const SizedBox(width: 8),
-                                        Text(DateFormat('dd/MM/yyyy').format(_startDate), style: const TextStyle(fontSize: 14)),
+                                        Text(DateFormat('dd MMM yyyy').format(_startDate), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                                        const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
                                       ],
                                     ),
                                   ),
@@ -212,18 +280,18 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('End Date', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
-                                const SizedBox(height: 8),
+                                const Text('End Date', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                                const SizedBox(height: 6),
                                 InkWell(
                                   onTap: () => _pickDate(false),
                                   child: Container(
-                                    padding: const EdgeInsets.all(14),
-                                    decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppColors.grey300), borderRadius: BorderRadius.circular(12)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), border: Border.all(color: AppColors.grey300), borderRadius: BorderRadius.circular(12)),
                                     child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        const Icon(Icons.calendar_today, size: 18, color: AppColors.grey500),
-                                        const SizedBox(width: 8),
-                                        Text(DateFormat('dd/MM/yyyy').format(_endDate), style: const TextStyle(fontSize: 14)),
+                                        Text(DateFormat('dd MMM yyyy').format(_endDate), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                                        const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
                                       ],
                                     ),
                                   ),

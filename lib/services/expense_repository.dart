@@ -100,7 +100,11 @@ class ExpenseRepository {
         'currency': currency,
         'expense_date': expenseDate,
         if (description != null && description.isNotEmpty) 'description': description,
-        'receipt': await MultipartFile.fromFile(receipt.path, filename: receipt.path.split('/').last),
+        'receipt': await MultipartFile.fromFile(
+          receipt.path,
+          filename: 'receipt.jpg',
+          contentType: DioMediaType('image', 'jpeg'),
+        ),
       });
       final response = await _dio.post('/company/expenses', data: formData);
       final json = response.data as Map<String, dynamic>;

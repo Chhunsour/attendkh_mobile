@@ -12,17 +12,35 @@ class AttendanceCorrectionData {
   final String? clockIn;
   final String? clockOut;
 
-  const AttendanceCorrectionData({required this.id, required this.employeeName, required this.date, this.reason, required this.status, this.clockIn, this.clockOut});
+  const AttendanceCorrectionData({
+    required this.id,
+    required this.employeeName,
+    required this.date,
+    this.reason,
+    required this.status,
+    this.clockIn,
+    this.clockOut,
+  });
 
   factory AttendanceCorrectionData.fromJson(Map<String, dynamic> json) {
     return AttendanceCorrectionData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? json['user']?['name'] as String? ?? '',
+      employeeName:
+          json['employee']?['name'] as String? ??
+          (json['employee'] != null && json['employee']['first_name'] != null
+              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
+                    .trim()
+              : null) ??
+          json['user']?['name'] as String? ??
+          '',
       date: json['date'] as String? ?? '',
       reason: json['reason'] as String?,
       status: json['status'] as String? ?? 'pending',
-      clockIn: json['clock_in'] as String? ?? json['requested_clock_in'] as String?,
-      clockOut: json['clock_out'] as String? ?? json['requested_clock_out'] as String?,
+      clockIn:
+          json['clock_in'] as String? ?? json['requested_clock_in'] as String?,
+      clockOut:
+          json['clock_out'] as String? ??
+          json['requested_clock_out'] as String?,
     );
   }
 }
@@ -57,12 +75,17 @@ class AdminAttendanceRecord {
     return AdminAttendanceRecord(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       employeeId: json['employee_id'] as int,
-      employeeName: json['employee']?['user']?['name'] ?? json['employee']?['first_name'] ?? 'Unknown',
+      employeeName:
+          json['employee']?['user']?['name'] ??
+          json['employee']?['first_name'] ??
+          'Unknown',
       date: json['date'] as String? ?? '',
       clockIn: json['clock_in'] as String?,
       clockOut: json['clock_out'] as String?,
       status: json['status'] as String? ?? 'absent',
-      workHours: json['work_hours'] != null ? double.tryParse(json['work_hours'].toString()) : null,
+      workHours: json['work_hours'] != null
+          ? double.tryParse(json['work_hours'].toString())
+          : null,
       earlyClockInMinutes: json['early_clock_in_minutes'] as int?,
       approvedPreShiftOtMinutes: json['approved_pre_shift_ot_minutes'] as int?,
     );
@@ -102,16 +125,29 @@ class AdminLeaveRequestData {
   factory AdminLeaveRequestData.fromJson(Map<String, dynamic> json) {
     return AdminLeaveRequestData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? 
-                    (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? 
-                    json['user']?['name'] as String? ?? '',
+      employeeName:
+          json['employee']?['name'] as String? ??
+          (json['employee'] != null && json['employee']['first_name'] != null
+              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
+                    .trim()
+              : null) ??
+          (json['employee'] != null && json['employee']['first_name'] != null
+              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
+                    .trim()
+              : null) ??
+          json['user']?['name'] as String? ??
+          '',
       leaveType: json['leave_type']?['name'] as String? ?? '',
       leaveTypeName: json['leave_type']?['name'] as String? ?? '',
       leaveTypeColor: json['leave_type']?['color'] as String?,
       halfDay: json['half_day'] as bool? ?? false,
       startDate: json['start_date'] as String? ?? '',
       endDate: json['end_date'] as String? ?? '',
-      days: double.tryParse(json['days']?.toString() ?? json['total_days']?.toString() ?? '0') ?? 0,
+      days:
+          double.tryParse(
+            json['days']?.toString() ?? json['total_days']?.toString() ?? '0',
+          ) ??
+          0,
       reason: json['reason'] as String?,
       status: json['status'] as String? ?? 'pending',
       createdAt: json['created_at'] as String? ?? '',
@@ -164,19 +200,29 @@ class LeaveTypeData {
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       name: json['name'] as String? ?? '',
       code: json['code'] as String?,
-      defaultDays: double.tryParse(json['default_days']?.toString() ?? '') ?? double.tryParse(json['days_per_year']?.toString() ?? '') ?? 0,
+      defaultDays:
+          double.tryParse(json['default_days']?.toString() ?? '') ??
+          double.tryParse(json['days_per_year']?.toString() ?? '') ??
+          0,
       color: json['color'] as String?,
       isActive: json['is_active'] as bool? ?? true,
       isPaid: json['is_paid'] as bool? ?? true,
       carryForward: json['carry_forward'] as bool? ?? false,
       requiresDocument: json['requires_document'] as bool? ?? false,
       isProrated: json['is_prorated'] as bool? ?? false,
-      minimumTenureDays: int.tryParse(json['minimum_tenure_days']?.toString() ?? ''),
+      minimumTenureDays: int.tryParse(
+        json['minimum_tenure_days']?.toString() ?? '',
+      ),
       allowHalfDay: json['allow_half_day'] as bool? ?? false,
-      noticePeriodDays: int.tryParse(json['notice_period_days']?.toString() ?? '') ?? 0,
-      maxConsecutiveDays: int.tryParse(json['max_consecutive_days']?.toString() ?? ''),
+      noticePeriodDays:
+          int.tryParse(json['notice_period_days']?.toString() ?? '') ?? 0,
+      maxConsecutiveDays: int.tryParse(
+        json['max_consecutive_days']?.toString() ?? '',
+      ),
       sortOrder: int.tryParse(json['sort_order']?.toString() ?? '') ?? 0,
-      maxCarryForward: int.tryParse(json['max_carry_forward']?.toString() ?? ''),
+      maxCarryForward: int.tryParse(
+        json['max_carry_forward']?.toString() ?? '',
+      ),
       genderSpecific: json['gender_specific'] as String? ?? 'all',
     );
   }
@@ -192,16 +238,32 @@ class LeaveBalanceData {
   final double carriedForward;
   final double usedDays;
 
-  const LeaveBalanceData({required this.id, required this.employeeName, required this.leaveTypeName, required this.year, required this.allocatedDays, required this.carriedForward, required this.usedDays});
+  const LeaveBalanceData({
+    required this.id,
+    required this.employeeName,
+    required this.leaveTypeName,
+    required this.year,
+    required this.allocatedDays,
+    required this.carriedForward,
+    required this.usedDays,
+  });
 
   factory LeaveBalanceData.fromJson(Map<String, dynamic> json) {
     return LeaveBalanceData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? '',
+      employeeName:
+          json['employee']?['name'] as String? ??
+          (json['employee'] != null && json['employee']['first_name'] != null
+              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
+                    .trim()
+              : null) ??
+          '',
       leaveTypeName: json['leave_type']?['name'] as String? ?? '',
       year: int.tryParse(json['year']?.toString() ?? '') ?? DateTime.now().year,
-      allocatedDays: double.tryParse(json['allocated_days']?.toString() ?? '') ?? 0,
-      carriedForward: double.tryParse(json['carried_forward']?.toString() ?? '') ?? 0,
+      allocatedDays:
+          double.tryParse(json['allocated_days']?.toString() ?? '') ?? 0,
+      carriedForward:
+          double.tryParse(json['carried_forward']?.toString() ?? '') ?? 0,
       usedDays: double.tryParse(json['used_days']?.toString() ?? '') ?? 0,
     );
   }
@@ -262,7 +324,8 @@ class ShiftData {
     Map<String, DailySchedule>? schedule;
     if (json['schedule'] != null && json['schedule'] is Map) {
       schedule = (json['schedule'] as Map<String, dynamic>).map(
-        (k, v) => MapEntry(k, DailySchedule.fromJson(v as Map<String, dynamic>)),
+        (k, v) =>
+            MapEntry(k, DailySchedule.fromJson(v as Map<String, dynamic>)),
       );
     }
     return ShiftData(
@@ -271,16 +334,23 @@ class ShiftData {
       code: json['code'] as String?,
       schedule: schedule,
       gracePeriod: int.tryParse(json['grace_period']?.toString() ?? '') ?? 15,
-      overtimeThreshold: int.tryParse(json['overtime_threshold']?.toString() ?? '') ?? 30,
+      overtimeThreshold:
+          int.tryParse(json['overtime_threshold']?.toString() ?? '') ?? 30,
       isOvernight: json['is_overnight'] as bool? ?? false,
       isActive: json['is_active'] as bool? ?? true,
-      employeesCount: int.tryParse(json['employees_count']?.toString() ?? '') ?? int.tryParse(json['assignments_count']?.toString() ?? ''),
+      employeesCount:
+          int.tryParse(json['employees_count']?.toString() ?? '') ??
+          int.tryParse(json['assignments_count']?.toString() ?? ''),
     );
   }
 
   /// Convenience: list of working day names (e.g. ['monday', 'tuesday', ...])
   List<String> get workDays =>
-      schedule?.entries.where((e) => e.value.isWorking).map((e) => e.key).toList() ?? [];
+      schedule?.entries
+          .where((e) => e.value.isWorking)
+          .map((e) => e.key)
+          .toList() ??
+      [];
 
   /// Number of working days
   int get workingDaysCount => workDays.length;
@@ -291,7 +361,10 @@ class ShiftData {
     if (s == null) return '09:00';
     final entry = s.entries.cast<MapEntry<String, DailySchedule>>().firstWhere(
       (e) => e.value.isWorking,
-      orElse: () => const MapEntry('monday', DailySchedule(isWorking: true, start: '09:00', end: '17:00')),
+      orElse: () => const MapEntry(
+        'monday',
+        DailySchedule(isWorking: true, start: '09:00', end: '17:00'),
+      ),
     );
     return entry.value.start;
   }
@@ -302,7 +375,10 @@ class ShiftData {
     if (s == null) return '17:00';
     final entry = s.entries.cast<MapEntry<String, DailySchedule>>().firstWhere(
       (e) => e.value.isWorking,
-      orElse: () => const MapEntry('monday', DailySchedule(isWorking: true, start: '09:00', end: '17:00')),
+      orElse: () => const MapEntry(
+        'monday',
+        DailySchedule(isWorking: true, start: '09:00', end: '17:00'),
+      ),
     );
     return entry.value.end;
   }
@@ -312,13 +388,27 @@ class ShiftData {
     final s = schedule;
     if (s == null) return null;
     final entry = s.entries.cast<MapEntry<String, DailySchedule>>().firstWhere(
-      (e) => e.value.isWorking && e.value.breakStart != null && e.value.breakEnd != null,
-      orElse: () => const MapEntry('', DailySchedule(isWorking: true, start: '', end: '')),
+      (e) =>
+          e.value.isWorking &&
+          e.value.breakStart != null &&
+          e.value.breakEnd != null,
+      orElse: () => const MapEntry(
+        '',
+        DailySchedule(isWorking: true, start: '', end: ''),
+      ),
     );
-    if (entry.key.isEmpty || entry.value.breakStart == null || entry.value.breakEnd == null) return null;
-    final startParts = entry.value.breakStart!.split(':').map(int.parse).toList();
+    if (entry.key.isEmpty ||
+        entry.value.breakStart == null ||
+        entry.value.breakEnd == null) {
+      return null;
+    }
+    final startParts = entry.value.breakStart!
+        .split(':')
+        .map(int.parse)
+        .toList();
     final endParts = entry.value.breakEnd!.split(':').map(int.parse).toList();
-    return (endParts[0] * 60 + endParts[1]) - (startParts[0] * 60 + startParts[1]);
+    return (endParts[0] * 60 + endParts[1]) -
+        (startParts[0] * 60 + startParts[1]);
   }
 }
 
@@ -350,7 +440,8 @@ class ShiftAssignmentData {
       endDate: json['end_date']?.toString(),
       shiftName: json['shift']?['name']?.toString(),
       employeeName: json['employee'] != null
-          ? '${json['employee']['first_name'] ?? ''} ${json['employee']['last_name'] ?? ''}'.trim()
+          ? '${json['employee']['first_name'] ?? ''} ${json['employee']['last_name'] ?? ''}'
+                .trim()
           : null,
     );
   }
@@ -365,7 +456,14 @@ class HolidayData {
   final String? description;
   final bool isRecurring;
 
-  const HolidayData({required this.id, required this.name, required this.date, required this.type, this.description, this.isRecurring = false});
+  const HolidayData({
+    required this.id,
+    required this.name,
+    required this.date,
+    required this.type,
+    this.description,
+    this.isRecurring = false,
+  });
 
   factory HolidayData.fromJson(Map<String, dynamic> json) {
     return HolidayData(
@@ -379,9 +477,6 @@ class HolidayData {
   }
 }
 
-
-
-
 // ── Performance Review ─────────────────────────────────────────────────────
 class PerformanceReviewData {
   final int id;
@@ -391,12 +486,25 @@ class PerformanceReviewData {
   final String status;
   final String? reviewDate;
 
-  const PerformanceReviewData({required this.id, required this.employeeName, this.period, this.score, required this.status, this.reviewDate});
+  const PerformanceReviewData({
+    required this.id,
+    required this.employeeName,
+    this.period,
+    this.score,
+    required this.status,
+    this.reviewDate,
+  });
 
   factory PerformanceReviewData.fromJson(Map<String, dynamic> json) {
     return PerformanceReviewData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? '',
+      employeeName:
+          json['employee']?['name'] as String? ??
+          (json['employee'] != null && json['employee']['first_name'] != null
+              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
+                    .trim()
+              : null) ??
+          '',
       period: json['period'] as String?,
       score: double.tryParse(json['score']?.toString() ?? ''),
       status: json['status'] as String? ?? 'draft',
@@ -413,7 +521,13 @@ class TrainingCourseData {
   final int? enrolledCount;
   final String status;
 
-  const TrainingCourseData({required this.id, required this.title, this.description, this.enrolledCount, required this.status});
+  const TrainingCourseData({
+    required this.id,
+    required this.title,
+    this.description,
+    this.enrolledCount,
+    required this.status,
+  });
 
   factory TrainingCourseData.fromJson(Map<String, dynamic> json) {
     return TrainingCourseData(
@@ -434,14 +548,25 @@ class PayrollRunData {
   final int employeesCount;
   final String status;
 
-  const PayrollRunData({required this.id, required this.period, required this.totalAmount, required this.employeesCount, required this.status});
+  const PayrollRunData({
+    required this.id,
+    required this.period,
+    required this.totalAmount,
+    required this.employeesCount,
+    required this.status,
+  });
 
   factory PayrollRunData.fromJson(Map<String, dynamic> json) {
     return PayrollRunData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      period: json['period'] as String? ?? json['payroll_period'] as String? ?? '',
-      totalAmount: double.tryParse(json['total_amount']?.toString() ?? '') ?? double.tryParse(json['net_salary']?.toString() ?? '') ?? 0,
-      employeesCount: int.tryParse(json['employees_count']?.toString() ?? '') ?? 0,
+      period:
+          json['period'] as String? ?? json['payroll_period'] as String? ?? '',
+      totalAmount:
+          double.tryParse(json['total_amount']?.toString() ?? '') ??
+          double.tryParse(json['net_salary']?.toString() ?? '') ??
+          0,
+      employeesCount:
+          int.tryParse(json['employees_count']?.toString() ?? '') ?? 0,
       status: json['status'] as String? ?? 'draft',
     );
   }
@@ -466,10 +591,12 @@ class PayrollRunDetailData {
   factory PayrollRunDetailData.fromJson(Map<String, dynamic> json) {
     return PayrollRunDetailData(
       totalGross: double.tryParse(json['total_gross']?.toString() ?? '') ?? 0,
-      totalDeductions: double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0,
+      totalDeductions:
+          double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0,
       totalNet: double.tryParse(json['total_net']?.toString() ?? '') ?? 0,
       status: json['status'] as String? ?? 'draft',
-      totalEmployees: int.tryParse(json['total_employees']?.toString() ?? '') ?? 0,
+      totalEmployees:
+          int.tryParse(json['total_employees']?.toString() ?? '') ?? 0,
     );
   }
 }
@@ -516,23 +643,40 @@ class AdminPayslipDetailData {
 
   factory AdminPayslipDetailData.fromJson(Map<String, dynamic> json) {
     return AdminPayslipDetailData(
-      employeeName: json['employee_name'] as String? ?? json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? '',
-      department: json['department'] as String? ?? json['employee']?['department']?['name'] as String? ?? '',
+      employeeName:
+          json['employee_name'] as String? ??
+          json['employee']?['name'] as String? ??
+          (json['employee'] != null && json['employee']['first_name'] != null
+              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
+                    .trim()
+              : null) ??
+          '',
+      department:
+          json['department'] as String? ??
+          json['employee']?['department']?['name'] as String? ??
+          '',
       netSalary: double.tryParse(json['net_salary']?.toString() ?? '') ?? 0,
       basicSalary: double.tryParse(json['basic_salary']?.toString() ?? '') ?? 0,
       overtimePay: double.tryParse(json['overtime_pay']?.toString() ?? '') ?? 0,
       allowances: double.tryParse(json['allowances']?.toString() ?? '') ?? 0,
-      otherEarnings: double.tryParse(json['other_earnings']?.toString() ?? '') ?? 0,
+      otherEarnings:
+          double.tryParse(json['other_earnings']?.toString() ?? '') ?? 0,
       grossSalary: double.tryParse(json['gross_salary']?.toString() ?? '') ?? 0,
-      taxDeduction: double.tryParse(json['tax_deduction']?.toString() ?? '') ?? 0,
-      insuranceDeduction: double.tryParse(json['insurance_deduction']?.toString() ?? '') ?? 0,
-      lateDeduction: double.tryParse(json['late_deduction']?.toString() ?? '') ?? 0,
-      otherDeductions: double.tryParse(json['other_deductions']?.toString() ?? '') ?? 0,
-      totalDeductions: double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0,
+      taxDeduction:
+          double.tryParse(json['tax_deduction']?.toString() ?? '') ?? 0,
+      insuranceDeduction:
+          double.tryParse(json['insurance_deduction']?.toString() ?? '') ?? 0,
+      lateDeduction:
+          double.tryParse(json['late_deduction']?.toString() ?? '') ?? 0,
+      otherDeductions:
+          double.tryParse(json['other_deductions']?.toString() ?? '') ?? 0,
+      totalDeductions:
+          double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0,
       workingDays: int.tryParse(json['working_days']?.toString() ?? '') ?? 0,
       presentDays: int.tryParse(json['present_days']?.toString() ?? '') ?? 0,
       lateDays: int.tryParse(json['late_days']?.toString() ?? '') ?? 0,
-      overtimeHours: int.tryParse(json['overtime_hours']?.toString() ?? '') ?? 0,
+      overtimeHours:
+          int.tryParse(json['overtime_hours']?.toString() ?? '') ?? 0,
     );
   }
 }
@@ -549,24 +693,24 @@ class PayrollSettingsData {
   final int payrollStartDay;
   final String currency;
   final String currencySymbol;
-  
+
   final int lateGracePeriodMinutes;
   final String lateDeductionType;
   final double lateDeductionRate;
-  
+
   final String earlyLeaveDeductionType;
   final double earlyLeaveDeductionRate;
   final int earlyLeaveGracePeriodMinutes;
-  
+
   final double regularOtMultiplier;
   final double restDayOtMultiplier;
   final double publicHolidayOtMultiplier;
   final double companyHolidayOtMultiplier;
-  
+
   final String earlyClockInPolicy;
   final double preShiftOtMultiplier;
   final int maxPreShiftOtMinutes;
-  
+
   final String workingDaysType;
   final int fixedWorkingDays;
 
@@ -616,11 +760,17 @@ class PayrollSettingsData {
 
     return PayrollSettingsData(
       isCustom: json['is_custom'] as bool? ?? false,
-      overtimeEnabled: json['overtime_enabled'] == 1 || json['overtime_enabled'] == true,
+      overtimeEnabled:
+          json['overtime_enabled'] == 1 || json['overtime_enabled'] == true,
       overtimeThreshold: parseDouble(json['overtime_threshold'], 1.0),
-      lateDeductionEnabled: json['late_deduction_enabled'] == 1 || json['late_deduction_enabled'] == true,
+      lateDeductionEnabled:
+          json['late_deduction_enabled'] == 1 ||
+          json['late_deduction_enabled'] == true,
       halfDayHours: parseDouble(json['half_day_hours'], 4.0),
-      halfDayDeductionPercentage: parseDouble(json['half_day_deduction_percentage'], 50.0),
+      halfDayDeductionPercentage: parseDouble(
+        json['half_day_deduction_percentage'],
+        50.0,
+      ),
       payrollPeriod: json['payroll_period'] as String? ?? 'monthly',
       payrollStartDay: parseInt(json['payroll_start_day'], 1),
       currency: json['currency'] as String? ?? 'USD',
@@ -628,13 +778,26 @@ class PayrollSettingsData {
       lateGracePeriodMinutes: parseInt(json['late_grace_period_minutes'], 15),
       lateDeductionType: json['late_deduction_type'] as String? ?? 'per_minute',
       lateDeductionRate: parseDouble(json['late_deduction_rate'], 1.0),
-      earlyLeaveDeductionType: json['early_leave_deduction_type'] as String? ?? 'per_minute',
-      earlyLeaveDeductionRate: parseDouble(json['early_leave_deduction_rate'], 1.0),
-      earlyLeaveGracePeriodMinutes: parseInt(json['early_leave_grace_period_minutes'], 0),
+      earlyLeaveDeductionType:
+          json['early_leave_deduction_type'] as String? ?? 'per_minute',
+      earlyLeaveDeductionRate: parseDouble(
+        json['early_leave_deduction_rate'],
+        1.0,
+      ),
+      earlyLeaveGracePeriodMinutes: parseInt(
+        json['early_leave_grace_period_minutes'],
+        0,
+      ),
       regularOtMultiplier: parseDouble(json['regular_ot_multiplier'], 1.5),
       restDayOtMultiplier: parseDouble(json['rest_day_ot_multiplier'], 2.0),
-      publicHolidayOtMultiplier: parseDouble(json['public_holiday_ot_multiplier'], 2.0),
-      companyHolidayOtMultiplier: parseDouble(json['company_holiday_ot_multiplier'], 1.5),
+      publicHolidayOtMultiplier: parseDouble(
+        json['public_holiday_ot_multiplier'],
+        2.0,
+      ),
+      companyHolidayOtMultiplier: parseDouble(
+        json['company_holiday_ot_multiplier'],
+        1.5,
+      ),
       earlyClockInPolicy: json['early_clock_in_policy'] as String? ?? 'ignore',
       preShiftOtMultiplier: parseDouble(json['pre_shift_ot_multiplier'], 1.25),
       maxPreShiftOtMinutes: parseInt(json['max_pre_shift_ot_minutes'], 120),
@@ -645,16 +808,6 @@ class PayrollSettingsData {
 }
 
 // ── Admin Operations Repository ─────────────────────────────────────────────
-
-
-
-
-
-
-
-
-
-
 
 // ── Dashboard ─────────────────────────────────────────────────────────────
 class DashboardKpiData {
@@ -687,14 +840,16 @@ class DashboardKpiData {
       openJobs: json['open_jobs'] as int? ?? 0,
       totalAssets: json['total_assets'] as int? ?? 0,
       assignedAssets: json['assigned_assets'] as int? ?? 0,
-      monthlyPayroll: double.tryParse(json['monthly_payroll']?.toString() ?? '0') ?? 0.0,
+      monthlyPayroll:
+          double.tryParse(json['monthly_payroll']?.toString() ?? '0') ?? 0.0,
     );
   }
 }
 
 class AdminOperationsRepository {
   final ApiRepository _api;
-  AdminOperationsRepository({ApiRepository? api}) : _api = api ?? ApiRepository();
+  AdminOperationsRepository({ApiRepository? api})
+    : _api = api ?? ApiRepository();
 
   // ── Dashboard ────────────────────────────────────────────────────────────
   /// Fetch dashboard KPI stats. When [branchId] is provided (Owner impersonation),
@@ -702,17 +857,28 @@ class AdminOperationsRepository {
   Future<DashboardKpiData> getDashboardStats({int? branchId}) async {
     final queryParams = <String, dynamic>{};
     if (branchId != null) queryParams['branch_id'] = branchId;
-    final response = await _api.get('/company/dashboard', queryParameters: queryParams.isEmpty ? null : queryParams);
-    final data = response.data['data']?['kpis'] ?? response.data['kpis'] ?? response.data;
+    final response = await _api.get(
+      '/company/dashboard',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
+    final data =
+        response.data['data']?['kpis'] ??
+        response.data['kpis'] ??
+        response.data;
     return DashboardKpiData.fromJson(data as Map<String, dynamic>);
   }
 
   // ── Attendance Corrections ──────────────────────────────────────────────
   /// Fetch all attendance logs. When [branchId] is provided, scoped to that branch.
-  Future<List<AdminAttendanceRecord>> getAllAttendanceLogs({int? branchId}) async {
+  Future<List<AdminAttendanceRecord>> getAllAttendanceLogs({
+    int? branchId,
+  }) async {
     final queryParams = <String, dynamic>{};
     if (branchId != null) queryParams['branch_id'] = branchId;
-    final response = await _api.get('/company/attendance', queryParameters: queryParams.isEmpty ? null : queryParams);
+    final response = await _api.get(
+      '/company/attendance',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
     // The API returns { status: 'success', data: { attendances: [...] } }
     // ApiResponse automatically extracts the 'data' field, so response.data is the inner object.
     final dynamic data = response.data['attendances'] ?? [];
@@ -724,23 +890,38 @@ class AdminOperationsRepository {
     return _parseList(response.data, AttendanceCorrectionData.fromJson);
   }
 
-  Future<void> approveCorrection(int id) async => _api.post('/company/attendance/corrections/$id/approve');
-  Future<void> rejectCorrection(int id) async => _api.post('/company/attendance/corrections/$id/reject');
-  Future<void> deleteAttendance(int id) async => _api.delete('/company/attendance/$id');
-  Future<void> approveOvertime(int id) async => _api.post('/company/attendance/$id/approve-overtime');
+  Future<void> approveCorrection(int id) async =>
+      _api.post('/company/attendance/corrections/$id/approve');
+  Future<void> rejectCorrection(int id) async =>
+      _api.post('/company/attendance/corrections/$id/reject');
+  Future<void> deleteAttendance(int id) async =>
+      _api.delete('/company/attendance/$id');
+  Future<void> approveOvertime(int id) async =>
+      _api.post('/company/attendance/$id/approve-overtime');
 
   // ── Leave Requests (Admin) ──────────────────────────────────────────────
   /// Fetch all leave requests. When [branchId] is provided, scoped to that branch.
-  Future<List<AdminLeaveRequestData>> getAllLeaveRequests({String? status, int? branchId}) async {
+  Future<List<AdminLeaveRequestData>> getAllLeaveRequests({
+    String? status,
+    int? branchId,
+  }) async {
     final queryParams = <String, dynamic>{'status': status};
     if (branchId != null) queryParams['branch_id'] = branchId;
-    final response = await _api.get('/company/leave/requests', queryParameters: queryParams);
+    final response = await _api.get(
+      '/company/leave/requests',
+      queryParameters: queryParams,
+    );
     return _parseList(response.data, AdminLeaveRequestData.fromJson);
   }
 
-  Future<void> approveLeaveRequest(int id) async => _api.post('/company/leave/requests/$id/approve');
-  Future<void> rejectLeaveRequest(int id, {String? reason}) async => _api.post('/company/leave/requests/$id/reject', data: {'rejection_reason': ?reason});
-  Future<void> updateLeaveRequest(int id, Map<String, dynamic> data) async => _api.put('/company/leave/requests/$id', data: data);
+  Future<void> approveLeaveRequest(int id) async =>
+      _api.post('/company/leave/requests/$id/approve');
+  Future<void> rejectLeaveRequest(int id, {String? reason}) async => _api.post(
+    '/company/leave/requests/$id/reject',
+    data: {'rejection_reason': ?reason},
+  );
+  Future<void> updateLeaveRequest(int id, Map<String, dynamic> data) async =>
+      _api.put('/company/leave/requests/$id', data: data);
 
   Future<void> createLeaveRequest({
     required int employeeId,
@@ -750,15 +931,18 @@ class AdminOperationsRepository {
     required String reason,
     required bool halfDay,
     String? halfDayPeriod,
-  }) async => _api.post('/company/leave/requests', data: {
-    'employee_id': employeeId,
-    'leave_type_id': leaveTypeId,
-    'start_date': startDate,
-    'end_date': endDate,
-    'reason': reason,
-    'half_day': halfDay,
-    if (halfDay && halfDayPeriod != null) 'half_day_period': halfDayPeriod,
-  });
+  }) async => _api.post(
+    '/company/leave/requests',
+    data: {
+      'employee_id': employeeId,
+      'leave_type_id': leaveTypeId,
+      'start_date': startDate,
+      'end_date': endDate,
+      'reason': reason,
+      'half_day': halfDay,
+      if (halfDay && halfDayPeriod != null) 'half_day_period': halfDayPeriod,
+    },
+  );
 
   // ── Leave Types ─────────────────────────────────────────────────────────
   Future<List<LeaveTypeData>> getLeaveTypes() async {
@@ -784,28 +968,32 @@ class AdminOperationsRepository {
     String genderSpecific = 'all',
     bool isActive = true,
   }) async {
-    final response = await _api.post('/company/leave/types', data: {
-      'name': name,
-      'days_per_year': defaultDays,
-      'color': ?color,
-      'code': ?code,
-      'is_paid': isPaid,
-      'carry_forward': carryForward,
-      'requires_document': requiresDocument,
-      'is_prorated': isProrated,
-      'minimum_tenure_days': minimumTenureDays,
-      'allow_half_day': allowHalfDay,
-      'notice_period_days': noticePeriodDays,
-      'max_consecutive_days': maxConsecutiveDays,
-      'sort_order': sortOrder,
-      'max_carry_forward': maxCarryForward,
-      'gender_specific': genderSpecific,
-      'is_active': isActive,
-    });
+    final response = await _api.post(
+      '/company/leave/types',
+      data: {
+        'name': name,
+        'days_per_year': defaultDays,
+        'color': ?color,
+        'code': ?code,
+        'is_paid': isPaid,
+        'carry_forward': carryForward,
+        'requires_document': requiresDocument,
+        'is_prorated': isProrated,
+        'minimum_tenure_days': minimumTenureDays,
+        'allow_half_day': allowHalfDay,
+        'notice_period_days': noticePeriodDays,
+        'max_consecutive_days': maxConsecutiveDays,
+        'sort_order': sortOrder,
+        'max_carry_forward': maxCarryForward,
+        'gender_specific': genderSpecific,
+        'is_active': isActive,
+      },
+    );
     return LeaveTypeData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<void> deleteLeaveType(int id) async => _api.delete('/company/leave/types/$id');
+  Future<void> deleteLeaveType(int id) async =>
+      _api.delete('/company/leave/types/$id');
 
   // ── Shifts ──────────────────────────────────────────────────────────────
   Future<List<ShiftData>> getShifts() async {
@@ -846,7 +1034,8 @@ class AdminOperationsRepository {
     await _api.post('/company/shifts', data: body);
   }
 
-  Future<void> updateShift(int id, {
+  Future<void> updateShift(
+    int id, {
     required String name,
     required String startTime,
     required String endTime,
@@ -879,10 +1068,18 @@ class AdminOperationsRepository {
   }
 
   Future<void> deleteShift(int id) async => _api.delete('/company/shifts/$id');
-  Future<void> assignShift(int shiftId, int employeeId, {String? effectiveDate}) async => _api.post('/company/shifts/$shiftId/assign', data: {
-    'employee_id': employeeId,
-    'effective_date': effectiveDate ?? DateTime.now().toIso8601String().substring(0, 10),
-  });
+  Future<void> assignShift(
+    int shiftId,
+    int employeeId, {
+    String? effectiveDate,
+  }) async => _api.post(
+    '/company/shifts/$shiftId/assign',
+    data: {
+      'employee_id': employeeId,
+      'effective_date':
+          effectiveDate ?? DateTime.now().toIso8601String().substring(0, 10),
+    },
+  );
 
   Future<List<ShiftAssignmentData>> getShiftAssignments() async {
     final response = await _api.get('/company/shifts/assignments');
@@ -895,33 +1092,56 @@ class AdminOperationsRepository {
     return _parseList(response.data, HolidayData.fromJson);
   }
 
-  Future<HolidayData> createHoliday({required String name, required String date, required String type, String? description, bool isRecurring = false}) async {
-    final response = await _api.post('/company/holidays', data: {'name': name, 'date': date, 'type': type, 'description': description, 'is_recurring': isRecurring});
+  Future<HolidayData> createHoliday({
+    required String name,
+    required String date,
+    required String type,
+    String? description,
+    bool isRecurring = false,
+  }) async {
+    final response = await _api.post(
+      '/company/holidays',
+      data: {
+        'name': name,
+        'date': date,
+        'type': type,
+        'description': description,
+        'is_recurring': isRecurring,
+      },
+    );
     return HolidayData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<void> updateHoliday(int id, Map<String, dynamic> data) async => _api.put('/company/holidays/$id', data: data);
+  Future<void> updateHoliday(int id, Map<String, dynamic> data) async =>
+      _api.put('/company/holidays/$id', data: data);
 
-  Future<void> deleteHoliday(int id) async => _api.delete('/company/holidays/$id');
-
-
+  Future<void> deleteHoliday(int id) async =>
+      _api.delete('/company/holidays/$id');
 
   // ── Employees (for dropdowns) ──────────────────────────────────────────
   Future<List<Map<String, dynamic>>> getEmployees() async {
     final response = await _api.get('/company/employees');
     final data = response.data;
     if (data is List) return data.cast<Map<String, dynamic>>();
-    if (data is Map && data['data'] != null) return (data['data'] as List).cast<Map<String, dynamic>>();
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List).cast<Map<String, dynamic>>();
+    }
     return [];
   }
 
   // ── Expenses (Admin) ────────────────────────────────────────────────────
-  Future<void> approveExpense(int id) async => _api.post('/company/expenses/$id/approve');
-  Future<void> rejectExpense(int id, {String? reason}) async => _api.post('/company/expenses/$id/reject', data: {'reason': ?reason});
-  Future<void> deleteExpense(int id) async => _api.delete('/company/expenses/$id');
-  Future<void> markExpensePaid(int id) async => _api.post('/company/expenses/$id/pay');
-  Future<void> updateExpense(int id, Map<String, dynamic> data) async => _api.put('/company/expenses/$id', data: data);
-  Future<void> updateLeaveType(int id, Map<String, dynamic> data) async => _api.put('/company/leave/types/$id', data: data);
+  Future<void> approveExpense(int id) async =>
+      _api.post('/company/expenses/$id/approve');
+  Future<void> rejectExpense(int id, {String? reason}) async =>
+      _api.post('/company/expenses/$id/reject', data: {'reason': ?reason});
+  Future<void> deleteExpense(int id) async =>
+      _api.delete('/company/expenses/$id');
+  Future<void> markExpensePaid(int id) async =>
+      _api.post('/company/expenses/$id/pay');
+  Future<void> updateExpense(int id, Map<String, dynamic> data) async =>
+      _api.put('/company/expenses/$id', data: data);
+  Future<void> updateLeaveType(int id, Map<String, dynamic> data) async =>
+      _api.put('/company/leave/types/$id', data: data);
 
   // ── Leave Balances (Admin) ──────────────────────────────────────────────
   Future<List<LeaveBalanceData>> getLeaveBalances() async {
@@ -929,7 +1149,8 @@ class AdminOperationsRepository {
     return _parseList(response.data, LeaveBalanceData.fromJson);
   }
 
-  Future<void> updateLeaveBalance(int id, Map<String, dynamic> data) async => _api.put('/company/leave/balances/$id', data: data);
+  Future<void> updateLeaveBalance(int id, Map<String, dynamic> data) async =>
+      _api.put('/company/leave/balances/$id', data: data);
 
   Future<void> createLeaveBalance({
     required int employeeId,
@@ -937,14 +1158,35 @@ class AdminOperationsRepository {
     required int year,
     required double allocatedDays,
     double carriedForward = 0,
-  }) async => _api.post('/company/leave/balances', data: {
-    'employee_id': employeeId,
-    'leave_type_id': leaveTypeId,
-    'year': year,
-    'allocated_days': allocatedDays,
-    'carried_forward': carriedForward,
-  });
+  }) async => _api.post(
+    '/company/leave/balances',
+    data: {
+      'employee_id': employeeId,
+      'leave_type_id': leaveTypeId,
+      'year': year,
+      'allocated_days': allocatedDays,
+      'carried_forward': carriedForward,
+    },
+  );
 
+  Future<void> bulkAssignLeaveBalance({
+    List<int> employeeIds = const [],
+    bool assignAll = false,
+    required int leaveTypeId,
+    required int year,
+    required double allocatedDays,
+    double carriedForward = 0,
+  }) async => _api.post(
+    '/company/leave/balances/bulk-assign',
+    data: {
+      'employee_ids': employeeIds,
+      'assign_all': assignAll,
+      'leave_type_id': leaveTypeId,
+      'year': year,
+      'allocated_days': allocatedDays,
+      'carried_forward': carriedForward,
+    },
+  );
 
   // ── Performance ─────────────────────────────────────────────────────────
   Future<List<PerformanceReviewData>> getReviews() async {
@@ -957,13 +1199,24 @@ class AdminOperationsRepository {
     return _parseList(response.data, TrainingCourseData.fromJson);
   }
 
-  Future<TrainingCourseData> createTraining({required String title, String? description}) async {
-    final response = await _api.post('/company/performance/trainings', data: {'title': title, 'description': ?description});
+  Future<TrainingCourseData> createTraining({
+    required String title,
+    String? description,
+  }) async {
+    final response = await _api.post(
+      '/company/performance/trainings',
+      data: {'title': title, 'description': ?description},
+    );
     return TrainingCourseData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<void> deleteTraining(int id) async => _api.delete('/company/performance/trainings/$id');
-  Future<void> enrollEmployee(int trainingId, int employeeId) async => _api.post('/company/performance/trainings/$trainingId/enroll', data: {'employee_id': employeeId});
+  Future<void> deleteTraining(int id) async =>
+      _api.delete('/company/performance/trainings/$id');
+  Future<void> enrollEmployee(int trainingId, int employeeId) async =>
+      _api.post(
+        '/company/performance/trainings/$trainingId/enroll',
+        data: {'employee_id': employeeId},
+      );
 
   // ── Payroll (Admin) ─────────────────────────────────────────────────────
   Future<List<PayrollRunData>> getPayrollRuns() async {
@@ -971,15 +1224,21 @@ class AdminOperationsRepository {
     return _parseList(response.data, PayrollRunData.fromJson);
   }
 
-  Future<void> generatePayroll({required String periodStart, required String periodEnd}) async {
-    await _api.post('/company/payroll/generate', data: {
-      'period_start': periodStart,
-      'period_end': periodEnd,
-    });
+  Future<void> generatePayroll({
+    required String periodStart,
+    required String periodEnd,
+  }) async {
+    await _api.post(
+      '/company/payroll/generate',
+      data: {'period_start': periodStart, 'period_end': periodEnd},
+    );
   }
 
   Future<void> updatePayrollRunStatus(int id, String status) async {
-    await _api.post('/company/payroll/runs/$id/status', data: {'status': status});
+    await _api.post(
+      '/company/payroll/runs/$id/status',
+      data: {'status': status},
+    );
   }
 
   Future<PayrollSettingsData> getPayrollSettings() async {
@@ -997,11 +1256,16 @@ class AdminOperationsRepository {
   }
 
   Future<PayrollSettingsData> getBranchPayrollSettings(int branchId) async {
-    final response = await _api.get('/company/branches/$branchId/payroll-settings');
+    final response = await _api.get(
+      '/company/branches/$branchId/payroll-settings',
+    );
     return PayrollSettingsData.fromJson(response.data['data'] ?? response.data);
   }
 
-  Future<void> updateBranchPayrollSettings(int branchId, Map<String, dynamic> data) async {
+  Future<void> updateBranchPayrollSettings(
+    int branchId,
+    Map<String, dynamic> data,
+  ) async {
     await _api.put('/company/branches/$branchId/payroll-settings', data: data);
   }
 
@@ -1013,17 +1277,23 @@ class AdminOperationsRepository {
   Future<PayrollRunDetailData> getPayrollRunDetail(String period) async {
     final response = await _api.get('/company/payroll/payslips/$period');
     final data = response.data['payroll_run'] ?? response.data;
-    return PayrollRunDetailData.fromJson(data is Map<String, dynamic> ? data : {});
+    return PayrollRunDetailData.fromJson(
+      data is Map<String, dynamic> ? data : {},
+    );
   }
 
   Future<List<AdminPayslipDetailData>> getPayslipsForRun(String period) async {
     final response = await _api.get('/company/payroll/payslips/$period');
-    return _parseList(response.data['payslips'] ?? response.data, AdminPayslipDetailData.fromJson);
+    return _parseList(
+      response.data['payslips'] ?? response.data,
+      AdminPayslipDetailData.fromJson,
+    );
   }
 
   Future<String> exportPayroll(String period) async {
     final dir = await getApplicationDocumentsDirectory();
-    final filename = 'payroll_${period}_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+    final filename =
+        'payroll_${period}_${DateTime.now().millisecondsSinceEpoch}.xlsx';
     final savePath = '${dir.path}/$filename';
 
     await _api.download(
@@ -1035,28 +1305,43 @@ class AdminOperationsRepository {
   }
 
   // ── Documents (Admin) ───────────────────────────────────────────────────
-  Future<void> deleteDocument(int id) async => _api.delete('/company/documents/$id');
+  Future<void> deleteDocument(int id) async =>
+      _api.delete('/company/documents/$id');
 
   // ── Announcements (Admin) ───────────────────────────────────────────────
-  Future<void> publishAnnouncement(int id) async => _api.post('/company/announcements/$id/publish');
-  Future<void> unpublishAnnouncement(int id) async => _api.post('/company/announcements/$id/unpublish');
+  Future<void> publishAnnouncement(int id) async =>
+      _api.post('/company/announcements/$id/publish');
+  Future<void> unpublishAnnouncement(int id) async =>
+      _api.post('/company/announcements/$id/unpublish');
 
   // ── Policies (Admin) ────────────────────────────────────────────────────
-  Future<void> publishPolicy(int id) async => _api.post('/company/policies/$id/publish');
-  Future<void> archivePolicy(int id) async => _api.post('/company/policies/$id/archive');
+  Future<void> publishPolicy(int id) async =>
+      _api.post('/company/policies/$id/publish');
+  Future<void> archivePolicy(int id) async =>
+      _api.post('/company/policies/$id/archive');
 
   // ── Reports ─────────────────────────────────────────────────────────────
-  Future<Map<String, dynamic>> generateReport({required String type, Map<String, dynamic>? params}) async {
-    final response = await _api.post('/company/reports/generate', data: {'type': type, ...?params});
+  Future<Map<String, dynamic>> generateReport({
+    required String type,
+    Map<String, dynamic>? params,
+  }) async {
+    final response = await _api.post(
+      '/company/reports/generate',
+      data: {'type': type, ...?params},
+    );
     return response.data as Map<String, dynamic>? ?? {};
   }
 
-  Future<String> exportReport({required String type, Map<String, dynamic>? params}) async {
+  Future<String> exportReport({
+    required String type,
+    Map<String, dynamic>? params,
+  }) async {
     final format = 'excel';
     final dir = await getApplicationDocumentsDirectory();
-    final filename = '${type}_report_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+    final filename =
+        '${type}_report_${DateTime.now().millisecondsSinceEpoch}.xlsx';
     final savePath = '${dir.path}/$filename';
-    
+
     await _api.download(
       '/company/reports/export',
       savePath,
@@ -1066,20 +1351,36 @@ class AdminOperationsRepository {
   }
 
   // ── Notifications ─────────────────────────────────────────────────────────
-  Future<void> sendNotification({required int userId, required String title, required String message, String? type}) async {
-    await _api.post('/company/notifications/send', data: {
-      'user_id': userId,
-      'title': title,
-      'message': message,
-      'type': type,
-    });
+  Future<void> sendNotification({
+    required int userId,
+    required String title,
+    required String message,
+    String? type,
+  }) async {
+    await _api.post(
+      '/company/notifications/send',
+      data: {
+        'user_id': userId,
+        'title': title,
+        'message': message,
+        'type': type,
+      },
+    );
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────
-  List<T> _parseList<T>(dynamic data, T Function(Map<String, dynamic>) fromJson) {
-    if (data is List) return data.map((e) => fromJson(e as Map<String, dynamic>)).toList();
-    if (data is Map && data['data'] != null) return (data['data'] as List).map((e) => fromJson(e as Map<String, dynamic>)).toList();
+  List<T> _parseList<T>(
+    dynamic data,
+    T Function(Map<String, dynamic>) fromJson,
+  ) {
+    if (data is List) {
+      return data.map((e) => fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List)
+          .map((e) => fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
     return [];
   }
-
 }
