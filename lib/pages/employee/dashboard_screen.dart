@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/attendance_provider.dart';
 import 'package:mpg_hr_mobile_app/services/attendance_repository.dart';
@@ -351,7 +352,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                   radius: 18,
                   backgroundColor: AppColors.primaryLight,
                   backgroundImage: profileAsync.value?.photoUrl != null
-                      ? NetworkImage(profileAsync.value!.photoUrl!)
+                      ? CachedNetworkImageProvider(profileAsync.value!.photoUrl!)
                       : null,
                   child: profileAsync.value?.photoUrl == null
                       ? const Icon(Icons.person, color: AppColors.primary, size: 20)

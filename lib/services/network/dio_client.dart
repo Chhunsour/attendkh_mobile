@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
 
@@ -24,12 +25,13 @@ class DioClient {
     _dio = Dio(
       BaseOptions(
         baseUrl: _baseUrl,
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        sendTimeout: const Duration(seconds: 30),
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+        sendTimeout: const Duration(seconds: 15),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
+          'X-Content-Type-Options': 'nosniff',
         },
         validateStatus: (status) => status != null && status < 400,
       ),
@@ -84,10 +86,10 @@ class _AuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
-      AppLogger.w('401 Unauthorized - token may be expired');
-      // Future: trigger refresh token flow or logout
+      AppLogger.w('401 Unauthorized - clearing token session');
+      await SecureStorageService.instance.clearAuth();
     }
     handler.next(err);
   }
@@ -131,22 +133,28 @@ class _ConnectivityInterceptor extends Interceptor {
 class _LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    AppLogger.d('➡️ ${options.method} ${options.uri}');
+    if (kDebugMode) {
+      AppLogger.d('➡️ ${options.method} ${options.uri}');
+    }
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    AppLogger.d('✅ ${response.statusCode} ${response.requestOptions.uri}');
+    if (kDebugMode) {
+      AppLogger.d('✅ ${response.statusCode} ${response.requestOptions.uri}');
+    }
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    AppLogger.e(
-      '❌ ${err.response?.statusCode} ${err.requestOptions.uri}',
-      'Message: ${err.message}\nResponse Data: ${err.response?.data}',
-    );
+    if (kDebugMode) {
+      AppLogger.e(
+        '❌ ${err.response?.statusCode} ${err.requestOptions.uri}',
+        'Message: ${err.message}',
+      );
+    }
     handler.next(err);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -97,18 +98,25 @@ class ProfileScreen extends ConsumerWidget {
                             ),
                             child: data.photoUrl != null
                                 ? ClipOval(
-                                    child: Image.network(
-                                      data.photoUrl!,
+                                    child: CachedNetworkImage(
+                                      imageUrl: data.photoUrl!,
                                       width: 80,
                                       height: 80,
+                                      memCacheWidth: 200,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) =>
-                                          Center(
-                                            child: Text(
-                                              _initials(data.name),
-                                              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.grey600),
-                                            ),
-                                          ),
+                                      placeholder: (context, url) => const Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) => Center(
+                                        child: Text(
+                                          _initials(data.name),
+                                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.grey600),
+                                        ),
+                                      ),
                                     ),
                                   )
                                 : Center(
