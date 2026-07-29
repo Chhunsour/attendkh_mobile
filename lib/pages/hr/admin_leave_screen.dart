@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 // ─── Color helpers ─────────────────────────────────────────────────────────
 Color _statusColor(String s) {
@@ -1098,18 +1099,40 @@ class _BalanceCard extends ConsumerWidget {
                   color: AppColors.primary.withAlpha(15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Center(
-                  child: Text(
-                    balance.employeeName.isNotEmpty
-                        ? balance.employeeName[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
+                child: balance.employeeAvatar != null && balance.employeeAvatar!.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          balance.employeeAvatar!.startsWith('http')
+                              ? balance.employeeAvatar!
+                              : '${DioClient.storageUrl}/${balance.employeeAvatar!.startsWith('/') ? balance.employeeAvatar!.substring(1) : balance.employeeAvatar!}',
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Center(
+                            child: Text(
+                              balance.employeeName.isNotEmpty ? balance.employeeName[0].toUpperCase() : '?',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : Center(
+                        child: Text(
+                          balance.employeeName.isNotEmpty
+                              ? balance.employeeName[0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
               ),
               const SizedBox(width: 10),
               Expanded(

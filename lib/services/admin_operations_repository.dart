@@ -232,6 +232,7 @@ class LeaveTypeData {
 class LeaveBalanceData {
   final int id;
   final String employeeName;
+  final String? employeeAvatar;
   final String leaveTypeName;
   final int year;
   final double allocatedDays;
@@ -241,6 +242,7 @@ class LeaveBalanceData {
   const LeaveBalanceData({
     required this.id,
     required this.employeeName,
+    this.employeeAvatar,
     required this.leaveTypeName,
     required this.year,
     required this.allocatedDays,
@@ -258,6 +260,7 @@ class LeaveBalanceData {
                     .trim()
               : null) ??
           '',
+      employeeAvatar: json['employee']?['avatar'] as String? ?? json['employee']?['photo'] as String?,
       leaveTypeName: json['leave_type']?['name'] as String? ?? '',
       year: int.tryParse(json['year']?.toString() ?? '') ?? DateTime.now().year,
       allocatedDays:
