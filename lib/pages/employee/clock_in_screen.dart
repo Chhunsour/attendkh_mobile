@@ -15,6 +15,7 @@ import 'package:mpg_hr_mobile_app/providers/attendance_provider.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
+import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
 
 class ClockInArgs {
   final bool isClockIn;
@@ -227,6 +228,12 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
       ref.invalidate(todayAttendanceProvider);
       ref.invalidate(unreadCountProvider);
       ref.invalidate(notificationsProvider);
+      
+      final String actionTitle = widget.args.isClockIn ? 'Clocked in successfully!' : 'Clocked out successfully!';
+      FcmService.instance.showLocalNotification(
+        title: actionTitle,
+        body: 'Your attendance has been recorded.',
+      );
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

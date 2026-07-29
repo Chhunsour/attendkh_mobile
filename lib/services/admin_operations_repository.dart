@@ -1146,7 +1146,13 @@ class AdminOperationsRepository {
   // ── Leave Balances (Admin) ──────────────────────────────────────────────
   Future<List<LeaveBalanceData>> getLeaveBalances() async {
     final response = await _api.get('/company/leave/balances');
-    return _parseList(response.data, LeaveBalanceData.fromJson);
+    
+    dynamic data = response.data;
+    if (data is Map<String, dynamic> && data['balances'] != null) {
+      data = data['balances'];
+    }
+    
+    return _parseList(data, LeaveBalanceData.fromJson);
   }
 
   Future<void> updateLeaveBalance(int id, Map<String, dynamic> data) async =>

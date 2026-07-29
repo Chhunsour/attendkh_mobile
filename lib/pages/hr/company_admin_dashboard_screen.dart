@@ -12,6 +12,7 @@ import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'branch_payroll_settings_screen.dart';
 import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
+import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
 
 class CompanyAdminDashboardScreen extends ConsumerStatefulWidget {
   const CompanyAdminDashboardScreen({super.key});
@@ -146,164 +147,197 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               ),
             ),
             const SizedBox(width: 10),
-            const Flexible(
-              child: Text(
-                'HR Dashboard',
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Inter',
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
+            Expanded(
+              child: !authState.isCompanyAdmin
+                  ? const Text(
+                      'HR Dashboard',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Inter',
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : ref.watch(branchesProvider).when(
+                        data: (branches) => branches.isEmpty
+                            ? const Text(
+                                'HR Dashboard',
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Inter',
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              )
+                            : PopupMenuButton<BranchData>(
+                                tooltip: 'Select a branch to impersonate',
+                                offset: const Offset(0, 48),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                color: Colors.white,
+                                elevation: 4,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                      'HR Dashboard',
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        fontFamily: 'Inter',
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
+                                        Text(
+                                          'Select Branch',
+                                          style: TextStyle(
+                                            color: AppColors.primary,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'Inter',
+                                          ),
+                                        ),
+                                        SizedBox(width: 2),
+                                        Icon(
+                                          Icons.keyboard_arrow_down_rounded,
+                                          color: AppColors.primary,
+                                          size: 14,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                onSelected: (branch) async {
+                                  await ref.read(branchSwitchProvider.notifier).switchToBranch(branch);
+                                  if (context.mounted) {
+                                    context.push(AppRoutes.branchManagerView);
+                                  }
+                                },
+                                itemBuilder: (context) {
+                                  return [
+                                    const PopupMenuItem<BranchData>(
+                                      enabled: false,
+                                      height: 30,
+                                      child: Text(
+                                        'VIEW AS BRANCH MANAGER',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.grey500,
+                                          fontFamily: 'Inter',
+                                        ),
+                                      ),
+                                    ),
+                                    ...branches.map(
+                                      (b) => PopupMenuItem<BranchData>(
+                                        value: b,
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 32,
+                                              height: 32,
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFF97316).withAlpha(15),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(
+                                                Icons.business_rounded,
+                                                color: Color(0xFFF97316),
+                                                size: 16,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    b.name,
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: AppColors.grey800,
+                                                      fontFamily: 'Inter',
+                                                    ),
+                                                  ),
+                                                  if (b.address != null)
+                                                    Text(
+                                                      b.address!,
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        fontSize: 11,
+                                                        color: AppColors.grey500,
+                                                        fontFamily: 'Inter',
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ];
+                                },
+                              ),
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, s) => const SizedBox.shrink(),
+                      ),
             ),
           ],
         ),
         actions: [
-          // ── "View as Branch" button (only for Company Admin/Owner) ──
-          if (authState.isCompanyAdmin)
-            ref
-                .watch(branchesProvider)
-                .when(
-                  data: (branches) => branches.isEmpty
-                      ? const SizedBox.shrink()
-                      : Padding(
-                          padding: const EdgeInsets.only(
-                            right: 8.0,
-                            top: 12,
-                            bottom: 12,
-                          ),
-                          child: PopupMenuButton<BranchData>(
-                            tooltip: 'Select a branch to impersonate',
-                            offset: const Offset(0, 48),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            color: Colors.white,
-                            elevation: 4,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF97316).withAlpha(15),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.business_rounded,
-                                    color: Color(0xFFF97316),
-                                    size: 18,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    'Branch',
-                                    style: TextStyle(
-                                      color: Color(0xFFF97316),
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                      fontFamily: 'Inter',
-                                    ),
-                                  ),
-                                  SizedBox(width: 4),
-                                  Icon(
-                                    Icons.keyboard_arrow_down_rounded,
-                                    color: Color(0xFFF97316),
-                                    size: 18,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            onSelected: (branch) async {
-                              await ref
-                                  .read(branchSwitchProvider.notifier)
-                                  .switchToBranch(branch);
-                              if (context.mounted) {
-                                context.push(AppRoutes.branchManagerView);
-                              }
-                            },
-                            itemBuilder: (context) {
-                              return [
-                                const PopupMenuItem<BranchData>(
-                                  enabled: false,
-                                  height: 30,
-                                  child: Text(
-                                    'VIEW AS BRANCH MANAGER',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.grey500,
-                                      fontFamily: 'Inter',
-                                    ),
-                                  ),
-                                ),
-                                ...branches.map(
-                                  (b) => PopupMenuItem<BranchData>(
-                                    value: b,
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 32,
-                                          height: 32,
-                                          decoration: BoxDecoration(
-                                            color: const Color(
-                                              0xFFF97316,
-                                            ).withAlpha(15),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.business_rounded,
-                                            color: Color(0xFFF97316),
-                                            size: 16,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                b.name,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColors.grey800,
-                                                  fontFamily: 'Inter',
-                                                ),
-                                              ),
-                                              if (b.address != null)
-                                                Text(
-                                                  b.address!,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                    fontSize: 11,
-                                                    color: AppColors.grey500,
-                                                    fontFamily: 'Inter',
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ];
-                            },
-                          ),
+          Consumer(
+            builder: (context, ref, child) {
+              final unreadCountAsync = ref.watch(unreadCountProvider);
+              final unreadCount = unreadCountAsync.valueOrNull ?? 0;
+              return Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined, color: Colors.black87),
+                    onPressed: () async {
+                      await context.push(AppRoutes.notifications);
+                      ref.invalidate(unreadCountProvider);
+                    },
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: AppColors.danger,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                  loading: () => const SizedBox.shrink(),
-                  error: (_, s) => const SizedBox.shrink(),
-                ),
+                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                        child: Text(
+                          unreadCount > 99 ? '99+' : '$unreadCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: Colors.black87),
             onPressed: () => showLogoutConfirmation(context, ref),

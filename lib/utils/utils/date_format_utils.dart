@@ -46,3 +46,21 @@ String formatDateTime(String? dateTimeStr) {
 String formatDateRange(String? start, String? end) {
   return '${formatDate(start)} → ${formatDate(end)}';
 }
+
+/// Formats total minutes into "Xh Ym" or "Xm" (e.g., 110 -> 1h 50m)
+String formatDurationMinutes(int? totalMinutes) {
+  if (totalMinutes == null || totalMinutes == 0) return '0m';
+  final m = totalMinutes.abs();
+  final hours = m ~/ 60;
+  final minutes = m % 60;
+  if (hours > 0 && minutes > 0) return '${hours}h ${minutes}m';
+  if (hours > 0) return '${hours}h';
+  return '${minutes}m';
+}
+
+/// Formats total hours into "Xh Ym" or "Xm" (e.g., 1.8 -> 1h 48m)
+String formatDurationHours(num? totalHours) {
+  if (totalHours == null || totalHours == 0) return '0m';
+  final totalMinutes = (totalHours.abs() * 60).round();
+  return formatDurationMinutes(totalMinutes);
+}

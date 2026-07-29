@@ -244,7 +244,46 @@ class FcmService {
     final context = rootNavigatorKey.currentContext!;
 
     AppLogger.i('Routing push notification payload: $data');
+    
+    // First navigate to notifications list as a fallback/history
     context.push(AppRoutes.notifications);
+
+    // Extract type to determine deep link
+    final String? type = data['type'];
+    if (type == null) return;
+
+    // Deep link mapping
+    switch (type) {
+      case 'leave_request':
+      case 'upcoming_leave':
+        context.push(AppRoutes.leaveList);
+        break;
+      case 'expense_claim':
+        context.push(AppRoutes.expense);
+        break;
+      case 'attendance':
+      case 'clock_in_reminder':
+      case 'clock_out_reminder':
+      case 'early_clock_in':
+      case 'late_clock_in':
+      case 'early_leave':
+      case 'break_reminder':
+      case 'overtime_reminder':
+        context.push(AppRoutes.attendance);
+        break;
+      case 'payslip':
+        context.push(AppRoutes.payslip);
+        break;
+      case 'training_reminder':
+        context.push(AppRoutes.training);
+        break;
+      case 'upcoming_holiday':
+        context.push(AppRoutes.employeeHolidays);
+        break;
+      default:
+        // Already on notifications screen, do nothing
+        break;
+    }
   }
 
   Future<void> _showLocalNotification(RemoteMessage message) async {
@@ -289,6 +328,38 @@ class FcmService {
         payload: jsonEncode(data),
       );
     }
+  }
+
+  /// Show a manual local notification
+  Future<void> showLocalNotification({
+    required String title,
+    required String body,
+    Map<String, dynamic>? payload,
+  }) async {
+    if (kIsWeb) return;
+
+    await _localNotificationsPlugin.show(
+      DateTime.now().millisecond,
+      title,
+      body,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'high_importance_channel', // channel id
+          'High Importance Notifications', // channel name
+          channelDescription: 'This channel is used for important notifications.',
+          icon: '@mipmap/ic_launcher',
+          color: Color(0xFFF97316),
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: payload != null ? jsonEncode(payload) : null,
+    );
   }
 
   /// Fetches the FCM token and sends it to the backend to link to the logged-in user.

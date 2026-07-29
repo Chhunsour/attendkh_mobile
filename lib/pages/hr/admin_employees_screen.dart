@@ -847,6 +847,7 @@ class _EmployeeCard extends ConsumerWidget {
 
       ref.invalidate(adminEmployeesProvider);
       ref.invalidate(allEmployeesProvider);
+      ref.invalidate(dashboardStatsProvider);
 
       if (!context.mounted) return;
 

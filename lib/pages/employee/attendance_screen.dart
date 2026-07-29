@@ -588,7 +588,7 @@ class _HistoryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (record.workHours != null)
-                Text('${record.workHours!.toStringAsFixed(1)} hrs', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                Text(formatDurationHours(record.workHours), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -604,9 +604,7 @@ class _HistoryCard extends StatelessWidget {
               if (record.status == 'late' && record.lateMinutes != null && record.lateMinutes != 0) ...[
                 const SizedBox(height: 4),
                 Text(
-                  record.lateMinutes!.abs() >= 60 
-                      ? '${(record.lateMinutes!.abs() / 60).toStringAsFixed(1)} hrs late'
-                      : '${record.lateMinutes!.abs()} mins late',
+                  '${formatDurationMinutes(record.lateMinutes)} late',
                   style: const TextStyle(fontSize: 10, color: AppColors.danger, fontWeight: FontWeight.w600),
                 ),
               ],

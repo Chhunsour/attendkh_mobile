@@ -317,6 +317,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
 
       ref.invalidate(allEmployeesProvider);
       ref.invalidate(adminEmployeesProvider);
+      ref.invalidate(dashboardStatsProvider);
       if (widget.employee != null) {
         ref.invalidate(employeeDetailProvider(widget.employee!.id));
       }

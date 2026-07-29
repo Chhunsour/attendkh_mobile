@@ -16,6 +16,7 @@ import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/providers/dashboard_provider.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
@@ -688,7 +689,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(color: Colors.white.withAlpha(40), borderRadius: BorderRadius.circular(10)),
-                child: Text('Active duration: ${today.workHours!.toStringAsFixed(1)} hrs', style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+                child: Text('Active duration: ${formatDurationHours(today.workHours)}', style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
               ),
           ] else if (isCompleted) ...[
             const Text('Shift Completed', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
@@ -697,7 +698,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(color: Colors.white.withAlpha(40), borderRadius: BorderRadius.circular(10)),
-                child: Text('Worked: ${today.workHours!.toStringAsFixed(1)} hrs', style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+                child: Text('Worked: ${formatDurationHours(today.workHours)}', style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
               ),
           ] else ...[
             const Text('Ready to Work?', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
