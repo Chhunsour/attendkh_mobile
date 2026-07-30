@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/providers/holiday_provider.dart';
 import 'package:mpg_hr_mobile_app/services/holidays_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class HolidayCalendarScreen extends ConsumerStatefulWidget {
   const HolidayCalendarScreen({super.key});
@@ -48,11 +49,12 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final holidaysAsync = ref.watch(employeeHolidaysProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Holiday Calendar'),
+        title: Text(l10n.holidayCalendar),
         centerTitle: true,
       ),
       body: holidaysAsync.when(
@@ -107,19 +109,19 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Holidays this month',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                    l10n.holidaysThisMonth,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey900),
                   ),
                 ),
               ),
               Expanded(
                 child: monthHolidays.isEmpty
-                    ? const Center(child: Text('No holidays this month', style: TextStyle(color: AppColors.grey500)))
+                    ? Center(child: Text(l10n.noHolidaysThisMonth, style: const TextStyle(color: AppColors.grey500)))
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: monthHolidays.length,
@@ -159,7 +161,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
             ],
           );
         },
-        loading: () => const LoadingIndicator(message: 'Loading holidays...'),
+        loading: () => LoadingIndicator(message: l10n.loadingHolidays),
         error: (e, _) => Center(
           child: OutlinedButton.icon(
             onPressed: () => ref.invalidate(employeeHolidaysProvider),

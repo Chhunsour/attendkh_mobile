@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:open_filex/open_filex.dart';
 
 class AdminReportsScreen extends ConsumerStatefulWidget {
@@ -31,15 +32,26 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final reportTypes = [
+      {'key': 'employees', 'label': l10n.reportEmployees, 'icon': Icons.people, 'color': AppColors.secondary},
+      {'key': 'attendance', 'label': l10n.reportAttendance, 'icon': Icons.access_time, 'color': AppColors.success},
+      {'key': 'leave', 'label': l10n.reportLeave, 'icon': Icons.event_note, 'color': AppColors.warning},
+      {'key': 'payroll', 'label': l10n.reportPayroll, 'icon': Icons.receipt_long, 'color': AppColors.info},
+      {'key': 'expenses', 'label': l10n.reportExpenses, 'icon': Icons.receipt, 'color': AppColors.danger},
+      {'key': 'assets', 'label': l10n.reportAssets, 'icon': Icons.inventory_2, 'color': AppColors.primary},
+      {'key': 'recruitment', 'label': l10n.reportRecruitment, 'icon': Icons.work, 'color': AppColors.secondaryDark},
+      {'key': 'performance', 'label': l10n.reportPerformance, 'icon': Icons.assessment, 'color': AppColors.primaryDark},
+    ];
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Reports & Analytics',
-          style: TextStyle(
+        title: Text(
+          l10n.reportsTitle,
+          style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -51,18 +63,18 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Generate Report', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+            Text(l10n.generateReportTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
             const SizedBox(height: 8),
-            Text('Select a report type to generate', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+            Text(l10n.selectReportTypeHint, style: TextStyle(fontSize: 13, color: AppColors.grey500)),
             const SizedBox(height: 16),
-            _buildDateFilters(),
+            _buildDateFilters(l10n),
             const SizedBox(height: 16),
             Expanded(
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 1.4),
-                itemCount: _reportTypes.length,
+                itemCount: reportTypes.length,
                 itemBuilder: (context, i) {
-                  final r = _reportTypes[i];
+                  final r = reportTypes[i];
                   final isSelected = _selectedType == r['key'];
                   return GestureDetector(
                     onTap: () => _generate(r['key'] as String),
@@ -89,7 +101,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
             if (_isLoading) ...[
               const SizedBox(height: 16),
-              const LoadingIndicator(message: 'Generating report...'),
+              LoadingIndicator(message: l10n.generatingReport),
             ],
           ],
         ),
@@ -97,21 +109,27 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     );
   }
 
-  Widget _buildDateFilters() {
-    final filters = ['Today', 'Week', 'Month', 'Year'];
+  Widget _buildDateFilters(AppLocalizations l10n) {
+    final filters = [
+      l10n.filterToday,
+      l10n.filterWeek,
+      l10n.filterMonth,
+      l10n.filterYear,
+    ];
+    final filterKeys = ['Today', 'Week', 'Month', 'Year'];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: filters.map((f) => Padding(
+        children: List.generate(filters.length, (idx) => Padding(
           padding: const EdgeInsets.only(right: 8),
           child: ChoiceChip(
-            label: Text(f),
-            selected: _dateFilter == f,
+            label: Text(filters[idx]),
+            selected: _dateFilter == filterKeys[idx],
             onSelected: (selected) {
-              if (selected) setState(() => _dateFilter = f);
+              if (selected) setState(() => _dateFilter = filterKeys[idx]);
             },
             selectedColor: AppColors.primary.withAlpha(50),
-            labelStyle: TextStyle(color: _dateFilter == f ? AppColors.primary : AppColors.grey700),
+            labelStyle: TextStyle(color: _dateFilter == filterKeys[idx] ? AppColors.primary : AppColors.grey700),
           ),
         )).toList(),
       ),
@@ -164,21 +182,22 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       final params = _getDateParams();
       final path = await AdminOperationsRepository().exportReport(type: type, params: params);
       
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Report exported successfully!'), backgroundColor: AppColors.success));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.reportExportSuccess), backgroundColor: AppColors.success));
       
       // Open the file
       final result = await OpenFilex.open(path);
       if (result.type != ResultType.done && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not open file: ${result.message}'), backgroundColor: AppColors.warning));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.couldNotOpenFile(result.message)), backgroundColor: AppColors.warning));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ Export failed: $e'), backgroundColor: AppColors.danger));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.reportExportFailed(e.toString())), backgroundColor: AppColors.danger));
     } finally {
       if (mounted) setState(() { _isExporting = false; });
     }
   }
 
   void _showResultsSheet(Map<String, dynamic> data, String type) {
+    final l10n = AppLocalizations.of(context)!;
     final records = data['records'] as List<dynamic>? ?? [];
     final total = data['total'] ?? 0;
     
@@ -222,8 +241,8 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('$label Report', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.grey900)),
-                              Text('Found $total records', style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
+                              Text(l10n.reportLabelSuffix(label), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.grey900)),
+                              Text(l10n.reportFoundRecords(total), style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                             ],
                           ),
                         ],
@@ -240,7 +259,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                                 await _export(type);
                                 if (ctx.mounted) setSheetState(() => _isExporting = false);
                               },
-                              tooltip: 'Export Report',
+                              tooltip: l10n.exportReportTooltip,
                             ),
                           IconButton(icon: const Icon(Icons.close, color: AppColors.grey500), onPressed: () => Navigator.pop(ctx)),
                         ],
@@ -251,7 +270,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 const Divider(height: 1, color: AppColors.grey200),
                 Expanded(
                   child: records.isEmpty
-                      ? const Center(child: Text('No records found for this period.', style: TextStyle(color: AppColors.grey500)))
+                      ? Center(child: Text(l10n.noRecordsFound, style: const TextStyle(color: AppColors.grey500)))
                       : ListView.separated(
                           padding: const EdgeInsets.all(16),
                           itemCount: records.length,

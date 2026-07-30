@@ -9,6 +9,8 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
+import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class AdminProfileScreen extends ConsumerStatefulWidget {
   const AdminProfileScreen({super.key});
@@ -120,9 +122,10 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
       ref.invalidate(profileProvider);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully'),
+          SnackBar(
+            content: Text(l10n.profileUpdatedSuccess),
             backgroundColor: AppColors.success,
           ),
         );
@@ -157,9 +160,10 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
         _passwordController.clear();
         _passwordConfirmController.clear();
 
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password updated successfully'),
+          SnackBar(
+            content: Text(l10n.passwordUpdatedSuccess),
             backgroundColor: AppColors.success,
           ),
         );
@@ -180,6 +184,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -190,9 +195,9 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.black87),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
-          'Profile Settings',
-          style: TextStyle(
+        title: Text(
+          l10n.profileSettingsTitle,
+          style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -219,9 +224,9 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Profile Information', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                    Text(l10n.profileInfoTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800)),
                     const SizedBox(height: 6),
-                    const Text('Update your account\'s profile information and email address.', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                    Text(l10n.profileInfoDesc, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                     const SizedBox(height: 24),
 
                     // Profile Photo
@@ -266,26 +271,26 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     const SizedBox(height: 24),
 
                     // Name
-                    _buildLabel('Name'),
+                    _buildLabel(l10n.nameLabel),
                     TextFormField(
                       controller: _nameController,
-                      validator: (v) => v!.trim().isEmpty ? 'Required' : null,
+                      validator: (v) => v!.trim().isEmpty ? l10n.fieldRequired : null,
                       decoration: _inputDecoration(),
                     ),
                     const SizedBox(height: 16),
 
                     // Email
-                    _buildLabel('Email'),
+                    _buildLabel(l10n.emailLabel),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (v) => v!.trim().isEmpty ? 'Required' : null,
+                      validator: (v) => v!.trim().isEmpty ? l10n.fieldRequired : null,
                       decoration: _inputDecoration(),
                     ),
                     const SizedBox(height: 16),
 
                     // Phone
-                    _buildLabel('Phone'),
+                    _buildLabel(l10n.phoneLabel),
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
@@ -294,21 +299,21 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     const SizedBox(height: 16),
 
                     // Gender Dropdown
-                    _buildLabel('Gender'),
+                    _buildLabel(l10n.genderLabel),
                     DropdownButtonFormField<String>(
                       initialValue: _gender,
                       decoration: _inputDecoration(),
-                      items: const [
-                        DropdownMenuItem(value: 'male', child: Text('Male')),
-                        DropdownMenuItem(value: 'female', child: Text('Female')),
-                        DropdownMenuItem(value: 'other', child: Text('Other')),
+                      items: [
+                        DropdownMenuItem(value: 'male', child: Text(l10n.genderMale)),
+                        DropdownMenuItem(value: 'female', child: Text(l10n.genderFemale)),
+                        DropdownMenuItem(value: 'other', child: Text(l10n.genderOther)),
                       ],
                       onChanged: (val) => setState(() => _gender = val),
                     ),
                     const SizedBox(height: 16),
 
                     // Date of Birth
-                    _buildLabel('Date of Birth'),
+                    _buildLabel(l10n.dateOfBirthLabel),
                     GestureDetector(
                       onTap: () async {
                         final picked = await showDatePicker(
@@ -343,7 +348,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                           suffixIcon: const Icon(Icons.calendar_today_outlined, size: 20, color: AppColors.grey500),
                         ),
                         child: Text(
-                          _dateOfBirth != null ? "${_dateOfBirth!.year}-${_dateOfBirth!.month.toString().padLeft(2, '0')}-${_dateOfBirth!.day.toString().padLeft(2, '0')}" : 'Select Date',
+                          _dateOfBirth != null ? "${_dateOfBirth!.year}-${_dateOfBirth!.month.toString().padLeft(2, '0')}-${_dateOfBirth!.day.toString().padLeft(2, '0')}" : l10n.selectDate,
                           style: TextStyle(fontSize: 14, color: _dateOfBirth != null ? Colors.black87 : AppColors.grey500),
                         ),
                       ),
@@ -351,7 +356,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     const SizedBox(height: 16),
 
                     // Address
-                    _buildLabel('Address'),
+                    _buildLabel(l10n.addressLabel),
                     TextFormField(
                       controller: _addressController,
                       maxLines: 3,
@@ -367,7 +372,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                         icon: _isSavingProfile
                             ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                             : const Icon(Icons.save_rounded, size: 20),
-                        label: Text(_isSavingProfile ? 'Saving...' : 'Save Profile', style: const TextStyle(fontWeight: FontWeight.w600)),
+                        label: Text(_isSavingProfile ? l10n.saving : l10n.saveProfileBtn, style: const TextStyle(fontWeight: FontWeight.w600)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
@@ -399,40 +404,40 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Update Password', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                    Text(l10n.updatePasswordTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800)),
                     const SizedBox(height: 6),
-                    const Text('Ensure your account is using a long, random password to stay secure.', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                    Text(l10n.updatePasswordDesc, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                     const SizedBox(height: 24),
 
-                    _buildLabel('Current Password'),
+                    _buildLabel(l10n.currentPasswordLabel),
                     TextFormField(
                       controller: _currentPasswordController,
                       obscureText: true,
-                      validator: (v) => v!.isEmpty ? 'Required' : null,
+                      validator: (v) => v!.isEmpty ? l10n.fieldRequired : null,
                       decoration: _inputDecoration(),
                     ),
                     const SizedBox(height: 16),
 
-                    _buildLabel('New Password'),
+                    _buildLabel(l10n.newPasswordLabel),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
                       validator: (v) {
-                        if (v!.isEmpty) return 'Required';
-                        if (v.length < 8) return 'Min 8 chars';
+                        if (v!.isEmpty) return l10n.fieldRequired;
+                        if (v.length < 8) return l10n.min8Chars;
                         return null;
                       },
                       decoration: _inputDecoration(),
                     ),
                     const SizedBox(height: 16),
 
-                    _buildLabel('Confirm Password'),
+                    _buildLabel(l10n.confirmPasswordLabel),
                     TextFormField(
                       controller: _passwordConfirmController,
                       obscureText: true,
                       validator: (v) {
-                        if (v!.isEmpty) return 'Required';
-                        if (v != _passwordController.text) return 'Passwords do not match';
+                        if (v!.isEmpty) return l10n.fieldRequired;
+                        if (v != _passwordController.text) return l10n.passwordsDoNotMatch;
                         return null;
                       },
                       decoration: _inputDecoration(),
@@ -447,7 +452,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                         icon: _isSavingPassword
                             ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                             : const Icon(Icons.lock_rounded, size: 20),
-                        label: Text(_isSavingPassword ? 'Saving...' : 'Update Password', style: const TextStyle(fontWeight: FontWeight.w600)),
+                        label: Text(_isSavingPassword ? l10n.saving : l10n.btnUpdatePassword, style: const TextStyle(fontWeight: FontWeight.w600)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.grey800,
                           foregroundColor: Colors.white,
@@ -476,9 +481,9 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Testing & Debugging', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                  Text(l10n.testingDebuggingTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800)),
                   const SizedBox(height: 6),
-                  const Text('Use these tools to verify app functionality.', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                  Text(l10n.testingDebuggingDesc, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
@@ -488,7 +493,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                         FcmService.instance.testLocalNotification();
                       },
                       icon: const Icon(Icons.notifications_active, size: 20),
-                      label: const Text('Test Local Notification', style: TextStyle(fontWeight: FontWeight.w600)),
+                      label: Text(l10n.testLocalNotificationBtn, style: const TextStyle(fontWeight: FontWeight.w600)),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         side: const BorderSide(color: AppColors.primary),
@@ -497,6 +502,25 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Logout Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+              child: ElevatedButton.icon(
+                onPressed: () => showLogoutConfirmation(context, ref),
+                icon: const Icon(Icons.logout_rounded, size: 20),
+                label: Text(l10n.logOut, style: const TextStyle(fontWeight: FontWeight.w600)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.danger,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
+                ),
               ),
             ),
             const SizedBox(height: 32),

@@ -9,6 +9,7 @@ import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -27,8 +28,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   DateTime? _dateOfBirth;
   File? _photo;
   bool _isLoading = false;
-  
-  String _phoneCode = '+91';
 
   @override
   void initState() {
@@ -53,19 +52,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _lastNameCtrl.text = lastName;
     _emailCtrl.text = data.email ?? '';
     
-    // Handle phone number splitting if it has a country code
-    String phone = data.phone ?? '';
-    if (phone.startsWith('+')) {
-      // Very basic split for demo purposes, assume 3 chars like +91
-      if (phone.length > 3) {
-        _phoneCode = phone.substring(0, 3);
-        _phoneCtrl.text = phone.substring(3).trim();
-      } else {
-        _phoneCtrl.text = phone;
-      }
-    } else {
-      _phoneCtrl.text = phone;
-    }
+    _phoneCtrl.text = data.phone ?? '';
 
     _gender = data.gender;
     if (data.dateOfBirth != null) {
@@ -100,7 +87,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       final String lastName = _lastNameCtrl.text.trim();
       final String fullName = [firstName, lastName].where((s) => s.isNotEmpty).join(' ');
       
-      final String phone = _phoneCtrl.text.trim().isNotEmpty ? '$_phoneCode ${_phoneCtrl.text.trim()}' : '';
+      final String phone = _phoneCtrl.text.trim();
       
       await repo.updateProfile(
         name: fullName.isNotEmpty ? fullName : null,
@@ -111,16 +98,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         photo: _photo,
       );
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ref.invalidate(profileProvider);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Profile updated'), backgroundColor: AppColors.success),
+          SnackBar(content: Text(l10n.profileUpdatedSuccess), backgroundColor: AppColors.success),
         );
         context.pop();
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ Failed to update: $e'), backgroundColor: AppColors.danger),
+          SnackBar(content: Text('${l10n.failedToUpdate}: $e'), backgroundColor: AppColors.danger),
         );
       }
     } finally {
@@ -162,6 +151,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(profileProvider);
+    final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
       backgroundColor: Colors.white,
@@ -172,9 +162,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+        title: Text(
+          l10n.editProfile,
+          style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
         ),
         actions: [
           if (!_isLoading)
@@ -244,14 +234,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  const Text(
-                    'Your Information',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                  Text(
+                    l10n.profileInfoTitle,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                   const SizedBox(height: 16),
                   
-                  _buildOutlinedField('First name', _firstNameCtrl),
-                  _buildOutlinedField('Last name', _lastNameCtrl),
+                  _buildOutlinedField(l10n.firstName, _firstNameCtrl),
+                  _buildOutlinedField(l10n.lastName, _lastNameCtrl),
                   
                   // Phone with country code
                   Padding(
@@ -260,26 +250,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       controller: _phoneCtrl,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
-                        labelText: 'Phone',
+                        labelText: l10n.phoneLabel,
                         floatingLabelBehavior: FloatingLabelBehavior.always,
-                        prefixIcon: Padding(
-                          padding: const EdgeInsets.only(left: 12, right: 8),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _phoneCode,
-                              items: ['+91', '+1', '+44', '+61'].map((code) {
-                                return DropdownMenuItem(
-                                  value: code,
-                                  child: Text(code, style: const TextStyle(fontSize: 15)),
-                                );
-                              }).toList(),
-                              onChanged: (val) {
-                                if (val != null) setState(() => _phoneCode = val);
-                              },
-                              icon: const Icon(Icons.arrow_drop_down, size: 20, color: Colors.black),
-                            ),
-                          ),
-                        ),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -300,7 +272,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     ),
                   ),
 
-                  _buildOutlinedField('Email Id', _emailCtrl, keyboardType: TextInputType.emailAddress),
+                  _buildOutlinedField(l10n.emailLabel, _emailCtrl, keyboardType: TextInputType.emailAddress),
                   
                   // Gender Dropdown
                   Padding(
@@ -308,7 +280,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     child: DropdownButtonFormField<String>(
                       initialValue: _gender,
                       decoration: InputDecoration(
-                        labelText: 'Gender',
+                        labelText: l10n.genderLabel,
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         filled: true,
                         fillColor: Colors.white,
@@ -327,10 +299,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         labelStyle: const TextStyle(color: AppColors.grey500, fontSize: 14),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
-                      items: const [
-                        DropdownMenuItem(value: 'male', child: Text('Male')),
-                        DropdownMenuItem(value: 'female', child: Text('Female')),
-                        DropdownMenuItem(value: 'other', child: Text('Other')),
+                      items: [
+                        DropdownMenuItem(value: 'male', child: Text(l10n.genderMale)),
+                        DropdownMenuItem(value: 'female', child: Text(l10n.genderFemale)),
+                        DropdownMenuItem(value: 'other', child: Text(l10n.genderOther)),
                       ],
                       onChanged: (val) => setState(() => _gender = val),
                     ),
@@ -342,8 +314,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             ),
           );
         },
-        loading: () => const LoadingIndicator(message: 'Loading...'),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        loading: () => LoadingIndicator(message: l10n.loadingProfile),
+        error: (e, _) => Center(child: Text('${l10n.errorPrefix}$e')),
       ),
     );
   }

@@ -9,6 +9,7 @@ import 'package:mpg_hr_mobile_app/components/app_logo.dart';
 import 'package:mpg_hr_mobile_app/components/custom_text_field.dart';
 import 'package:mpg_hr_mobile_app/components/primary_button.dart';
 import 'package:mpg_hr_mobile_app/components/secondary_button.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 /// ── Design tokens (matches prompt spec) ──
 // const _primaryBlue = Color(0xFF4F7DF3);
@@ -97,6 +98,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
+    final l10n = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
     final viewInsets = MediaQuery.of(context).viewInsets;
     final padding = MediaQuery.of(context).padding;
@@ -186,7 +188,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         ),
                       ),
                     ),
-                    child: _buildLoginForm(authState),
+                    child: _buildLoginForm(authState, l10n),
                   ),
                 ),
               ),
@@ -205,7 +207,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   //  LOGIN FORM (inside white bottom card)
   // ────────────────────────────────────────────
   // ignore: strict_top_level_inference
-  Widget _buildLoginForm(authState) {
+  Widget _buildLoginForm(authState, AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 30, 24, 24),
       child: Form(
@@ -213,10 +215,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         child: Column(
           children: [
             // ── Title ──
-            const Text(
-              'Welcome Back!', // "Welcome" in Khmer
+            Text(
+              l10n.welcomeBack,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
                 color: _textDark,
@@ -228,20 +230,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             // ── Login Identity Field ──
             CustomTextField(
               controller: _loginController,
-              hintText: 'user@email.com, 010123456, or EMP01',
-              labelText: 'Email, Phone, or Employee ID',
+              hintText: l10n.loginIdentityHint,
+              labelText: l10n.loginIdentityLabel,
               prefixIcon: Icons.person_outline,
               keyboardType: TextInputType.text,
               validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'This field is required' : null,
+                  v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
             ),
             const SizedBox(height: 18),
 
             // ── Password Field ──
             CustomTextField(
               controller: _passwordController,
-              hintText: 'Enter your password',
-              labelText: 'Password',
+              hintText: l10n.enterYourPassword,
+              labelText: l10n.password,
               prefixIcon: Icons.lock_outline_rounded,
               obscureText: _obscurePassword,
               textInputAction: TextInputAction.done,
@@ -258,7 +260,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     setState(() => _obscurePassword = !_obscurePassword),
               ),
               validator: (v) =>
-                  v == null || v.isEmpty ? 'Password is required' : null,
+                  v == null || v.isEmpty ? l10n.passwordRequired : null,
             ),
             const SizedBox(height: 20),
 
@@ -282,19 +284,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
             // ── Sign In Button ──
             PrimaryButton(
-              label: 'Sign In',
+              label: l10n.signIn,
               isLoading: authState.isLoading,
               onPressed: _handleLogin,
             ),
             const SizedBox(height: 18),
 
             // ── OR Divider ──
-            const _OrDivider(),
+            _OrDivider(l10n: l10n),
             const SizedBox(height: 18),
 
             // ── Create Account Button ──
             SecondaryButton(
-              label: 'Create Account',
+              label: l10n.createAccount,
               onPressed: () => context.go(AppRoutes.register),
             ),
             const SizedBox(height: 20),
@@ -475,6 +477,7 @@ class _TopBranding extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -495,7 +498,7 @@ class _TopBranding extends StatelessWidget {
         const SizedBox(height: 6),
         // Tagline
         Text(
-          'HR Management System',
+          l10n.hrManagementSystem,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w400,
@@ -512,7 +515,8 @@ class _TopBranding extends StatelessWidget {
 //  OR DIVIDER
 // ══════════════════════════════════════════════════════════════════════════════
 class _OrDivider extends StatelessWidget {
-  const _OrDivider();
+  final AppLocalizations l10n;
+  const _OrDivider({required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -524,11 +528,11 @@ class _OrDivider extends StatelessWidget {
             color: const Color(0xFFD1D5DB),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
-            'OR',
-            style: TextStyle(
+            l10n.or,
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Color(0xFF9CA3AF),

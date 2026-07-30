@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_settings_repository.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 final adminSettingsProvider =
     FutureProvider.autoDispose<Map<String, dynamic>>((ref) {
@@ -22,6 +23,7 @@ class AdminSettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsAsync = ref.watch(adminSettingsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -29,9 +31,9 @@ class AdminSettingsScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Platform Settings',
-          style: TextStyle(
+        title: Text(
+          l10n.platformSettingsTitle,
+          style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -45,7 +47,7 @@ class AdminSettingsScreen extends ConsumerWidget {
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
-          error: (err, _) => _buildError(context, err, ref),
+          error: (err, _) => _buildError(context, err, ref, l10n),
           data: (settings) =>
               _SettingsEditor(settings: settings, ref: ref),
         ),
@@ -53,29 +55,29 @@ class AdminSettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildError(BuildContext context, Object err, WidgetRef ref) {
+  Widget _buildError(BuildContext context, Object err, WidgetRef ref, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
+            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
             const SizedBox(height: 16),
-            Text('Failed to load settings',
-                style: TextStyle(
+            Text(l10n.failedToLoadSettings,
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.grey800)),
             const SizedBox(height: 8),
             Text(err.toString(),
-                style: TextStyle(fontSize: 12, color: AppColors.grey500),
+                style: const TextStyle(fontSize: 12, color: AppColors.grey500),
                 textAlign: TextAlign.center),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(adminSettingsProvider),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Retry'),
+              label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -134,6 +136,7 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
   }
 
   Future<void> _save() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isSaving = true);
 
     try {
@@ -148,8 +151,8 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Settings saved successfully'),
+          SnackBar(
+            content: Text(l10n.settingsSavedSuccess),
             backgroundColor: AppColors.success,
           ),
         );
@@ -158,7 +161,7 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed: ${e.toString()}'),
+            content: Text(l10n.settingsFailed(e.toString())),
             backgroundColor: AppColors.danger,
           ),
         );
@@ -227,16 +230,17 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         // ── Global Settings ──
-        _SectionTitle(title: 'Global Settings'),
+        _SectionTitle(title: l10n.globalSettingsTitle),
         const SizedBox(height: 16),
-        _buildTextField('app_name', 'Application Name', Icons.app_shortcut_rounded),
-        _buildTextField('support_email', 'Support Email', Icons.email_rounded, keyboardType: TextInputType.emailAddress),
-        _buildTextField('default_timezone', 'Default Timezone', Icons.schedule_rounded),
-        _buildTextField('default_currency', 'Default Currency', Icons.attach_money_rounded),
+        _buildTextField('app_name', l10n.appNameLabel, Icons.app_shortcut_rounded),
+        _buildTextField('support_email', l10n.supportEmailLabel, Icons.email_rounded, keyboardType: TextInputType.emailAddress),
+        _buildTextField('default_timezone', l10n.defaultTimezoneLabel, Icons.schedule_rounded),
+        _buildTextField('default_currency', l10n.defaultCurrencyLabel, Icons.attach_money_rounded),
 
         const SizedBox(height: 24),
 
@@ -257,7 +261,7 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
                   )
                 : const Icon(Icons.save_rounded),
             label: Text(
-              _isSaving ? 'Saving...' : 'Save Settings',
+              _isSaving ? l10n.saving : l10n.saveSettings,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,

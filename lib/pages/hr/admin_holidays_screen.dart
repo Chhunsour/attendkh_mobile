@@ -4,6 +4,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:intl/intl.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class AdminHolidaysScreen extends StatefulWidget {
   const AdminHolidaysScreen({super.key});
@@ -58,6 +59,7 @@ class _State extends State<AdminHolidaysScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
+          final l10n = AppLocalizations.of(ctx)!;
           return Padding(
             padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
             child: Container(
@@ -68,15 +70,15 @@ class _State extends State<AdminHolidaysScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(isEdit ? 'Edit Holiday' : 'Add Holiday', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                    Text(isEdit ? l10n.editHoliday : l10n.addHoliday, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
                     const SizedBox(height: 24),
-                    TextField(controller: nameCtrl, decoration: InputDecoration(labelText: 'Name *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), keyboardType: TextInputType.text),
+                    TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l10n.holidayNameLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), keyboardType: TextInputType.text),
                     const SizedBox(height: 16),
                     TextField(
                       controller: dateCtrl,
                       readOnly: true,
                       decoration: InputDecoration(
-                        labelText: 'Date *',
+                        labelText: l10n.holidayDateLabel,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         suffixIcon: const Icon(Icons.calendar_today, size: 20, color: Colors.grey),
                       ),
@@ -97,17 +99,17 @@ class _State extends State<AdminHolidaysScreen> {
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       initialValue: selectedType,
-                      decoration: InputDecoration(labelText: 'Type *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                      items: const [
-                        DropdownMenuItem(value: 'company', child: Text('Company')),
-                        DropdownMenuItem(value: 'national', child: Text('National (Cambodia)')),
+                      decoration: InputDecoration(labelText: l10n.holidayTypeLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      items: [
+                        DropdownMenuItem(value: 'company', child: Text(l10n.holidayTypeCompany)),
+                        DropdownMenuItem(value: 'national', child: Text(l10n.holidayTypeNational)),
                       ],
                       onChanged: (val) {
                         if (val != null) setSheetState(() => selectedType = val);
                       },
                     ),
                     const SizedBox(height: 16),
-                    TextField(controller: descCtrl, decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), keyboardType: TextInputType.text),
+                    TextField(controller: descCtrl, decoration: InputDecoration(labelText: l10n.holidayDescriptionLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), keyboardType: TextInputType.text),
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
@@ -115,7 +117,7 @@ class _State extends State<AdminHolidaysScreen> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                         onPressed: () async {
-                          if (nameCtrl.text.trim().isEmpty || dateCtrl.text.trim().isEmpty) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required fields', style: TextStyle(color: Colors.white)), backgroundColor: AppColors.danger)); return; }
+                          if (nameCtrl.text.trim().isEmpty || dateCtrl.text.trim().isEmpty) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.pleaseFillRequired, style: const TextStyle(color: Colors.white)), backgroundColor: AppColors.danger)); return; }
                           try {
                             if (isEdit) {
                               final data = {
@@ -135,7 +137,7 @@ class _State extends State<AdminHolidaysScreen> {
                             if (ctx.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
                           }
                         },
-                        child: Text(isEdit ? 'Save Changes' : 'Create Holiday', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                        child: Text(isEdit ? l10n.saveChangesBtn : l10n.createHolidayBtn, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                       ),
                     )
                   ],
@@ -303,6 +305,7 @@ class _State extends State<AdminHolidaysScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final selectedHolidays = _selectedDay != null ? _getHolidaysForDay(_selectedDay!) : <HolidayData>[];
 
     return Scaffold(
@@ -311,13 +314,13 @@ class _State extends State<AdminHolidaysScreen> {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Holidays', style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text(l10n.holidaysTitle, style: const TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
         actions: [
           IconButton(icon: const Icon(Icons.add, color: AppColors.primary), onPressed: () => _showForm(null, _selectedDay))
         ],
       ),
       body: _loading
-          ? const LoadingIndicator(message: 'Loading Holidays...')
+          ? LoadingIndicator(message: l10n.loadingHolidays)
           : Column(
               children: [
                 Container(
@@ -394,7 +397,7 @@ class _State extends State<AdminHolidaysScreen> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: selectedHolidays.isEmpty
-                      ? const Center(child: Text('No holidays on this day', style: TextStyle(color: AppColors.grey500)))
+                      ? Center(child: Text(l10n.noHolidaysOnDay, style: const TextStyle(color: AppColors.grey500)))
                       : ListView.separated(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           itemCount: selectedHolidays.length,
@@ -415,7 +418,7 @@ class _State extends State<AdminHolidaysScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(color: isNational ? Colors.red.shade100 : Colors.purple.shade100, borderRadius: BorderRadius.circular(8)),
-                                      child: Text(isNational ? 'National' : 'Company', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor)),
+                                      child: Text(e.type == 'national' ? l10n.nationalBadge : l10n.companyBadge, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor)),
                                     ),
                                   ],
                                 ),

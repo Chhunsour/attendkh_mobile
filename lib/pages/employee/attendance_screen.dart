@@ -7,6 +7,7 @@ import 'package:mpg_hr_mobile_app/services/attendance_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class AttendanceScreen extends ConsumerStatefulWidget {
   const AttendanceScreen({super.key});
@@ -109,7 +110,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     }
   }
 
-  Future<void> _showCorrectionDialog(BuildContext context) async {
+  Future<void> _showCorrectionDialog(BuildContext context, AppLocalizations l10n) async {
     final dateCtrl = TextEditingController();
     final reasonCtrl = TextEditingController();
     String correctionType = 'missed_clock_in';
@@ -139,12 +140,12 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text('Request Correction', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5)),
+              Text(l10n.requestCorrection, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5)),
               const SizedBox(height: 8),
-              const Text('Submit a request to correct an anomaly in your attendance log.', style: TextStyle(color: AppColors.grey500, fontSize: 14)),
+              Text(l10n.requestCorrectionDesc, style: const TextStyle(color: AppColors.grey500, fontSize: 14)),
               const SizedBox(height: 24),
               
-              const Text('Date', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+              Text(l10n.dateStr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey700)),
               const SizedBox(height: 8),
               TextField(
                 controller: dateCtrl,
@@ -161,7 +162,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   }
                 },
                 decoration: InputDecoration(
-                  hintText: 'Select date',
+                  hintText: l10n.selectDate,
                   prefixIcon: const Icon(Icons.calendar_today_outlined, size: 20, color: AppColors.grey500),
                   filled: true,
                   fillColor: AppColors.grey100,
@@ -171,7 +172,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               ),
               const SizedBox(height: 20),
 
-              const Text('Correction Type', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+              Text(l10n.correctionType, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey700)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: correctionType,
@@ -183,22 +184,22 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'missed_clock_in', child: Text('Missed Clock In', style: TextStyle(fontSize: 15))),
-                  DropdownMenuItem(value: 'missed_clock_out', child: Text('Missed Clock Out', style: TextStyle(fontSize: 15))),
-                  DropdownMenuItem(value: 'wrong_time', child: Text('Wrong Time', style: TextStyle(fontSize: 15))),
+                items: [
+                  DropdownMenuItem(value: 'missed_clock_in', child: Text(l10n.missedClockIn, style: const TextStyle(fontSize: 15))),
+                  DropdownMenuItem(value: 'missed_clock_out', child: Text(l10n.missedClockOut, style: const TextStyle(fontSize: 15))),
+                  DropdownMenuItem(value: 'wrong_time', child: Text(l10n.wrongTime, style: const TextStyle(fontSize: 15))),
                 ],
                 onChanged: (v) => setSheetState(() => correctionType = v!),
               ),
               const SizedBox(height: 20),
 
-              const Text('Reason', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+              Text(l10n.reason, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey700)),
               const SizedBox(height: 8),
               TextField(
                 controller: reasonCtrl,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  hintText: 'Explain why you are requesting this correction...',
+                  hintText: l10n.explainCorrectionReason,
                   hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 14),
                   filled: true,
                   fillColor: AppColors.grey100,
@@ -219,7 +220,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                     elevation: 0,
                   ),
                   onPressed: () => Navigator.pop(ctx, true), 
-                  child: const Text('Submit Request', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5))
+                  child: Text(l10n.submitRequest, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5))
                 ),
               ),
               const SizedBox(height: 32),
@@ -240,7 +241,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         if (mounted) {
           // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('✅ Correction request submitted'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+            SnackBar(content: Text(l10n.correctionSubmitted), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
           );
         }
       } catch (e) {
@@ -256,12 +257,13 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final historyAsync = ref.watch(attendanceHistoryProvider(_selectedMonth));
     final summaryAsync = ref.watch(attendanceSummaryProvider(_selectedMonth));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Attendance History'),
+        title: Text(l10n.attendanceHistory),
       ),
       body: Column(
         children: [
@@ -294,7 +296,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   summaryAsync.when(
                     data: (summary) => Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _SummaryGrid(summary: summary),
+                      child: _SummaryGrid(summary: summary, l10n: l10n),
                     ),
                     loading: () => const SizedBox(height: 60, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
                     error: (_, _) => const SizedBox.shrink(),
@@ -371,7 +373,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         ),
                       );
                     },
-                    loading: () => const SizedBox(height: 300, child: LoadingIndicator(message: 'Loading calendar...')),
+                    loading: () => SizedBox(height: 300, child: LoadingIndicator(message: l10n.loadingCalendar)),
                     error: (_, _) => const SizedBox.shrink(),
                   ),
                   const SizedBox(height: 16),
@@ -382,9 +384,9 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                     child: SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
-                        onPressed: () => _showCorrectionDialog(context),
+                        onPressed: () => _showCorrectionDialog(context, l10n),
                         icon: const Icon(Icons.edit_calendar_outlined, size: 18),
-                        label: const Text('Request Correction'),
+                        label: Text(l10n.requestCorrection),
                         style: OutlinedButton.styleFrom(
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -404,7 +406,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                       if (filteredRecords.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.all(32.0),
-                          child: Center(child: Text(_selectedDay != null ? 'No record for this day' : 'No attendance records this month', style: const TextStyle(color: AppColors.grey400))),
+                          child: Center(child: Text(_selectedDay != null ? l10n.noRecordForThisDay : l10n.noRecordsThisMonth, style: const TextStyle(color: AppColors.grey400))),
                         );
                       }
 
@@ -415,7 +417,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         itemCount: filteredRecords.length,
                         separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemBuilder: (context, i) {
-                          return _HistoryCard(record: filteredRecords[i]);
+                          return _HistoryCard(record: filteredRecords[i], l10n: l10n);
                         },
                       );
                     },
@@ -426,7 +428,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         children: [
                           const Icon(Icons.error_outline, size: 40, color: AppColors.grey400),
                           const SizedBox(height: 8),
-                          OutlinedButton.icon(onPressed: () => ref.invalidate(attendanceHistoryProvider(_selectedMonth)), icon: const Icon(Icons.refresh), label: const Text('Retry')),
+                          OutlinedButton.icon(onPressed: () => ref.invalidate(attendanceHistoryProvider(_selectedMonth)), icon: const Icon(Icons.refresh), label: Text(l10n.retry)),
                         ],
                       ),
                     ),
@@ -445,19 +447,20 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 // ── Shared Widgets ─────────────────────────────────────────
 class _SummaryGrid extends StatelessWidget {
   final AttendanceSummary summary;
-  const _SummaryGrid({required this.summary});
+  final AppLocalizations l10n;
+  const _SummaryGrid({required this.summary, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _SummaryCard(label: 'Present', value: '${summary.present}', color: AppColors.success)),
+        Expanded(child: _SummaryCard(label: l10n.present, value: '${summary.present}', color: AppColors.success)),
         const SizedBox(width: 8),
-        Expanded(child: _SummaryCard(label: 'Absent', value: '${summary.absent}', color: AppColors.danger)),
+        Expanded(child: _SummaryCard(label: l10n.absent, value: '${summary.absent}', color: AppColors.danger)),
         const SizedBox(width: 8),
-        Expanded(child: _SummaryCard(label: 'Late', value: '${summary.late}', color: AppColors.warning)),
+        Expanded(child: _SummaryCard(label: l10n.late, value: '${summary.late}', color: AppColors.warning)),
         const SizedBox(width: 8),
-        Expanded(child: _SummaryCard(label: 'Half-Day', value: '${summary.halfDay}', color: AppColors.info)),
+        Expanded(child: _SummaryCard(label: l10n.halfDay, value: '${summary.halfDay}', color: AppColors.info)),
       ],
     );
   }
@@ -492,7 +495,8 @@ class _SummaryCard extends StatelessWidget {
 
 class _HistoryCard extends StatelessWidget {
   final TodayAttendance record;
-  const _HistoryCard({required this.record});
+  final AppLocalizations l10n;
+  const _HistoryCard({required this.record, required this.l10n});
 
 
   @override
@@ -540,15 +544,15 @@ class _HistoryCard extends StatelessWidget {
                 Text(
                   record.date != null
                       ? formatDate(record.date)
-                      : 'Unknown date',
+                      : l10n.unknownDate,
                   style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text('In: ${formatTime(record.clockIn)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
+                    Text(l10n.inLabel + formatTime(record.clockIn), style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
                     const SizedBox(width: 12),
-                    Text('Out: ${formatTime(record.clockOut)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
+                    Text(l10n.outLabel + formatTime(record.clockOut), style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
                   ],
                 ),
                 if (record.breakMinutes != null && record.breakMinutes! > 0) ...[
@@ -557,7 +561,7 @@ class _HistoryCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.coffee_outlined, size: 12, color: AppColors.grey500),
                       const SizedBox(width: 4),
-                      Text('${record.breakMinutes} mins break', style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
+                      Text('${record.breakMinutes}${l10n.minsBreak}', style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
                     ],
                   ),
                 ],
@@ -568,14 +572,14 @@ class _HistoryCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                         decoration: BoxDecoration(color: Colors.blue.withAlpha(26), borderRadius: BorderRadius.circular(4)),
-                        child: Text('Early In: ${record.earlyClockInMinutes! ~/ 60}h ${record.earlyClockInMinutes! % 60}m', style: const TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.w600)),
+                        child: Text('${l10n.earlyIn}${record.earlyClockInMinutes! ~/ 60}${l10n.hLabel}${record.earlyClockInMinutes! % 60}${l10n.mLabel}', style: const TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.w600)),
                       ),
                       if ((record.approvedPreShiftOtMinutes ?? 0) > 0) ...[
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                           decoration: BoxDecoration(color: AppColors.success.withAlpha(26), borderRadius: BorderRadius.circular(4)),
-                          child: Text('OT Approved', style: const TextStyle(fontSize: 10, color: AppColors.success, fontWeight: FontWeight.w600)),
+                          child: Text(l10n.otApproved, style: const TextStyle(fontSize: 10, color: AppColors.success, fontWeight: FontWeight.w600)),
                         ),
                       ],
                     ],
@@ -604,7 +608,7 @@ class _HistoryCard extends StatelessWidget {
               if (record.status == 'late' && record.lateMinutes != null && record.lateMinutes != 0) ...[
                 const SizedBox(height: 4),
                 Text(
-                  '${formatDurationMinutes(record.lateMinutes)} late',
+                  '${formatDurationMinutes(record.lateMinutes)}${l10n.lateLabel}',
                   style: const TextStyle(fontSize: 10, color: AppColors.danger, fontWeight: FontWeight.w600),
                 ),
               ],

@@ -23,6 +23,7 @@ import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
 import 'package:mpg_hr_mobile_app/services/announcements_repository.dart';
 import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
 import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -123,7 +124,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     );
   }
 
-  Future<void> _handleSimpleClockOut({bool isOvertime = false}) async {
+  Future<void> _handleSimpleClockOut({required AppLocalizations l10n, bool isOvertime = false}) async {
     bool proceed = false;
     await showDialog(
       context: context,
@@ -145,10 +146,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                 child: Icon(Icons.logout_rounded, size: 40, color: isOvertime ? Colors.deepPurple : AppColors.primary),
               ),
               const SizedBox(height: 20),
-              Text(isOvertime ? 'Confirm Overtime Clock Out' : 'Confirm Clock Out', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+              Text(isOvertime ? l10n.confirmOvertimeClockOut : l10n.confirmClockOut, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
               const SizedBox(height: 12),
               Text(
-                isOvertime ? 'Are you sure you want to end your overtime?' : 'Are you sure you want to clock out for the day? Your work hours will be recorded.', 
+                isOvertime ? l10n.endOvertimeConfirm : l10n.clockOutConfirm, 
                 textAlign: TextAlign.center, 
                 style: const TextStyle(color: AppColors.grey600, fontSize: 14, height: 1.4),
               ),
@@ -166,7 +167,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         side: const BorderSide(color: AppColors.grey300),
                       ),
-                      child: const Text('Cancel', style: TextStyle(color: AppColors.grey700, fontWeight: FontWeight.bold)),
+                      child: Text(l10n.cancel, style: const TextStyle(color: AppColors.grey700, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -182,7 +183,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         elevation: 0,
                       ),
-                      child: const Text('Clock Out', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: Text(l10n.clockOutBtn, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -215,12 +216,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
       if (mounted) setState(() => _isClocking = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isOvertime ? '👋 Overtime ended!' : '👋 Clocked out successfully!'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+          SnackBar(content: Text(isOvertime ? l10n.overtimeEnded : l10n.clockedOutSuccess), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
         );
       }
     } catch (e) {
       if (mounted) setState(() => _isClocking = false);
-      String msg = 'Clock-out failed';
+      String msg = l10n.clockOutFailed;
       if (e is AppException) {
         msg = e.message;
       }
@@ -232,7 +233,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     }
   }
 
-  Widget _buildClockButton(BuildContext context, WidgetRef ref, bool isClockedIn, ProfileData? profile, TodayAttendance? today) {
+  Widget _buildClockButton(BuildContext context, WidgetRef ref, AppLocalizations l10n, bool isClockedIn, ProfileData? profile, TodayAttendance? today) {
     final bool isRegularCompleted = today?.clockIn != null && today?.clockOut != null;
     final bool isOvertimeIn = today?.overtimeIn != null && today?.overtimeOut == null;
     final bool isOvertimeCompleted = today?.overtimeIn != null && today?.overtimeOut != null;
@@ -245,6 +246,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     final isOvertimeAction = isRegularCompleted && !isOvertimeCompleted;
 
     return _SwipeToClockButton(
+      l10n: l10n,
       isClockedIn: isClockingOut,
       isOvertime: isOvertimeAction,
       isLoading: _isClocking,
@@ -253,20 +255,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
 
         // If clocking out, skip geofence and photo
         if (isClockingOut) {
-          _handleSimpleClockOut(isOvertime: isOvertimeAction);
+          _handleSimpleClockOut(l10n: l10n, isOvertime: isOvertimeAction);
           return;
         }
 
         // If clocking in, enforce location and new selfie screen
         if (_currentPosition == null) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('⚠️ Waiting for location data...')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.waitingForLocation)));
           return;
         }
 
         final args = ClockInArgs(
           isClockIn: true,
           isOvertime: isOvertimeAction,
-          branchName: profile?.branchName ?? 'Unknown Location',
+          branchName: profile?.branchName ?? l10n.unknownLocation,
           latitude: _currentPosition!.latitude,
           longitude: _currentPosition!.longitude,
           distance: profile != null ? (_calculateDistance(profile) ?? 0) : 0,
@@ -280,6 +282,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final todayAsync = ref.watch(todayAttendanceProvider);
     final authState = ref.watch(authProvider);
     final profileAsync = ref.watch(profileProvider);
@@ -295,11 +298,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Hello, ${authState.userName ?? 'User'}',
+              l10n.helloPrefix + (authState.userName ?? 'User'),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
             ),
             Text(
-              authState.companyName ?? 'My Company',
+              authState.companyName ?? l10n.myCompany,
               style: const TextStyle(fontSize: 13, color: AppColors.grey500, fontWeight: FontWeight.w500),
             ),
           ],
@@ -373,45 +376,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
               summaryAsync.maybeWhen(
                 data: (summary) => Column(
                   children: [
-                    _buildAnnouncements(summary, isUrgent: true),
-                    _buildClockCard(context, ref, today, profileAsync: profileAsync),
-                    _buildLateWarningBanner(summary),
+                    _buildAnnouncements(summary, l10n: l10n, isUrgent: true),
+                    _buildClockCard(context, ref, l10n, today, profileAsync: profileAsync),
+                    _buildLateWarningBanner(summary, l10n: l10n),
                   ],
                 ),
-                orElse: () => _buildClockCard(context, ref, today, profileAsync: profileAsync),
+                orElse: () => _buildClockCard(context, ref, l10n, today, profileAsync: profileAsync),
               ),
               
               const SizedBox(height: 28),
 
               summaryAsync.maybeWhen(
-                data: (summary) => _buildAnnouncements(summary, isUrgent: false),
+                data: (summary) => _buildAnnouncements(summary, l10n: l10n, isUrgent: false),
                 orElse: () => const SizedBox(),
               ),
 
-              const Text(
-                'Quick Features',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800),
+              Text(
+                l10n.quickFeatures,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800),
               ),
               const SizedBox(height: 16),
-              _buildQuickActionsGrid(context, authState.isBranchManager),
+              _buildQuickActionsGrid(context, l10n, authState.isBranchManager),
 
               const SizedBox(height: 28),
               
               summaryAsync.when(
-                data: (summary) => _buildSummarySection(context, summary),
+                data: (summary) => _buildSummarySection(context, summary, l10n),
                 loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator())),
                 error: (e, _) => const SizedBox(),
               ),
             ],
           ),
         ),
-        loading: () => const LoadingIndicator(message: 'Loading dashboard...'),
-        error: (error, _) => _buildError(context, ref, error.toString()),
+        loading: () => LoadingIndicator(message: l10n.loadingDashboard),
+        error: (error, _) => _buildError(context, ref, l10n, error.toString()),
       ),
     );
   }
 
-  Widget _buildLateWarningBanner(Map<String, dynamic> summary) {
+  Widget _buildLateWarningBanner(Map<String, dynamic> summary, {required AppLocalizations l10n}) {
     final int lateCount = summary['late_count'] ?? 0;
     
     if (lateCount < 3) return const SizedBox();
@@ -433,10 +436,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Late Attendance Warning', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.amber, fontSize: 16)),
+                Text(l10n.lateWarningTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amber, fontSize: 16)),
                 const SizedBox(height: 4),
                 Text(
-                  'Notice: You have been late $lateCount times this month. Please ensure you clock in on time to adhere to company policy.',
+                  l10n.lateWarningDesc1 + lateCount.toString() + l10n.lateWarningDesc2,
                   style: const TextStyle(color: AppColors.grey800, fontSize: 13, height: 1.4),
                 ),
               ],
@@ -447,13 +450,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     );
   }
 
-  Widget _buildSummarySection(BuildContext context, Map<String, dynamic> summary) {
+  Widget _buildSummarySection(BuildContext context, Map<String, dynamic> summary, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Overview',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800),
+        Text(
+          l10n.overview,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800),
         ),
         const SizedBox(height: 16),
         
@@ -466,21 +469,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           childAspectRatio: 1.15,
           children: [
             _buildSummaryCard(
-              title: 'Upcoming Leaves',
+              title: l10n.upcomingLeaves,
               count: (summary['upcoming_leaves'] as List?)?.length.toString() ?? '0',
               icon: Icons.event_available,
               color: AppColors.secondary,
               onTap: () => context.push(AppRoutes.leaveList),
             ),
             _buildSummaryCard(
-              title: 'Recent Activity',
+              title: l10n.recentActivity,
               count: (summary['recent_attendance'] as List?)?.length.toString() ?? '0',
               icon: Icons.how_to_reg,
               color: AppColors.success,
               onTap: () => context.push(AppRoutes.attendance),
             ),
             _buildSummaryCard(
-              title: 'Active Trainings',
+              title: l10n.activeTrainings,
               count: (summary['active_trainings'] as List?)?.length.toString() ?? '0',
               icon: Icons.school,
               color: AppColors.primary,
@@ -493,7 +496,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     );
   }
 
-  Widget _buildAnnouncements(Map<String, dynamic> summary, {required bool isUrgent}) {
+  Widget _buildAnnouncements(Map<String, dynamic> summary, {required AppLocalizations l10n, required bool isUrgent}) {
     if (summary['announcements'] == null) return const SizedBox();
     
     final allAnnouncements = (summary['announcements'] as List)
@@ -543,9 +546,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Company Announcements',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
+        Text(
+          l10n.companyAnnouncements,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
         ),
         const SizedBox(height: 12),
         ...targetAnnouncements.map((a) => Container(
@@ -614,7 +617,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     );
   }
 
-  Widget _buildClockCard(BuildContext context, WidgetRef ref, TodayAttendance? today, {required AsyncValue<ProfileData> profileAsync}) {
+  Widget _buildClockCard(BuildContext context, WidgetRef ref, AppLocalizations l10n, TodayAttendance? today, {required AsyncValue<ProfileData> profileAsync}) {
     final isClockedIn = today?.clockIn != null && today?.clockOut == null;
     final isCompleted = today?.clockIn != null && today?.clockOut != null;
     final isOvertimeIn = today?.overtimeIn != null && today?.overtimeOut == null;
@@ -679,29 +682,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
             orElse: () => const SizedBox(height: 6),
           ),
           if (isOvertimeIn) ...[
-            Text('Overtime started at ${_formatTime(today!.overtimeIn!)}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
+            Text(l10n.overtimeStartedAt + _formatTime(today!.overtimeIn!), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
           ] else if (isOvertimeCompleted) ...[
-            const Text('Overtime Completed', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(l10n.overtimeCompleted, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
           ] else if (isClockedIn) ...[
-            Text('Clocked in at ${_formatTime(today!.clockIn!)}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(l10n.clockedInAt + _formatTime(today!.clockIn!), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 4),
             if (today.workHours != null)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(color: Colors.white.withAlpha(40), borderRadius: BorderRadius.circular(10)),
-                child: Text('Active duration: ${formatDurationHours(today.workHours)}', style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+                child: Text(l10n.activeDuration + formatDurationHours(today.workHours), style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
               ),
           ] else if (isCompleted) ...[
-            const Text('Shift Completed', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(l10n.shiftCompleted, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 4),
             if (today!.workHours != null)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(color: Colors.white.withAlpha(40), borderRadius: BorderRadius.circular(10)),
-                child: Text('Worked: ${formatDurationHours(today.workHours)}', style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+                child: Text(l10n.worked + formatDurationHours(today.workHours), style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
               ),
           ] else ...[
-            const Text('Ready to Work?', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(l10n.readyToWork, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
           ],
           const SizedBox(height: 24),
 
@@ -716,8 +719,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                       children: [
                         const Icon(Icons.location_disabled, color: Colors.white70, size: 32),
                         const SizedBox(height: 8),
-                        const Text('Location Access Required', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        const Text('We need location access to verify your check-in distance.', style: TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center),
+                        Text(l10n.locationAccessRequired, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text(l10n.locationAccessDesc, style: const TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center),
                         const SizedBox(height: 12),
                         ElevatedButton(
                           onPressed: () async {
@@ -736,7 +739,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                             foregroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
-                          child: const Text('Enable Location', style: TextStyle(fontWeight: FontWeight.bold)),
+                          child: Text(l10n.enableLocation, style: const TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -744,14 +747,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                 }
 
                 if (profile.branchLat == null || profile.branchLng == null || profile.branchRadius == null) {
-                  return _buildClockButton(context, ref, isClockedIn, profile, today);
+                  return _buildClockButton(context, ref, l10n, isClockedIn, profile, today);
                 }
                 
                 final distance = _calculateDistance(profile);
                 if (distance == null && !isClockedIn && !isOvertimeIn && !isCompleted) {
-                   return const Padding(
-                     padding: EdgeInsets.only(top: 8),
-                     child: Text('Calculating location...', style: TextStyle(color: Colors.white70)),
+                   return Padding(
+                     padding: const EdgeInsets.only(top: 8),
+                     child: Text(l10n.calculatingLocation, style: const TextStyle(color: Colors.white70)),
                    );
                 }
 
@@ -759,11 +762,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                   return Column(
                     children: [
                       if (!isClockedIn && !isOvertimeIn && !isCompleted)
-                        Text('Within radius (${distance?.toStringAsFixed(0) ?? '0'}m / ${profile.branchRadius}m)', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        Text('${l10n.withinRadiusPrefix}${distance?.toStringAsFixed(0) ?? '0'}m / ${profile.branchRadius}m)', style: const TextStyle(color: Colors.white70, fontSize: 12)),
                       if (isClockedIn || isOvertimeIn)
-                        const Text('You can clock out from anywhere.', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        Text(l10n.clockOutAnywhere, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                       const SizedBox(height: 8),
-                      _buildClockButton(context, ref, isClockedIn, profile, today),
+                      _buildClockButton(context, ref, l10n, isClockedIn, profile, today),
                     ],
                   );
                 } else {
@@ -774,21 +777,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                       children: [
                         const Icon(Icons.location_off, color: Colors.white70),
                         const SizedBox(height: 8),
-                        Text('You are ${distance?.toStringAsFixed(0) ?? '0'}m away.', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        Text('Must be within ${profile.branchRadius}m to clock in.', style: const TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center),
+                        Text(l10n.youAreAwayPrefix + (distance?.toStringAsFixed(0) ?? '0') + l10n.youAreAwaySuffix, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text(l10n.mustBeWithinPrefix + profile.branchRadius.toString() + l10n.mustBeWithinSuffix, style: const TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center),
                       ],
                     ),
                   );
                 }
               },
-              orElse: () => _buildClockButton(context, ref, isClockedIn, null, today),
+              orElse: () => _buildClockButton(context, ref, l10n, isClockedIn, null, today),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickActionsGrid(BuildContext context, bool isBranchManager) {
+  Widget _buildQuickActionsGrid(BuildContext context, AppLocalizations l10n, bool isBranchManager) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -799,57 +802,57 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
       children: [
         if (isBranchManager)
           _GridItem(
-            title: 'Manager Portal',
-            description: 'Team approvals',
+            title: l10n.managerPortal,
+            description: l10n.teamApprovals,
             icon: Icons.admin_panel_settings_outlined,
             color: Colors.deepPurple,
             onTap: () => context.push(AppRoutes.companyAdmin),
           ),
         _GridItem(
-          title: 'Leaves',
-          description: 'Request off days',
+          title: l10n.leaves,
+          description: l10n.requestOffDays,
           icon: Icons.event_note_outlined,
           color: AppColors.secondary,
           onTap: () => context.push(AppRoutes.leaveList),
         ),
         _GridItem(
-          title: 'Expenses',
-          description: 'Claim reimbursements',
+          title: l10n.expenses,
+          description: l10n.claimReimbursements,
           icon: Icons.receipt_long_outlined,
           color: AppColors.warning,
           onTap: () => context.push(AppRoutes.expense),
         ),
         _GridItem(
-          title: 'Payslips',
-          description: 'View monthly statements',
+          title: l10n.payslips,
+          description: l10n.viewMonthlyStatements,
           icon: Icons.monetization_on_outlined,
           color: AppColors.success,
           onTap: () => context.push(AppRoutes.payslip),
         ),
         _GridItem(
-          title: 'History',
-          description: 'Check attendance logs',
+          title: l10n.history,
+          description: l10n.checkAttendanceLogs,
           icon: Icons.history_toggle_off_outlined,
           color: AppColors.info,
           onTap: () => context.push(AppRoutes.attendance),
         ),
         _GridItem(
-          title: 'Training',
-          description: 'Enroll in courses',
+          title: l10n.training,
+          description: l10n.enrollInCourses,
           icon: Icons.school_outlined,
           color: AppColors.primary,
           onTap: () => context.push(AppRoutes.training),
         ),
         _GridItem(
-          title: 'My KPIs',
-          description: 'Performance goals',
+          title: l10n.myKpis,
+          description: l10n.performanceGoals,
           icon: Icons.track_changes_outlined,
           color: AppColors.primary,
           onTap: () => context.push(AppRoutes.kpi),
         ),
         _GridItem(
-          title: 'Holidays',
-          description: 'Company calendar',
+          title: l10n.holidays,
+          description: l10n.companyCalendar,
           icon: Icons.celebration_outlined,
           color: const Color(0xFFEAB308), // Yellow/Gold
           onTap: () => context.push(AppRoutes.employeeHolidays),
@@ -859,7 +862,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     );
   }
 
-  Widget _buildError(BuildContext context, WidgetRef ref, String error) {
+  Widget _buildError(BuildContext context, WidgetRef ref, AppLocalizations l10n, String error) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -868,12 +871,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           children: [
             const Icon(Icons.cloud_off, size: 48, color: AppColors.grey400),
             const SizedBox(height: 12),
-            const Text('Failed to load dashboard', style: TextStyle(color: AppColors.grey600)),
+            Text(l10n.failedToLoadDashboard, style: const TextStyle(color: AppColors.grey600)),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: () => ref.invalidate(todayAttendanceProvider),
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(l10n.retry),
             ),
           ],
         ),
@@ -945,12 +948,13 @@ class _GridItem extends StatelessWidget {
 }
 
 class _SwipeToClockButton extends StatefulWidget {
+  final AppLocalizations l10n;
   final bool isClockedIn;
   final bool isOvertime;
   final bool isLoading;
   final VoidCallback onSwipe;
 
-  const _SwipeToClockButton({required this.isClockedIn, required this.onSwipe, this.isOvertime = false, this.isLoading = false});
+  const _SwipeToClockButton({required this.l10n, required this.isClockedIn, required this.onSwipe, this.isOvertime = false, this.isLoading = false});
 
   @override
   State<_SwipeToClockButton> createState() => _SwipeToClockButtonState();
@@ -972,8 +976,8 @@ class _SwipeToClockButtonState extends State<_SwipeToClockButton> {
         : (widget.isClockedIn ? Colors.white : AppColors.primary);
         
     final text = widget.isOvertime
-        ? (widget.isClockedIn ? 'Swipe to Clock Out (OT)' : 'Swipe to Clock In (OT)')
-        : (widget.isClockedIn ? 'Swipe to Clock Out' : 'Swipe to Clock In');
+        ? (widget.isClockedIn ? widget.l10n.swipeToClockOutOT : widget.l10n.swipeToClockInOT)
+        : (widget.isClockedIn ? widget.l10n.swipeToClockOut : widget.l10n.swipeToClockIn);
 
     return LayoutBuilder(
       builder: (context, constraints) {

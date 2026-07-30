@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/services/policies_repository.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class AdminPoliciesScreen extends StatefulWidget {
   const AdminPoliciesScreen({super.key});
@@ -58,6 +59,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
     final revCtrl = TextEditingController(text: isEdit ? (item.reviewDate ?? '') : '');
     String selectedDeptId = isEdit ? (item.departmentId?.toString() ?? '') : '';
     String selectedStatus = isEdit ? item.status : 'draft';
+    final l10n = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -75,10 +77,10 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(isEdit ? 'Edit Policy' : 'Create Policy', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                    Text(isEdit ? l10n.editPolicy : l10n.createPolicy, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
                     const SizedBox(height: 24),
                     
-                    TextField(controller: titleCtrl, decoration: InputDecoration(labelText: 'Title *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                    TextField(controller: titleCtrl, decoration: InputDecoration(labelText: l10n.policyTitleLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
                     const SizedBox(height: 16),
                     
                     Row(
@@ -87,9 +89,9 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                           child: DropdownButtonFormField<String>(
                             isExpanded: true,
                             initialValue: selectedDeptId.isEmpty ? null : selectedDeptId,
-                            decoration: InputDecoration(labelText: 'Department', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            decoration: InputDecoration(labelText: l10n.departmentLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                             items: [
-                              const DropdownMenuItem(value: null, child: Text('Company-Wide')),
+                              DropdownMenuItem(value: null, child: Text(l10n.companyWide)),
                               ..._departments.map((d) => DropdownMenuItem(value: d.id.toString(), child: Text(d.name))),
                             ],
                             onChanged: (val) => setSheetState(() => selectedDeptId = val ?? ''),
@@ -100,11 +102,11 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                           child: DropdownButtonFormField<String>(
                             isExpanded: true,
                             initialValue: selectedStatus,
-                            decoration: InputDecoration(labelText: 'Status', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                            items: const [
-                              DropdownMenuItem(value: 'draft', child: Text('Draft')),
-                              DropdownMenuItem(value: 'published', child: Text('Published')),
-                              DropdownMenuItem(value: 'archived', child: Text('Archived')),
+                            decoration: InputDecoration(labelText: l10n.statusLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            items: [
+                              DropdownMenuItem(value: 'draft', child: Text(l10n.statusDraft)),
+                              DropdownMenuItem(value: 'published', child: Text(l10n.statusPublished)),
+                              DropdownMenuItem(value: 'archived', child: Text(l10n.statusArchived)),
                             ],
                             onChanged: (val) => setSheetState(() => selectedStatus = val ?? 'draft'),
                           ),
@@ -115,7 +117,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
 
                     Row(
                       children: [
-                        Expanded(child: TextField(controller: versionCtrl, decoration: InputDecoration(labelText: 'Version *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))))),
+                        Expanded(child: TextField(controller: versionCtrl, decoration: InputDecoration(labelText: l10n.versionLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))))),
                         const SizedBox(width: 12),
                         Expanded(
                           child: InkWell(
@@ -130,7 +132,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(child: Text(effCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(effCtrl.text)) : 'Effective Date', style: TextStyle(fontSize: 12, fontWeight: effCtrl.text.isNotEmpty ? FontWeight.bold : FontWeight.w400, color: effCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400), overflow: TextOverflow.ellipsis)),
+                                  Expanded(child: Text(effCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(effCtrl.text)) : l10n.effectiveDateLabel, style: TextStyle(fontSize: 12, fontWeight: effCtrl.text.isNotEmpty ? FontWeight.bold : FontWeight.w400, color: effCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400), overflow: TextOverflow.ellipsis)),
                                   const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
                                 ],
                               ),
@@ -153,7 +155,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(revCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(revCtrl.text)) : 'Next Review Date (Optional)', style: TextStyle(fontSize: 12, fontWeight: revCtrl.text.isNotEmpty ? FontWeight.bold : FontWeight.w400, color: revCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400)),
+                            Text(revCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(revCtrl.text)) : l10n.nextReviewDateLabel, style: TextStyle(fontSize: 12, fontWeight: revCtrl.text.isNotEmpty ? FontWeight.bold : FontWeight.w400, color: revCtrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400)),
                             const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
                           ],
                         ),
@@ -163,7 +165,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                     
                     TextField(
                       controller: contentCtrl,
-                      decoration: InputDecoration(labelText: 'Content *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      decoration: InputDecoration(labelText: l10n.contentLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                       maxLines: 5,
                     ),
                     
@@ -175,7 +177,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                         onPressed: () async {
                           if (titleCtrl.text.trim().isEmpty || contentCtrl.text.trim().isEmpty || versionCtrl.text.trim().isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required fields', style: TextStyle(color: Colors.white)), backgroundColor: AppColors.danger)); 
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.pleaseFillRequired, style: const TextStyle(color: Colors.white)), backgroundColor: AppColors.danger)); 
                             return;
                           }
                           try {
@@ -208,7 +210,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                             if (ctx.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
                           }
                         },
-                        child: Text(isEdit ? 'Update Policy' : 'Create Policy', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                        child: Text(isEdit ? l10n.updatePolicyBtn : l10n.createPolicyBtn, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                       ),
                     )
                   ],
@@ -222,6 +224,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
   }
 
   void _showDetail(Policy p) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -252,7 +255,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(6)),
-                  child: Text(p.department?.name ?? 'Company-Wide', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF475569))),
+                  child: Text(p.department?.name ?? l10n.companyWide, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFF475569))),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -279,13 +282,14 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
   }
 
   void _confirmDelete(int id, String title) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete'),
-        content: Text('Are you sure you want to delete "$title"?'),
+        content: Text(l10n.deletePolicyConfirm(title)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.cancel)),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
@@ -296,7 +300,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                 if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
               }
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.danger)),
+            child: Text(l10n.deleteBtn, style: const TextStyle(color: AppColors.danger)),
           ),
         ],
       )
@@ -321,6 +325,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -341,7 +346,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
               children: [
                 TextField(
                   decoration: InputDecoration(
-                    hintText: 'Search policies...',
+                    hintText: l10n.searchPoliciesHint,
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.grey)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -362,11 +367,11 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.grey)),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         ),
-                        items: const [
-                          DropdownMenuItem(value: 'all', child: Text('All Status')),
-                          DropdownMenuItem(value: 'draft', child: Text('Draft')),
-                          DropdownMenuItem(value: 'published', child: Text('Published')),
-                          DropdownMenuItem(value: 'archived', child: Text('Archived')),
+                        items: [
+                          DropdownMenuItem(value: 'all', child: Text(l10n.allStatus)),
+                          DropdownMenuItem(value: 'draft', child: Text(l10n.statusDraft)),
+                          DropdownMenuItem(value: 'published', child: Text(l10n.statusPublished)),
+                          DropdownMenuItem(value: 'archived', child: Text(l10n.statusArchived)),
                         ],
                         onChanged: (val) {
                           if (val != null) {
@@ -386,8 +391,8 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         ),
                         items: [
-                          const DropdownMenuItem(value: 'all', child: Text('All Depts', overflow: TextOverflow.ellipsis)),
-                          const DropdownMenuItem(value: 'company-wide', child: Text('Company-Wide', overflow: TextOverflow.ellipsis)),
+                          DropdownMenuItem(value: 'all', child: Text(l10n.allDepts, overflow: TextOverflow.ellipsis)),
+                          DropdownMenuItem(value: 'company-wide', child: Text(l10n.companyWide, overflow: TextOverflow.ellipsis)),
                           ..._departments.map((d) => DropdownMenuItem(value: d.id.toString(), child: Text(d.name, overflow: TextOverflow.ellipsis))),
                         ],
                         onChanged: (val) {
@@ -405,9 +410,9 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
           ),
           Expanded(
             child: _loading
-                ? const LoadingIndicator(message: 'Loading Policies...')
-                : _policies.isEmpty
-                    ? const Center(child: Text('No policies found.', style: TextStyle(color: AppColors.grey500)))
+                ? LoadingIndicator(message: l10n.loadingPolicies)
+                    : _policies.isEmpty
+                    ? Center(child: Text(l10n.noPoliciesFound, style: const TextStyle(color: AppColors.grey500)))
                     : ListView.separated(
                         padding: const EdgeInsets.all(16),
                         itemCount: _policies.length,
@@ -451,7 +456,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE2E8F0))),
-                                      child: Text(p.department?.name ?? 'Company-Wide', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
+                                      child: Text(p.department?.name ?? l10n.companyWide, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
                                     ),
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -462,7 +467,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE2E8F0))),
-                                        child: Text('Effective: ${p.effectiveDate}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
+                                        child: Text(l10n.policyEffectivePrefix(p.effectiveDate!), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
                                       ),
                                   ],
                                 ),
@@ -481,7 +486,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text('Acknowledged: ${p.stats!.acknowledged}/${p.stats!.target}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                                            Text(l10n.policyAcknowledged(p.stats!.acknowledged, p.stats!.target), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.grey800)),
                                             Text('${p.stats!.percentage}%', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.success)),
                                           ],
                                         ),
@@ -506,29 +511,29 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                                     TextButton.icon(
                                       onPressed: () => _showDetail(p),
                                       icon: const Icon(Icons.visibility, size: 16, color: AppColors.info),
-                                      label: const Text('View', style: TextStyle(color: AppColors.info)),
+                                      label: Text(l10n.viewBtn, style: const TextStyle(color: AppColors.info)),
                                     ),
                                     if (p.status != 'published')
                                       TextButton.icon(
                                         onPressed: () => _changeStatus(p.id, 'publish'),
                                         icon: const Icon(Icons.publish, size: 16, color: AppColors.success),
-                                        label: const Text('Publish', style: TextStyle(color: AppColors.success)),
+                                        label: Text(l10n.publishBtn, style: const TextStyle(color: AppColors.success)),
                                       ),
                                     if (p.status == 'published')
                                       TextButton.icon(
                                         onPressed: () => _changeStatus(p.id, 'archive'),
                                         icon: const Icon(Icons.archive, size: 16, color: AppColors.warning),
-                                        label: const Text('Archive', style: TextStyle(color: AppColors.warning)),
+                                        label: Text(l10n.archiveBtn, style: const TextStyle(color: AppColors.warning)),
                                       ),
                                     TextButton.icon(
                                       onPressed: () => _showForm(p),
                                       icon: const Icon(Icons.edit, size: 16, color: AppColors.grey600),
-                                      label: const Text('Edit', style: TextStyle(color: AppColors.grey600)),
+                                      label: Text(l10n.editBtn, style: const TextStyle(color: AppColors.grey600)),
                                     ),
                                     TextButton.icon(
                                       onPressed: () => _confirmDelete(p.id, p.title),
                                       icon: const Icon(Icons.delete, size: 16, color: AppColors.danger),
-                                      label: const Text('Delete', style: TextStyle(color: AppColors.danger)),
+                                      label: Text(l10n.deleteBtn, style: const TextStyle(color: AppColors.danger)),
                                     ),
                                   ],
                                 )

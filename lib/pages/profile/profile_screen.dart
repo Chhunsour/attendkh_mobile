@@ -9,6 +9,8 @@ import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -17,6 +19,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final profileAsync = ref.watch(profileProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -27,16 +30,16 @@ class ProfileScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
-          'My Profile',
-          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+        title: Text(
+          l10n.myProfile,
+          style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
         ),
         
       ),
       body: profileAsync.when(
-        data: (data) => _buildContent(context, ref, data, authState),
-        loading: () => const LoadingIndicator(message: 'Loading profile...'),
-        error: (e, _) => _buildFallback(context, ref, authState),
+        data: (data) => _buildContent(context, ref, data, authState, l10n),
+        loading: () => LoadingIndicator(message: l10n.loadingProfile),
+        error: (e, _) => _buildFallback(context, ref, authState, l10n),
       ),
     );
   }
@@ -45,6 +48,7 @@ class ProfileScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     AuthState authState,
+    AppLocalizations l10n,
   ) {
     return Center(
       child: Column(
@@ -52,15 +56,15 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           const Icon(Icons.error_outline, size: 48, color: AppColors.grey400),
           const SizedBox(height: 12),
-          const Text(
-            'Failed to load profile details.',
-            style: TextStyle(color: AppColors.grey500),
+          Text(
+            l10n.failedToLoadProfile,
+            style: const TextStyle(color: AppColors.grey500),
           ),
           const SizedBox(height: 24),
           OutlinedButton.icon(
             onPressed: () => ref.invalidate(profileProvider),
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(l10n.retry),
           ),
         ],
       ),
@@ -72,6 +76,7 @@ class ProfileScreen extends ConsumerWidget {
     WidgetRef ref,
     ProfileData data,
     AuthState authState,
+    AppLocalizations l10n,
   ) {
     return Column(
       children: [
@@ -173,7 +178,7 @@ class ProfileScreen extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
-                                child: const Text('Edit Profile', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                child: Text(l10n.editProfile, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                               ),
                             ),
                           ],
@@ -187,21 +192,21 @@ class ProfileScreen extends ConsumerWidget {
                 // Settings List
                 _buildListTile(
                   icon: Icons.business_outlined,
-                  title: 'Company',
+                  title: l10n.company,
                   subtitle: data.companyName ?? data.companyId.toString(),
                   onTap: null,
                 ),
                 if (data.jobTitle != null)
                   _buildListTile(
                     icon: Icons.work_outline,
-                    title: 'Job Title',
+                    title: l10n.jobTitle,
                     subtitle: data.jobTitle,
                     onTap: null,
                   ),
                 if (data.department != null)
                   _buildListTile(
                     icon: Icons.group_work_outlined,
-                    title: 'Department',
+                    title: l10n.department,
                     subtitle: data.department,
                     onTap: null,
                   ),
@@ -212,14 +217,14 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 8),
                 _buildListTile(
                   icon: Icons.shield_outlined,
-                  title: 'Access Roles',
+                  title: l10n.accessRoles,
                   subtitle: data.roles.map((r) => r.replaceAll('_', ' ')).join(', ').toUpperCase(),
                   onTap: null,
                 ),
                 if (authState.isSuperAdmin || authState.isCompanyAdmin)
                   _buildListTile(
                     icon: Icons.admin_panel_settings_outlined,
-                    title: 'Return to Admin Console',
+                    title: l10n.returnToAdminConsole,
                     onTap: () {
                       if (authState.isSuperAdmin) {
                         context.go(AppRoutes.adminDashboard);
@@ -235,8 +240,34 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 _buildListTile(
+                  icon: Icons.language,
+                  title: l10n.language,
+                  trailingWidget: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: ref.watch(localeProvider).languageCode,
+                      icon: const Icon(Icons.arrow_drop_down, color: AppColors.grey500),
+                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      items: [
+                        DropdownMenuItem(
+                          value: 'en',
+                          child: Text(l10n.english),
+                        ),
+                        DropdownMenuItem(
+                          value: 'km',
+                          child: Text(l10n.khmer),
+                        ),
+                      ],
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          ref.read(localeProvider.notifier).setLocale(Locale(newValue));
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                _buildListTile(
                   icon: Icons.logout,
-                  title: 'Log Out',
+                  title: l10n.logOut,
                   isDestructive: true,
                   onTap: () => showLogoutConfirmation(context, ref),
                 ),
@@ -255,6 +286,7 @@ class ProfileScreen extends ConsumerWidget {
     String? subtitle,
     VoidCallback? onTap,
     bool isDestructive = false,
+    Widget? trailingWidget,
   }) {
     final color = isDestructive ? AppColors.danger : Colors.black87;
     return InkWell(
@@ -290,6 +322,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
             ],
+            ?trailingWidget,
             if (onTap != null) ...[
               const SizedBox(width: 8),
               const Icon(Icons.chevron_right, size: 20, color: AppColors.grey400),

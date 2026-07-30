@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/models/kpi_model.dart';
 
 class KpiOwnerView extends StatelessWidget {
@@ -69,15 +70,17 @@ class _CompanyScoreBanner extends StatelessWidget {
 
   const _CompanyScoreBanner({required this.average, required this.totalKpis});
 
-  String get _scoreLabel {
-    if (average >= 80) return 'Excellent';
-    if (average >= 60) return 'Good';
-    if (average >= 40) return 'Needs Attention';
-    return 'Critical';
+  String _scoreLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    if (average >= 80) return l10n.scoreExcellent;
+    if (average >= 60) return l10n.scoreGood;
+    if (average >= 40) return l10n.scoreNeedsAttention;
+    return l10n.scoreCritical;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -141,9 +144,9 @@ class _CompanyScoreBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Company Health Score',
-                  style: TextStyle(
+                Text(
+                  l10n.companyHealthScore,
+                  style: const TextStyle(
                     fontSize: 13,
                     color: Colors.white70,
                     fontWeight: FontWeight.w500,
@@ -151,7 +154,7 @@ class _CompanyScoreBanner extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _scoreLabel,
+                  _scoreLabel(context),
                   style: const TextStyle(
                     fontSize: 22,
                     color: Colors.white,
@@ -166,7 +169,7 @@ class _CompanyScoreBanner extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    '$totalKpis KPIs tracked • Live Data',
+                    l10n.kpisTrackedLiveData(totalKpis),
                     style: const TextStyle(
                       fontSize: 11,
                       color: Colors.white,
@@ -213,15 +216,17 @@ class _OwnerKpiCard extends StatelessWidget {
     return Colors.red;
   }
 
-  String get _scoreLabel {
+  String _scoreLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final s = kpi.score.toDouble();
-    if (s >= 80) return 'On Track';
-    if (s >= 60) return 'Moderate';
-    return 'At Risk';
+    if (s >= 80) return l10n.kpiOnTrack;
+    if (s >= 60) return l10n.kpiModerate;
+    return l10n.kpiAtRisk;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final progress = (kpi.score.clamp(0, 100)) / 100.0;
     final extra = kpi.extra;
 
@@ -292,7 +297,7 @@ class _OwnerKpiCard extends StatelessWidget {
                       border: Border.all(color: Colors.green[200]!),
                     ),
                     child: Text(
-                      'Live',
+                      l10n.liveDataBadge,
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -324,7 +329,7 @@ class _OwnerKpiCard extends StatelessWidget {
                       ),
                       if (kpi.target != 0)
                         Text(
-                          'Target: ${_formatValue(kpi.target, kpi.unit)}',
+                          '${l10n.targetLabel}${_formatValue(kpi.target, kpi.unit)}',
                           style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                         ),
                     ],
@@ -350,7 +355,7 @@ class _OwnerKpiCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _scoreLabel,
+                        _scoreLabel(context),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -430,6 +435,7 @@ class _OwnerKpiCard extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -437,12 +443,12 @@ class _EmptyState extends StatelessWidget {
           Icon(Icons.analytics_outlined, size: 64, color: Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
-            'No company KPIs found.',
+            l10n.noCompanyKpisFound,
             style: TextStyle(color: Colors.grey[500], fontSize: 15),
           ),
           const SizedBox(height: 8),
           Text(
-            'Data will appear once employees,\nattendance and payroll are set up.',
+            l10n.noCompanyKpisDesc,
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey[400], fontSize: 12),
           ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class AdminShiftFormScreen extends ConsumerStatefulWidget {
   final ShiftData? shift;
@@ -26,7 +27,6 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
   bool _isActive = true;
 
   static const _dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-  static const _dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   final Map<String, bool> _isWorking = {};
   final Map<String, TimeOfDay> _startTimes = {};
   final Map<String, TimeOfDay> _endTimes = {};
@@ -112,8 +112,8 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
     final hasWorkingDay = _isWorking.values.any((w) => w);
     if (!hasWorkingDay) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Select at least one working day'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.selectOneWorkingDayError),
           backgroundColor: AppColors.warning,
         ),
       );
@@ -172,8 +172,8 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                 const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
                 const SizedBox(width: 8),
                 Text(widget.shift == null
-                    ? 'Shift created successfully'
-                    : 'Shift updated successfully'),
+                    ? AppLocalizations.of(context)!.shiftCreatedSuccess
+                    : AppLocalizations.of(context)!.shiftUpdatedSuccess),
               ],
             ),
             backgroundColor: AppColors.success,
@@ -184,7 +184,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed: $e'), backgroundColor: AppColors.danger),
+          SnackBar(content: Text(AppLocalizations.of(context)!.shiftFailedError(e.toString())), backgroundColor: AppColors.danger),
         );
       }
     } finally {
@@ -194,7 +194,9 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isEdit = widget.shift != null;
+    final dayLabels = [l10n.dayMo, l10n.dayTu, l10n.dayWe, l10n.dayTh, l10n.dayFr, l10n.daySa, l10n.daySu];
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -214,12 +216,12 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              isEdit ? 'Edit Schedule' : 'New Schedule',
+              isEdit ? l10n.editScheduleTitle : l10n.newScheduleTitle,
               style: const TextStyle(
                   fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.grey800),
             ),
             Text(
-              isEdit ? 'Update shift details' : 'Set up work hours & days',
+              isEdit ? l10n.editScheduleSubtitle : l10n.newScheduleSubtitle,
               style: const TextStyle(
                   fontSize: 11, color: AppColors.grey400, fontWeight: FontWeight.w400),
             ),
@@ -242,24 +244,24 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                     // Section 1: General
                     _SectionCard(
                       icon: Icons.badge_rounded,
-                      title: 'General Information',
+                      title: l10n.generalInfoTitle,
                       child: Column(
                         children: [
                           TextFormField(
                             controller: _nameCtrl,
                             decoration: _inputDec(
-                              'Schedule Name',
-                              'e.g. Standard Office Hours',
+                              l10n.scheduleNameLabel,
+                              l10n.scheduleNameHint,
                               Icons.drive_file_rename_outline_rounded,
                             ),
-                            validator: (v) => v!.trim().isEmpty ? 'Name is required' : null,
+                            validator: (v) => v!.trim().isEmpty ? l10n.nameRequiredError : null,
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _codeCtrl,
                             decoration: _inputDec(
-                              'Short Code (optional)',
-                              'e.g. STD-01',
+                              l10n.shortCodeLabel,
+                              l10n.shortCodeHint,
                               Icons.tag_rounded,
                             ),
                           ),
@@ -271,12 +273,12 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                     // Section 2: Weekly Schedule
                     _SectionCard(
                       icon: Icons.calendar_month_rounded,
-                      title: 'Weekly Schedule',
+                      title: l10n.weeklyScheduleTitle,
                       childPadding: EdgeInsets.zero,
                       trailing: TextButton.icon(
                         onPressed: _copyMondayToAll,
                         icon: const Icon(Icons.content_copy_rounded, size: 13),
-                        label: const Text('Copy Mon to all'),
+                        label: Text(l10n.copyMonToAll),
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.primary,
                           textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
@@ -296,7 +298,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                           return Column(
                             children: [
                               _DayRow(
-                                label: _dayLabels[i],
+                                label: dayLabels[i],
                                 isWorking: working,
                                 isWeekend: isWeekend,
                                 startTime: _startTimes[day]!,
@@ -346,14 +348,14 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                     // Section 3: Rules
                     _SectionCard(
                       icon: Icons.rule_rounded,
-                      title: 'Rules & Allowances',
+                      title: l10n.rulesAllowancesTitle,
                       child: Row(
                         children: [
                           Expanded(
                             child: TextFormField(
                               controller: _graceCtrl,
                               decoration:
-                                  _inputDec('Grace Period (min)', '15', Icons.timer_outlined),
+                                  _inputDec(l10n.gracePeriodLabel, '15', Icons.timer_outlined),
                               keyboardType: TextInputType.number,
                             ),
                           ),
@@ -362,7 +364,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                             child: TextFormField(
                               controller: _overtimeCtrl,
                               decoration:
-                                  _inputDec('OT Threshold (min)', '30', Icons.more_time_rounded),
+                                  _inputDec(l10n.otThresholdLabel, '30', Icons.more_time_rounded),
                               keyboardType: TextInputType.number,
                             ),
                           ),
@@ -374,7 +376,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                     // Section 4: Settings
                     _SectionCard(
                       icon: Icons.tune_rounded,
-                      title: 'Settings',
+                      title: l10n.settingsTitle,
                       childPadding: const EdgeInsets.symmetric(vertical: 4),
                       child: Column(
                         children: [
@@ -382,8 +384,8 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                             icon: Icons.nights_stay_rounded,
                             iconColor: const Color(0xFF4F46E5),
                             iconBg: const Color(0xFFEEF2FF),
-                            title: 'Overnight Shift',
-                            subtitle: 'This shift crosses midnight',
+                            title: l10n.overnightShiftTitle,
+                            subtitle: l10n.overnightShiftSubtitle,
                             value: _isOvernight,
                             onChanged: (v) => setState(() => _isOvernight = v),
                           ),
@@ -392,8 +394,8 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                             icon: Icons.check_circle_outline_rounded,
                             iconColor: AppColors.success,
                             iconBg: AppColors.successLight,
-                            title: 'Active Schedule',
-                            subtitle: 'Available for employee assignment',
+                            title: l10n.activeScheduleTitle,
+                            subtitle: l10n.activeScheduleSubtitle,
                             value: _isActive,
                             onChanged: (v) => setState(() => _isActive = v),
                           ),
@@ -444,8 +446,8 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                           size: 20),
                   label: Text(
                     _isLoading
-                        ? 'Saving...'
-                        : (isEdit ? 'Save Changes' : 'Create Schedule'),
+                        ? l10n.saving
+                        : (isEdit ? l10n.saveChangesBtn : l10n.createScheduleBtn),
                   ),
                 ),
               ),
@@ -644,7 +646,7 @@ class _DayRow extends StatelessWidget {
                           Icon(Icons.coffee_rounded, size: 11, color: AppColors.grey400),
                           const SizedBox(width: 4),
                           _TimeChip(
-                            time: breakStart != null ? fmtDisplay(breakStart!) : 'Start',
+                            time: breakStart != null ? fmtDisplay(breakStart!) : AppLocalizations.of(context)!.startTimeLabel,
                             onTap: onTapBreakStart,
                             color: AppColors.grey500,
                             small: true,
@@ -656,7 +658,7 @@ class _DayRow extends StatelessWidget {
                                 Text('–', style: TextStyle(fontSize: 10, color: AppColors.grey400)),
                           ),
                           _TimeChip(
-                            time: breakEnd != null ? fmtDisplay(breakEnd!) : 'End',
+                            time: breakEnd != null ? fmtDisplay(breakEnd!) : AppLocalizations.of(context)!.endTimeLabel,
                             onTap: onTapBreakEnd,
                             color: AppColors.grey500,
                             small: true,
@@ -682,7 +684,7 @@ class _DayRow extends StatelessWidget {
                     ],
                   )
                 : Text(
-                    isWeekend ? 'Scheduled Day Off' : 'Day off',
+                    isWeekend ? AppLocalizations.of(context)!.scheduledDayOff : AppLocalizations.of(context)!.dayOff,
                     style: const TextStyle(
                         fontSize: 12, color: AppColors.grey400, fontStyle: FontStyle.italic),
                   ),

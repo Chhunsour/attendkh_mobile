@@ -4,6 +4,7 @@ import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
   const VerifyEmailScreen({super.key});
@@ -21,8 +22,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     try {
       await _api.post('/email/resend');
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Verification email sent!')),
+          SnackBar(content: Text(l10n.verificationEmailSent)),
         );
       }
     } catch (e) {
@@ -48,8 +50,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
       if (isVerified) {
         // Router guard will naturally redirect to dashboard
       } else {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Email is not yet verified.')),
+          SnackBar(content: Text(l10n.emailNotYetVerified)),
         );
       }
     }
@@ -57,9 +60,10 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Verify Email'),
+        title: Text(l10n.verifyEmail),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -81,9 +85,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                 color: AppColors.primary,
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Verify your email address',
-                style: TextStyle(
+              Text(
+                l10n.verifyYourEmailAddress,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey800,
@@ -91,9 +95,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              const Text(
-                'To continue using the application, you must verify your email address. Please check your inbox and click the verification link.',
-                style: TextStyle(
+              Text(
+                l10n.verificationInstruction,
+                style: const TextStyle(
                   fontSize: 16,
                   color: AppColors.grey600,
                 ),
@@ -107,12 +111,12 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                       children: [
                         ElevatedButton(
                           onPressed: _checkVerificationStatus,
-                          child: const Text('I have verified (Refresh)'),
+                          child: Text(l10n.iHaveVerifiedRefresh),
                         ),
                         const SizedBox(height: 16),
                         OutlinedButton(
                           onPressed: _resendVerification,
-                          child: const Text('Resend Email'),
+                          child: Text(l10n.resendEmail),
                         ),
                       ],
                     ),

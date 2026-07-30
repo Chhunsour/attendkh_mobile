@@ -4,6 +4,7 @@ import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/app_logo.dart';
 import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -60,6 +61,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -116,7 +118,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       const SizedBox(height: 8),
 
                       Text(
-                        'HR Management System',
+                        l10n.hrManagementSystem,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.white.withAlpha(179),
@@ -143,7 +145,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       const SizedBox(height: 16),
 
                       Text(
-                        'Loading...',
+                        l10n.loading,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white.withAlpha(100),

@@ -11,6 +11,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_companies_repository.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 final adminCompaniesProvider =
     FutureProvider.autoDispose<List<AdminCompany>>((ref) {
@@ -114,6 +115,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final companiesAsync = ref.watch(adminCompaniesProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -121,9 +123,9 @@ class AdminCompaniesScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Companies',
-          style: TextStyle(
+        title: Text(
+          l10n.adminCompaniesTitle,
+          style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -143,25 +145,25 @@ class AdminCompaniesScreen extends ConsumerWidget {
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
-          error: (err, _) => _buildError(context, err, ref),
-          data: (companies) => _buildList(context, ref, companies),
+          error: (err, _) => _buildError(context, err, ref, l10n),
+          data: (companies) => _buildList(context, ref, companies, l10n),
         ),
       ),
     );
   }
 
-  Widget _buildError(BuildContext context, Object err, WidgetRef ref) {
+  Widget _buildError(BuildContext context, Object err, WidgetRef ref, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
+            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
             const SizedBox(height: 16),
             Text(
-              'Failed to load companies',
-              style: TextStyle(
+              l10n.failedToLoadCompanies,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.grey800,
@@ -177,7 +179,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(adminCompaniesProvider),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Retry'),
+              label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -192,18 +194,18 @@ class AdminCompaniesScreen extends ConsumerWidget {
   }
 
   Widget _buildList(
-      BuildContext context, WidgetRef ref, List<AdminCompany> companies) {
+      BuildContext context, WidgetRef ref, List<AdminCompany> companies, AppLocalizations l10n) {
     if (companies.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.business_rounded,
+            const Icon(Icons.business_rounded,
                 size: 64, color: AppColors.grey300),
             const SizedBox(height: 16),
             Text(
-              'No companies yet',
-              style: TextStyle(
+              l10n.noCompaniesYet,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.grey500,
@@ -296,7 +298,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    isActive ? 'Active' : 'Suspended',
+                    isActive ? l10n.statusActive : l10n.statusSuspended,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -338,25 +340,25 @@ class AdminCompaniesScreen extends ConsumerWidget {
                     }
                   },
                   itemBuilder: (_) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
                       height: 44,
                       child: Row(
                         children: [
-                          Icon(Icons.edit_rounded, size: 20, color: AppColors.grey600),
-                          SizedBox(width: 12),
-                          Text('Edit', style: TextStyle(color: AppColors.grey800, fontWeight: FontWeight.w600, fontSize: 14)),
+                          const Icon(Icons.edit_rounded, size: 20, color: AppColors.grey600),
+                          const SizedBox(width: 12),
+                          Text(l10n.actionEdit, style: const TextStyle(color: AppColors.grey800, fontWeight: FontWeight.w600, fontSize: 14)),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'stats',
                       height: 44,
                       child: Row(
                         children: [
-                          Icon(Icons.bar_chart_rounded, size: 20, color: AppColors.info),
-                          SizedBox(width: 12),
-                          Text('Stats', style: TextStyle(color: AppColors.grey800, fontWeight: FontWeight.w600, fontSize: 14)),
+                          const Icon(Icons.bar_chart_rounded, size: 20, color: AppColors.info),
+                          const SizedBox(width: 12),
+                          Text(l10n.actionStats, style: const TextStyle(color: AppColors.grey800, fontWeight: FontWeight.w600, fontSize: 14)),
                         ],
                       ),
                     ),
@@ -366,11 +368,11 @@ class AdminCompaniesScreen extends ConsumerWidget {
                         height: 44,
                         child: Row(
                           children: [
-                            Icon(Icons.block_rounded,
+                            const Icon(Icons.block_rounded,
                                 size: 20, color: AppColors.danger),
                             const SizedBox(width: 12),
-                            const Text('Suspend',
-                                style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600, fontSize: 14)),
+                            Text(l10n.actionSuspend,
+                                style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600, fontSize: 14)),
                           ],
                         ),
                       ),
@@ -380,25 +382,25 @@ class AdminCompaniesScreen extends ConsumerWidget {
                         height: 44,
                         child: Row(
                           children: [
-                            Icon(Icons.check_circle_rounded,
+                            const Icon(Icons.check_circle_rounded,
                                 size: 20, color: AppColors.success),
                             const SizedBox(width: 12),
-                            const Text('Activate',
-                                style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w600, fontSize: 14)),
+                            Text(l10n.actionActivate,
+                                style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.w600, fontSize: 14)),
                           ],
                         ),
                       ),
                     const PopupMenuDivider(),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       height: 44,
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline_rounded,
+                          const Icon(Icons.delete_outline_rounded,
                               size: 20, color: AppColors.danger),
-                          SizedBox(width: 12),
-                          Text('Delete',
-                              style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600, fontSize: 14)),
+                          const SizedBox(width: 12),
+                          Text(l10n.actionDelete,
+                              style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600, fontSize: 14)),
                         ],
                       ),
                     ),
@@ -417,17 +419,17 @@ class AdminCompaniesScreen extends ConsumerWidget {
     WidgetRef ref,
     AdminCompany company,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Suspend Company'),
-        content: Text(
-            'Are you sure you want to suspend "${company.name}"? This will deactivate their account.'),
+        title: Text(l10n.suspendCompanyTitle),
+        content: Text(l10n.suspendCompanyContent(company.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -437,7 +439,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Suspend'),
+            child: Text(l10n.actionSuspend),
           ),
         ],
       ),
@@ -450,7 +452,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${company.name} has been suspended'),
+              content: Text(l10n.companySuspendedSuccess(company.name)),
               backgroundColor: AppColors.danger,
             ),
           );
@@ -473,18 +475,19 @@ class AdminCompaniesScreen extends ConsumerWidget {
     WidgetRef ref,
     AdminCompany company,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Activate Company'),
-        content: Text('Activate "${company.name}"?'),
+        title: Text(l10n.activateCompanyTitle),
+        content: Text(l10n.activateCompanyContent(company.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-            child: const Text('Activate'),
+            child: Text(l10n.actionActivate),
           ),
         ],
       ),
@@ -493,7 +496,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
       try {
         await AdminCompaniesRepository().activateCompany(company.id);
         ref.invalidate(adminCompaniesProvider);
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${company.name} activated'), backgroundColor: AppColors.success));
+        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.companyActivatedSuccess(company.name)), backgroundColor: AppColors.success));
       } catch (e) {
         if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: AppColors.danger));
       }
@@ -505,18 +508,19 @@ class AdminCompaniesScreen extends ConsumerWidget {
     WidgetRef ref,
     AdminCompany company,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Company'),
-        content: Text('Permanently delete "${company.name}"? This action cannot be undone.'),
+        title: Text(l10n.deleteCompanyTitle),
+        content: Text(l10n.deleteCompanyContent(company.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-            child: const Text('Delete'),
+            child: Text(l10n.actionDelete),
           ),
         ],
       ),
@@ -525,7 +529,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
       try {
         await AdminCompaniesRepository().deleteCompany(company.id);
         ref.invalidate(adminCompaniesProvider);
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${company.name} deleted'), backgroundColor: AppColors.success));
+        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.companyDeletedSuccess(company.name)), backgroundColor: AppColors.success));
       } catch (e) {
         if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: AppColors.danger));
       }
@@ -680,6 +684,8 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    
+    final l10n = AppLocalizations.of(context)!;
 
     setState(() => _isSaving = true);
 
@@ -732,8 +738,8 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(_isEditing
-                  ? 'Company updated successfully'
-                  : 'Company created successfully'),
+                  ? l10n.companyUpdatedSuccess
+                  : l10n.companyCreatedSuccess),
               backgroundColor: AppColors.success,
             ),
           );
@@ -755,6 +761,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
@@ -780,7 +787,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _isEditing ? 'Edit Company' : 'Create Company',
+                  _isEditing ? l10n.editCompanyTitle : l10n.createCompanyTitle,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -802,14 +809,14 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    _buildField('Company Name', _nameCtrl,
+                    _buildField(l10n.companyNameLabel, _nameCtrl,
                         validator: (v) =>
-                            v == null || v.trim().isEmpty ? 'Required' : null),
+                            v == null || v.trim().isEmpty ? l10n.fieldRequired : null),
                     const SizedBox(height: 14),
-                    _buildField('Email', _emailCtrl,
+                    _buildField(l10n.emailLabel, _emailCtrl,
                         keyboardType: TextInputType.emailAddress,
                         validator: (v) =>
-                            v == null || v.trim().isEmpty ? 'Required' : null),
+                            v == null || v.trim().isEmpty ? l10n.fieldRequired : null),
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -821,28 +828,28 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Company Owner Account',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF9A3412)),
+                          Text(
+                            l10n.companyOwnerAccountTitle,
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF9A3412)),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             _isEditing
-                                ? 'Update owner details or enter a new password to reset account access.'
-                                : 'Account automatically created for the owner. Leave blank to default to company email and password Password123!.',
+                                ? l10n.companyOwnerEditDesc
+                                : l10n.companyOwnerCreateDesc,
                             style: TextStyle(fontSize: 11, color: Colors.orange.shade800),
                           ),
                           const SizedBox(height: 10),
-                          _buildField('Owner Name', _adminNameCtrl),
+                          _buildField(l10n.ownerNameLabel, _adminNameCtrl),
                           const SizedBox(height: 10),
-                          _buildField('Owner Login Email', _adminEmailCtrl, keyboardType: TextInputType.emailAddress),
+                          _buildField(l10n.ownerLoginEmailLabel, _adminEmailCtrl, keyboardType: TextInputType.emailAddress),
                           const SizedBox(height: 10),
-                          _buildField(_isEditing ? 'New Password (Optional)' : 'Owner Password', _adminPasswordCtrl),
+                          _buildField(_isEditing ? l10n.newPasswordOptionalLabel : l10n.ownerPasswordLabel, _adminPasswordCtrl),
                         ],
                       ),
                     ),
                     const SizedBox(height: 14),
-                    _buildField('Phone', _phoneCtrl,
+                    _buildField(l10n.phoneLabel, _phoneCtrl,
                         keyboardType: TextInputType.phone),
                     const SizedBox(height: 14),
                     // Address with location
@@ -852,13 +859,13 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('Address', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                            Text(l10n.addressLabel, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
                             TextButton.icon(
                               onPressed: _isLoadingLocation ? null : _getCurrentLocation,
                               icon: _isLoadingLocation 
                                 ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
                                 : const Icon(Icons.my_location_rounded, size: 16, color: AppColors.primary),
-                              label: Text(_isLoadingLocation ? 'Getting...' : 'Get Location', style: const TextStyle(fontSize: 12, color: AppColors.primary)),
+                              label: Text(_isLoadingLocation ? l10n.gettingLocation : l10n.getLocation, style: const TextStyle(fontSize: 12, color: AppColors.primary)),
                               style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                             ),
                           ],
@@ -882,7 +889,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Timezone', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                              Text(l10n.timezoneLabel, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
                               const SizedBox(height: 6),
                               DropdownButtonFormField<String>(
                                 initialValue: ['Asia/Phnom_Penh', 'UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo', 'Asia/Bangkok', 'Asia/Singapore'].contains(_selectedTimezone)
@@ -917,7 +924,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Currency', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                              Text(l10n.currencyLabel, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
                               const SizedBox(height: 6),
                               DropdownButtonFormField<String>(
                                 initialValue: ['USD', 'EUR', 'GBP', 'JPY', 'KHR'].contains(_selectedCurrency)
@@ -952,9 +959,9 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Status',
-                          style: TextStyle(
+                        Text(
+                          l10n.statusLabel,
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.grey600,
@@ -971,12 +978,12 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                             child: DropdownButton<String>(
                               value: _status,
                               isExpanded: true,
-                              items: const [
+                              items: [
                                 DropdownMenuItem(
-                                    value: 'active', child: Text('Active')),
+                                    value: 'active', child: Text(l10n.statusActive)),
                                 DropdownMenuItem(
                                     value: 'suspended',
-                                    child: Text('Suspended')),
+                                    child: Text(l10n.statusSuspended)),
                               ],
                               onChanged: (v) {
                                 if (v != null) setState(() => _status = v);
@@ -1002,9 +1009,9 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Social Media Links',
-                                style: TextStyle(
+                              Text(
+                                l10n.socialMediaLinksTitle,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.grey800,
@@ -1017,14 +1024,14 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                   });
                                 },
                                 icon: const Icon(Icons.add_rounded, size: 16),
-                                label: const Text('Add', style: TextStyle(fontSize: 12)),
+                                label: Text(l10n.actionAdd, style: const TextStyle(fontSize: 12)),
                                 style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                               ),
                             ],
                           ),
                           const SizedBox(height: 10),
                           if (_socialMediaList.isEmpty)
-                            const Text('No social media links added.', style: TextStyle(color: AppColors.grey500, fontSize: 13)),
+                            Text(l10n.noSocialMediaLinks, style: const TextStyle(color: AppColors.grey500, fontSize: 13)),
                           ...List.generate(_socialMediaList.length, (index) {
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 10),
@@ -1035,7 +1042,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                     child: TextFormField(
                                       initialValue: _socialMediaList[index]['platform'],
                                       decoration: InputDecoration(
-                                        hintText: 'Platform',
+                                        hintText: l10n.platformLabel,
                                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.grey200)),
                                         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                                       ),
@@ -1048,7 +1055,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                     child: TextFormField(
                                       initialValue: _socialMediaList[index]['url'],
                                       decoration: InputDecoration(
-                                        hintText: 'URL',
+                                        hintText: l10n.urlLabel,
                                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.grey200)),
                                         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                                       ),
@@ -1077,9 +1084,9 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Company Logo',
-                          style: TextStyle(
+                        Text(
+                          l10n.companyLogoTitle,
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.grey600,
@@ -1123,9 +1130,9 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                               fallbackIcon: Row(
                                                 mainAxisAlignment: MainAxisAlignment.center,
                                                 children: [
-                                                  Icon(Icons.business_rounded, color: AppColors.grey400, size: 22),
+                                                  const Icon(Icons.business_rounded, color: AppColors.grey400, size: 22),
                                                   const SizedBox(width: 8),
-                                                  Text('Tap to change logo', style: TextStyle(fontSize: 14, color: AppColors.grey500)),
+                                                  Text(l10n.tapToChangeLogo, style: const TextStyle(fontSize: 14, color: AppColors.grey500)),
                                                 ],
                                               ),
                                             ),
@@ -1137,12 +1144,12 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                                   color: Colors.black.withValues(alpha: 0.6),
                                                   borderRadius: BorderRadius.circular(12),
                                                 ),
-                                                child: const Row(
+                                                child: Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    Icon(Icons.edit, color: Colors.white, size: 12),
-                                                    SizedBox(width: 4),
-                                                    Text('Tap to change logo', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                                                    const Icon(Icons.edit, color: Colors.white, size: 12),
+                                                    const SizedBox(width: 4),
+                                                    Text(l10n.tapToChangeLogo, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
                                                   ],
                                                 ),
                                               ),
@@ -1153,12 +1160,12 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                     : Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(Icons.cloud_upload_outlined,
+                                          const Icon(Icons.cloud_upload_outlined,
                                               color: AppColors.grey400, size: 22),
                                           const SizedBox(width: 8),
                                           Text(
-                                            'Tap to upload logo',
-                                            style: TextStyle(
+                                            l10n.tapToUploadLogo,
+                                            style: const TextStyle(
                                               fontSize: 14,
                                               color: AppColors.grey500,
                                             ),
@@ -1192,7 +1199,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                 ),
                               )
                             : Text(
-                                _isEditing ? 'Update Company' : 'Create Company',
+                                _isEditing ? l10n.btnUpdateCompany : l10n.btnCreateCompany,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
@@ -1292,6 +1299,7 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       decoration: const BoxDecoration(
@@ -1307,8 +1315,8 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('Company Stats', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.grey900)),
-                  Text(widget.company.name, style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                  Text(l10n.companyStatsTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.grey900)),
+                  Text(widget.company.name, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                 ]),
                 IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
               ],
@@ -1324,10 +1332,10 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
                         const SizedBox(height: 12),
                         Text(_error!, style: TextStyle(color: AppColors.grey500, fontSize: 12)),
                         const SizedBox(height: 12),
-                        OutlinedButton.icon(onPressed: () { setState(() { _isLoading = true; _error = null; }); _loadStats(); }, icon: const Icon(Icons.refresh), label: const Text('Retry')),
+                        OutlinedButton.icon(onPressed: () { setState(() { _isLoading = true; _error = null; }); _loadStats(); }, icon: const Icon(Icons.refresh), label: Text(l10n.retry)),
                       ]))
                     : _stats.isEmpty
-                        ? Center(child: Text('No stats available', style: TextStyle(color: AppColors.grey400)))
+                        ? Center(child: Text(l10n.noStatsAvailable, style: const TextStyle(color: AppColors.grey400)))
                         : SingleChildScrollView(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: Wrap(
@@ -1414,6 +1422,7 @@ class _CompanyCreatedSuccessDialogState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 0,
@@ -1438,9 +1447,9 @@ class _CompanyCreatedSuccessDialogState
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
-              'Company Created!',
-              style: TextStyle(
+            Text(
+              l10n.companyCreatedAlertTitle,
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: AppColors.grey900,
@@ -1449,7 +1458,7 @@ class _CompanyCreatedSuccessDialogState
             ),
             const SizedBox(height: 6),
             Text(
-              'Owner credentials generated for "${widget.companyName}"',
+              l10n.ownerCredentialsGenerated(widget.companyName),
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
@@ -1474,9 +1483,9 @@ class _CompanyCreatedSuccessDialogState
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'OWNER EMAIL',
-                        style: TextStyle(
+                      Text(
+                        l10n.ownerEmailTitle,
+                        style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: AppColors.grey500,
@@ -1498,9 +1507,9 @@ class _CompanyCreatedSuccessDialogState
                                     ? AppColors.success
                                     : AppColors.primary,
                               ),
-                              const SizedBox(width: 4),
+                               const SizedBox(width: 4),
                               Text(
-                                _copiedEmail ? 'Copied' : 'Copy',
+                                _copiedEmail ? l10n.copied : l10n.copy,
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -1530,9 +1539,9 @@ class _CompanyCreatedSuccessDialogState
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'OWNER PASSWORD',
-                        style: TextStyle(
+                      Text(
+                        l10n.ownerPasswordTitle,
+                        style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: AppColors.grey500,
@@ -1556,7 +1565,7 @@ class _CompanyCreatedSuccessDialogState
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                _copiedPassword ? 'Copied' : 'Copy',
+                                _copiedPassword ? l10n.copied : l10n.copy,
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -1596,7 +1605,7 @@ class _CompanyCreatedSuccessDialogState
                     icon: Icon(
                         _copiedAll ? Icons.check : Icons.share_rounded,
                         size: 16),
-                    label: Text(_copiedAll ? 'Copied All' : 'Copy All'),
+                    label: Text(_copiedAll ? l10n.copiedAll : l10n.copyAll),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(

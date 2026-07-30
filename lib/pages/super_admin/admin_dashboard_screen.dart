@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_dashboard_repository.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
 import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 // ── Riverpod provider ──────────────────────────────────────────────────────
 final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((
@@ -41,7 +43,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final dashAsync = ref.watch(adminDashboardProvider);
+    final profileAsync = ref.watch(profileProvider);
     final unreadCountAsync = ref.watch(unreadCountProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -65,10 +69,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               ),
             ),
             const SizedBox(width: 10),
-            const Flexible(
+            Flexible(
               child: Text(
-                'Platform Admin',
-                style: TextStyle(
+                l10n.platformAdminTitle,
+                style: const TextStyle(
                   color: Colors.black87,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -113,11 +117,28 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               });
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: Colors.black87),
-            onPressed: () => showLogoutConfirmation(context, ref),
-          ),
-          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.only(right: 20, left: 8),
+            child: GestureDetector(
+              onTap: () => context.push(AppRoutes.profile),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.grey200, width: 1.5),
+                ),
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColors.primaryLight,
+                  backgroundImage: profileAsync.value?.photoUrl != null
+                      ? CachedNetworkImageProvider(profileAsync.value!.photoUrl!)
+                      : null,
+                  child: profileAsync.value?.photoUrl == null
+                      ? const Icon(Icons.person, color: AppColors.primary, size: 20)
+                      : null,
+                ),
+              ),
+            ),
+          )
         ],
       ),
       body: RefreshIndicator(
@@ -128,8 +149,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         },
         child: dashAsync.when(
           loading: () => _buildLoading(),
-          error: (err, _) => _buildError(err, ref),
-          data: (data) => _buildContent(context, data, authState),
+          error: (err, _) => _buildError(err, ref, l10n),
+          data: (data) => _buildContent(context, data, authState, l10n),
         ),
       ),
     );
@@ -167,7 +188,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   }
 
   // ── Error ──────────────────────────────────────────────────────────────────
-  Widget _buildError(Object err, WidgetRef ref) {
+  Widget _buildError(Object err, WidgetRef ref, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -181,15 +202,15 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                 color: AppColors.danger.withAlpha(15),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.wifi_off_rounded,
                 color: AppColors.danger,
                 size: 36,
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Failed to load dashboard',
+            Text(
+              l10n.failedToLoadDashboard,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -211,7 +232,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(adminDashboardProvider),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Retry'),
+              label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -235,18 +256,19 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     BuildContext context,
     AdminDashboardData data,
     AuthState auth,
+    AppLocalizations l10n,
   ) {
     final stats = data.stats;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       children: [
         // ── Welcome banner
-        _buildWelcomeBanner(auth.userName ?? 'Super Admin'),
+        _buildWelcomeBanner(auth.userName ?? 'Super Admin', l10n),
         const SizedBox(height: 24),
 
         // ── Quick Operations Grid Menu
-        const Text(
-          'Quick Operations',
+        Text(
+          l10n.quickOperations,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -265,32 +287,32 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           children: [
             _buildGridItem(
               context,
-              title: 'Companies',
-              description: 'Manage registers',
+              title: l10n.menuCompanies,
+              description: l10n.menuCompaniesDesc,
               icon: Icons.business_rounded,
               color: const Color(0xFF6366F1),
               routePath: AppRoutes.adminCompanies,
             ),
             _buildGridItem(
               context,
-              title: 'Roles',
-              description: 'Manage access',
+              title: l10n.menuRoles,
+              description: l10n.menuRolesDesc,
               icon: Icons.shield_rounded,
               color: const Color(0xFF8B5CF6),
               routePath: AppRoutes.superAdminRoles,
             ),
             _buildGridItem(
               context,
-              title: 'Support Tickets',
-              description: 'User queries',
+              title: l10n.menuSupportTickets,
+              description: l10n.menuSupportTicketsDesc,
               icon: Icons.support_agent_rounded,
               color: const Color(0xFFF59E0B),
               routePath: AppRoutes.adminSupportTickets,
             ),
             _buildGridItem(
               context,
-              title: 'KPIs',
-              description: 'Performance goals',
+              title: l10n.menuKPIs,
+              description: l10n.menuKPIsDesc,
               icon: Icons.track_changes_outlined,
               color: AppColors.primary,
               routePath: AppRoutes.kpi,
@@ -298,43 +320,43 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
 
             _buildGridItem(
               context,
-              title: 'Announcements',
-              description: 'Broadcast alerts',
+              title: l10n.menuAnnouncements,
+              description: l10n.menuAnnouncementsDesc,
               icon: Icons.campaign_rounded,
               color: const Color(0xFF10B981),
               routePath: AppRoutes.adminAnnouncements,
             ),
             _buildGridItem(
               context,
-              title: 'Audit Logs',
-              description: 'System changes',
+              title: l10n.menuAuditLogs,
+              description: l10n.menuAuditLogsDesc,
               icon: Icons.description_rounded,
               color: const Color(0xFF6B7280),
               routePath: AppRoutes.adminAuditLogs,
             ),
             _buildGridItem(
               context,
-              title: 'Settings',
-              description: 'Global configs',
+              title: l10n.menuSettings,
+              description: l10n.menuSettingsDesc,
               icon: Icons.settings_rounded,
               color: const Color(0xFF0F172A),
               routePath: AppRoutes.adminSettings,
             ),
             _buildGridItem(
               context,
-              title: 'Admin Profile',
-              description: 'Security & setup',
+              title: l10n.menuAdminProfile,
+              description: l10n.menuAdminProfileDesc,
               icon: Icons.person_rounded,
               color: const Color(0xFF0284C7),
-              routePath: AppRoutes.adminProfile,
+              routePath: AppRoutes.profile,
             ),
           ],
         ),
         const SizedBox(height: 28),
 
         // ── Statistics Section Header
-        const Text(
-          'Platform Statistics',
+        Text(
+          l10n.platformStatistics,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -349,9 +371,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           children: [
             Expanded(
               child: _KpiCard(
-                title: 'Companies',
+                title: l10n.statCompanies,
                 value: stats.totalCompanies.toString(),
-                sub: '${stats.activeCompanies} active',
+                sub: l10n.statCompaniesActive(stats.activeCompanies.toString()),
                 icon: Icons.business_rounded,
                 color: const Color(0xFF6366F1),
                 bgColor: const Color(0xFFEEF2FF),
@@ -360,9 +382,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _KpiCard(
-                title: 'Total Users',
+                title: l10n.statTotalUsers,
                 value: _formatNumber(stats.totalUsers),
-                sub: 'Across all tenants',
+                sub: l10n.statUsersDesc,
                 icon: Icons.people_alt_rounded,
                 color: const Color(0xFF10B981),
                 bgColor: const Color(0xFFECFDF5),
@@ -377,9 +399,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           children: [
             Expanded(
               child: _KpiCard(
-                title: 'Open Tickets',
+                title: l10n.statOpenTickets,
                 value: stats.openTickets.toString(),
-                sub: 'Awaiting response',
+                sub: l10n.statTicketsDesc,
                 icon: Icons.support_agent_rounded,
                 color: const Color(0xFFF59E0B),
                 bgColor: const Color(0xFFFFFBEB),
@@ -388,9 +410,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _KpiCard(
-                title: 'Announcements',
+                title: l10n.statAnnouncements,
                 value: stats.publishedAnnouncements.toString(),
-                sub: 'Published and active',
+                sub: l10n.statAnnouncementsDesc,
                 icon: Icons.campaign_rounded,
                 color: const Color(0xFF6B7280),
                 bgColor: const Color(0xFFF3F4F6),
@@ -403,7 +425,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         // ── Recent Company Signups
         if (data.recentSignups.isNotEmpty) ...[
           _buildSectionHeader(
-            'Recent Company Signups',
+            l10n.recentCompanySignups,
             Icons.business_center_rounded,
           ),
           const SizedBox(height: 12),
@@ -421,7 +443,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         // ── Recent Support Tickets
         if (data.recentTickets.isNotEmpty) ...[
           _buildSectionHeader(
-            'Recent Support Tickets',
+            l10n.recentSupportTickets,
             Icons.support_agent_rounded,
           ),
           const SizedBox(height: 12),
@@ -504,7 +526,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildWelcomeBanner(String name) {
+  Widget _buildWelcomeBanner(String name, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -518,7 +540,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome back,',
+                  l10n.welcomeBack,
                   style: TextStyle(
                     color: Colors.white.withAlpha(180),
                     fontSize: 13,
@@ -545,9 +567,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                     color: AppColors.primary.withAlpha(50),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    '🛡️  Platform Administrator',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.platformAdministratorBadge,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

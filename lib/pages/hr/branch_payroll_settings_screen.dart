@@ -4,6 +4,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import '../../services/admin_operations_repository.dart';
 import '../../providers/admin_providers.dart';
 import '../../components/loading_indicator.dart';
+import '../../l10n/app_localizations.dart';
 import 'formulas_screen.dart';
 
 class BranchPayrollSettingsScreen extends ConsumerStatefulWidget {
@@ -58,19 +59,20 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final settingsAsync = ref.watch(branchPayrollSettingsProvider(widget.branchId));
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: Text('${widget.branchName} Payroll', style: const TextStyle(color: Colors.black87)),
+        title: Text(l10n.branchPayrollTitle(widget.branchName), style: const TextStyle(color: Colors.black87)),
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: Colors.black87),
         elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.calculate, color: Colors.teal),
-            tooltip: 'Formulas Handbook',
+            tooltip: l10n.formulasHandbookTitle,
             onPressed: () async {
               final s = await ref.read(branchFormulasProvider(widget.branchId).future);
               if (mounted) {
@@ -135,19 +137,19 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Branch Customization',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      Text(
+                        l10n.branchCustomizationTitle,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'If disabled, this branch will inherit the company-wide payroll rules.',
-                        style: TextStyle(color: Colors.grey, fontSize: 13),
+                      Text(
+                        l10n.branchCustomizationDesc,
+                        style: const TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                       const SizedBox(height: 12),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Use Custom Branch Rules'),
+                        title: Text(l10n.useCustomBranchRulesLabel),
                         value: _isCustom,
                         activeThumbColor: Colors.teal,
                         onChanged: (val) {
@@ -167,12 +169,12 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                           Icon(Icons.account_balance, size: 64, color: Colors.grey.shade300),
                           const SizedBox(height: 16),
                           Text(
-                            'Inheriting Company Rules',
+                            l10n.inheritingCompanyRulesTitle,
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'This branch uses the global company payroll settings. You can view how they calculate in the Formulas Handbook (top right icon).',
+                            l10n.inheritingCompanyRulesDesc,
                             textAlign: TextAlign.center,
                             style: TextStyle(color: Colors.grey.shade500),
                           ),
@@ -180,7 +182,7 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                           ElevatedButton.icon(
                             onPressed: _saveSettings,
                             icon: const Icon(Icons.save),
-                            label: const Text('Save Settings'),
+                            label: Text(l10n.saveSettingsBtn),
                           )
                         ],
                       ),
@@ -190,111 +192,116 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _sectionHeader('General Settings'),
+                      _sectionHeader(l10n.generalSettingsTitle),
                       const SizedBox(height: 12),
                       _dropdownField(
-                        label: 'Payroll Period',
+                        context: context,
+                        label: l10n.payrollPeriodLabel,
                         value: _periodCtrl.text,
                         items: const ['weekly', 'bi_weekly', 'monthly'],
                         onChanged: (v) => setState(() => _periodCtrl.text = v),
                       ),
                       const SizedBox(height: 12),
-                      _textField(_startDayCtrl, 'Payroll Start Day (1-31)', keyboardType: TextInputType.number),
+                      _textField(_startDayCtrl, l10n.payrollStartDayLabel, keyboardType: TextInputType.number),
                       const SizedBox(height: 12),
                       _dropdownField(
-                        label: 'Working Days Calculation Type',
+                        context: context,
+                        label: l10n.workingDaysCalcTypeLabel,
                         value: _workingDaysType,
                         items: const ['calendar_days', 'calendar_minus_holidays', 'fixed'],
                         onChanged: (v) => setState(() => _workingDaysType = v),
                       ),
                       if (_workingDaysType == 'fixed') ...[
                         const SizedBox(height: 12),
-                        _textField(_workingDaysCtrl, 'Fixed Working Days per Period', keyboardType: TextInputType.number),
+                        _textField(_workingDaysCtrl, l10n.fixedWorkingDaysLabel, keyboardType: TextInputType.number),
                       ],
                       const SizedBox(height: 12),
-                      _textField(_currencyCtrl, 'Currency (e.g. USD)'),
+                      _textField(_currencyCtrl, l10n.currencyLabel),
                       const SizedBox(height: 12),
-                      _textField(_currencySymbolCtrl, 'Currency Symbol (e.g. \$)'),
+                      _textField(_currencySymbolCtrl, l10n.currencySymbolLabel),
 
                       const SizedBox(height: 28),
-                      _sectionHeader('Overtime Settings'),
+                      _sectionHeader(l10n.overtimeSettingsTitle),
                       const SizedBox(height: 12),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Enable Overtime Pay'),
+                        title: Text(l10n.enableOvertimePayLabel),
                         value: _otEnabled,
                         onChanged: (val) => setState(() => _otEnabled = val),
                       ),
                       if (_otEnabled) ...[
                         const SizedBox(height: 8),
-                        _textField(_otThresholdCtrl, 'Overtime Threshold (hours/day)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                        _textField(_otThresholdCtrl, l10n.overtimeThresholdLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                         const SizedBox(height: 12),
-                        _textField(_otMultiplierCtrl, 'Regular OT Multiplier (e.g. 1.5)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                        _textField(_otMultiplierCtrl, l10n.regularOtMultiplierLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                         const SizedBox(height: 12),
-                        _textField(_weekendOtCtrl, 'Rest Day OT Multiplier (e.g. 2.0)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                        _textField(_weekendOtCtrl, l10n.restDayOtMultiplierLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                         const SizedBox(height: 12),
-                        _textField(_pubHolidayOtCtrl, 'Public Holiday OT Multiplier (e.g. 2.0)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                        _textField(_pubHolidayOtCtrl, l10n.publicHolidayOtMultiplierLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                         const SizedBox(height: 12),
-                        _textField(_compHolidayOtCtrl, 'Company Holiday OT Multiplier (e.g. 1.5)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                        _textField(_compHolidayOtCtrl, l10n.companyHolidayOtMultiplierLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                       ],
 
                       const SizedBox(height: 28),
-                      _sectionHeader('Late Deduction Settings'),
+                      _sectionHeader(l10n.lateDeductionSettingsTitle),
                       const SizedBox(height: 12),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Enable Late Deductions'),
+                        title: Text(l10n.enableLateDeductionsLabel),
                         value: _lateEnabled,
                         onChanged: (val) => setState(() => _lateEnabled = val),
                       ),
                       if (_lateEnabled) ...[
                         const SizedBox(height: 8),
-                        _textField(_graceMinutesCtrl, 'Grace Period (minutes)', keyboardType: TextInputType.number),
+                        _textField(_graceMinutesCtrl, l10n.gracePeriodMinutesLabel, keyboardType: TextInputType.number),
                         const SizedBox(height: 12),
                         _dropdownField(
-                          label: 'Calculation Method',
+                          context: context,
+                          label: l10n.calculationMethodLabel,
                           value: _lateCalcMethod,
                           items: const ['flat', 'hourly', 'per_minute', 'half_day'],
                           onChanged: (v) => setState(() => _lateCalcMethod = v),
                         ),
                         const SizedBox(height: 12),
-                        _textField(_lateDeductionCtrl, 'Deduction Rate / Amount', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                        _textField(_lateDeductionCtrl, l10n.deductionRateAmountLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                       ],
 
                       const SizedBox(height: 28),
-                      _sectionHeader('Early Leave Penalties'),
+                      _sectionHeader(l10n.earlyLeavePenaltiesTitle),
                       const SizedBox(height: 12),
-                      _textField(_earlyLeaveGraceCtrl, 'Early Leave Grace (minutes)', keyboardType: TextInputType.number),
+                      _textField(_earlyLeaveGraceCtrl, l10n.earlyLeaveGraceLabel, keyboardType: TextInputType.number),
                       const SizedBox(height: 12),
                       _dropdownField(
-                        label: 'Deduction Type',
+                        context: context,
+                        label: l10n.deductionTypeLabel,
                         value: _earlyLeaveDedType,
                         items: const ['flat', 'hourly', 'per_minute', 'half_day'],
                         onChanged: (v) => setState(() => _earlyLeaveDedType = v),
                       ),
                       const SizedBox(height: 12),
-                      _textField(_earlyLeaveRateCtrl, 'Deduction Rate / Amount', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                      _textField(_earlyLeaveRateCtrl, l10n.deductionRateAmountLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
 
                       const SizedBox(height: 28),
-                      _sectionHeader('Pre-Shift & Early Clock-In'),
+                      _sectionHeader(l10n.preShiftEarlyClockInTitle),
                       const SizedBox(height: 12),
                       _dropdownField(
-                        label: 'Early Clock-In Policy',
+                        context: context,
+                        label: l10n.earlyClockInPolicyLabel,
                         value: _earlyClockInPolicy,
                         items: const ['ignore', 'treat_as_ot', 'paid_outside'],
                         onChanged: (v) => setState(() => _earlyClockInPolicy = v),
                       ),
                       const SizedBox(height: 12),
-                      _textField(_preShiftOtCtrl, 'Pre-Shift OT Multiplier', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                      _textField(_preShiftOtCtrl, l10n.preShiftOtMultiplierLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                       const SizedBox(height: 12),
-                      _textField(_maxPreShiftCtrl, 'Max Allowed Early Minutes', keyboardType: TextInputType.number),
+                      _textField(_maxPreShiftCtrl, l10n.maxAllowedEarlyMinutesLabel, keyboardType: TextInputType.number),
 
                       const SizedBox(height: 28),
-                      _sectionHeader('Half-Day Settings'),
+                      _sectionHeader(l10n.halfDaySettingsTitle),
                       const SizedBox(height: 12),
-                      _textField(_halfDayHoursCtrl, 'Half-Day Minimum Hours', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                      _textField(_halfDayHoursCtrl, l10n.halfDayMinHoursLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                       const SizedBox(height: 12),
-                      _textField(_halfDayPctCtrl, 'Half-Day Deduction %', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                      _textField(_halfDayPctCtrl, l10n.halfDayDeductionPctLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
 
                       const SizedBox(height: 32),
                       ElevatedButton(
@@ -302,7 +309,7 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        child: const Text('Save Branch Settings', style: TextStyle(fontSize: 16)),
+                        child: Text(l10n.saveBranchSettingsBtn, style: const TextStyle(fontSize: 16)),
                       ),
                       const SizedBox(height: 40),
                     ],
@@ -311,12 +318,12 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
             ),
           );
         },
-        loading: () => const LoadingIndicator(message: 'Loading settings...'),
+        loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingSettings),
         error: (e, _) => Center(
           child: OutlinedButton.icon(
             onPressed: () => ref.invalidate(branchPayrollSettingsProvider(widget.branchId)),
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(AppLocalizations.of(context)!.retry),
           ),
         ),
       ),
@@ -324,6 +331,7 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
   }
 
   Future<void> _saveSettings() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       await AdminOperationsRepository().updateBranchPayrollSettings(widget.branchId, {
         'is_custom': _isCustom,
@@ -361,7 +369,7 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
       ref.invalidate(branchFormulasProvider(widget.branchId));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Branch settings saved'), backgroundColor: AppColors.success),
+          SnackBar(content: Text(l10n.branchSettingsSaved), backgroundColor: AppColors.success),
         );
       }
     } catch (e) {
@@ -386,6 +394,7 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
   }
 
   Widget _dropdownField({
+    required BuildContext context,
     required String label,
     required String value,
     required List<String> items,
@@ -394,26 +403,27 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
     return DropdownButtonFormField<String>(
       initialValue: items.contains(value) ? value : items.first,
       decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
-      items: items.map((i) => DropdownMenuItem(value: i, child: Text(_formatLabel(i)))).toList(),
+      items: items.map((i) => DropdownMenuItem(value: i, child: Text(_formatLabel(context, i)))).toList(),
       onChanged: (v) { if (v != null) onChanged(v); },
     );
   }
 
-  String _formatLabel(String key) {
+  String _formatLabel(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
     switch (key) {
-      case 'weekly': return 'Weekly';
-      case 'bi_weekly': return 'Bi-Weekly';
-      case 'monthly': return 'Monthly';
-      case 'calendar_days': return 'Calendar Days';
-      case 'calendar_minus_holidays': return 'Calendar Minus Holidays';
-      case 'fixed': return 'Fixed Days';
-      case 'treat_as_ot': return 'Treat as Overtime';
-      case 'paid_outside': return 'Paid Outside (No OT Mult)';
-      case 'flat': return 'Flat Amount';
-      case 'hourly': return 'Hourly Rate';
-      case 'per_minute': return 'Per Minute Rate';
-      case 'half_day': return 'Half Day Deduction';
-      case 'ignore': return 'Ignore (No Extra Pay)';
+      case 'weekly': return l10n.weeklyLabel;
+      case 'bi_weekly': return l10n.biWeeklyLabel;
+      case 'monthly': return l10n.monthlyLabel;
+      case 'calendar_days': return l10n.calendarDaysLabel;
+      case 'calendar_minus_holidays': return l10n.calendarMinusHolidaysLabel;
+      case 'fixed': return l10n.fixedDaysLabel;
+      case 'treat_as_ot': return l10n.treatAsOvertimeLabel;
+      case 'paid_outside': return l10n.paidOutsideLabel;
+      case 'flat': return l10n.flatAmountLabel;
+      case 'hourly': return l10n.hourlyRateLabel;
+      case 'per_minute': return l10n.perMinuteRateLabel;
+      case 'half_day': return l10n.halfDayDeductionLabel;
+      case 'ignore': return l10n.ignoreNoExtraPayLabel;
       default: return key.replaceAll('_', ' ').split(' ').map((w) => w[0].toUpperCase() + w.substring(1)).join(' ');
     }
   }

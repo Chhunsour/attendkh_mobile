@@ -9,6 +9,7 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employee_detail_screen.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 // ── Status config ────────────────────────────────────────────────────────────
 const _statusConfig = {
@@ -26,12 +27,16 @@ class _StatusCfg {
   const _StatusCfg(this.color, this.bg, this.icon);
 }
 
-const _typeLabels = {
-  'full_time': 'Full-time',
-  'part_time': 'Part-time',
-  'contract':  'Contract',
-  'intern':    'Intern',
-};
+String _getLocalizedType(String type, AppLocalizations l10n) {
+  switch (type) {
+    case 'full_time': return l10n.fullTime;
+    case 'part_time': return l10n.partTime;
+    case 'contract': return l10n.contract;
+    case 'intern': return l10n.intern;
+    default: return type;
+  }
+}
+
 
 // Avatar background colors (cycling)
 const _avatarColors = [
@@ -99,6 +104,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
     final employeesAsync = ref.watch(adminEmployeesProvider(_filters));
     final departmentsAsync = ref.watch(departmentsProvider);
     final branchesAsync = ref.watch(branchesProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -128,16 +134,16 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
               child: const Icon(Icons.people_alt_rounded, color: Colors.white, size: 20),
             ),
             const SizedBox(width: 10),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Employee Directory',
-                  style: TextStyle(color: AppColors.grey800, fontSize: 17, fontWeight: FontWeight.w700, height: 1.2),
+                  l10n.employeeDirectory,
+                  style: const TextStyle(color: AppColors.grey800, fontSize: 17, fontWeight: FontWeight.w700, height: 1.2),
                 ),
                 Text(
-                  'Manage your workforce',
-                  style: TextStyle(color: AppColors.grey400, fontSize: 11, fontWeight: FontWeight.w400),
+                  l10n.manageYourWorkforce,
+                  style: const TextStyle(color: AppColors.grey400, fontSize: 11, fontWeight: FontWeight.w400),
                 ),
               ],
             ),
@@ -154,7 +160,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${employees.length} people',
+                  l10n.peopleCount(employees.length),
                   style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600, fontSize: 12),
                 ),
               ),
@@ -188,7 +194,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                           onChanged: _onSearchChanged,
                           style: const TextStyle(fontSize: 14, color: AppColors.grey800),
                           decoration: InputDecoration(
-                            hintText: 'Search by name, email, ID...',
+                            hintText: l10n.searchEmployeesHint,
                             hintStyle: const TextStyle(fontSize: 13, color: AppColors.grey400),
                             prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.grey400),
                             suffixIcon: _searchCtrl.text.isNotEmpty
@@ -231,7 +237,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                             Icon(Icons.tune_rounded, size: 18, color: _showFilters ? AppColors.primary : AppColors.grey500),
                             const SizedBox(width: 6),
                             Text(
-                              'Filter',
+                              l10n.filter,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -271,9 +277,9 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                           children: [
                             Expanded(
                               child: _FilterDropdown<int?>(
-                                label: 'Department',
+                                label: l10n.department,
                                 value: _filters.departmentId,
-                                hint: 'All Departments',
+                                hint: l10n.allDepartments,
                                 items: departmentsAsync.maybeWhen(
                                   data: (depts) => depts.map((d) => DropdownMenuItem<int?>(value: d.id, child: Text(d.name))).toList(),
                                   orElse: () => [],
@@ -284,9 +290,9 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: _FilterDropdown<int?>(
-                                label: 'Branch',
+                                label: l10n.branch,
                                 value: _filters.branchId,
-                                hint: 'All Branches',
+                                hint: l10n.allBranches,
                                 items: branchesAsync.maybeWhen(
                                   data: (branches) => branches.map((b) => DropdownMenuItem<int?>(value: b.id, child: Text(b.name))).toList(),
                                   orElse: () => [],
@@ -301,11 +307,11 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                           children: [
                             Expanded(
                               child: _FilterDropdown<String>(
-                                label: 'Status',
+                                label: l10n.status,
                                 value: _filters.employmentStatus.isEmpty ? '' : _filters.employmentStatus,
-                                hint: 'All Statuses',
+                                hint: l10n.allStatuses,
                                 items: [
-                                  const DropdownMenuItem(value: '', child: Text('All Statuses')),
+                                  DropdownMenuItem(value: '', child: Text(l10n.allStatuses)),
                                   ..._statusConfig.keys.map((s) => DropdownMenuItem(
                                         value: s,
                                         child: Text(s.replaceAll('_', ' ').toUpperCase(), style: const TextStyle(fontSize: 12)),
@@ -317,12 +323,17 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: _FilterDropdown<String>(
-                                label: 'Type',
+                                label: l10n.type,
                                 value: _filters.employmentType.isEmpty ? '' : _filters.employmentType,
-                                hint: 'All Types',
+                                hint: l10n.allTypes,
                                 items: [
-                                  const DropdownMenuItem(value: '', child: Text('All Types')),
-                                  ..._typeLabels.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))),
+                                  DropdownMenuItem(value: '', child: Text(l10n.allTypes)),
+                                  ...['full_time', 'part_time', 'contract', 'intern'].map(
+                                    (type) => DropdownMenuItem(
+                                      value: type,
+                                      child: Text(_getLocalizedType(type, l10n)),
+                                    ),
+                                  ),
                                 ],
                                 onChanged: (v) => setState(() => _filters = _filters.copyWith(employmentType: v ?? '')),
                               ),
@@ -344,7 +355,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                                 textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                               ),
                               icon: const Icon(Icons.clear_rounded, size: 15),
-                              label: const Text('Clear all filters'),
+                              label: Text(l10n.clearAllFilters),
                             ),
                           ),
                         ],
@@ -363,7 +374,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
               child: Row(
                 children: [
                   Text(
-                    '${employees.length} employee${employees.length != 1 ? 's' : ''}',
+                    l10n.employeeCount(employees.length, employees.length != 1 ? 's' : ''),
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey500),
                   ),
                   if (_filters.hasActiveFilters) ...[
@@ -374,9 +385,9 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                         color: AppColors.primaryLight,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Text(
-                        'Filtered',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary),
+                      child: Text(
+                        l10n.filtered,
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary),
                       ),
                     ),
                   ],
@@ -390,17 +401,17 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
           Expanded(
             child: employeesAsync.when(
               data: (employees) => employees.isEmpty
-                  ? _EmptyState(hasFilters: _filters.hasActiveFilters, onClear: _clearFilters)
+                  ? _EmptyState(hasFilters: _filters.hasActiveFilters, onClear: _clearFilters, l10n: l10n)
                   : ListView.builder(
                       padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
                       itemCount: employees.length,
                       itemBuilder: (context, i) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: _EmployeeCard(employee: employees[i], colorIndex: i % _avatarColors.length),
+                        child: _EmployeeCard(employee: employees[i], colorIndex: i % _avatarColors.length, l10n: l10n),
                       ),
                     ),
-              loading: () => const LoadingIndicator(message: 'Loading employees...'),
-              error: (e, _) => _ErrorState(onRetry: () => ref.invalidate(adminEmployeesProvider(_filters))),
+              loading: () => LoadingIndicator(message: l10n.loadingEmployees),
+              error: (e, _) => _ErrorState(onRetry: () => ref.invalidate(adminEmployeesProvider(_filters)), l10n: l10n),
             ),
           ),
         ],
@@ -424,16 +435,16 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: () => context.push(AppRoutes.adminEmployeeForm),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.person_add_rounded, color: Colors.white, size: 20),
-                  SizedBox(width: 8),
+                  const Icon(Icons.person_add_rounded, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
                   Text(
-                    'Add Employee',
-                    style: TextStyle(
+                    l10n.addEmployee,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
@@ -454,14 +465,15 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
 class _EmployeeCard extends ConsumerWidget {
   final EmployeeData employee;
   final int colorIndex;
-  const _EmployeeCard({required this.employee, required this.colorIndex});
+  final AppLocalizations l10n;
+  const _EmployeeCard({required this.employee, required this.colorIndex, required this.l10n});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = employee.employmentStatus ?? employee.status ?? 'active';
     final type = employee.employmentType ?? '';
     final cfg = _statusConfig[status] ?? const _StatusCfg(Color(0xFF6B7280), Color(0xFFF3F4F6), Icons.help_outline_rounded);
-    final typeLabel = _typeLabels[type] ?? type;
+    final typeLabel = _getLocalizedType(type, l10n);
     final avatarBg = _avatarColors[colorIndex];
     final avatarFg = _avatarFgColors[colorIndex];
 
@@ -675,7 +687,7 @@ class _EmployeeCard extends ConsumerWidget {
                           icon: Icons.delete_rounded,
                           color: AppColors.danger,
                           bg: AppColors.dangerLight,
-                          onTap: () => _delete(context, ref),
+                          onTap: () => _delete(context, ref, l10n),
                         ),
                       ],
                     ),
@@ -719,7 +731,7 @@ class _EmployeeCard extends ConsumerWidget {
     return e.name.isNotEmpty ? e.name[0].toUpperCase() : '?';
   }
 
-  Future<void> _delete(BuildContext context, WidgetRef ref) async {
+  Future<void> _delete(BuildContext context, WidgetRef ref, AppLocalizations l10n) async {
   final confirm = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
@@ -752,9 +764,9 @@ class _EmployeeCard extends ConsumerWidget {
 
               const SizedBox(height: 20),
 
-              const Text(
-                "Delete Employee?",
-                style: TextStyle(
+              Text(
+                l10n.deleteEmployeeTitle,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -771,8 +783,8 @@ class _EmployeeCard extends ConsumerWidget {
                     height: 1.5,
                   ),
                   children: [
-                    const TextSpan(
-                      text: "Are you sure you want to permanently delete\n",
+                    TextSpan(
+                      text: l10n.deleteEmployeeConfirmPrefix,
                     ),
                     TextSpan(
                       text: employee.name,
@@ -781,8 +793,8 @@ class _EmployeeCard extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const TextSpan(
-                      text: "?\n\nThis action cannot be undone.",
+                    TextSpan(
+                      text: l10n.deleteEmployeeConfirmSuffix,
                     ),
                   ],
                 ),
@@ -804,9 +816,9 @@ class _EmployeeCard extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
+                      child: Text(
+                        l10n.cancel,
+                        style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.w600,
                         ),
@@ -820,7 +832,7 @@ class _EmployeeCard extends ConsumerWidget {
                     child: ElevatedButton.icon(
                       onPressed: () => Navigator.pop(ctx, true),
                       icon: const Icon(Icons.delete_outline),
-                      label: const Text("Delete"),
+                      label: Text(l10n.delete),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.danger,
                         foregroundColor: Colors.white,
@@ -853,7 +865,7 @@ class _EmployeeCard extends ConsumerWidget {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("✅ ${employee.name} deleted successfully"),
+          content: Text(l10n.employeeDeletedSuccess(employee.name)),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
@@ -863,7 +875,7 @@ class _EmployeeCard extends ConsumerWidget {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("❌ Failed: $e"),
+          content: Text(l10n.failedMsg(e.toString())),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -972,7 +984,8 @@ class _FilterDropdown<T> extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   final bool hasFilters;
   final VoidCallback onClear;
-  const _EmptyState({required this.hasFilters, required this.onClear});
+  final AppLocalizations l10n;
+  const _EmptyState({required this.hasFilters, required this.onClear, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -993,14 +1006,14 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              hasFilters ? 'No results found' : 'No Employees Yet',
+              hasFilters ? l10n.noResultsFound : l10n.noEmployeesYet,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.grey800),
             ),
             const SizedBox(height: 8),
             Text(
               hasFilters
-                  ? 'Try adjusting your search or filters to find what you\'re looking for.'
-                  : 'Start building your team by adding your first employee.',
+                  ? l10n.adjustFiltersHint
+                  : l10n.startBuildingTeamHint,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 14, color: AppColors.grey500),
             ),
@@ -1016,7 +1029,7 @@ class _EmptyState extends StatelessWidget {
                   minimumSize: Size.zero,
                 ),
                 icon: const Icon(Icons.clear_rounded, size: 16),
-                label: const Text('Clear Filters', style: TextStyle(fontWeight: FontWeight.w600)),
+                label: Text(l10n.clearFilters, style: const TextStyle(fontWeight: FontWeight.w600)),
               ),
             ],
           ],
@@ -1029,7 +1042,8 @@ class _EmptyState extends StatelessWidget {
 // ── Error State ───────────────────────────────────────────────────────────────
 class _ErrorState extends StatelessWidget {
   final VoidCallback onRetry;
-  const _ErrorState({required this.onRetry});
+  final AppLocalizations l10n;
+  const _ErrorState({required this.onRetry, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -1044,9 +1058,9 @@ class _ErrorState extends StatelessWidget {
             child: const Icon(Icons.cloud_off_rounded, size: 36, color: AppColors.danger),
           ),
           const SizedBox(height: 16),
-          const Text('Failed to load employees', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+          Text(l10n.failedToLoadEmployees, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.grey700)),
           const SizedBox(height: 8),
-          const Text('Check your connection and try again.', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+          Text(l10n.checkConnectionTryAgain, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
           const SizedBox(height: 20),
           OutlinedButton.icon(
             onPressed: onRetry,
@@ -1058,7 +1072,7 @@ class _ErrorState extends StatelessWidget {
               minimumSize: Size.zero,
             ),
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Try Again', style: TextStyle(fontWeight: FontWeight.w600)),
+            label: Text(l10n.tryAgain, style: const TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),

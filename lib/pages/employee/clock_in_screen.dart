@@ -16,6 +16,7 @@ import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
 import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class ClockInArgs {
   final bool isClockIn;
@@ -51,6 +52,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
   bool _isSubmitting = false;
 
   Future<void> _takeSelfie() async {
+    final l10n = AppLocalizations.of(context)!;
     final deviceInfo = DeviceInfoPlugin();
     bool isPhysicalDevice = true;
     if (defaultTargetPlatform == TargetPlatform.android) {
@@ -71,7 +73,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
           _photoPath = file.path;
         });
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🤖 Simulator: generated mock selfie photo'), backgroundColor: AppColors.info, duration: Duration(seconds: 2)));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.simMockSelfie), backgroundColor: AppColors.info, duration: const Duration(seconds: 2)));
         }
       } catch (e) {
         // Handle error
@@ -82,7 +84,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
     final cameraStatus = await Permission.camera.request();
     if (!cameraStatus.isGranted) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Camera permission is required for selfie verification.'), backgroundColor: AppColors.danger));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.cameraPermissionRequired), backgroundColor: AppColors.danger));
       }
       return;
     }
@@ -98,7 +100,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('⚠️ Camera exception: ${e.toString()}'), backgroundColor: AppColors.warning));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.cameraException + e.toString()), backgroundColor: AppColors.warning));
       }
     }
   }
@@ -161,6 +163,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
   Future<void> _submitClockIn() async {
     if (_photoPath == null) return;
     
+    final l10n = AppLocalizations.of(context)!;
     final radius = widget.args.radius ?? 500; // default 500m
     final bool isGeoValid = widget.args.distance <= radius;
 
@@ -168,14 +171,14 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
       final proceed = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Out of Range'),
-          content: Text('You are ${widget.args.distance.toStringAsFixed(0)}m away from the branch (allowed: ${radius}m). This will be flagged for manager review. Proceed?'),
+          title: Text(l10n.outOfRange),
+          content: Text(l10n.outOfRangeDesc1 + widget.args.distance.toStringAsFixed(0) + l10n.outOfRangeDesc2 + radius.toString() + l10n.outOfRangeDesc3),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning),
-              child: const Text('Clock In Anyway', style: TextStyle(color: Colors.white)),
+              child: Text(l10n.clockInAnyway, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -229,16 +232,16 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
       ref.invalidate(unreadCountProvider);
       ref.invalidate(notificationsProvider);
       
-      final String actionTitle = widget.args.isClockIn ? 'Clocked in successfully!' : 'Clocked out successfully!';
+      final String actionTitle = widget.args.isClockIn ? l10n.clockedInSuccessfully : l10n.clockedOutSuccessfully;
       FcmService.instance.showLocalNotification(
         title: actionTitle,
-        body: 'Your attendance has been recorded.',
+        body: l10n.attendanceRecorded,
       );
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.args.isClockIn ? '🎉 Clocked in successfully!' : '🎉 Clocked out successfully!'), 
+            content: Text(widget.args.isClockIn ? l10n.clockedInSuccessfullyEmoji : l10n.clockedOutSuccessfullyEmoji), 
             backgroundColor: AppColors.success, 
             behavior: SnackBarBehavior.floating
           ),
@@ -248,7 +251,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isSubmitting = false);
-        String msg = widget.args.isClockIn ? 'Clock-in failed' : 'Clock-out failed';
+        String msg = widget.args.isClockIn ? l10n.clockInFailed : l10n.clockOutFailed;
         if (e is AppException) {
           msg = e.message;
         }
@@ -261,9 +264,10 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final title = widget.args.isClockIn 
-        ? (widget.args.isOvertime ? 'Overtime Check In' : 'Check In') 
-        : (widget.args.isOvertime ? 'Overtime Check Out' : 'Check Out');
+        ? (widget.args.isOvertime ? l10n.overtimeCheckIn : l10n.checkInTitle) 
+        : (widget.args.isOvertime ? l10n.overtimeCheckOut : l10n.checkOutTitle);
     
     return Scaffold(
       backgroundColor: Colors.white,
@@ -280,9 +284,9 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                'Take Selfie',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800),
+              Text(
+                l10n.takeSelfie,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800),
               ),
               const SizedBox(height: 32),
               
@@ -304,12 +308,12 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
                         : null,
                   ),
                   child: _photoPath == null
-                      ? const Column(
+                      ? Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.camera_alt, size: 48, color: AppColors.primary),
-                            SizedBox(height: 8),
-                            Text('Tap to capture', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w500)),
+                            const Icon(Icons.camera_alt, size: 48, color: AppColors.primary),
+                            const SizedBox(height: 8),
+                            Text(l10n.tapToCapture, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w500)),
                           ],
                         )
                       : null,
@@ -317,9 +321,9 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
               ),
               
               const SizedBox(height: 32),
-              const Text(
-                'Please take Selfie to verify yourself',
-                style: TextStyle(fontSize: 14, color: AppColors.grey600),
+              Text(
+                l10n.takeSelfieToVerify,
+                style: const TextStyle(fontSize: 14, color: AppColors.grey600),
               ),
               
               const Spacer(),
@@ -341,7 +345,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
                         const Icon(Icons.location_on, color: AppColors.primary, size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          'Location: ${widget.args.branchName}',
+                          l10n.locationLabel + widget.args.branchName,
                           style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.grey800, fontSize: 16),
                         ),
                       ],
@@ -349,7 +353,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
                     const SizedBox(height: 8),
                     if (widget.args.radius != null)
                       Text(
-                        'Within ${widget.args.radius}m radius',
+                        l10n.withinRadiusLabel + widget.args.radius.toString() + l10n.mRadius,
                         style: const TextStyle(color: AppColors.grey600, fontSize: 14),
                       ),
                   ],
@@ -372,7 +376,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
                   ),
                   child: _isSubmitting 
                       ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : Text('Confirm $title', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                      : Text(l10n.confirmAction + title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               ),
             ],

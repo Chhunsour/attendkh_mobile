@@ -9,6 +9,7 @@ import 'package:mpg_hr_mobile_app/services/expense_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class ExpenseScreen extends ConsumerWidget {
   const ExpenseScreen({super.key});
@@ -16,10 +17,11 @@ class ExpenseScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final expensesAsync = ref.watch(expensesProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Expenses'),
+        title: Text(l10n.expenses),
         actions: [
           IconButton(
             icon: const Icon(Icons.add, color: AppColors.primary, size: 28),
@@ -35,9 +37,9 @@ class ExpenseScreen extends ConsumerWidget {
                   children: [
                     Icon(Icons.receipt_outlined, size: 64, color: AppColors.grey300.withAlpha(128)),
                     const SizedBox(height: 12),
-                    const Text('No expense claims found', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.grey500)),
+                    Text(l10n.noExpenseClaims, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.grey500)),
                     const SizedBox(height: 4),
-                    const Text('Submit your first expense claim to get started', style: TextStyle(fontSize: 12, color: AppColors.grey400)),
+                    Text(l10n.submitFirstExpense, style: const TextStyle(fontSize: 12, color: AppColors.grey400)),
                   ],
                 ),
               )
@@ -57,7 +59,7 @@ class ExpenseScreen extends ConsumerWidget {
                   );
                 },
               ),
-        loading: () => const LoadingIndicator(message: 'Loading expenses...'),
+        loading: () => LoadingIndicator(message: l10n.loadingExpenses),
         error: (e, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -67,7 +69,7 @@ class ExpenseScreen extends ConsumerWidget {
               OutlinedButton.icon(
                 onPressed: () => ref.invalidate(expensesProvider),
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(l10n.retry),
               ),
             ],
           ),
@@ -120,14 +122,15 @@ class ExpenseScreen extends ConsumerWidget {
   }
 
   Future<void> _deleteExpense(BuildContext context, WidgetRef ref, ExpenseData e) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Claim'),
-        content: Text('Delete "${e.title}" permanently?'),
+        title: Text(l10n.deleteClaim),
+        content: Text(l10n.deleteClaimConfirm(e.title)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: AppColors.danger))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.delete, style: const TextStyle(color: AppColors.danger))),
         ],
       ),
     );
@@ -138,11 +141,11 @@ class ExpenseScreen extends ConsumerWidget {
         ref.invalidate(expensesProvider);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('✅ Claim deleted'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+            SnackBar(content: Text(l10n.claimDeleted), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
           );
         }
       } catch (ex) {
-        String msg = 'Failed to delete';
+        String msg = l10n.failedToDelete;
         if (ex is AppException) msg = ex.message;
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -167,6 +170,7 @@ class _ExpenseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -235,7 +239,7 @@ class _ExpenseCard extends StatelessWidget {
                       color: AppColors.grey100,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Text(expense.category, style: const TextStyle(fontSize: 10, color: AppColors.grey500)),
+                    child: Text(_getCategoryL10n(expense.category, l10n), style: const TextStyle(fontSize: 10, color: AppColors.grey500)),
                   ),
                   if (expense.rejectionReason != null && expense.rejectionReason!.isNotEmpty) ...[
                     const SizedBox(width: 8),
@@ -266,7 +270,7 @@ class _ExpenseCard extends StatelessWidget {
                     TextButton.icon(
                       onPressed: onEdit,
                       icon: const Icon(Icons.edit_outlined, size: 16),
-                      label: const Text('Edit'),
+                      label: Text(l10n.edit),
                       style: TextButton.styleFrom(foregroundColor: AppColors.primary),
                     ),
                   if (onDelete != null) ...[
@@ -274,7 +278,7 @@ class _ExpenseCard extends StatelessWidget {
                     TextButton.icon(
                       onPressed: onDelete,
                       icon: const Icon(Icons.delete_outline, size: 16),
-                      label: const Text('Delete'),
+                      label: Text(l10n.delete),
                       style: TextButton.styleFrom(foregroundColor: AppColors.danger),
                     ),
                   ],
@@ -300,6 +304,19 @@ class _ExpenseCard extends StatelessWidget {
     }
   }
 
+  String _getCategoryL10n(String category, AppLocalizations l10n) {
+    switch (category.toLowerCase()) {
+      case 'travel': return l10n.travel;
+      case 'meals': return l10n.meals;
+      case 'supplies': return l10n.supplies;
+      case 'software': return l10n.software;
+      case 'transport': return l10n.transport;
+      case 'accommodation': return l10n.accommodation;
+      case 'other':
+      default: return l10n.other;
+    }
+  }
+
   String _capitalize(String s) => s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
 
   String _currencySymbol(String currency) {
@@ -322,6 +339,7 @@ class _ExpenseDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -331,19 +349,19 @@ class _ExpenseDetailSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Expense Claim Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+              Text(l10n.expenseClaimDetails, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
               IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
             ],
           ),
           const SizedBox(height: 20),
-          _detailRow('Title', expense.title),
-          _detailRow('Category', expense.category),
-          _detailRow('Amount', '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
-          _detailRow('Expense Date', expense.date),
+          _detailRow(l10n.title, expense.title),
+          _detailRow(l10n.category, expense.category),
+          _detailRow(l10n.amount, '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
+          _detailRow(l10n.expenseDate, expense.date),
           const SizedBox(height: 8),
           Row(
             children: [
-              const Text('Status: ', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+              Text(l10n.statusLabel, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(
@@ -359,21 +377,21 @@ class _ExpenseDetailSheet extends StatelessWidget {
           ),
           if (expense.description != null && expense.description!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _detailRow('Description', expense.description!),
+            _detailRow(l10n.description, expense.description!),
           ],
           if (expense.rejectionReason != null && expense.rejectionReason!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            const Text('Rejection Reason', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+            Text(l10n.rejectionReason, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
             const SizedBox(height: 2),
             Text(expense.rejectionReason!, style: const TextStyle(fontSize: 13, color: AppColors.danger)),
           ],
           if (expense.paidAt != null && expense.paidAt!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _detailRow('Paid At', expense.paidAt!),
+            _detailRow(l10n.paidAt, expense.paidAt!),
           ],
           if (expense.receiptPath != null && expense.receiptPath!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            const Text('Receipt', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+            Text(l10n.receipt, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
             const SizedBox(height: 4),
             Row(
               children: [
@@ -517,7 +535,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
 
   void _removeReceipt() => setState(() => _receipt = null);
 
-  Future<void> _submit() async {
+  Future<void> _submit(AppLocalizations l10n) async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSubmitting = true);
     try {
@@ -551,13 +569,13 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_isEditing ? '✅ Expense claim updated' : '✅ Expense claim submitted'),
+          content: Text(_isEditing ? l10n.expenseClaimUpdated : l10n.expenseClaimSubmitted),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
       );
     } catch (e) {
-      String msg = _isEditing ? 'Failed to update' : 'Failed to submit';
+      String msg = _isEditing ? l10n.failedToUpdate : l10n.failedToSubmit;
       if (e is AppException) msg = e.message;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -579,6 +597,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.only(
         left: 24,
@@ -597,7 +616,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    _isEditing ? 'Edit Expense Claim' : 'New Expense Claim',
+                    _isEditing ? l10n.editExpenseClaim : l10n.newExpenseClaim,
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800),
                   ),
                   IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
@@ -606,28 +625,28 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _titleCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Title *',
-                  border: OutlineInputBorder(),
-                  hintText: 'e.g. Client lunch, Taxi fare',
+                decoration: InputDecoration(
+                  labelText: l10n.titleRequired,
+                  border: const OutlineInputBorder(),
+                  hintText: l10n.titleHint,
                 ),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Title is required' : null,
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.titleError : null,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 initialValue: _category,
-                decoration: const InputDecoration(
-                  labelText: 'Category *',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.categoryRequired,
+                  border: const OutlineInputBorder(),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'Travel', child: Text('Travel')),
-                  DropdownMenuItem(value: 'Meals', child: Text('Meals')),
-                  DropdownMenuItem(value: 'Supplies', child: Text('Supplies')),
-                  DropdownMenuItem(value: 'Software', child: Text('Software')),
-                  DropdownMenuItem(value: 'Transport', child: Text('Transport')),
-                  DropdownMenuItem(value: 'Accommodation', child: Text('Accommodation')),
-                  DropdownMenuItem(value: 'Other', child: Text('Other')),
+                items: [
+                  DropdownMenuItem(value: 'Travel', child: Text(l10n.travel)),
+                  DropdownMenuItem(value: 'Meals', child: Text(l10n.meals)),
+                  DropdownMenuItem(value: 'Supplies', child: Text(l10n.supplies)),
+                  DropdownMenuItem(value: 'Software', child: Text(l10n.software)),
+                  DropdownMenuItem(value: 'Transport', child: Text(l10n.transport)),
+                  DropdownMenuItem(value: 'Accommodation', child: Text(l10n.accommodation)),
+                  DropdownMenuItem(value: 'Other', child: Text(l10n.other)),
                 ],
                 onChanged: (v) {
                   if (v != null) setState(() => _category = v);
@@ -640,15 +659,15 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                     flex: 3,
                     child: TextFormField(
                       controller: _amountCtrl,
-                      decoration: const InputDecoration(
-                        labelText: 'Amount *',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.amountRequired,
+                        border: const OutlineInputBorder(),
                         prefixText: '\$ ',
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Required';
-                        if (double.tryParse(v.trim()) == null) return 'Invalid amount';
+                        if (v == null || v.trim().isEmpty) return l10n.requiredError;
+                        if (double.tryParse(v.trim()) == null) return l10n.invalidAmount;
                         return null;
                       },
                     ),
@@ -658,9 +677,9 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                     flex: 2,
                     child: DropdownButtonFormField<String>(
                       initialValue: _currency,
-                      decoration: const InputDecoration(
-                        labelText: 'Currency',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.currency,
+                        border: const OutlineInputBorder(),
                       ),
                       items: const [
                         DropdownMenuItem(value: 'USD', child: Text('USD')),
@@ -691,9 +710,9 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Expense Date *',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                          Text(
+                            l10n.expenseDateRequired,
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -710,18 +729,18 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Description (optional)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.descriptionOptional,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 2,
               ),
               const SizedBox(height: 16),
               // Receipt upload — only for new claims, matching web behavior
               if (!_isEditing) ...[
-                const Text(
-                  'Receipt (optional)',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                Text(
+                  l10n.receiptOptional,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600),
                 ),
                 const SizedBox(height: 8),
                 if (_receipt == null)
@@ -753,9 +772,9 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                                 color: AppColors.primary, size: 26),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'Tap to attach receipt',
-                            style: TextStyle(
+                          Text(
+                            l10n.tapToAttachReceipt,
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: AppColors.primary,
@@ -763,8 +782,8 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Camera or Gallery  ·  JPG, PNG, WEBP',
-                            style: TextStyle(fontSize: 11, color: AppColors.grey400),
+                            l10n.cameraOrGallery,
+                            style: const TextStyle(fontSize: 11, color: AppColors.grey400),
                           ),
                         ],
                       ),
@@ -798,50 +817,21 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                                 children: [
                                   const Icon(Icons.check_circle_rounded,
                                       size: 15, color: AppColors.success),
-                                  const SizedBox(width: 4),
-                                  const Text(
-                                    'Receipt attached',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.success,
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      _receipt!.path.split('/').last,
+                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.success),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 3),
-                              Text(
-                                _receipt!.path.split('/').last,
-                                style: const TextStyle(
-                                    fontSize: 11, color: AppColors.grey600),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: _pickReceipt,
-                                    child: const Text(
-                                      'Change',
-                                      style: TextStyle(
-                                          fontSize: 11,
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  GestureDetector(
-                                    onTap: _removeReceipt,
-                                    child: const Text(
-                                      'Remove',
-                                      style: TextStyle(
-                                          fontSize: 11,
-                                          color: AppColors.danger,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(height: 4),
+                              GestureDetector(
+                                onTap: _removeReceipt,
+                                child: Text(l10n.remove, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.danger)),
                               ),
                             ],
                           ),
@@ -853,7 +843,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
               ],
               const SizedBox(height: 8),
               ElevatedButton(
-                onPressed: _isSubmitting ? null : _submit,
+                onPressed: _isSubmitting ? null : () => _submit(l10n),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -866,7 +856,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
                     : Text(
-                        _isEditing ? 'Update Claim' : 'Submit Claim',
+                        _isEditing ? l10n.edit : l10n.submit,
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
               ),

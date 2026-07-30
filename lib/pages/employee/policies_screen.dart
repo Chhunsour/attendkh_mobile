@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/services/policies_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 final employeePoliciesProvider = FutureProvider.autoDispose<List<Policy>>((ref) async {
   final repo = PoliciesRepository();
@@ -34,19 +35,20 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
   @override
   Widget build(BuildContext context) {
     final policiesAsync = ref.watch(employeePoliciesProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Company Policies'),
+        title: Text(l10n.companyPolicies),
         bottom: TabBar(
           controller: _tabController,
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.grey500,
           indicatorColor: AppColors.primary,
-          tabs: const [
-            Tab(text: 'Action Required'),
-            Tab(text: 'Acknowledged'),
+          tabs: [
+            Tab(text: l10n.actionRequired),
+            Tab(text: l10n.acknowledged),
           ],
         ),
       ),
@@ -60,8 +62,8 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
           return TabBarView(
             controller: _tabController,
             children: [
-              _buildPolicyList(unread, emptyMessage: 'All policies have been acknowledged!'),
-              _buildPolicyList(read, emptyMessage: 'You have not acknowledged any policies yet.'),
+              _buildPolicyList(unread, emptyMessage: l10n.allPoliciesAcknowledged, l10n: l10n),
+              _buildPolicyList(read, emptyMessage: l10n.noPoliciesAcknowledged, l10n: l10n),
             ],
           );
         },
@@ -69,7 +71,7 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
     );
   }
 
-  Widget _buildPolicyList(List<Policy> policies, {required String emptyMessage}) {
+  Widget _buildPolicyList(List<Policy> policies, {required String emptyMessage, required AppLocalizations l10n}) {
     if (policies.isEmpty) {
       return Center(
         child: Padding(
@@ -93,7 +95,7 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
       itemBuilder: (context, index) {
         final policy = policies[index];
         return InkWell(
-          onTap: () => _openPolicyDetail(policy),
+          onTap: () => _openPolicyDetail(policy, l10n),
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -123,7 +125,7 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
                     children: [
                       Text(policy.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.grey900)),
                       const SizedBox(height: 4),
-                      Text('Version ${policy.version}', style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
+                      Text('${l10n.version}${policy.version}', style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                     ],
                   ),
                 ),
@@ -136,10 +138,11 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
     );
   }
 
-  void _openPolicyDetail(Policy policy) {
+  void _openPolicyDetail(Policy policy, AppLocalizations l10n) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => PolicyDetailScreen(
         policy: policy, 
+        l10n: l10n,
         onAcknowledged: () {
           ref.invalidate(employeePoliciesProvider);
         }
@@ -151,8 +154,9 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
 class PolicyDetailScreen extends StatefulWidget {
   final Policy policy;
   final VoidCallback onAcknowledged;
+  final AppLocalizations l10n;
 
-  const PolicyDetailScreen({super.key, required this.policy, required this.onAcknowledged});
+  const PolicyDetailScreen({super.key, required this.policy, required this.onAcknowledged, required this.l10n});
 
   @override
   State<PolicyDetailScreen> createState() => _PolicyDetailScreenState();
@@ -168,7 +172,7 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
       await repo.acknowledgePolicy(widget.policy.id);
       
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Policy acknowledged successfully.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.l10n.policyAcknowledgedSuccess)));
       widget.onAcknowledged();
       Navigator.pop(context);
     } catch (e) {
@@ -184,7 +188,7 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Policy Document'),
+        title: Text(widget.l10n.policyDocument),
         elevation: 0,
         backgroundColor: Colors.white,
       ),
@@ -203,7 +207,7 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(color: AppColors.grey100, borderRadius: BorderRadius.circular(4)),
-                        child: Text('Version ${widget.policy.version}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                        child: Text('${widget.l10n.version}${widget.policy.version}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                       ),
                       if (widget.policy.department != null) ...[
                         const SizedBox(width: 8),
@@ -243,7 +247,7 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Acknowledged on ${widget.policy.acknowledgedAt?.split("T").first ?? ""}',
+                        '${widget.l10n.acknowledgedOn}${widget.policy.acknowledgedAt?.split("T").first ?? ""}',
                         style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -271,7 +275,7 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
                   ),
                   child: _submitting
                       ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text('I have read and acknowledge', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      : Text(widget.l10n.iHaveReadAndAcknowledge, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class AdminPayrollDetailScreen extends ConsumerStatefulWidget {
   final String period;
@@ -30,6 +31,7 @@ class _AdminPayrollDetailScreenState extends ConsumerState<AdminPayrollDetailScr
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -37,13 +39,13 @@ class _AdminPayrollDetailScreenState extends ConsumerState<AdminPayrollDetailScr
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'Payroll ${widget.period}',
+          l10n.payrollDetailTitle(widget.period),
           style: const TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.download),
-            tooltip: 'Export to Excel',
+            tooltip: l10n.exportToExcelTooltip,
             onPressed: _exportPayroll,
           ),
         ],
@@ -52,21 +54,21 @@ class _AdminPayrollDetailScreenState extends ConsumerState<AdminPayrollDetailScr
         future: Future.wait([_runFuture, _payslipsFuture]),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingIndicator(message: 'Loading payslips...');
+            return LoadingIndicator(message: l10n.loadingPayslips);
           }
           if (snapshot.hasError) {
             return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Error: ${snapshot.error}', style: const TextStyle(color: AppColors.danger)),
+                  Text(l10n.payrollDetailError(snapshot.error.toString()), style: const TextStyle(color: AppColors.danger)),
                   const SizedBox(height: 12),
                   ElevatedButton.icon(
                     onPressed: () {
                       setState(() => _loadData());
                     },
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -83,11 +85,11 @@ class _AdminPayrollDetailScreenState extends ConsumerState<AdminPayrollDetailScr
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    Expanded(child: _SummaryCard(label: 'Total Gross', value: '\$${run.totalGross.toStringAsFixed(0)}', color: AppColors.primary)),
+                    Expanded(child: _SummaryCard(label: l10n.totalGrossLabel, value: '\$${run.totalGross.toStringAsFixed(0)}', color: AppColors.primary)),
                     const SizedBox(width: 8),
-                    Expanded(child: _SummaryCard(label: 'Deductions', value: '\$${run.totalDeductions.toStringAsFixed(0)}', color: AppColors.danger)),
+                    Expanded(child: _SummaryCard(label: l10n.deductionsLabel, value: '\$${run.totalDeductions.toStringAsFixed(0)}', color: AppColors.danger)),
                     const SizedBox(width: 8),
-                    Expanded(child: _SummaryCard(label: 'Net Pay', value: '\$${run.totalNet.toStringAsFixed(0)}', color: AppColors.success)),
+                    Expanded(child: _SummaryCard(label: l10n.netPayLabel, value: '\$${run.totalNet.toStringAsFixed(0)}', color: AppColors.success)),
                   ],
                 ),
               ),
@@ -112,7 +114,7 @@ class _AdminPayrollDetailScreenState extends ConsumerState<AdminPayrollDetailScr
                       ),
                     ),
                     const Spacer(),
-                    Text('${run.totalEmployees} employees', style: TextStyle(color: AppColors.grey500, fontSize: 13)),
+                    Text(l10n.employeesCountSuffix(run.totalEmployees), style: TextStyle(color: AppColors.grey500, fontSize: 13)),
                   ],
                 ),
               ),
@@ -121,7 +123,7 @@ class _AdminPayrollDetailScreenState extends ConsumerState<AdminPayrollDetailScr
               // Payslip list
               Expanded(
                 child: payslips.isEmpty
-                    ? const Center(child: Text('No payslips found', style: TextStyle(color: AppColors.grey400)))
+                    ? Center(child: Text(l10n.noPayslipsFound, style: const TextStyle(color: AppColors.grey400)))
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         itemCount: payslips.length,
@@ -139,12 +141,13 @@ class _AdminPayrollDetailScreenState extends ConsumerState<AdminPayrollDetailScr
   }
 
   Future<void> _exportPayroll() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final path = await _repo.exportPayroll(widget.period);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✅ Exported to $path'),
+            content: Text(l10n.exportedToPath(path)),
             backgroundColor: AppColors.success,
             duration: const Duration(seconds: 4),
           ),
@@ -153,7 +156,7 @@ class _AdminPayrollDetailScreenState extends ConsumerState<AdminPayrollDetailScr
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ Export failed: $e'), backgroundColor: AppColors.danger),
+          SnackBar(content: Text(l10n.exportFailed(e.toString())), backgroundColor: AppColors.danger),
         );
       }
     }
@@ -201,6 +204,7 @@ class _PayslipCardState extends State<_PayslipCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = widget.payslip;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -241,29 +245,29 @@ class _PayslipCardState extends State<_PayslipCard> {
               ),
               if (_expanded) ...[
                 const Divider(height: 20),
-                _detailRow('Basic Salary', '\$${p.basicSalary.toStringAsFixed(2)}'),
-                if (p.overtimePay > 0) _detailRow('Overtime Pay', '\$${p.overtimePay.toStringAsFixed(2)}', color: AppColors.info),
-                if (p.allowances > 0) _detailRow('Allowances', '\$${p.allowances.toStringAsFixed(2)}'),
-                if (p.otherEarnings > 0) _detailRow('Other Earnings', '\$${p.otherEarnings.toStringAsFixed(2)}'),
+                _detailRow(l10n.basicSalaryLabel, '\$${p.basicSalary.toStringAsFixed(2)}'),
+                if (p.overtimePay > 0) _detailRow(l10n.overtimePayLabel, '\$${p.overtimePay.toStringAsFixed(2)}', color: AppColors.info),
+                if (p.allowances > 0) _detailRow(l10n.allowancesLabel, '\$${p.allowances.toStringAsFixed(2)}'),
+                if (p.otherEarnings > 0) _detailRow(l10n.otherEarningsLabel, '\$${p.otherEarnings.toStringAsFixed(2)}'),
                 const SizedBox(height: 4),
-                _detailRow('Gross Salary', '\$${p.grossSalary.toStringAsFixed(2)}', bold: true),
+                _detailRow(l10n.grossSalaryLabel, '\$${p.grossSalary.toStringAsFixed(2)}', bold: true),
                 const SizedBox(height: 8),
-                _detailRow('Tax Deduction (10%)', '-\$${p.taxDeduction.toStringAsFixed(2)}', color: AppColors.danger),
-                _detailRow('Insurance (5%)', '-\$${p.insuranceDeduction.toStringAsFixed(2)}', color: AppColors.danger),
-                if (p.lateDeduction > 0) _detailRow('Late Deduction', '-\$${p.lateDeduction.toStringAsFixed(2)}', color: AppColors.warning),
-                if (p.otherDeductions > 0) _detailRow('Other Deductions', '-\$${p.otherDeductions.toStringAsFixed(2)}', color: AppColors.danger),
+                _detailRow(l10n.taxDeductionLabel, '-\$${p.taxDeduction.toStringAsFixed(2)}', color: AppColors.danger),
+                _detailRow(l10n.insuranceDeductionLabel, '-\$${p.insuranceDeduction.toStringAsFixed(2)}', color: AppColors.danger),
+                if (p.lateDeduction > 0) _detailRow(l10n.lateDeductionLabel, '-\$${p.lateDeduction.toStringAsFixed(2)}', color: AppColors.warning),
+                if (p.otherDeductions > 0) _detailRow(l10n.otherDeductionsLabel, '-\$${p.otherDeductions.toStringAsFixed(2)}', color: AppColors.danger),
                 const SizedBox(height: 4),
-                _detailRow('Total Deductions', '-\$${p.totalDeductions.toStringAsFixed(2)}', color: AppColors.danger, bold: true),
+                _detailRow(l10n.totalDeductionsLabel, '-\$${p.totalDeductions.toStringAsFixed(2)}', color: AppColors.danger, bold: true),
                 const Divider(height: 16),
-                _detailRow('Net Salary', '\$${p.netSalary.toStringAsFixed(2)}', bold: true, netRow: true),
+                _detailRow(l10n.netSalaryLabel, '\$${p.netSalary.toStringAsFixed(2)}', bold: true, netRow: true),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _statChip('Working Days', p.workingDays.toString(), AppColors.primary),
-                    _statChip('Present', p.presentDays.toString(), AppColors.success),
-                    _statChip('Late', p.lateDays.toString(), AppColors.warning),
-                    _statChip('OT Hours', p.overtimeHours.toString(), AppColors.info),
+                    _statChip(l10n.workingDaysLabel, p.workingDays.toString(), AppColors.primary),
+                    _statChip(l10n.presentLabel, p.presentDays.toString(), AppColors.success),
+                    _statChip(l10n.lateLabel2, p.lateDays.toString(), AppColors.warning),
+                    _statChip(l10n.otHoursLabel, p.overtimeHours.toString(), AppColors.info),
                   ],
                 ),
               ],

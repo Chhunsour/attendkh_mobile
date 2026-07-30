@@ -7,6 +7,7 @@ import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employee_form_screen.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 // Status config
 const _statusConfig = {
@@ -58,9 +59,9 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.grey800),
-        title: const Text(
-          'Employee Profile',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.employeeProfile,
+          style: const TextStyle(
             color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -86,26 +87,26 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
                 ),
                 child: const Icon(Icons.edit_rounded, size: 18, color: AppColors.primary),
               ),
-              tooltip: 'Edit Employee',
+              tooltip: AppLocalizations.of(context)!.editEmployee,
             ),
           )).value ?? const SizedBox.shrink(),
         ],
       ),
       body: detailAsync.when(
         data: (richEmployee) => _buildDetailContent(context, richEmployee),
-        loading: () => const LoadingIndicator(message: 'Loading profile details...'),
+        loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingProfileDetails),
         error: (e, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.cloud_off_rounded, size: 48, color: AppColors.danger),
               const SizedBox(height: 12),
-              const Text('Failed to load profile details.', style: TextStyle(color: AppColors.grey600)),
+              Text(AppLocalizations.of(context)!.failedToLoadProfileDetails, style: const TextStyle(color: AppColors.grey600)),
               const SizedBox(height: 20),
               OutlinedButton.icon(
                 onPressed: () => ref.invalidate(employeeDetailProvider(widget.employee.id)),
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Retry'),
+                label: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),
@@ -115,6 +116,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
   }
 
   Widget _buildDetailContent(BuildContext context, EmployeeData emp) {
+    final l10n = AppLocalizations.of(context)!;
     final status = emp.employmentStatus ?? emp.status ?? 'active';
     final cfg = _statusConfig[status] ?? const _StatusCfg(Color(0xFF6B7280), Color(0xFFF3F4F6), Icons.help_outline_rounded);
 
@@ -213,13 +215,13 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      emp.position ?? 'No Position',
+                      emp.position ?? l10n.noPosition,
                       style: const TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w700),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    emp.department ?? 'No Department',
+                    emp.department ?? l10n.noDepartment,
                     style: const TextStyle(fontSize: 13, color: AppColors.grey500, fontWeight: FontWeight.w500),
                   ),
                 ],
@@ -240,11 +242,11 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
             indicatorSize: TabBarIndicatorSize.tab,
             labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
             unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-            tabs: const [
-              Tab(text: 'Info', icon: Icon(Icons.info_outline_rounded, size: 20)),
-              Tab(text: 'Leaves', icon: Icon(Icons.calendar_today_rounded, size: 20)),
-              Tab(text: 'Logs', icon: Icon(Icons.history_rounded, size: 20)),
-              Tab(text: 'Contact', icon: Icon(Icons.contact_phone_rounded, size: 20)),
+            tabs: [
+              Tab(text: l10n.tabInfo, icon: const Icon(Icons.info_outline_rounded, size: 20)),
+              Tab(text: l10n.tabLeaves, icon: const Icon(Icons.calendar_today_rounded, size: 20)),
+              Tab(text: l10n.tabLogs, icon: const Icon(Icons.history_rounded, size: 20)),
+              Tab(text: l10n.tabContact, icon: const Icon(Icons.contact_phone_rounded, size: 20)),
             ],
           ),
         ),
@@ -254,10 +256,10 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
           child: TabBarView(
             controller: _tabController,
             children: [
-              _buildInfoTab(emp),
-              _buildLeavesTab(emp),
-              _buildAttendanceTab(emp),
-              _buildEmergencyTab(emp),
+              _buildInfoTab(emp, l10n),
+              _buildLeavesTab(emp, l10n),
+              _buildAttendanceTab(emp, l10n),
+              _buildEmergencyTab(emp, l10n),
             ],
           ),
         ),
@@ -265,41 +267,41 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
     );
   }
 
-  Widget _buildInfoTab(EmployeeData emp) {
+  Widget _buildInfoTab(EmployeeData emp, AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Employment details'),
+          _buildSectionHeader(l10n.employmentDetails),
           _buildInfoCard([
-            _buildDetailRow(Icons.badge_outlined, 'Employee ID', emp.employeeId),
-            _buildDetailRow(Icons.category_outlined, 'Employment Type', _capitalize(emp.employmentType ?? 'full_time')),
-            _buildDetailRow(Icons.sensors_outlined, 'Status', _capitalize(emp.employmentStatus ?? 'active')),
-            _buildDetailRow(Icons.business_rounded, 'Branch', emp.branch),
-            _buildDetailRow(Icons.calendar_month_rounded, 'Join Date', formatDate(emp.joinDate)),
+            _buildDetailRow(Icons.badge_outlined, l10n.employeeId, emp.employeeId),
+            _buildDetailRow(Icons.category_outlined, l10n.employmentType, _capitalize(emp.employmentType ?? 'full_time')),
+            _buildDetailRow(Icons.sensors_outlined, l10n.status, _capitalize(emp.employmentStatus ?? 'active')),
+            _buildDetailRow(Icons.business_rounded, l10n.branch, emp.branch),
+            _buildDetailRow(Icons.calendar_month_rounded, l10n.joinDate, formatDate(emp.joinDate)),
           ]),
           const SizedBox(height: 24),
-          _buildSectionHeader('Personal details'),
+          _buildSectionHeader(l10n.personalDetails),
           _buildInfoCard([
-            _buildDetailRow(Icons.mail_outline_rounded, 'Email', emp.email),
-            _buildDetailRow(Icons.phone_iphone_rounded, 'Phone', emp.phone),
-            _buildDetailRow(Icons.face_unlock_rounded, 'Gender', _capitalize(emp.gender ?? 'Not specified')),
-            _buildDetailRow(Icons.cake_outlined, 'DOB', formatDate(emp.dateOfBirth)),
-            _buildDetailRow(Icons.favorite_border_rounded, 'Marital Status', _capitalize(emp.maritalStatus ?? 'Not specified')),
-            _buildDetailRow(Icons.pin_outlined, 'National ID', emp.nationalId),
-            _buildDetailRow(Icons.home_outlined, 'Address', emp.address),
+            _buildDetailRow(Icons.mail_outline_rounded, l10n.email, emp.email),
+            _buildDetailRow(Icons.phone_iphone_rounded, l10n.phone, emp.phone),
+            _buildDetailRow(Icons.face_unlock_rounded, l10n.gender, _capitalize(emp.gender ?? l10n.notSpecified)),
+            _buildDetailRow(Icons.cake_outlined, l10n.dob, formatDate(emp.dateOfBirth)),
+            _buildDetailRow(Icons.favorite_border_rounded, l10n.maritalStatus, _capitalize(emp.maritalStatus ?? l10n.notSpecified)),
+            _buildDetailRow(Icons.pin_outlined, l10n.nationalId, emp.nationalId),
+            _buildDetailRow(Icons.home_outlined, l10n.address, emp.address),
           ]),
           const SizedBox(height: 24),
-          _buildSectionHeader('Payroll & Salary'),
+          _buildSectionHeader(l10n.payrollAndSalary),
           _buildInfoCard([
-            _buildDetailRow(Icons.monetization_on_outlined, 'Monthly Salary', emp.salary != null ? '\$${emp.salary!.toStringAsFixed(2)}' : null),
-            _buildDetailRow(Icons.account_balance_outlined, 'Bank Name', emp.bankName),
-            _buildDetailRow(Icons.account_box_outlined, 'Bank Account', emp.bankAccount),
+            _buildDetailRow(Icons.monetization_on_outlined, l10n.monthlySalary, emp.salary != null ? '\$${emp.salary!.toStringAsFixed(2)}' : null),
+            _buildDetailRow(Icons.account_balance_outlined, l10n.bankName, emp.bankName),
+            _buildDetailRow(Icons.account_box_outlined, l10n.bankAccount, emp.bankAccount),
           ]),
           if (emp.notes != null && emp.notes!.isNotEmpty) ...[
             const SizedBox(height: 24),
-            _buildSectionHeader('Admin Notes'),
+            _buildSectionHeader(l10n.adminNotes),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -326,7 +328,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
     );
   }
 
-  Widget _buildLeavesTab(EmployeeData emp) {
+  Widget _buildLeavesTab(EmployeeData emp, AppLocalizations l10n) {
     final balances = emp.leaveBalances ?? [];
     final requests = emp.recentLeaveRequests ?? [];
 
@@ -335,9 +337,9 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Leave Balances'),
+          _buildSectionHeader(l10n.leaveBalances),
           if (balances.isEmpty)
-            _buildEmptyState('No leave balances allocated.')
+            _buildEmptyState(l10n.noLeaveBalancesAllocated)
           else
             ListView.separated(
               shrinkWrap: true,
@@ -388,9 +390,9 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildMiniStat('Allocated', total.toStringAsFixed(1)),
-                          _buildMiniStat('Used', bal.usedDays.toStringAsFixed(1)),
-                          _buildMiniStat('Remaining', remaining.toStringAsFixed(1), highlight: true),
+                          _buildMiniStat(l10n.allocated, total.toStringAsFixed(1)),
+                          _buildMiniStat(l10n.used, bal.usedDays.toStringAsFixed(1)),
+                          _buildMiniStat(l10n.remaining, remaining.toStringAsFixed(1), highlight: true),
                         ],
                       ),
                     ],
@@ -399,9 +401,9 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
               },
             ),
           const SizedBox(height: 28),
-          _buildSectionHeader('Recent Leave Requests'),
+          _buildSectionHeader(l10n.recentLeaveRequests),
           if (requests.isEmpty)
-            _buildEmptyState('No recent leave requests.')
+            _buildEmptyState(l10n.noRecentLeaveRequests)
           else
             ListView.separated(
               shrinkWrap: true,
@@ -479,7 +481,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
     );
   }
 
-  Widget _buildAttendanceTab(EmployeeData emp) {
+  Widget _buildAttendanceTab(EmployeeData emp, AppLocalizations l10n) {
     final logs = emp.recentAttendances ?? [];
 
     return SingleChildScrollView(
@@ -487,9 +489,9 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Recent Attendance logs'),
+          _buildSectionHeader(l10n.recentAttendanceLogs),
           if (logs.isEmpty)
-            _buildEmptyState('No attendance logs found.')
+            _buildEmptyState(l10n.noAttendanceLogsFound)
           else
             ListView.separated(
               shrinkWrap: true,
@@ -568,7 +570,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
                           border: Border.all(color: statusCol.withAlpha(60)),
                         ),
                         child: Text(
-                          log.status.toUpperCase(),
+                          _getLocalizedAttendanceStatus(log.status, l10n).toUpperCase(),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
@@ -587,7 +589,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
     );
   }
 
-  Widget _buildEmergencyTab(EmployeeData emp) {
+  Widget _buildEmergencyTab(EmployeeData emp, AppLocalizations l10n) {
     final contact = emp.emergencyContact;
     final name = contact?['name'] as String?;
     final rel = contact?['relationship'] as String?;
@@ -598,14 +600,14 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Emergency Contact details'),
+          _buildSectionHeader(l10n.emergencyContactDetails),
           if (contact == null || (name == null && phone == null))
-            _buildEmptyState('No emergency contact info provided.')
+            _buildEmptyState(l10n.noEmergencyContactInfoProvided)
           else
             _buildInfoCard([
-              _buildDetailRow(Icons.person_outline_rounded, 'Contact Name', name),
-              _buildDetailRow(Icons.people_outline_rounded, 'Relationship', rel),
-              _buildDetailRow(Icons.phone_iphone_rounded, 'Phone Number', phone),
+              _buildDetailRow(Icons.person_outline_rounded, l10n.contactName, name),
+              _buildDetailRow(Icons.people_outline_rounded, l10n.relationship, rel),
+              _buildDetailRow(Icons.phone_iphone_rounded, l10n.phoneNumber, phone),
             ]),
         ],
       ),
@@ -732,6 +734,19 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
         return AppColors.danger;
       default:
         return AppColors.grey500;
+    }
+  }
+
+  String _getLocalizedAttendanceStatus(String status, AppLocalizations l10n) {
+    switch (status.toLowerCase()) {
+      case 'present':
+        return l10n.present;
+      case 'late':
+        return l10n.late;
+      case 'absent':
+        return l10n.absent;
+      default:
+        return status;
     }
   }
 

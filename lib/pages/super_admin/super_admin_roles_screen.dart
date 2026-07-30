@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/services/super_admin_role_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/super_admin_role_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class SuperAdminRolesScreen extends ConsumerWidget {
   const SuperAdminRolesScreen({super.key});
@@ -12,15 +13,16 @@ class SuperAdminRolesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final rolesAsync = ref.watch(superAdminRolesProvider);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Platform Roles',
-          style: TextStyle(
+        title: Text(
+          l10n.platformRolesTitle,
+          style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -33,7 +35,7 @@ class SuperAdminRolesScreen extends ConsumerWidget {
             data: (payload) {
               final items = payload.roles;
               if (items.isEmpty) {
-                return const Center(child: Text('No system roles found', style: TextStyle(color: AppColors.grey400)));
+                return Center(child: Text(l10n.noSystemRolesFound, style: const TextStyle(color: AppColors.grey400)));
               }
               return ListView.separated(
                 padding: const EdgeInsets.all(16),
@@ -66,16 +68,16 @@ class SuperAdminRolesScreen extends ConsumerWidget {
                         const SizedBox(width: 14),
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text(r.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                          if (r.permissionsCount != null) Text('${r.permissionsCount} permissions', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                          if (r.permissionsCount != null) Text(l10n.permissionsCount(r.permissionsCount!), style: TextStyle(fontSize: 12, color: AppColors.grey500)),
                         ])),
                         IconButton(
                           icon: const Icon(Icons.edit, color: AppColors.primary, size: 20),
-                          onPressed: () => _showRoleModal(context, ref, payload, role: r),
+                          onPressed: () => _showRoleModal(context, ref, payload, l10n, role: r),
                         ),
                         if (!isSystem)
                           IconButton(
                             icon: const Icon(Icons.delete, color: AppColors.danger, size: 20),
-                            onPressed: () => _confirmDelete(context, ref, r.id, r.name),
+                            onPressed: () => _confirmDelete(context, ref, r.id, r.name, l10n),
                           )
                       ],
                     ),
@@ -83,8 +85,8 @@ class SuperAdminRolesScreen extends ConsumerWidget {
                 },
               );
             },
-            loading: () => const LoadingIndicator(message: 'Loading roles...'),
-            error: (e, _) => Center(child: OutlinedButton.icon(onPressed: () => ref.invalidate(superAdminRolesProvider), icon: const Icon(Icons.refresh), label: const Text('Retry'))),
+            loading: () => LoadingIndicator(message: l10n.loadingRoles),
+            error: (e, _) => Center(child: OutlinedButton.icon(onPressed: () => ref.invalidate(superAdminRolesProvider), icon: const Icon(Icons.refresh), label: Text(l10n.retry))),
           ),
           Positioned(
             right: 16, bottom: 16,
@@ -92,7 +94,7 @@ class SuperAdminRolesScreen extends ConsumerWidget {
               onPressed: () {
                 final payload = ref.read(superAdminRolesProvider).value;
                 if (payload != null) {
-                  _showRoleModal(context, ref, payload);
+                  _showRoleModal(context, ref, payload, l10n);
                 }
               },
               backgroundColor: AppColors.primary,
@@ -104,7 +106,7 @@ class SuperAdminRolesScreen extends ConsumerWidget {
     );
   }
 
-  void _showRoleModal(BuildContext context, WidgetRef ref, SuperAdminRolesPayload payload, {RoleData? role}) {
+  void _showRoleModal(BuildContext context, WidgetRef ref, SuperAdminRolesPayload payload, AppLocalizations l10n, {RoleData? role}) {
     final isEditing = role != null;
     final isSystemRole = isEditing && ['super_admin', 'company_owner', 'company_admin', 'branch_manager', 'employee'].contains(role.name);
     
@@ -132,7 +134,7 @@ class SuperAdminRolesScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        isEditing ? 'Edit Role' : 'Create New Role',
+                        isEditing ? l10n.editRoleTitle : l10n.createNewRoleTitle,
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
                       ),
                       IconButton(
@@ -146,18 +148,18 @@ class SuperAdminRolesScreen extends ConsumerWidget {
                     controller: nameCtrl,
                     enabled: !isSystemRole,
                     decoration: InputDecoration(
-                      labelText: 'Role Name',
-                      hintText: 'e.g. HR Manager',
+                      labelText: l10n.roleNameLabel,
+                      hintText: l10n.roleNameHint,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                   if (isSystemRole)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 6),
-                      child: Text('Core system role names cannot be changed.', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(l10n.coreSystemRolesWarning, style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
                     ),
                   const SizedBox(height: 20),
-                  const Text('Permissions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey800)),
+                  Text(l10n.permissionsLabel, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey800)),
                   const SizedBox(height: 8),
                   Container(
                     constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.4),
@@ -209,7 +211,7 @@ class SuperAdminRolesScreen extends ConsumerWidget {
                           if (ctx.mounted) Navigator.pop(ctx);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(isEditing ? '✅ Role updated' : '✅ Role created'), backgroundColor: AppColors.success)
+                              SnackBar(content: Text(isEditing ? '✅ ${l10n.roleUpdatedSuccess}' : '✅ ${l10n.roleCreatedSuccess}'), backgroundColor: AppColors.success)
                             );
                           }
                         } catch (e) {
@@ -226,7 +228,7 @@ class SuperAdminRolesScreen extends ConsumerWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         elevation: 0,
                       ),
-                      child: Text(isEditing ? 'Save Changes' : 'Create Role', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                      child: Text(isEditing ? l10n.saveChanges : l10n.btnCreateRole, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                     ),
                   ),
                 ],
@@ -238,14 +240,14 @@ class SuperAdminRolesScreen extends ConsumerWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, WidgetRef ref, int roleId, String roleName) {
+  void _confirmDelete(BuildContext context, WidgetRef ref, int roleId, String roleName, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Role'),
-        content: Text('Are you sure you want to delete the role "$roleName"?'),
+        title: Text(l10n.deleteRoleTitle),
+        content: Text(l10n.deleteRoleConfirm(roleName)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.cancel)),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () async {
@@ -253,12 +255,12 @@ class SuperAdminRolesScreen extends ConsumerWidget {
                 await SuperAdminRoleRepository().deleteRole(roleId);
                 ref.invalidate(superAdminRolesProvider);
                 if (ctx.mounted) Navigator.pop(ctx);
-                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Role deleted'), backgroundColor: AppColors.success));
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('✅ ${l10n.roleDeletedSuccess}'), backgroundColor: AppColors.success));
               } catch (e) {
-                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Failed to delete'), backgroundColor: AppColors.danger));
+                if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ ${l10n.failedToDeleteRole}: $e'), backgroundColor: AppColors.danger));
               }
             }, 
-            child: const Text('Delete', style: TextStyle(color: Colors.white))
+            child: Text(l10n.btnDelete, style: const TextStyle(color: Colors.white))
           ),
         ],
       ),

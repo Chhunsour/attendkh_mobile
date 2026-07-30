@@ -4,6 +4,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class AdminRolesScreen extends ConsumerWidget {
   const AdminRolesScreen({super.key});
@@ -11,6 +12,7 @@ class AdminRolesScreen extends ConsumerWidget {
   @override
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final rolesAsync = ref.watch(rolesProvider);
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -18,9 +20,9 @@ class AdminRolesScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Roles & Permissions',
-          style: TextStyle(
+        title: Text(
+          l10n.rolesPermissionsTitle,
+          style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -31,7 +33,7 @@ class AdminRolesScreen extends ConsumerWidget {
         children: [
           rolesAsync.when(
             data: (items) => items.isEmpty
-                ? const Center(child: Text('No custom roles', style: TextStyle(color: AppColors.grey400)))
+                ? Center(child: Text(l10n.noCustomRoles, style: const TextStyle(color: AppColors.grey400)))
                 : ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: items.length,
@@ -47,7 +49,7 @@ class AdminRolesScreen extends ConsumerWidget {
                             const SizedBox(width: 14),
                             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               Text(r.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                              if (r.permissionsCount != null) Text('${r.permissionsCount} permissions', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                              if (r.permissionsCount != null) Text(l10n.permissionsCount(r.permissionsCount!), style: TextStyle(fontSize: 12, color: AppColors.grey500)),
                             ])),
                             const Icon(Icons.chevron_right, color: AppColors.grey400),
                           ],
@@ -55,8 +57,8 @@ class AdminRolesScreen extends ConsumerWidget {
                       );
                     },
                   ),
-            loading: () => const LoadingIndicator(message: 'Loading roles...'),
-            error: (e, _) => Center(child: OutlinedButton.icon(onPressed: () => ref.invalidate(rolesProvider), icon: const Icon(Icons.refresh), label: const Text('Retry'))),
+            loading: () => LoadingIndicator(message: l10n.loadingRoles),
+            error: (e, _) => Center(child: OutlinedButton.icon(onPressed: () => ref.invalidate(rolesProvider), icon: const Icon(Icons.refresh), label: Text(l10n.retry))),
           ),
           Positioned(
             right: 16, bottom: 16,
@@ -72,27 +74,28 @@ class AdminRolesScreen extends ConsumerWidget {
   }
 
   void _showCreateRoleDialog(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final nameCtrl = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Create Role'),
+        title: Text(l10n.createRoleTitle),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Role Name', hintText: 'e.g. HR Manager')),
+          TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l10n.roleNameLabel, hintText: l10n.roleNameHint)),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.cancel)),
           ElevatedButton(onPressed: () async {
             if (nameCtrl.text.trim().isEmpty) return;
             try {
               await HrRepository().createRole(name: nameCtrl.text.trim());
               ref.invalidate(rolesProvider);
               if (ctx.mounted) Navigator.pop(ctx);
-              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Role created'), backgroundColor: AppColors.success));
+              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.roleCreatedSuccess), backgroundColor: AppColors.success));
             } catch (e) {
               if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
             }
-          }, child: const Text('Create')),
+          }, child: Text(l10n.createBtn)),
         ],
       ),
     );

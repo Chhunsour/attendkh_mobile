@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/models/kpi_model.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'kpi_shared_components.dart';
@@ -10,13 +11,14 @@ class KpiSuperAdminView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       child: Column(
         children: [
         KpiSharedComponents.buildSummaryCard(
-          title: 'Platform Global Health',
+          title: l10n.platformGlobalHealth,
           score: data.metrics.companyAverage,
-          subtitle: 'Aggregated across all registered workspaces',
+          subtitle: l10n.aggregatedAcrossWorkspaces,
           color: Colors.blue,
           icon: Icons.public,
         ),
@@ -43,8 +45,8 @@ class KpiSuperAdminView extends StatelessWidget {
                   const Icon(Icons.trending_up, color: Colors.blue, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'Platform Summary',
-                    style: TextStyle(
+                    l10n.platformSummary,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppColors.grey600,
@@ -53,9 +55,9 @@ class KpiSuperAdminView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              const Text(
-                'These are platform-wide metrics calculating the overall health, retention rates, support SLAs, and MRR (Monthly Recurring Revenue) across all active companies within the system.',
-                style: TextStyle(
+              Text(
+                l10n.platformSummaryDesc,
+                style: const TextStyle(
                   fontSize: 13,
                   color: AppColors.grey700,
                   height: 1.5,
@@ -71,9 +73,9 @@ class KpiSuperAdminView extends StatelessWidget {
             children: [
               const Icon(Icons.analytics, color: Colors.blue, size: 20),
               const SizedBox(width: 8),
-              const Text(
-                'Platform Strategic KPIs',
-                style: TextStyle(
+              Text(
+                l10n.platformStrategicKpis,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey900,
@@ -83,6 +85,7 @@ class KpiSuperAdminView extends StatelessWidget {
           ),
         ),
         KpiSharedComponents.buildKpiList(
+          context: context,
           kpis: data.ownerKpis,
           themeColor: Colors.blue,
           shrinkWrap: true,

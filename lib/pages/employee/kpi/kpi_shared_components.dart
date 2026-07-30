@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/models/kpi_model.dart';
 
@@ -55,19 +56,21 @@ class KpiSharedComponents {
   }
 
   static Widget buildKpiList({
+    required BuildContext context,
     required List<KpiItem> kpis,
     required Color themeColor,
     bool shrinkWrap = false,
     ScrollPhysics? physics,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     if (kpis.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.analytics_outlined, size: 64, color: AppColors.grey400),
+            const Icon(Icons.analytics_outlined, size: 64, color: AppColors.grey400),
             const SizedBox(height: 16),
-            Text('No KPIs found.', style: TextStyle(color: AppColors.grey600)),
+            Text(l10n.noKpisFound, style: const TextStyle(color: AppColors.grey600)),
           ],
         ),
       );
@@ -118,7 +121,7 @@ class KpiSharedComponents {
                             border: Border.all(color: isMock ? Colors.amber[200]! : Colors.green[200]!),
                           ),
                           child: Text(
-                            isMock ? 'Estimated' : 'Live Data',
+                            isMock ? l10n.estimatedBadge : l10n.liveDataBadge,
                             style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isMock ? Colors.amber[800] : Colors.green[700]),
                           ),
                         ),
@@ -131,7 +134,7 @@ class KpiSharedComponents {
                       Text('${kpi.unit == '\$' ? '\$' : ''}${kpi.actual.toString()}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       Text('/ ${kpi.unit == '\$' ? '\$' : ''}${kpi.target.toString()} ${kpi.unit != '\$' ? kpi.unit : ''}', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
                       const SizedBox(height: 4),
-                      Text('Score: ${kpi.score}%', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: themeColor)),
+                      Text(l10n.scoreLabel(kpi.score), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: themeColor)),
                     ],
                   ),
                 ],

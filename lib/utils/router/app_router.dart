@@ -201,7 +201,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           debugPrint('🚫 Security Alert: unauthorized access to company-admin route → redirect to $target');
           return target;
         }
-        if (isVisitingEmployee && location != AppRoutes.kpi && (authState.isSuperAdmin || (authState.isCompanyAdmin && !authState.isBranchManager))) {
+        if (isVisitingEmployee && 
+            location != AppRoutes.kpi && 
+            location != AppRoutes.profile && 
+            location != AppRoutes.editProfile && 
+            (authState.isSuperAdmin || (authState.isCompanyAdmin && !authState.isBranchManager))) {
           final target = authState.isSuperAdmin ? AppRoutes.adminDashboard : AppRoutes.companyAdmin;
           debugPrint('🚫 Security Alert: unauthorized access to employee route → redirect to $target');
           return target;

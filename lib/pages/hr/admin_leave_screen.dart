@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
@@ -56,6 +57,7 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
@@ -78,12 +80,12 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
               ),
             ),
             const SizedBox(width: 10),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Leave Management',
-                  style: TextStyle(
+                  l10n.leaveManagementTitle,
+                  style: const TextStyle(
                     color: AppColors.grey800,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -91,8 +93,8 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
                   ),
                 ),
                 Text(
-                  'Requests, balances & types',
-                  style: TextStyle(
+                  l10n.leaveManagementSubtitle,
+                  style: const TextStyle(
                     color: AppColors.grey400,
                     fontSize: 11,
                     fontWeight: FontWeight.w400,
@@ -117,10 +119,10 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
             fontSize: 13,
             fontWeight: FontWeight.w500,
           ),
-          tabs: const [
-            Tab(text: 'Requests'),
-            Tab(text: 'Balances'),
-            Tab(text: 'Types'),
+          tabs: [
+            Tab(text: l10n.tabRequests),
+            Tab(text: l10n.tabBalances),
+            Tab(text: l10n.tabTypes),
           ],
         ),
       ),
@@ -145,16 +147,17 @@ class _RequestsTab extends ConsumerStatefulWidget {
 class _RequestsTabState extends ConsumerState<_RequestsTab> {
   String _filter = 'all';
 
-  static const _filters = [
-    ('all', 'All'),
-    ('pending', 'Pending'),
-    ('approved', 'Approved'),
-    ('rejected', 'Rejected'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final requestsAsync = ref.watch(allLeaveRequestsProvider);
+
+    final filters = [
+      ('all', l10n.filterAll),
+      ('pending', l10n.filterPending),
+      ('approved', l10n.filterApproved),
+      ('rejected', l10n.filterRejected),
+    ];
 
     return Stack(
       children: [
@@ -167,7 +170,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: _filters.map((f) {
+                  children: filters.map((f) {
                     final isActive = _filter == f.$1;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
@@ -215,8 +218,8 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
                     return _EmptyPlaceholder(
                       icon: Icons.inbox_rounded,
                       message: _filter == 'all'
-                          ? 'No leave requests'
-                          : 'No $_filter requests',
+                          ? l10n.noLeaveRequests
+                          : l10n.noRequestsByFilter(filters.firstWhere((f) => f.$1 == _filter).$2),
                     );
                   }
                   return ListView.builder(
@@ -229,7 +232,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
                   );
                 },
                 loading: () =>
-                    const LoadingIndicator(message: 'Loading requests...'),
+                    LoadingIndicator(message: l10n.loadingLogs),
                 error: (e, _) => _ErrorRetry(
                   onRetry: () => ref.invalidate(allLeaveRequestsProvider),
                 ),
@@ -241,7 +244,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
           right: 16,
           bottom: 20,
           child: _GradientFAB(
-            label: 'New Request',
+            label: l10n.newRequest,
             icon: Icons.add_rounded,
             onPressed: () => _showAddRequestSheet(context),
           ),
@@ -300,6 +303,7 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final employeesAsync = ref.watch(allEmployeesProvider);
     final leaveTypesAsync = ref.watch(leaveTypesProvider);
 
@@ -339,21 +343,21 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'New Leave Request',
-                        style: TextStyle(
+                        l10n.newLeaveRequest,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
                           color: AppColors.grey800,
                         ),
                       ),
                       Text(
-                        'Submit a leave application',
-                        style: TextStyle(
+                        l10n.submitLeaveApp,
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.grey500,
                         ),
@@ -374,9 +378,9 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Employee picker
-                    const Text(
-                      'Employee *',
-                      style: TextStyle(
+                    Text(
+                      l10n.employeeRequired,
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.grey700,
@@ -387,9 +391,9 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                       data: (emps) => DropdownButtonFormField<int>(
                         initialValue: _selectedEmpId,
                         decoration: _dropDec(),
-                        hint: const Text(
-                          'Select employee',
-                          style: TextStyle(
+                        hint: Text(
+                          l10n.selectEmployee,
+                          style: const TextStyle(
                             fontSize: 13,
                             color: AppColors.grey400,
                           ),
@@ -413,9 +417,9 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                     const SizedBox(height: 14),
 
                     // Leave type picker
-                    const Text(
-                      'Leave Type *',
-                      style: TextStyle(
+                    Text(
+                      l10n.leaveTypeRequired,
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.grey700,
@@ -426,9 +430,9 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                       data: (types) => DropdownButtonFormField<int>(
                         initialValue: _selectedTypeId,
                         decoration: _dropDec(),
-                        hint: const Text(
-                          'Select leave type',
-                          style: TextStyle(
+                        hint: Text(
+                          l10n.selectLeaveType,
+                          style: const TextStyle(
                             fontSize: 13,
                             color: AppColors.grey400,
                           ),
@@ -459,9 +463,9 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Start Date *',
-                                style: TextStyle(
+                              Text(
+                                l10n.startDateRequired,
+                                style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.grey700,
@@ -482,9 +486,9 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'End Date *',
-                                style: TextStyle(
+                              Text(
+                                l10n.endDateRequired,
+                                style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.grey700,
@@ -512,9 +516,9 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                           onChanged: (v) => setSt(() => _halfDay = v ?? false),
                           activeColor: AppColors.primary,
                         ),
-                        const Text(
-                          'Half Day',
-                          style: TextStyle(
+                        Text(
+                          l10n.halfDay,
+                          style: const TextStyle(
                             fontSize: 13,
                             color: AppColors.grey800,
                           ),
@@ -525,19 +529,19 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                             child: DropdownButtonFormField<String>(
                               initialValue: _halfDayPeriod,
                               decoration: _dropDec(),
-                              items: const [
+                              items: [
                                 DropdownMenuItem(
                                   value: 'morning',
                                   child: Text(
-                                    'Morning',
-                                    style: TextStyle(fontSize: 13),
+                                    l10n.morning,
+                                    style: const TextStyle(fontSize: 13),
                                   ),
                                 ),
                                 DropdownMenuItem(
                                   value: 'afternoon',
                                   child: Text(
-                                    'Afternoon',
-                                    style: TextStyle(fontSize: 13),
+                                    l10n.afternoon,
+                                    style: const TextStyle(fontSize: 13),
                                   ),
                                 ),
                               ],
@@ -551,9 +555,9 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                     const SizedBox(height: 14),
 
                     // Reason
-                    const Text(
-                      'Reason *',
-                      style: TextStyle(
+                    Text(
+                      l10n.reasonRequired,
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.grey700,
@@ -564,7 +568,7 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                       controller: _reasonCtrl,
                       maxLines: 3,
                       decoration: _dropDec().copyWith(
-                        hintText: 'Reason for leave...',
+                        hintText: l10n.reasonForLeaveHint,
                       ),
                       style: const TextStyle(fontSize: 13),
                     ),
@@ -606,8 +610,8 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                                   if (ctx.mounted) Navigator.pop(ctx);
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Request submitted'),
+                                      SnackBar(
+                                        content: Text(l10n.requestSubmitted),
                                         backgroundColor: AppColors.success,
                                       ),
                                     );
@@ -635,9 +639,9 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Text(
-                                'Submit Request',
-                                style: TextStyle(
+                            : Text(
+                                l10n.submitRequest,
+                                style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
                                 ),
@@ -785,9 +789,9 @@ class _RequestCard extends ConsumerWidget {
                                         color: const Color(0xFFF5F3FF),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
-                                      child: const Text(
-                                        'Half-day',
-                                        style: TextStyle(
+                                      child: Text(
+                                        AppLocalizations.of(context)!.halfDayLabel,
+                                        style: const TextStyle(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w700,
                                           color: Color(0xFF7C3AED),
@@ -804,7 +808,7 @@ class _RequestCard extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '${request.days}d',
+                              '${request.days}${AppLocalizations.of(context)!.daysShort}',
                               style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 15,
@@ -822,7 +826,7 @@ class _RequestCard extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                _capitalize(request.status),
+                                _capitalizeStatus(context, request.status),
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
@@ -883,7 +887,7 @@ class _RequestCard extends ConsumerWidget {
                               onPressed: () =>
                                   _action(context, ref, request.id, 'reject'),
                               icon: const Icon(Icons.close_rounded, size: 15),
-                              label: const Text('Reject'),
+                              label: Text(AppLocalizations.of(context)!.reject),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.danger,
                                 side: const BorderSide(
@@ -909,7 +913,7 @@ class _RequestCard extends ConsumerWidget {
                               onPressed: () =>
                                   _action(context, ref, request.id, 'approve'),
                               icon: const Icon(Icons.check_rounded, size: 15),
-                              label: const Text('Approve'),
+                              label: Text(AppLocalizations.of(context)!.approve),
                               style: FilledButton.styleFrom(
                                 backgroundColor: AppColors.success,
                                 shape: RoundedRectangleBorder(
@@ -938,8 +942,16 @@ class _RequestCard extends ConsumerWidget {
     );
   }
 
-  String _capitalize(String s) =>
-      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+  String _capitalizeStatus(BuildContext context, String status) {
+    if (status.isEmpty) return status;
+    final l10n = AppLocalizations.of(context)!;
+    switch (status) {
+      case 'pending': return l10n.filterPending;
+      case 'approved': return l10n.filterApproved;
+      case 'rejected': return l10n.filterRejected;
+      default: return status[0].toUpperCase() + status.substring(1);
+    }
+  }
 
   Future<void> _action(
     BuildContext context,
@@ -966,7 +978,7 @@ class _RequestCard extends ConsumerWidget {
                   size: 16,
                 ),
                 const SizedBox(width: 8),
-                Text('Request ${action}d'),
+                Text(AppLocalizations.of(context)!.requestActioned(action)),
               ],
             ),
             backgroundColor: action == 'approve'
@@ -1007,9 +1019,9 @@ class _LeaveBalancesTabState extends ConsumerState<_LeaveBalancesTab> {
       children: [
         balancesAsync.when(
           data: (items) => items.isEmpty
-              ? const _EmptyPlaceholder(
+              ? _EmptyPlaceholder(
                   icon: Icons.account_balance_wallet_rounded,
-                  message: 'No leave balances found',
+                  message: AppLocalizations.of(context)!.noLeaveBalances,
                 )
               : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 20, 16, 90),
@@ -1019,7 +1031,7 @@ class _LeaveBalancesTabState extends ConsumerState<_LeaveBalancesTab> {
                     child: _BalanceCard(balance: items[i]),
                   ),
                 ),
-          loading: () => const LoadingIndicator(message: 'Loading balances...'),
+          loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingBalances),
           error: (e, _) =>
               _ErrorRetry(onRetry: () => ref.invalidate(leaveBalancesProvider)),
         ),
@@ -1029,7 +1041,7 @@ class _LeaveBalancesTabState extends ConsumerState<_LeaveBalancesTab> {
           right: 16,
           bottom: 20,
           child: _GradientFAB(
-            label: 'Add Balance',
+            label: AppLocalizations.of(context)!.addBalance,
             icon: Icons.add_rounded,
             onPressed: () => _showAddBalanceSheet(context),
           ),
@@ -1183,22 +1195,22 @@ class _BalanceCard extends ConsumerWidget {
           Row(
             children: [
               _BalanceStat(
-                label: 'Allocated',
+                label: AppLocalizations.of(context)!.allocated,
                 value: balance.allocatedDays,
                 color: AppColors.primary,
               ),
               _BalanceStat(
-                label: 'Used',
+                label: AppLocalizations.of(context)!.used,
                 value: balance.usedDays,
                 color: AppColors.warning,
               ),
               _BalanceStat(
-                label: 'Carried',
+                label: AppLocalizations.of(context)!.carried,
                 value: balance.carriedForward,
                 color: const Color(0xFF8B5CF6),
               ),
               _BalanceStat(
-                label: 'Remaining',
+                label: AppLocalizations.of(context)!.remaining,
                 value: remaining,
                 color: barColor,
                 bold: true,
@@ -1256,7 +1268,7 @@ class _BalanceCard extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Edit Balance — ${b.employeeName}',
+                AppLocalizations.of(context)!.editBalanceTitle(b.employeeName),
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
@@ -1273,7 +1285,7 @@ class _BalanceCard extends ConsumerWidget {
                   Expanded(
                     child: _SheetField(
                       controller: allocCtrl,
-                      label: 'Allocated Days',
+                      label: AppLocalizations.of(context)!.allocatedDays,
                       keyboard: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -1283,7 +1295,7 @@ class _BalanceCard extends ConsumerWidget {
                   Expanded(
                     child: _SheetField(
                       controller: carriedCtrl,
-                      label: 'Carried Forward',
+                      label: AppLocalizations.of(context)!.carriedForward,
                       keyboard: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -1318,8 +1330,8 @@ class _BalanceCard extends ConsumerWidget {
                       if (ctx.mounted) Navigator.pop(ctx);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Balance updated'),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context)!.balanceUpdated),
                             backgroundColor: AppColors.success,
                           ),
                         );
@@ -1336,9 +1348,9 @@ class _BalanceCard extends ConsumerWidget {
                       }
                     }
                   },
-                  child: const Text(
-                    'Save Changes',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  child: Text(
+                    AppLocalizations.of(context)!.saveChanges,
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                   ),
                 ),
               ),
@@ -1464,21 +1476,21 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Add Leave Balance',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.addLeaveBalance,
+                        style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
                           color: AppColors.grey800,
                         ),
                       ),
                       Text(
-                        'Allocate days to an employee',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.addLeaveBalanceSubtitle,
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.grey500,
                         ),
@@ -1568,9 +1580,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
 
                     // Employee picker
                     if (!bulkMode) ...[
-                      const Text(
-                        'Employee *',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.employeeRequired,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.grey700,
@@ -1581,9 +1593,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                         data: (emps) => DropdownButtonFormField<int>(
                           initialValue: selectedEmpId,
                           decoration: _dropDec(),
-                          hint: const Text(
-                            'Select employee',
-                            style: TextStyle(
+                          hint: Text(
+                            AppLocalizations.of(context)!.selectEmployee,
+                            style: const TextStyle(
                               fontSize: 13,
                               color: AppColors.grey400,
                             ),
@@ -1608,9 +1620,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Employees *',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.employeesRequired,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: AppColors.grey700,
@@ -1630,8 +1642,8 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                               child: Text(
                                 emps.isNotEmpty &&
                                         selectedEmpIds.length == emps.length
-                                    ? 'Deselect All'
-                                    : 'Select All',
+                                    ? AppLocalizations.of(context)!.deselectAll
+                                    : AppLocalizations.of(context)!.selectAll,
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -1688,7 +1700,7 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${selectedEmpIds.length} employee(s) selected',
+                        AppLocalizations.of(context)!.employeesSelected(selectedEmpIds.length),
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.grey400,
@@ -1698,9 +1710,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                     const SizedBox(height: 14),
 
                     // Leave type picker
-                    const Text(
-                      'Leave Type *',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.leaveTypeRequired,
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.grey700,
@@ -1711,9 +1723,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                       data: (types) => DropdownButtonFormField<int>(
                         initialValue: selectedTypeId,
                         decoration: _dropDec(),
-                        hint: const Text(
-                          'Select leave type',
-                          style: TextStyle(
+                        hint: Text(
+                          AppLocalizations.of(context)!.selectLeaveType,
+                          style: const TextStyle(
                             fontSize: 13,
                             color: AppColors.grey400,
                           ),
@@ -1743,9 +1755,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Year *',
-                                style: TextStyle(
+                              Text(
+                                AppLocalizations.of(context)!.yearRequired,
+                                style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.grey700,
@@ -1769,9 +1781,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Allocated Days *',
-                                style: TextStyle(
+                              Text(
+                                AppLocalizations.of(context)!.allocatedDaysRequired,
+                                style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.grey700,
@@ -1792,9 +1804,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                     ),
                     const SizedBox(height: 14),
 
-                    const Text(
-                      'Carried Forward',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.carriedForward,
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.grey700,
@@ -1861,8 +1873,8 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                                       SnackBar(
                                         content: Text(
                                           bulkMode
-                                              ? 'Leave balance assigned to ${selectedEmpIds.length} employee(s)'
-                                              : 'Leave balance created',
+                                              ? AppLocalizations.of(context)!.leaveBalanceAssignedMulti(selectedEmpIds.length)
+                                              : AppLocalizations.of(context)!.leaveBalanceCreated,
                                         ),
                                         backgroundColor: AppColors.success,
                                       ),
@@ -1893,8 +1905,8 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                               )
                             : Text(
                                 bulkMode
-                                    ? 'Assign to Employees'
-                                    : 'Add Balance',
+                                    ? AppLocalizations.of(context)!.assignToEmployees
+                                    : AppLocalizations.of(context)!.addBalance,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
@@ -1946,9 +1958,9 @@ class _LeaveTypesTab extends ConsumerWidget {
       children: [
         typesAsync.when(
           data: (items) => items.isEmpty
-              ? const _EmptyPlaceholder(
+              ? _EmptyPlaceholder(
                   icon: Icons.label_rounded,
-                  message: 'No leave types',
+                  message: AppLocalizations.of(context)!.noLeaveTypes,
                 )
               : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 20, 16, 90),
@@ -1961,7 +1973,7 @@ class _LeaveTypesTab extends ConsumerWidget {
                     ),
                   ),
                 ),
-          loading: () => const LoadingIndicator(message: 'Loading types...'),
+          loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingTypes),
           error: (e, _) =>
               _ErrorRetry(onRetry: () => ref.invalidate(leaveTypesProvider)),
         ),
@@ -1969,7 +1981,7 @@ class _LeaveTypesTab extends ConsumerWidget {
           right: 16,
           bottom: 20,
           child: _GradientFAB(
-            label: 'New Type',
+            label: AppLocalizations.of(context)!.newType,
             icon: Icons.add_rounded,
             onPressed: () => _showTypeSheet(context, ref),
           ),
@@ -2043,7 +2055,7 @@ class _LeaveTypesTab extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                 child: Text(
-                  isEdit ? 'Edit Leave Type' : 'Add Leave Type',
+                  isEdit ? AppLocalizations.of(context)!.editLeaveType : AppLocalizations.of(context)!.addLeaveType,
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
@@ -2073,9 +2085,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // ── General Information ──────────────────────────
-                          const Text(
-                            'General Information',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.generalInfo,
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: AppColors.grey800,
@@ -2087,7 +2099,7 @@ class _LeaveTypesTab extends ConsumerWidget {
                               Expanded(
                                 child: _SheetField(
                                   controller: nameCtrl,
-                                  label: 'Name *',
+                                  label: AppLocalizations.of(context)!.nameRequired,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -2095,7 +2107,7 @@ class _LeaveTypesTab extends ConsumerWidget {
                                 width: 100,
                                 child: _SheetField(
                                   controller: codeCtrl,
-                                  label: 'Code',
+                                  label: AppLocalizations.of(context)!.code,
                                 ),
                               ),
                             ],
@@ -2106,7 +2118,7 @@ class _LeaveTypesTab extends ConsumerWidget {
                               Expanded(
                                 child: _SheetField(
                                   controller: daysCtrl,
-                                  label: 'Days per year',
+                                  label: AppLocalizations.of(context)!.daysPerYear,
                                   keyboard:
                                       const TextInputType.numberWithOptions(
                                         decimal: true,
@@ -2117,16 +2129,16 @@ class _LeaveTypesTab extends ConsumerWidget {
                               Expanded(
                                 child: _SheetField(
                                   controller: sortOrderCtrl,
-                                  label: 'Sort Order',
+                                  label: AppLocalizations.of(context)!.sortOrder,
                                   keyboard: TextInputType.number,
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 12),
-                          const Text(
-                            'Color',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.color,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: AppColors.grey700,
@@ -2171,9 +2183,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                           const SizedBox(height: 20),
 
                           // ── Accrual & Balances ───────────────────────────
-                          const Text(
-                            'Accrual & Balances',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.accrualAndBalances,
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: AppColors.grey800,
@@ -2184,9 +2196,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                             value: isProrated,
                             onChanged: (v) =>
                                 setSt(() => isProrated = v ?? false),
-                            title: const Text(
-                              'Prorate Accrual (adjust for mid-year joiners)',
-                              style: TextStyle(
+                            title: Text(
+                              AppLocalizations.of(context)!.prorateAccrual,
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -2200,9 +2212,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                             value: carryForward,
                             onChanged: (v) =>
                                 setSt(() => carryForward = v ?? false),
-                            title: const Text(
-                              'Allow Carry Forward',
-                              style: TextStyle(
+                            title: Text(
+                              AppLocalizations.of(context)!.allowCarryForward,
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -2217,7 +2229,7 @@ class _LeaveTypesTab extends ConsumerWidget {
                             _SheetField(
                               controller: maxCarryForwardCtrl,
                               label:
-                                  'Max Carry Forward Days (empty = unlimited)',
+                                  AppLocalizations.of(context)!.maxCarryForwardDays,
                               keyboard: TextInputType.number,
                             ),
                             const SizedBox(height: 8),
@@ -2226,9 +2238,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                           const SizedBox(height: 12),
 
                           // ── Rules & Restrictions ─────────────────────────
-                          const Text(
-                            'Rules & Restrictions',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.rulesAndRestrictions,
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: AppColors.grey800,
@@ -2237,27 +2249,27 @@ class _LeaveTypesTab extends ConsumerWidget {
                           const SizedBox(height: 10),
                           _SheetField(
                             controller: noticeCtrl,
-                            label: 'Notice Period (days) *',
+                            label: AppLocalizations.of(context)!.noticePeriodDays,
                             keyboard: TextInputType.number,
                           ),
                           const SizedBox(height: 12),
                           _SheetField(
                             controller: minTenureCtrl,
-                            label: 'Minimum Tenure (days, 0 = none)',
+                            label: AppLocalizations.of(context)!.minTenureDays,
                             keyboard: TextInputType.number,
                           ),
                           const SizedBox(height: 12),
                           _SheetField(
                             controller: maxConsecutiveCtrl,
-                            label: 'Max Consecutive Days (empty = unlimited)',
+                            label: AppLocalizations.of(context)!.maxConsecutiveDays,
                             keyboard: TextInputType.number,
                           ),
                           const SizedBox(height: 12),
 
                           // Gender restriction
-                          const Text(
-                            'Gender Restriction',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.genderRestriction,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: AppColors.grey700,
@@ -2267,26 +2279,26 @@ class _LeaveTypesTab extends ConsumerWidget {
                           DropdownButtonFormField<String>(
                             initialValue: genderSpecific,
                             decoration: _dropDec(),
-                            items: const [
+                            items: [
                               DropdownMenuItem(
                                 value: 'all',
                                 child: Text(
-                                  'All Genders',
-                                  style: TextStyle(fontSize: 13),
+                                  AppLocalizations.of(context)!.allGenders,
+                                  style: const TextStyle(fontSize: 13),
                                 ),
                               ),
                               DropdownMenuItem(
                                 value: 'male',
                                 child: Text(
-                                  'Male Only',
-                                  style: TextStyle(fontSize: 13),
+                                  AppLocalizations.of(context)!.maleOnly,
+                                  style: const TextStyle(fontSize: 13),
                                 ),
                               ),
                               DropdownMenuItem(
                                 value: 'female',
                                 child: Text(
-                                  'Female Only',
-                                  style: TextStyle(fontSize: 13),
+                                  AppLocalizations.of(context)!.femaleOnly,
+                                  style: const TextStyle(fontSize: 13),
                                 ),
                               ),
                             ],
@@ -2296,9 +2308,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                           const SizedBox(height: 16),
 
                           // ── Toggles ──────────────────────────────────────
-                          const Text(
-                            'Options',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context)!.options,
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: AppColors.grey800,
@@ -2308,9 +2320,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                           CheckboxListTile(
                             value: isPaid,
                             onChanged: (v) => setSt(() => isPaid = v ?? true),
-                            title: const Text(
-                              'Paid Leave',
-                              style: TextStyle(
+                            title: Text(
+                              AppLocalizations.of(context)!.paidLeave,
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -2324,9 +2336,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                             value: allowHalfDay,
                             onChanged: (v) =>
                                 setSt(() => allowHalfDay = v ?? false),
-                            title: const Text(
-                              'Allow Half-Day Requests',
-                              style: TextStyle(
+                            title: Text(
+                              AppLocalizations.of(context)!.allowHalfDayRequests,
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -2340,9 +2352,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                             value: requiresDocument,
                             onChanged: (v) =>
                                 setSt(() => requiresDocument = v ?? false),
-                            title: const Text(
-                              'Requires Document',
-                              style: TextStyle(
+                            title: Text(
+                              AppLocalizations.of(context)!.requiresDocument,
+                              style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -2357,9 +2369,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                               value: isActive,
                               onChanged: (v) =>
                                   setSt(() => isActive = v ?? true),
-                              title: const Text(
-                                'Active',
-                                style: TextStyle(
+                              title: Text(
+                                AppLocalizations.of(context)!.activeLabel,
+                                style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -2467,8 +2479,8 @@ class _LeaveTypesTab extends ConsumerWidget {
                                       SnackBar(
                                         content: Text(
                                           isEdit
-                                              ? 'Leave type updated'
-                                              : 'Leave type created',
+                                              ? AppLocalizations.of(context)!.leaveTypeUpdated
+                                              : AppLocalizations.of(context)!.leaveTypeCreated,
                                         ),
                                         backgroundColor: AppColors.success,
                                       ),
@@ -2486,7 +2498,7 @@ class _LeaveTypesTab extends ConsumerWidget {
                                 }
                               },
                               child: Text(
-                                isEdit ? 'Save Changes' : 'Create',
+                                isEdit ? AppLocalizations.of(context)!.saveChanges : AppLocalizations.of(context)!.create,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
@@ -2628,7 +2640,7 @@ class _LeaveTypeCard extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${type.defaultDays.toStringAsFixed(0)} days/year',
+                                AppLocalizations.of(context)!.daysPerYearLabel(type.defaultDays.toStringAsFixed(0)),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: AppColors.grey500,
@@ -2650,7 +2662,7 @@ class _LeaveTypeCard extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            type.isActive ? 'ACTIVE' : 'INACTIVE',
+                            type.isActive ? AppLocalizations.of(context)!.activeLabel.toUpperCase() : AppLocalizations.of(context)!.inactiveLabel.toUpperCase(),
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
@@ -2669,7 +2681,7 @@ class _LeaveTypeCard extends ConsumerWidget {
                       runSpacing: 4,
                       children: [
                         _PolicyBadge(
-                          label: type.isPaid ? 'Paid' : 'Unpaid',
+                          label: type.isPaid ? AppLocalizations.of(context)!.paid : AppLocalizations.of(context)!.unpaid,
                           color: type.isPaid
                               ? AppColors.success
                               : AppColors.grey500,
@@ -2678,41 +2690,45 @@ class _LeaveTypeCard extends ConsumerWidget {
                               : AppColors.grey100,
                         ),
                         if (type.isProrated)
-                          const _PolicyBadge(
-                            label: 'Prorated',
-                            color: Color(0xFF2563EB),
-                            bg: Color(0xFFDBEAFE),
+                          _PolicyBadge(
+                            label: AppLocalizations.of(context)!.prorated,
+                            color: const Color(0xFF2563EB),
+                            bg: const Color(0xFFDBEAFE),
                           ),
                         if (type.allowHalfDay)
-                          const _PolicyBadge(
-                            label: 'Half-Day',
-                            color: Color(0xFF0F766E),
-                            bg: Color(0xFFCCFBF1),
+                          _PolicyBadge(
+                            label: AppLocalizations.of(context)!.halfDayBadge,
+                            color: const Color(0xFF0F766E),
+                            bg: const Color(0xFFCCFBF1),
                           ),
                         if (type.carryForward) ...[
                           _PolicyBadge(
                             label: type.maxCarryForward != null
-                                ? 'Carry Fwd: ${type.maxCarryForward}d'
-                                : 'Carry Forward',
+                                ? AppLocalizations.of(context)!.carryFwd(type.maxCarryForward!.toString())
+                                : AppLocalizations.of(context)!.carryForwardBadge,
                             color: const Color(0xFF7C3AED),
                             bg: const Color(0xFFF5F3FF),
                           ),
                         ],
                         if (type.maxConsecutiveDays != null)
                           _PolicyBadge(
-                            label: 'Max Consec: ${type.maxConsecutiveDays}d',
+                            label: AppLocalizations.of(context)!.maxConsec(type.maxConsecutiveDays!.toString()),
                             color: const Color(0xFFB45309),
                             bg: const Color(0xFFFEF3C7),
                           ),
                         if (type.requiresDocument)
-                          const _PolicyBadge(
-                            label: 'Requires Doc',
-                            color: Color(0xFFB45309),
-                            bg: Color(0xFFFEF3C7),
+                          _PolicyBadge(
+                            label: AppLocalizations.of(context)!.requiresDoc,
+                            color: const Color(0xFFB45309),
+                            bg: const Color(0xFFFEF3C7),
                           ),
                         if (type.genderSpecific != 'all')
                           _PolicyBadge(
-                            label: 'Gender: ${type.genderSpecific}',
+                            label: AppLocalizations.of(context)!.genderBadge(
+                              type.genderSpecific == 'male'
+                                  ? AppLocalizations.of(context)!.maleOnly
+                                  : AppLocalizations.of(context)!.femaleOnly
+                            ),
                             color: AppColors.grey600,
                             bg: AppColors.grey100,
                           ),
@@ -2723,7 +2739,7 @@ class _LeaveTypeCard extends ConsumerWidget {
                     Row(
                       children: [
                         Text(
-                          'Notice: ${type.noticePeriodDays}d · Sort: ${type.sortOrder}',
+                          AppLocalizations.of(context)!.noticeSort(type.noticePeriodDays.toString(), type.sortOrder.toString()),
                           style: const TextStyle(
                             fontSize: 10,
                             color: AppColors.grey400,
@@ -2732,7 +2748,7 @@ class _LeaveTypeCard extends ConsumerWidget {
                         if (type.minimumTenureDays != null) ...[
                           const SizedBox(width: 8),
                           Text(
-                            'Min Tenure: ${type.minimumTenureDays}d',
+                            AppLocalizations.of(context)!.minTenureBadge(type.minimumTenureDays!.toString()),
                             style: const TextStyle(
                               fontSize: 10,
                               color: AppColors.grey400,
@@ -2757,17 +2773,17 @@ class _LeaveTypeCard extends ConsumerWidget {
                               color: AppColors.primary.withValues(alpha: .08),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.edit_rounded,
                                   color: AppColors.primary,
                                   size: 13,
                                 ),
-                                SizedBox(width: 4),
+                                const SizedBox(width: 4),
                                 Text(
-                                  'Edit',
-                                  style: TextStyle(
+                                  AppLocalizations.of(context)!.edit,
+                                  style: const TextStyle(
                                     color: AppColors.primary,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
@@ -2790,18 +2806,18 @@ class _LeaveTypeCard extends ConsumerWidget {
                               color: AppColors.dangerLight,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.delete_rounded,
                                   size: 13,
                                   color: AppColors.danger,
                                 ),
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Text(
-                                  'Delete',
-                                  style: TextStyle(
+                                  AppLocalizations.of(context)!.delete,
+                                  style: const TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.danger,
@@ -2861,9 +2877,9 @@ class _LeaveTypeCard extends ConsumerWidget {
 
                 const SizedBox(height: 20),
 
-                const Text(
-                  "Delete Leave Type?",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                Text(
+                  AppLocalizations.of(context)!.deleteLeaveType,
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 12),
@@ -2877,17 +2893,7 @@ class _LeaveTypeCard extends ConsumerWidget {
                       height: 1.5,
                     ),
                     children: [
-                      const TextSpan(text: "Are you sure you want to delete\n"),
-                      TextSpan(
-                        text: '"$name"',
-                        style: const TextStyle(
-                          color: AppColors.danger,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const TextSpan(
-                        text: "?\n\nThis action cannot be undone.",
-                      ),
+                      TextSpan(text: AppLocalizations.of(context)!.deleteLeaveTypeConfirm(name)),
                     ],
                   ),
                 ),
@@ -2906,9 +2912,9 @@ class _LeaveTypeCard extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: const Text(
-                          "Cancel",
-                          style: TextStyle(
+                        child: Text(
+                          AppLocalizations.of(context)!.cancel,
+                          style: const TextStyle(
                             color: Colors.black87,
                             fontWeight: FontWeight.w600,
                           ),
@@ -2922,7 +2928,7 @@ class _LeaveTypeCard extends ConsumerWidget {
                       child: ElevatedButton.icon(
                         onPressed: () => Navigator.pop(ctx, true),
                         icon: const Icon(Icons.delete_outline),
-                        label: const Text("Delete"),
+                        label: Text(AppLocalizations.of(context)!.delete),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.danger,
                           foregroundColor: Colors.white,
@@ -2952,8 +2958,8 @@ class _LeaveTypeCard extends ConsumerWidget {
         if (!context.mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("✅ Leave type deleted successfully"),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.leaveTypeDeleted),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -3137,9 +3143,9 @@ class _EmptyPlaceholder extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Nothing to show here yet.',
-            style: TextStyle(fontSize: 13, color: AppColors.grey400),
+          Text(
+            AppLocalizations.of(context)!.nothingToShow,
+            style: const TextStyle(fontSize: 13, color: AppColors.grey400),
           ),
         ],
       ),
@@ -3163,9 +3169,9 @@ class _ErrorRetry extends StatelessWidget {
             color: AppColors.danger,
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Failed to load data',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.failedToLoadData,
+            style: const TextStyle(
               fontWeight: FontWeight.w600,
               color: AppColors.grey700,
             ),
@@ -3174,7 +3180,7 @@ class _ErrorRetry extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Try Again'),
+            label: Text(AppLocalizations.of(context)!.tryAgain),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: const BorderSide(color: AppColors.primary),

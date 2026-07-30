@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class AdminSendNotificationScreen extends ConsumerStatefulWidget {
   const AdminSendNotificationScreen({super.key});
@@ -26,9 +27,10 @@ class _AdminSendNotificationScreenState extends ConsumerState<AdminSendNotificat
   }
 
   Future<void> _send() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     if (_selectedUserId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select an employee'), backgroundColor: AppColors.warning));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.pleaseSelectEmployee), backgroundColor: AppColors.warning));
       return;
     }
 
@@ -40,7 +42,7 @@ class _AdminSendNotificationScreenState extends ConsumerState<AdminSendNotificat
         message: _messageCtrl.text,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Notification sent!'), backgroundColor: AppColors.success));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.notificationSentSuccess), backgroundColor: AppColors.success));
         _titleCtrl.clear();
         _messageCtrl.clear();
         setState(() => _selectedUserId = null);
@@ -54,12 +56,13 @@ class _AdminSendNotificationScreenState extends ConsumerState<AdminSendNotificat
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final employeesAsync = ref.watch(allEmployeesProvider);
 
     return Scaffold(
       backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        title: const Text('Send Notification', style: TextStyle(color: AppColors.primary)),
+        title: Text(l10n.sendNotificationTitle, style: const TextStyle(color: AppColors.primary)),
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: AppColors.primary),
         elevation: 0,
@@ -68,38 +71,38 @@ class _AdminSendNotificationScreenState extends ConsumerState<AdminSendNotificat
       body: employeesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
-        data: (employees) => SingleChildScrollView(
+          data: (employees) => SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('Recipient', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                Text(l10n.recipientLabel, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<int>(
                   initialValue: _selectedUserId,
-                  decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Select Employee'),
+                  decoration: InputDecoration(border: const OutlineInputBorder(), hintText: l10n.selectEmployeeHint),
                   items: employees.where((e) => e.userId != null).map((e) => DropdownMenuItem(value: e.userId!, child: Text('${e.firstName} ${e.lastName}'))).toList(),
                   onChanged: (val) => setState(() => _selectedUserId = val),
-                  validator: (v) => v == null ? 'Required' : null,
+                  validator: (v) => v == null ? l10n.fieldRequired : null,
                 ),
                 const SizedBox(height: 16),
-                const Text('Notification Title', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                Text(l10n.notificationTitleLabel, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _titleCtrl,
-                  decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'E.g. Meeting at 3 PM'),
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                  decoration: InputDecoration(border: const OutlineInputBorder(), hintText: l10n.notificationTitleHint),
+                  validator: (v) => v!.isEmpty ? l10n.fieldRequired : null,
                 ),
                 const SizedBox(height: 16),
-                const Text('Message', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                Text(l10n.messageLabel, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _messageCtrl,
-                  decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Write the message details here...'),
+                  decoration: InputDecoration(border: const OutlineInputBorder(), hintText: l10n.messageHint),
                   maxLines: 5,
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                  validator: (v) => v!.isEmpty ? l10n.fieldRequired : null,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
@@ -109,7 +112,7 @@ class _AdminSendNotificationScreenState extends ConsumerState<AdminSendNotificat
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Send Notification', style: TextStyle(fontSize: 16)),
+                  child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(l10n.sendNotificationBtn, style: const TextStyle(fontSize: 16)),
                 ),
               ],
             ),

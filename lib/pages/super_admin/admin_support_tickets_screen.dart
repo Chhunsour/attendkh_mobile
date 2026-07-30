@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_support_tickets_repository.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 final adminSupportTicketsProvider =
     FutureProvider.autoDispose<List<AdminSupportTicket>>((ref) {
@@ -35,6 +36,7 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ticketsAsync = ref.watch(adminSupportTicketsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -42,8 +44,8 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Support Tickets',
+        title: Text(
+          l10n.supportTicketsTitle,
           style: TextStyle(
             color: Colors.black87,
             fontSize: 18,
@@ -58,24 +60,24 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
-          error: (err, _) => _buildError(context, err, ref),
-          data: (tickets) => _buildList(context, ref, tickets),
+          error: (err, _) => _buildError(context, err, ref, l10n),
+          data: (tickets) => _buildList(context, ref, tickets, l10n),
         ),
       ),
     );
   }
 
-  Widget _buildError(BuildContext context, Object err, WidgetRef ref) {
+  Widget _buildError(BuildContext context, Object err, WidgetRef ref, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
+            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
             const SizedBox(height: 16),
-            Text('Failed to load tickets',
-                style: TextStyle(
+            Text(l10n.failedToLoadTickets,
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.grey800)),
@@ -87,7 +89,7 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(adminSupportTicketsProvider),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Retry'),
+              label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -102,17 +104,17 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
   }
 
   Widget _buildList(BuildContext context, WidgetRef ref,
-      List<AdminSupportTicket> tickets) {
+      List<AdminSupportTicket> tickets, AppLocalizations l10n) {
     if (tickets.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.support_agent_rounded,
+            const Icon(Icons.support_agent_rounded,
                 size: 64, color: AppColors.grey300),
             const SizedBox(height: 16),
-            Text('No support tickets',
-                style: TextStyle(
+            Text(l10n.noSupportTickets,
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.grey500)),
@@ -208,39 +210,39 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
                 const SizedBox(width: 4),
                 PopupMenuButton<String>(
                   padding: EdgeInsets.zero,
-                  icon: Icon(Icons.more_vert_rounded,
+                  icon: const Icon(Icons.more_vert_rounded,
                       color: AppColors.grey400, size: 20),
                   onSelected: (action) =>
-                      _updateTicketStatus(context, ref, ticket, action),
+                      _updateTicketStatus(context, ref, ticket, action, l10n),
                   itemBuilder: (_) => [
                     if (ticket.status != 'in_progress')
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'in_progress',
                         child: Row(children: [
-                          Icon(Icons.sync_rounded,
+                          const Icon(Icons.sync_rounded,
                               size: 18, color: Color(0xFF3B82F6)),
-                          SizedBox(width: 8),
-                          Text('Mark In Progress')
+                          const SizedBox(width: 8),
+                          Text(l10n.markInProgress)
                         ]),
                       ),
                     if (ticket.status != 'resolved')
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'resolved',
                         child: Row(children: [
-                          Icon(Icons.check_circle_outline_rounded,
+                          const Icon(Icons.check_circle_outline_rounded,
                               size: 18, color: Color(0xFF10B981)),
-                          SizedBox(width: 8),
-                          Text('Mark Resolved')
+                          const SizedBox(width: 8),
+                          Text(l10n.markResolved)
                         ]),
                       ),
                     if (ticket.status != 'closed')
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'closed',
                         child: Row(children: [
-                          Icon(Icons.check_circle_rounded,
+                          const Icon(Icons.check_circle_rounded,
                               size: 18, color: Color(0xFF10B981)),
-                          SizedBox(width: 8),
-                          Text('Close Ticket')
+                          const SizedBox(width: 8),
+                          Text(l10n.closeTicket)
                         ]),
                       ),
                   ],
@@ -267,6 +269,7 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
     WidgetRef ref,
     AdminSupportTicket ticket,
     String newStatus,
+    AppLocalizations l10n,
   ) async {
     try {
       await AdminSupportTicketsRepository()
@@ -276,7 +279,7 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                'Ticket #${ticket.id} marked as ${_formatStatus(newStatus)}'),
+                l10n.ticketMarkedAs(ticket.id, _formatStatus(newStatus))),
             backgroundColor: AppColors.success,
           ),
         );

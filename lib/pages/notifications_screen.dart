@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
@@ -47,7 +48,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       _refresh();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ All marked read'), backgroundColor: AppColors.success),
+          SnackBar(content: Text(AppLocalizations.of(context)!.allMarkedRead), backgroundColor: AppColors.success),
         );
       }
     } catch (e) {
@@ -61,15 +62,17 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Notifications',
-          style: TextStyle(
+        title: Text(
+          l10n.notifications,
+          style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -79,7 +82,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           TextButton.icon(
             onPressed: _markAllRead,
             icon: const Icon(Icons.done_all, size: 18),
-            label: const Text('Read All'),
+            label: Text(l10n.readAll),
           ),
         ],
       ),
@@ -87,21 +90,21 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         future: _notifFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingIndicator(message: 'Loading notifications...');
+            return LoadingIndicator(message: l10n.loadingNotifications);
           }
           if (snapshot.hasError) {
             return Center(
               child: OutlinedButton.icon(
                 onPressed: _refresh,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(l10n.retry),
               ),
             );
           }
           final items = snapshot.data ?? [];
           if (items.isEmpty) {
-            return const Center(
-              child: Text('No notifications', style: TextStyle(color: AppColors.grey400)),
+            return Center(
+              child: Text(l10n.noNotifications, style: const TextStyle(color: AppColors.grey400)),
             );
           }
           return ListView.separated(
@@ -211,6 +214,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     if (!n.isRead) {
       _markRead(n.id);
     }
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -279,7 +283,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             const Divider(color: AppColors.grey200),
             const SizedBox(height: 16),
             Text(
-              n.body ?? 'No additional details provided.',
+              n.body ?? l10n.noAdditionalDetails,
               style: const TextStyle(
                 fontSize: 14,
                 color: AppColors.grey800,
@@ -296,7 +300,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       side: const BorderSide(color: AppColors.grey300),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text('Close', style: TextStyle(color: AppColors.grey700, fontWeight: FontWeight.bold)),
+                    child: Text(l10n.closeBtn, style: const TextStyle(color: AppColors.grey700, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 if (n.data != null && n.data!.containsKey('type')) ...[
@@ -314,7 +318,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         elevation: 0,
                       ),
-                      child: const Text('View Details', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: Text(l10n.viewDetails, style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],

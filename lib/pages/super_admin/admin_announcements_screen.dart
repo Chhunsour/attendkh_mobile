@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_announcements_repository.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 final adminAnnouncementsProvider =
     FutureProvider.autoDispose<List<AdminAnnouncement>>((ref) {
@@ -14,6 +15,7 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final announcementsAsync = ref.watch(adminAnnouncementsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -21,8 +23,8 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Platform Announcements',
+        title: Text(
+          l10n.platformAnnouncementsTitle,
           style: TextStyle(
             color: Colors.black87,
             fontSize: 18,
@@ -43,24 +45,24 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
-          error: (err, _) => _buildError(context, err, ref),
-          data: (list) => _buildList(context, ref, list),
+          error: (err, _) => _buildError(context, err, ref, l10n),
+          data: (list) => _buildList(context, ref, list, l10n),
         ),
       ),
     );
   }
 
-  Widget _buildError(BuildContext context, Object err, WidgetRef ref) {
+  Widget _buildError(BuildContext context, Object err, WidgetRef ref, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
+            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
             const SizedBox(height: 16),
-            Text('Failed to load announcements',
-                style: TextStyle(
+            Text(l10n.failedToLoadAnnouncements,
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.grey800)),
@@ -72,7 +74,7 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(adminAnnouncementsProvider),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Retry'),
+              label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -87,16 +89,16 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
   }
 
   Widget _buildList(BuildContext context, WidgetRef ref,
-      List<AdminAnnouncement> announcements) {
+      List<AdminAnnouncement> announcements, AppLocalizations l10n) {
     if (announcements.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.campaign_rounded, size: 64, color: AppColors.grey300),
+            const Icon(Icons.campaign_rounded, size: 64, color: AppColors.grey300),
             const SizedBox(height: 16),
-            Text('No announcements yet',
-                style: TextStyle(
+            Text(l10n.noAnnouncementsYet,
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.grey500)),
@@ -140,7 +142,7 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        a.isPublished ? 'Published' : 'Draft',
+                        a.isPublished ? l10n.statusPublished : l10n.statusDraft,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -164,22 +166,22 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
                         }
                       },
                       itemBuilder: (_) => [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'edit',
                           child: Row(children: [
-                            Icon(Icons.edit_rounded, size: 18),
-                            SizedBox(width: 8),
-                            Text('Edit')
+                            const Icon(Icons.edit_rounded, size: 18),
+                            const SizedBox(width: 8),
+                            Text(l10n.actionEdit)
                           ]),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'delete',
                           child: Row(children: [
-                            Icon(Icons.delete_outline_rounded,
+                            const Icon(Icons.delete_outline_rounded,
                                 size: 18, color: AppColors.danger),
-                            SizedBox(width: 8),
-                            Text('Delete',
-                                style: TextStyle(color: AppColors.danger))
+                            const SizedBox(width: 8),
+                            Text(l10n.btnDelete,
+                                style: const TextStyle(color: AppColors.danger))
                           ]),
                         ),
                       ],
@@ -219,17 +221,17 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
     WidgetRef ref,
     AdminAnnouncement announcement,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Announcement'),
-        content: Text(
-            'Are you sure you want to delete "${announcement.title}"?'),
+        title: Text(l10n.deleteAnnouncementTitle),
+        content: Text(l10n.deleteAnnouncementConfirm(announcement.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -239,7 +241,7 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Delete'),
+            child: Text(l10n.btnDelete),
           ),
         ],
       ),
@@ -252,8 +254,8 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
         ref.invalidate(adminAnnouncementsProvider);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Announcement deleted'),
+            SnackBar(
+              content: Text(l10n.announcementDeleted),
               backgroundColor: AppColors.success,
             ),
           );
@@ -262,7 +264,7 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed: ${e.toString()}'),
+              content: Text('${l10n.failedToLoadAnnouncements}: ${e.toString()}'),
               backgroundColor: AppColors.danger,
             ),
           );
@@ -347,12 +349,13 @@ class _AnnouncementFormSheetState
       widget.ref.invalidate(adminAnnouncementsProvider);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isEditing
-                ? 'Announcement updated'
-                : 'Announcement created'),
+                ? l10n.announcementUpdatedSuccess
+                : l10n.announcementCreatedSuccess),
             backgroundColor: AppColors.success,
           ),
         );
@@ -373,6 +376,7 @@ class _AnnouncementFormSheetState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
       decoration: const BoxDecoration(
@@ -396,7 +400,7 @@ class _AnnouncementFormSheetState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _isEditing ? 'Edit Announcement' : 'Create Announcement',
+                  _isEditing ? l10n.editAnnouncementTitle : l10n.createAnnouncementTitle,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -420,25 +424,25 @@ class _AnnouncementFormSheetState
                     TextFormField(
                       controller: _titleCtrl,
                       validator: (v) =>
-                          v == null || v.trim().isEmpty ? 'Required' : null,
-                      decoration: _inputDecoration('Title'),
+                          v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
+                      decoration: _inputDecoration(l10n.titleLabel),
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _bodyCtrl,
                       maxLines: 4,
                       validator: (v) =>
-                          v == null || v.trim().isEmpty ? 'Required' : null,
-                      decoration: _inputDecoration('Body'),
+                          v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
+                      decoration: _inputDecoration(l10n.bodyLabel),
                     ),
                     const SizedBox(height: 14),
                     DropdownButtonFormField<String>(
                       initialValue: _audience,
-                      decoration: _inputDecoration('Target Audience'),
-                      items: const [
-                        DropdownMenuItem(value: 'all', child: Text('🌐 All Employees (Company-Wide)')),
-                        DropdownMenuItem(value: 'managers', child: Text('👔 Managers & Team Leads')),
-                        DropdownMenuItem(value: 'hr', child: Text('👥 HR Team Only')),
+                      decoration: _inputDecoration(l10n.targetAudienceLabel),
+                      items: [
+                        DropdownMenuItem(value: 'all', child: Text(l10n.audienceAllEmployees)),
+                        DropdownMenuItem(value: 'managers', child: Text(l10n.audienceManagers)),
+                        DropdownMenuItem(value: 'hr', child: Text(l10n.audienceHRTeam)),
                       ],
                       onChanged: (v) {
                         if (v != null) setState(() => _audience = v);
@@ -449,8 +453,8 @@ class _AnnouncementFormSheetState
                       color: Colors.transparent,
                       child: SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Publish immediately',
-                            style: TextStyle(
+                        title: Text(l10n.publishImmediatelyLabel,
+                            style: const TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.w600)),
                         value: _isPublished,
                         activeThumbColor: AppColors.primary,
@@ -481,8 +485,8 @@ class _AnnouncementFormSheetState
                               )
                             : Text(
                                 _isEditing
-                                    ? 'Update Announcement'
-                                    : 'Create Announcement',
+                                    ? l10n.btnUpdateAnnouncement
+                                    : l10n.btnCreateAnnouncement,
                                 style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.w700),
                               ),

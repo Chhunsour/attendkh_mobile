@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/services/auth_repository.dart';
 import 'package:mpg_hr_mobile_app/components/app_logo.dart';
 import 'package:mpg_hr_mobile_app/components/custom_text_field.dart';
 import 'package:mpg_hr_mobile_app/components/primary_button.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 /// ── Design tokens (matching login screen) ──
 const _primaryBlue = Color(0xFF4F7DF3);
@@ -111,6 +112,8 @@ class _RegisterCompanyScreenState
   Future<void> _submitRegistration() async {
     if (!_formKeyStep2.currentState!.validate()) return;
 
+    final l10n = AppLocalizations.of(context)!;
+
     setState(() {
       _isSubmitting = true;
       _serverError = null;
@@ -133,7 +136,7 @@ class _RegisterCompanyScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Company "${result.companyName}" created successfully! Please sign in.'),
+          content: Text(l10n.companyPrefix + result.companyName + l10n.createdSuccessSuffix),
           backgroundColor: const Color(0xFF22C55E),
           behavior: SnackBarBehavior.floating,
           shape: const RoundedRectangleBorder(
@@ -155,6 +158,7 @@ class _RegisterCompanyScreenState
   // ═══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
     final viewInsets = MediaQuery.of(context).viewInsets;
     final padding = MediaQuery.of(context).padding;
@@ -254,7 +258,7 @@ class _RegisterCompanyScreenState
                     topRight: Radius.circular(35),
                   ),
                 ),
-                child: _buildCardContent(),
+                child: _buildCardContent(l10n),
               ),
             ),
           ),
@@ -266,7 +270,7 @@ class _RegisterCompanyScreenState
   // ────────────────────────────────────────────
   //  CARD CONTENT — stepper + form
   // ────────────────────────────────────────────
-  Widget _buildCardContent() {
+  Widget _buildCardContent(AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
       child: Column(
@@ -274,7 +278,7 @@ class _RegisterCompanyScreenState
         children: [
           // ── Title ──
           Text(
-            _step == 1 ? 'Register Your Company' : 'Company Details',
+            _step == 1 ? l10n.registerYourCompany : l10n.companyDetails,
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
@@ -285,8 +289,8 @@ class _RegisterCompanyScreenState
           const SizedBox(height: 4),
           Text(
             _step == 1
-                ? 'Step 1 of 2: Create your admin account.'
-                : 'Step 2 of 2: Fill in your company information.',
+                ? l10n.step1Of2
+                : l10n.step2Of2,
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
@@ -350,10 +354,10 @@ class _RegisterCompanyScreenState
           ],
 
           // ── Step 1: Admin Account ──
-          if (_step == 1) _buildStep1(),
+          if (_step == 1) _buildStep1(l10n),
 
           // ── Step 2: Company Details ──
-          if (_step == 2) _buildStep2(),
+          if (_step == 2) _buildStep2(l10n),
 
           
         ],
@@ -362,40 +366,40 @@ class _RegisterCompanyScreenState
   }
 
   // ── Step 1 form ──
-  Widget _buildStep1() {
+  Widget _buildStep1(AppLocalizations l10n) {
     return Form(
       key: _formKeyStep1,
       child: Column(
         children: [
           CustomTextField(
             controller: _userNameController,
-            labelText: 'Your Full Name',
-            hintText: 'John Smith',
+            labelText: l10n.yourFullName,
+            hintText: l10n.johnSmith,
             prefixIcon: Icons.person_outline_rounded,
             validator: (v) =>
-                v == null || v.trim().isEmpty ? 'Full name is required' : null,
+                v == null || v.trim().isEmpty ? l10n.fullNameRequired : null,
           ),
           const SizedBox(height: 18),
           CustomTextField(
             controller: _userPhoneController,
-            labelText: 'Phone Number',
-            hintText: '010 123 456',
+            labelText: l10n.phoneNumber,
+            hintText: l10n.phoneNumberHint,
             prefixIcon: Icons.phone_rounded,
             keyboardType: TextInputType.phone,
             validator: (v) =>
-                v == null || v.trim().isEmpty ? 'Phone number is required for login' : null,
+                v == null || v.trim().isEmpty ? l10n.phoneRequiredForLogin : null,
           ),
           const SizedBox(height: 18),
           CustomTextField(
             controller: _emailController,
-            labelText: 'Work Email',
-            hintText: 'you@company.com',
+            labelText: l10n.workEmail,
+            hintText: l10n.emailHint,
             prefixIcon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
             validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Email is required';
+              if (v == null || v.trim().isEmpty) return l10n.emailRequired;
               if (!v.contains('@') || !v.contains('.')) {
-                return 'Enter a valid email';
+                return l10n.validEmailRequired;
               }
               return null;
             },
@@ -403,8 +407,8 @@ class _RegisterCompanyScreenState
           const SizedBox(height: 18),
           CustomTextField(
             controller: _passwordController,
-            labelText: 'Password',
-            hintText: 'Min. 8 characters',
+            labelText: l10n.password,
+            hintText: l10n.min8Chars,
             prefixIcon: Icons.lock_outline_rounded,
             obscureText: _obscurePassword,
             suffix: IconButton(
@@ -419,16 +423,16 @@ class _RegisterCompanyScreenState
                   setState(() => _obscurePassword = !_obscurePassword),
             ),
             validator: (v) {
-              if (v == null || v.isEmpty) return 'Password is required';
-              if (v.length < 8) return 'Must be at least 8 characters';
+              if (v == null || v.isEmpty) return l10n.passwordRequired;
+              if (v.length < 8) return l10n.min8CharsRequired;
               return null;
             },
           ),
           const SizedBox(height: 18),
           CustomTextField(
             controller: _confirmPasswordController,
-            labelText: 'Confirm Password',
-            hintText: 'Re-enter your password',
+            labelText: l10n.confirmPassword,
+            hintText: l10n.reEnterPassword,
             prefixIcon: Icons.lock_outline_rounded,
             obscureText: _obscureConfirmPassword,
             suffix: IconButton(
@@ -443,16 +447,16 @@ class _RegisterCompanyScreenState
                   () => _obscureConfirmPassword = !_obscureConfirmPassword),
             ),
             validator: (v) {
-              if (v == null || v.isEmpty) return 'Please confirm your password';
+              if (v == null || v.isEmpty) return l10n.pleaseConfirmPassword;
               if (v != _passwordController.text) {
-                return 'Passwords do not match';
+                return l10n.passwordsDoNotMatch;
               }
               return null;
             },
           ),
           const SizedBox(height: 24),
           PrimaryButton(
-            label: 'Continue',
+            label: l10n.continueText,
             onPressed: _goToStep2,
           ),
         ],
@@ -461,18 +465,18 @@ class _RegisterCompanyScreenState
   }
 
   // ── Step 2 form ──
-  Widget _buildStep2() {
+  Widget _buildStep2(AppLocalizations l10n) {
     return Form(
       key: _formKeyStep2,
       child: Column(
         children: [
           CustomTextField(
             controller: _companyNameController,
-            labelText: 'Company Name',
-            hintText: 'Acme Inc.',
+            labelText: l10n.companyName,
+            hintText: l10n.companyNameHint,
             prefixIcon: Icons.business_outlined,
             validator: (v) =>
-                v == null || v.trim().isEmpty ? 'Company name is required' : null,
+                v == null || v.trim().isEmpty ? l10n.companyNameRequired : null,
           ),
           const SizedBox(height: 18),
 
@@ -482,9 +486,9 @@ class _RegisterCompanyScreenState
             child: DropdownButtonFormField<String>(
               initialValue: _companySize,
               isExpanded: true,
-              hint: const Text(
-                'Select company size',
-                style: TextStyle(
+              hint: Text(
+                l10n.selectCompanySize,
+                style: const TextStyle(
                   color: Color(0xFF9CA3AF),
                   fontSize: 16,
                   fontFamily: 'Inter',
@@ -502,7 +506,7 @@ class _RegisterCompanyScreenState
                 color: Color(0xFF9CA3AF),
               ),
               decoration: InputDecoration(
-                labelText: 'Company Size',
+                labelText: l10n.companySize,
                 hintStyle: const TextStyle(
                   color: Color(0xFF9CA3AF),
                   fontSize: 16,
@@ -557,14 +561,14 @@ class _RegisterCompanyScreenState
                   .toList(),
               onChanged: (v) => setState(() => _companySize = v),
               validator: (v) =>
-                  v == null ? 'Please select company size' : null,
+                  v == null ? l10n.companySizeRequired : null,
             ),
           ),
           const SizedBox(height: 18),
           CustomTextField(
             controller: _phoneController,
-            labelText: 'Phone Number (Optional)',
-            hintText: '+855 12 345 678',
+            labelText: l10n.phoneNumberOptional,
+            hintText: l10n.phoneOptionalHint,
             prefixIcon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
           ),
@@ -592,7 +596,7 @@ class _RegisterCompanyScreenState
                       ),
                       backgroundColor: _white,
                     ),
-                    child: const Text('Back'),
+                    child: Text(l10n.back),
                   ),
                 ),
               ),
@@ -600,7 +604,7 @@ class _RegisterCompanyScreenState
               Expanded(
                 flex: 5,
                 child: PrimaryButton(
-                  label: 'Create Workspace',
+                  label: l10n.createWorkspace,
                   isLoading: _isSubmitting,
                   onPressed: _submitRegistration,
                 ),
@@ -621,10 +625,11 @@ class _TopBranding extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppLogo(size: 100),
+        const AppLogo(size: 100),
         SizedBox(height: 16),
         Text(
           'MPG GARAGE',
@@ -636,10 +641,10 @@ class _TopBranding extends StatelessWidget {
             fontFamily: 'Inter',
           ),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Text(
-          'HR Management System',
-          style: TextStyle(
+          l10n.hrManagementSystem,
+          style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w400,
             color: Color(0xB3FFFFFF), // white.withAlpha(179)

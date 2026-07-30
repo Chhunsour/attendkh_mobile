@@ -6,7 +6,9 @@ import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'branch_payroll_settings_screen.dart';
+
 class HrStructureScreen extends ConsumerStatefulWidget {
   const HrStructureScreen({super.key});
 
@@ -32,15 +34,16 @@ class _HrStructureScreenState extends ConsumerState<HrStructureScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'HR Structure',
-          style: TextStyle(
+        title: Text(
+          l10n.hrStructureTitle,
+          style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -58,12 +61,12 @@ class _HrStructureScreenState extends ConsumerState<HrStructureScreen>
               unselectedLabelColor: AppColors.grey500,
               indicatorColor: AppColors.primary,
               tabAlignment: TabAlignment.start,
-                tabs: const [
-                  Tab(text: 'Branches'),
-                  Tab(text: 'Depts'),
-                  Tab(text: 'Positions'),
-                  Tab(text: 'Teams'),
-                  Tab(text: 'Org Chart'),
+                tabs: [
+                  Tab(text: l10n.tabBranches),
+                  Tab(text: l10n.tabDepts),
+                  Tab(text: l10n.tabPositions),
+                  Tab(text: l10n.tabTeams),
+                  Tab(text: l10n.tabOrgChart),
                 ],
             ),
           ),
@@ -112,6 +115,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final branchesAsync = ref.watch(branchesProvider);
     return Stack(
       children: [
@@ -137,7 +141,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                     color: AppColors.grey800,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Search branches...',
+                    hintText: l10n.searchBranchesHint,
                     hintStyle: const TextStyle(
                       fontSize: 13,
                       color: AppColors.grey400,
@@ -219,8 +223,8 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                   );
                 },
                 loading: () =>
-                    const LoadingIndicator(message: 'Loading branches...'),
-                error: (e, _) => _errorWidget(ref, branchesProvider),
+                    LoadingIndicator(message: l10n.loadingBranches),
+                error: (e, _) => _errorWidget(ref, branchesProvider, l10n),
               ),
             ),
           ],
@@ -251,8 +255,8 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                   backgroundColor: Colors.transparent,
                   builder: (_) => const _BranchFormDialog(),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -263,8 +267,8 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                       ),
                       SizedBox(width: 8),
                       Text(
-                        'Add Branch',
-                        style: TextStyle(
+                        l10n.addBranchBtn,
+                        style:  TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
@@ -283,6 +287,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
   }
 
   Widget _buildEmptyState(BuildContext context, {required bool isFiltered}) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -304,7 +309,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
             ),
             const SizedBox(height: 16),
             Text(
-              isFiltered ? 'No Matches Found' : 'No Branches Found',
+              isFiltered ? l10n.noBranchesFound : l10n.noBranchesAvailable,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -314,8 +319,8 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
             const SizedBox(height: 6),
             Text(
               isFiltered
-                  ? 'Try searching another branch name or code.'
-                  : 'Add a branch to define corporate GPS locations.',
+                  ? l10n.noBranchesFoundDesc
+                  : l10n.addFirstBranchDesc,
               style: const TextStyle(fontSize: 13, color: AppColors.grey500),
               textAlign: TextAlign.center,
             ),
@@ -539,6 +544,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
   int id,
   String name,
 ) async {
+  final l10n = AppLocalizations.of(context)!;
   final confirmed = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
@@ -571,9 +577,9 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
 
               const SizedBox(height: 20),
 
-              const Text(
-                "Delete Branch?",
-                style: TextStyle(
+              Text(
+                l10n.deleteBranchTitle,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -590,18 +596,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                     height: 1.5,
                   ),
                   children: [
-                    const TextSpan(text: "Are you sure you want to delete\n"),
-                    TextSpan(
-                      text: '"$name"',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.danger,
-                      ),
-                    ),
-                    const TextSpan(
-                      text:
-                          "?\n\nThis action cannot be undone.",
-                    ),
+                    TextSpan(text: l10n.deleteBranchConfirm(name)),
                   ],
                 ),
               ),
@@ -620,9 +615,9 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
+                      child: Text(
+                        l10n.cancel,
+                        style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.w600,
                         ),
@@ -686,7 +681,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
   }
 }
 
-  Widget _errorWidget(WidgetRef ref, ProviderBase provider) {
+  Widget _errorWidget(WidgetRef ref, ProviderBase provider, AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -697,15 +692,15 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
             color: AppColors.danger,
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Failed to load branches',
-            style: TextStyle(fontSize: 14, color: AppColors.grey600),
+          Text(
+            l10n.failedToLoadBranches, // generic fallback
+            style: const TextStyle(fontSize: 14, color: AppColors.grey600),
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () => ref.invalidate(provider),
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Retry'),
+            label: Text(l10n.retry),
           ),
         ],
       ),
@@ -1449,6 +1444,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final deptsAsync = ref.watch(departmentsProvider);
     final branchesAsync = ref.watch(branchesProvider);
 
@@ -1533,9 +1529,9 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                       child: branchesAsync.maybeWhen(
                         data: (branches) => DropdownButton<int?>(
                           value: _filterBranchId,
-                          hint: const Text(
-                            'All Branches',
-                            style: TextStyle(
+                          hint: Text(
+                            l10n.allBranchesLabel,
+                            style: const TextStyle(
                               fontSize: 13,
                               color: AppColors.grey600,
                               fontWeight: FontWeight.w600,
@@ -1546,11 +1542,11 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                             color: AppColors.grey500,
                           ),
                           items: [
-                            const DropdownMenuItem<int?>(
+                            DropdownMenuItem<int?>(
                               value: null,
                               child: Text(
-                                'All Branches',
-                                style: TextStyle(fontSize: 13),
+                                l10n.allBranchesLabel,
+                                style: const TextStyle(fontSize: 13),
                               ),
                             ),
                             ...branches.map(
@@ -1566,7 +1562,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                           onChanged: (val) =>
                               setState(() => _filterBranchId = val),
                         ),
-                        orElse: () => const Text('Loading...'),
+                        orElse: () => Text(l10n.loadingLabel),
                       ),
                     ),
                   ),
@@ -1622,8 +1618,8 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                   );
                 },
                 loading: () =>
-                    const LoadingIndicator(message: 'Loading departments...'),
-                error: (e, _) => _errorWidget(ref, departmentsProvider),
+                    LoadingIndicator(message: l10n.loadingDepts),
+                error: (e, _) => _errorWidget(ref, departmentsProvider, l10n),
               ),
             ),
           ],
@@ -1654,16 +1650,16 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                   backgroundColor: Colors.transparent,
                   builder: (_) => const _DepartmentFormDialog(),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.add_rounded, color: Colors.white, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        'Add Dept',
-                        style: TextStyle(
+                        l10n.addDeptBtn,
+                        style:  TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
@@ -1682,6 +1678,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
   }
 
   Widget _buildEmptyState(BuildContext context, {required bool isFiltered}) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -1703,7 +1700,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
             ),
             const SizedBox(height: 16),
             Text(
-              isFiltered ? 'No Matches Found' : 'No Departments Found',
+              isFiltered ? l10n.noBranchesFound : l10n.noDeptsFound,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -1713,8 +1710,8 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
             const SizedBox(height: 6),
             Text(
               isFiltered
-                  ? 'Try adjusting your search query or filters.'
-                  : 'Add a department to start structuring your organization.',
+                  ? l10n.noBranchesFoundDesc
+                  : l10n.addFirstDeptDesc,
               style: const TextStyle(fontSize: 13, color: AppColors.grey500),
               textAlign: TextAlign.center,
             ),
@@ -1952,6 +1949,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
   int id,
   String name,
 ) async {
+  final l10n = AppLocalizations.of(context)!;
   final confirmed = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
@@ -1984,9 +1982,9 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
 
               const SizedBox(height: 20),
 
-              const Text(
-                "Delete Department?",
-                style: TextStyle(
+              Text(
+                l10n.deleteDeptTitle,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -2003,20 +2001,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                     height: 1.5,
                   ),
                   children: [
-                    const TextSpan(
-                      text: "Are you sure you want to delete\n",
-                    ),
-                    TextSpan(
-                      text: '"$name"',
-                      style: const TextStyle(
-                        color: AppColors.danger,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const TextSpan(
-                      text:
-                          "?\n\nThis action cannot be undone.",
-                    ),
+                    TextSpan(text: l10n.deleteDeptConfirm(name)),
                   ],
                 ),
               ),
@@ -2035,9 +2020,9 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
+                      child: Text(
+                        l10n.cancel,
+                        style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.w600,
                         ),
@@ -2101,7 +2086,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
   }
 }
 
-  Widget _errorWidget(WidgetRef ref, ProviderBase provider) {
+  Widget _errorWidget(WidgetRef ref, ProviderBase provider, AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -2112,15 +2097,15 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
             color: AppColors.danger,
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Failed to load departments',
-            style: TextStyle(fontSize: 14, color: AppColors.grey600),
+          Text(
+            l10n.failedToLoadDepts,
+            style: const TextStyle(fontSize: 14, color: AppColors.grey600),
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () => ref.invalidate(provider),
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Retry'),
+            label: Text(l10n.retry),
           ),
         ],
       ),
@@ -2194,6 +2179,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final posAsync = ref.watch(positionsProvider);
     final deptsAsync = ref.watch(departmentsProvider);
 
@@ -2278,9 +2264,9 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                       child: deptsAsync.maybeWhen(
                         data: (depts) => DropdownButton<int?>(
                           value: _filterDeptId,
-                          hint: const Text(
-                            'All Departments',
-                            style: TextStyle(
+                          hint: Text(
+                            l10n.allDepartmentsLabel,
+                            style: const TextStyle(
                               fontSize: 13,
                               color: AppColors.grey600,
                               fontWeight: FontWeight.w600,
@@ -2291,11 +2277,11 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                             color: AppColors.grey500,
                           ),
                           items: [
-                            const DropdownMenuItem<int?>(
+                            DropdownMenuItem<int?>(
                               value: null,
                               child: Text(
-                                'All Depts',
-                                style: TextStyle(fontSize: 13),
+                                l10n.allDeptsLabel,
+                                style: const TextStyle(fontSize: 13),
                               ),
                             ),
                             ...depts.map(
@@ -2311,7 +2297,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                           onChanged: (val) =>
                               setState(() => _filterDeptId = val),
                         ),
-                        orElse: () => const Text('Loading...'),
+                        orElse: () => Text(l10n.loadingLabel),
                       ),
                     ),
                   ),
@@ -2351,8 +2337,8 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                         );
                 },
                 loading: () =>
-                    const LoadingIndicator(message: 'Loading positions...'),
-                error: (e, _) => _errorWidget(ref, positionsProvider),
+                    LoadingIndicator(message: l10n.loadingRoles),
+                error: (e, _) => _errorWidget(ref, positionsProvider, l10n),
               ),
             ),
           ],
@@ -2383,16 +2369,15 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                   backgroundColor: Colors.transparent,
                   builder: (_) => const _PositionFormDialog(),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add_rounded, color: Colors.white, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        'Add Position',
-                        style: TextStyle(
+                        l10n.addRoleBtn,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
@@ -2411,6 +2396,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
   }
 
   Widget _buildEmptyState(BuildContext context, {required bool isFiltered}) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -2432,7 +2418,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
             ),
             const SizedBox(height: 16),
             Text(
-              isFiltered ? 'No Matches Found' : 'No Positions Found',
+              isFiltered ? l10n.noBranchesFound : l10n.noRolesFound,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -2442,8 +2428,8 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
             const SizedBox(height: 6),
             Text(
               isFiltered
-                  ? 'Try adjusting your search query or filters.'
-                  : 'Add a position to start assigning job roles.',
+                  ? l10n.noBranchesFoundDesc
+                  : l10n.addFirstRoleDesc,
               style: const TextStyle(fontSize: 13, color: AppColors.grey500),
               textAlign: TextAlign.center,
             ),
@@ -2718,6 +2704,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
   int id,
   String name,
 ) async {
+  final l10n = AppLocalizations.of(context)!;
   final confirmed = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
@@ -2750,9 +2737,9 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
 
               const SizedBox(height: 20),
 
-              const Text(
-                "Delete Position?",
-                style: TextStyle(
+              Text(
+                l10n.deleteRoleTitle,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -2769,19 +2756,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                     height: 1.5,
                   ),
                   children: [
-                    const TextSpan(
-                      text: "Are you sure you want to delete\n",
-                    ),
-                    TextSpan(
-                      text: '"$name"',
-                      style: const TextStyle(
-                        color: AppColors.danger,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const TextSpan(
-                      text: "?\n\nThis action cannot be undone.",
-                    ),
+                    TextSpan(text: l10n.deleteRoleConfirm(name)),
                   ],
                 ),
               ),
@@ -2802,9 +2777,9 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
+                      child: Text(
+                        l10n.cancel,
+                        style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.w600,
                         ),
@@ -2868,7 +2843,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
   }
 }
 
-  Widget _errorWidget(WidgetRef ref, ProviderBase provider) {
+  Widget _errorWidget(WidgetRef ref, ProviderBase provider, AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -2879,15 +2854,15 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
             color: AppColors.danger,
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Failed to load positions',
-            style: TextStyle(fontSize: 14, color: AppColors.grey600),
+          Text(
+            l10n.failedToLoadPositions,
+            style: const TextStyle(fontSize: 14, color: AppColors.grey600),
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () => ref.invalidate(provider),
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Retry'),
+            label: Text(l10n.retry),
           ),
         ],
       ),
@@ -2922,6 +2897,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final teamsAsync = ref.watch(teamsProvider);
     final deptsAsync = ref.watch(departmentsProvider);
 
@@ -2949,7 +2925,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                         onChanged: (val) => setState(() => _searchQuery = val.trim().toLowerCase()),
                         style: const TextStyle(fontSize: 14, color: AppColors.grey800),
                         decoration: InputDecoration(
-                          hintText: 'Search teams...',
+                          hintText: l10n.searchTeamsHint,
                           hintStyle: const TextStyle(fontSize: 13, color: AppColors.grey400),
                           prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.grey400),
                           suffixIcon: _searchCtrl.text.isNotEmpty
@@ -2985,12 +2961,12 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                       child: deptsAsync.maybeWhen(
                         data: (depts) => DropdownButton<int?>(
                           value: _filterDeptId,
-                          hint: const Text('All Departments', style: TextStyle(fontSize: 13, color: AppColors.grey600, fontWeight: FontWeight.w600)),
+                          hint: Text(l10n.allDepartmentsLabel, style: const TextStyle(fontSize: 13, color: AppColors.grey600, fontWeight: FontWeight.w600)),
                           icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.grey500),
                           items: [
-                            const DropdownMenuItem<int?>(
+                            DropdownMenuItem<int?>(
                               value: null,
-                              child: Text('All Depts', style: TextStyle(fontSize: 13)),
+                              child: Text(l10n.allDeptsLabel, style: const TextStyle(fontSize: 13)),
                             ),
                             ...depts.map((d) => DropdownMenuItem<int?>(
                                   value: d.id,
@@ -2999,7 +2975,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                           ],
                           onChanged: (val) => setState(() => _filterDeptId = val),
                         ),
-                        orElse: () => const Text('Loading...'),
+                        orElse: () => Text(l10n.loadingLabel),
                       ),
                     ),
                   ),
@@ -3029,8 +3005,8 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                           itemBuilder: (context, i) => _buildItem(context, ref, filteredItems[i]),
                         );
                 },
-                loading: () => const LoadingIndicator(message: 'Loading teams...'),
-                error: (e, _) => _errorWidget(ref, teamsProvider),
+                loading: () => LoadingIndicator(message: l10n.loadingTeams),
+                error: (e, _) => _errorWidget(ref, teamsProvider, l10n),
               ),
             ),
           ],
@@ -3061,16 +3037,16 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                   backgroundColor: Colors.transparent,
                   builder: (_) => const _TeamFormDialog(),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.add_rounded, color: Colors.white, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        'Add Team',
-                        style: TextStyle(
+                        l10n.addTeamBtn,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
@@ -3307,6 +3283,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
   int id,
   String name,
 ) async {
+  final l10n = AppLocalizations.of(context)!;
   final confirmed = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
@@ -3339,9 +3316,9 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
 
               const SizedBox(height: 20),
 
-              const Text(
-                "Delete Team?",
-                style: TextStyle(
+              Text(
+                l10n.deleteTeamTitle,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -3358,19 +3335,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                     height: 1.5,
                   ),
                   children: [
-                    const TextSpan(
-                      text: "Are you sure you want to delete\n",
-                    ),
-                    TextSpan(
-                      text: '"$name"',
-                      style: const TextStyle(
-                        color: AppColors.danger,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const TextSpan(
-                      text: "?\n\nThis action cannot be undone.",
-                    ),
+                    TextSpan(text: l10n.deleteTeamConfirm(name)),
                   ],
                 ),
               ),
@@ -3391,9 +3356,9 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
+                      child: Text(
+                        l10n.cancel,
+                        style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.w600,
                         ),
@@ -3457,19 +3422,19 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
   }
 }
 
-  Widget _errorWidget(WidgetRef ref, ProviderBase provider) {
+  Widget _errorWidget(WidgetRef ref, ProviderBase provider, AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.cloud_off_rounded, size: 40, color: AppColors.danger),
           const SizedBox(height: 10),
-          const Text('Failed to load teams', style: TextStyle(fontSize: 14, color: AppColors.grey600)),
+          Text(l10n.failedToLoadTeams, style: const TextStyle(fontSize: 14, color: AppColors.grey600)),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () => ref.invalidate(provider),
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Retry'),
+            label: Text(l10n.retry),
           ),
         ],
       ),
@@ -3799,6 +3764,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final orgChartAsync = ref.watch(orgChartProvider);
 
     return orgChartAsync.when(
@@ -3820,14 +3786,14 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                     child: const Icon(Icons.account_tree_rounded, size: 36, color: AppColors.primary),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'No organisation structure yet',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.grey800),
+                  Text(
+                    l10n.noOrgChartTitle,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.grey800),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Add employees and assign managers to build your org chart.',
-                    style: TextStyle(fontSize: 13, color: AppColors.grey500),
+                  Text(
+                    l10n.noOrgChartDesc,
+                    style: const TextStyle(fontSize: 13, color: AppColors.grey500),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -3860,7 +3826,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                       onChanged: (val) => setState(() => _searchQuery = val.trim().toLowerCase()),
                       style: const TextStyle(fontSize: 14, color: AppColors.grey800),
                       decoration: InputDecoration(
-                        hintText: 'Search name, position, dept...',
+                        hintText: l10n.searchOrgChartHint,
                         hintStyle: const TextStyle(fontSize: 13, color: AppColors.grey400),
                         prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.grey400),
                         suffixIcon: _searchCtrl.text.isNotEmpty
@@ -3897,7 +3863,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                           border: Border.all(color: AppColors.grey200),
                         ),
                         child: Text(
-                          '$totalCount people · $maxDepthVal levels',
+                          l10n.orgChartStats(totalCount, maxDepthVal),
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey500),
                         ),
                       ),
@@ -3965,13 +3931,13 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                                 setState(() => _maxDepth = newValue);
                               }
                             },
-                            items: const [
-                              DropdownMenuItem(value: -1, child: Text('Expand All')),
-                              DropdownMenuItem(value: 1, child: Text('Show 1 Level')),
-                              DropdownMenuItem(value: 2, child: Text('Show 2 Levels')),
-                              DropdownMenuItem(value: 3, child: Text('Show 3 Levels')),
-                              DropdownMenuItem(value: 4, child: Text('Show 4 Levels')),
-                              DropdownMenuItem(value: 5, child: Text('Show 5 Levels')),
+                            items: [
+                              DropdownMenuItem(value: -1, child: Text(l10n.expandAll)),
+                              DropdownMenuItem(value: 1, child: Text(l10n.showLevel1)),
+                              DropdownMenuItem(value: 2, child: Text(l10n.showLevel2)),
+                              DropdownMenuItem(value: 3, child: Text(l10n.showLevel3)),
+                              DropdownMenuItem(value: 4, child: Text(l10n.showLevel4)),
+                              DropdownMenuItem(value: 5, child: Text(l10n.showLevel5)),
                             ],
                           ),
                         ),
@@ -4034,19 +4000,19 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
           ],
         );
       },
-      loading: () => const LoadingIndicator(message: 'Loading org chart...'),
+      loading: () => LoadingIndicator(message: l10n.loadingOrgChart),
       error: (e, _) => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.cloud_off_rounded, size: 40, color: AppColors.danger),
             const SizedBox(height: 10),
-            const Text('Failed to load org chart', style: TextStyle(fontSize: 14, color: AppColors.grey600)),
+            Text(l10n.failedToLoadOrgChart, style: const TextStyle(fontSize: 14, color: AppColors.grey600)),
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () => ref.invalidate(orgChartProvider),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(l10n.retry),
             ),
           ],
         ),

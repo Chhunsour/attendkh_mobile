@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'branch_payroll_settings_screen.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 // ── Scoped providers for branch-specific data ─────────────────────────────────
 
@@ -31,6 +32,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
     final branchState = ref.watch(branchSwitchProvider);
     final branchId = branchState.activeBranchId;
     final branchName = branchState.activeBranchName ?? 'Branch';
+    final l10n = AppLocalizations.of(context)!;
 
     if (branchId == null) {
       // Should never happen, but guard just in case
@@ -72,9 +74,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const Text(
-                    'Branch Manager View',
-                    style: TextStyle(
+                  Text(
+                    l10n.branchManagerView,
+                    style: const TextStyle(
                       color: Color(0xFFF97316),
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -94,9 +96,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
               context.go(AppRoutes.companyAdmin);
             },
             icon: const Icon(Icons.close_rounded, size: 16, color: Color(0xFFF97316)),
-            label: const Text(
-              'Exit',
-              style: TextStyle(
+            label: Text(
+              l10n.exit,
+              style: const TextStyle(
                 color: Color(0xFFF97316),
                 fontWeight: FontWeight.w700,
                 fontFamily: 'Inter',
@@ -140,7 +142,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Viewing as $branchName',
+                            l10n.viewingAs(branchName),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -148,9 +150,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
                               fontFamily: 'Inter',
                             ),
                           ),
-                          const Text(
-                            'You are in Branch Manager mode — data is scoped to this branch.',
-                            style: TextStyle(
+                          Text(
+                            l10n.branchManagerModeDesc,
+                            style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 11,
                               fontFamily: 'Inter',
@@ -164,9 +166,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
               ),
 
               // ── KPI Cards ─────────────────────────────────────────────────
-              const Text(
-                'Branch Overview',
-                style: TextStyle(
+              Text(
+                l10n.branchOverview,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey800,
@@ -180,17 +182,17 @@ class BranchManagerViewScreen extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: _buildKpiCard('Staff', kpi.totalEmployees.toString(), Icons.people_rounded, const Color(0xFF3B82F6))),
+                        Expanded(child: _buildKpiCard(l10n.staff, kpi.totalEmployees.toString(), Icons.people_rounded, const Color(0xFF3B82F6))),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildKpiCard('On Leave', kpi.pendingLeaves.toString(), Icons.event_busy_rounded, const Color(0xFFEF4444))),
+                        Expanded(child: _buildKpiCard(l10n.onLeave, kpi.pendingLeaves.toString(), Icons.event_busy_rounded, const Color(0xFFEF4444))),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(child: _buildKpiCard("Today's Attendance", kpi.todayAttendance.toString(), Icons.check_circle_rounded, const Color(0xFF10B981))),
+                        Expanded(child: _buildKpiCard(l10n.todaysAttendance, kpi.todayAttendance.toString(), Icons.check_circle_rounded, const Color(0xFF10B981))),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildKpiCard('Pending Leaves', kpi.pendingLeaves.toString(), Icons.pending_actions_rounded, const Color(0xFFF59E0B))),
+                        Expanded(child: _buildKpiCard(l10n.pendingLeaves, kpi.pendingLeaves.toString(), Icons.pending_actions_rounded, const Color(0xFFF59E0B))),
                       ],
                     ),
                   ],
@@ -207,16 +209,16 @@ class BranchManagerViewScreen extends ConsumerWidget {
                     color: AppColors.dangerLight,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text('Error loading branch KPIs: $e', style: const TextStyle(color: AppColors.danger)),
+                  child: Text('${l10n.errorLoadingBranchKpis}$e', style: const TextStyle(color: AppColors.danger)),
                 ),
               ),
 
               const SizedBox(height: 24),
 
               // ── Quick Operations Grid ─────────────────────────────────────
-              const Text(
-                'Branch Operations',
-                style: TextStyle(
+              Text(
+                l10n.branchOperations,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey800,
@@ -235,40 +237,40 @@ class BranchManagerViewScreen extends ConsumerWidget {
                 children: [
                   _buildGridItem(
                     context,
-                    title: 'Employees',
-                    description: 'Branch staff',
+                    title: l10n.employees,
+                    description: l10n.branchStaff,
                     icon: Icons.people_rounded,
                     color: const Color(0xFF0EA5E9),
                     routePath: AppRoutes.adminEmployees,
                   ),
                   _buildGridItem(
                     context,
-                    title: 'Leave Requests',
-                    description: 'Review submissions',
+                    title: l10n.leaveRequests,
+                    description: l10n.reviewSubmissions,
                     icon: Icons.event_busy_rounded,
                     color: const Color(0xFFEF4444),
                     routePath: AppRoutes.adminLeave,
                   ),
                   _buildGridItem(
                     context,
-                    title: 'Shift Rules',
-                    description: 'Work schedules',
+                    title: l10n.shiftRules,
+                    description: l10n.workSchedules,
                     icon: Icons.schedule_rounded,
                     color: const Color(0xFF10B981),
                     routePath: AppRoutes.adminShifts,
                   ),
                   _buildGridItem(
                     context,
-                    title: 'Attendance',
-                    description: 'Daily records',
+                    title: l10n.attendanceMenu,
+                    description: l10n.dailyRecords,
                     icon: Icons.fingerprint_rounded,
                     color: const Color(0xFF8B5CF6),
                     routePath: AppRoutes.adminEmployees,
                   ),
                   _buildGridItem(
                     context,
-                    title: 'Payroll Settings',
-                    description: 'Rules & overtime',
+                    title: l10n.payrollSettings,
+                    description: l10n.rulesAndOvertime,
                     icon: Icons.calculate_rounded,
                     color: const Color(0xFFF59E0B),
                     onTap: () {
@@ -283,9 +285,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
               const SizedBox(height: 24),
 
               // ── Pending Leaves Quick List ─────────────────────────────────
-              const Text(
-                'Pending Leave Requests',
-                style: TextStyle(
+              Text(
+                l10n.pendingLeaveRequests,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey800,
@@ -305,10 +307,10 @@ class BranchManagerViewScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: AppColors.grey200),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          '✅  No pending leave requests',
-                          style: TextStyle(color: AppColors.grey500, fontFamily: 'Inter', fontSize: 13),
+                          l10n.noPendingLeaveRequests,
+                          style: const TextStyle(color: AppColors.grey500, fontFamily: 'Inter', fontSize: 13),
                         ),
                       ),
                     );
@@ -328,14 +330,14 @@ class BranchManagerViewScreen extends ConsumerWidget {
             bottom: 20,
             left: 20,
             right: 20,
-            child: _buildFloatingExitBanner(context, ref, branchName),
+            child: _buildFloatingExitBanner(context, ref, branchName, l10n),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFloatingExitBanner(BuildContext context, WidgetRef ref, String branchName) {
+  Widget _buildFloatingExitBanner(BuildContext context, WidgetRef ref, String branchName, AppLocalizations l10n) {
     return GestureDetector(
       onTap: () {
         ref.read(branchSwitchProvider.notifier).exitBranchView();
@@ -372,7 +374,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    '👁  Viewing $branchName — Tap to Exit',
+                    l10n.viewingTapToExit(branchName),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 13,

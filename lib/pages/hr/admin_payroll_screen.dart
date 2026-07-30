@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'formulas_screen.dart';
 
 class AdminPayrollScreen extends ConsumerStatefulWidget {
@@ -37,9 +38,9 @@ class _AdminPayrollScreenState extends ConsumerState<AdminPayrollScreen> with Si
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Payroll Management',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.payrollManagementTitle,
+          style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -55,7 +56,7 @@ class _AdminPayrollScreenState extends ConsumerState<AdminPayrollScreen> with Si
               labelColor: AppColors.primary,
               unselectedLabelColor: AppColors.grey500,
               indicatorColor: AppColors.primary,
-              tabs: const [Tab(text: 'Runs'), Tab(text: 'Settings')],
+              tabs: [Tab(text: AppLocalizations.of(context)!.runsTab), Tab(text: AppLocalizations.of(context)!.settingsTab)],
             ),
           ),
           Expanded(
@@ -86,13 +87,13 @@ class _PayrollRunsTab extends ConsumerWidget {
           child: ElevatedButton.icon(
             onPressed: () => _showGenerateDialog(context, ref),
             icon: const Icon(Icons.play_arrow),
-            label: const Text('Generate Payroll'),
+            label: Text(AppLocalizations.of(context)!.generatePayrollBtn),
           ),
         ),
         Expanded(
           child: runsAsync.when(
             data: (items) => items.isEmpty
-                ? const Center(child: Text('No payroll runs', style: TextStyle(color: AppColors.grey400)))
+                ? Center(child: Text(AppLocalizations.of(context)!.noPayrollRuns, style: const TextStyle(color: AppColors.grey400)))
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: items.length,
@@ -136,7 +137,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(r.period, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                                    Text('${r.employeesCount} employees', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                                    Text(AppLocalizations.of(context)!.employeeCount(r.employeesCount, r.employeesCount == 1 ? '' : 's'), style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
                                   ],
                                 ),
                               ),
@@ -163,12 +164,12 @@ class _PayrollRunsTab extends ConsumerWidget {
                       );
                     },
                   ),
-            loading: () => const LoadingIndicator(message: 'Loading payroll runs...'),
+            loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingPayrollRuns),
             error: (e, _) => Center(
               child: OutlinedButton.icon(
                 onPressed: () => ref.invalidate(payrollRunsProvider),
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(AppLocalizations.of(context)!.tryAgain),
               ),
             ),
           ),
@@ -181,19 +182,19 @@ class _PayrollRunsTab extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Payroll Run ${run.period}'),
-        content: const Text('Would you like to mark this Payroll Run as COMPLETED or view Payslips?'),
+        title: Text(AppLocalizations.of(context)!.payrollRunTitle(run.period)),
+        content: Text(AppLocalizations.of(context)!.payrollRunPrompt),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               context.push('/company-admin/payroll/${run.period}');
             },
-            child: const Text('View Payslips'),
+            child: Text(AppLocalizations.of(context)!.viewPayslipsBtn),
           ),
           ElevatedButton.icon(
             icon: const Icon(Icons.check),
-            label: const Text('Mark Completed'),
+            label: Text(AppLocalizations.of(context)!.markCompletedBtn),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
             onPressed: () async {
               Navigator.pop(ctx);
@@ -201,7 +202,7 @@ class _PayrollRunsTab extends ConsumerWidget {
               ref.invalidate(payrollRunsProvider);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('🎉 Payroll Run marked as COMPLETED!'), backgroundColor: AppColors.success),
+                  SnackBar(content: Text(AppLocalizations.of(context)!.payrollRunMarkedCompleted), backgroundColor: AppColors.success),
                 );
               }
             },
@@ -273,9 +274,9 @@ class _PayrollRunsTab extends ConsumerWidget {
 
               const SizedBox(height: 20),
 
-              const Text(
-                "Generate Payroll",
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.generatePayrollBtn,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -283,10 +284,10 @@ class _PayrollRunsTab extends ConsumerWidget {
 
               const SizedBox(height: 12),
 
-              const Text(
-                "Select payroll period to generate employee salary records.",
+              Text(
+                AppLocalizations.of(context)!.generatePayrollPromptDesc,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColors.grey600,
                   fontSize: 14,
                   height: 1.5,
@@ -300,7 +301,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                 readOnly: true,
                 onTap: () => pickDate(periodStartCtrl),
                 decoration: InputDecoration(
-                  labelText: "Period Start",
+                  labelText: AppLocalizations.of(context)!.periodStartLabel,
                   prefixIcon: const Icon(Icons.calendar_today_outlined),
                   filled: true,
                   fillColor: Colors.grey.shade100,
@@ -331,7 +332,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                 readOnly: true,
                 onTap: () => pickDate(periodEndCtrl),
                 decoration: InputDecoration(
-                  labelText: "Period End",
+                  labelText: AppLocalizations.of(context)!.periodEndLabel,
                   prefixIcon: const Icon(Icons.calendar_month_outlined),
                   filled: true,
                   fillColor: Colors.grey.shade100,
@@ -371,9 +372,9 @@ class _PayrollRunsTab extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)!.cancel,
+                        style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.w600,
                         ),
@@ -402,9 +403,9 @@ class _PayrollRunsTab extends ConsumerWidget {
 
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content:
-                                    Text("✅ Payroll generated successfully"),
+                                    Text(AppLocalizations.of(context)!.payrollGeneratedSuccess),
                                 backgroundColor: AppColors.success,
                                 behavior: SnackBarBehavior.floating,
                               ),
@@ -427,7 +428,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                         }
                       },
                       icon: const Icon(Icons.play_arrow_rounded),
-                      label: const Text("Generate"),
+                      label: Text(AppLocalizations.of(context)!.generateBtn),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
@@ -494,6 +495,7 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final settingsAsync = ref.watch(payrollSettingsProvider);
 
     return settingsAsync.when(
@@ -549,8 +551,8 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   leading: const Icon(Icons.calculate, color: Colors.white, size: 32),
-                  title: const Text('Formulas Handbook', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                  subtitle: const Text('View active payroll calculations', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  title: Text(l10n.formulasHandbookTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  subtitle: Text(l10n.formulasHandbookDesc, style: const TextStyle(color: Colors.white70, fontSize: 13)),
                   trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
                   onTap: () async {
                     final s = await ref.read(companyFormulasProvider.future);
@@ -561,69 +563,72 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                   },
                 ),
               ),
-              _sectionHeader('General Settings'),
+              _sectionHeader(l10n.generalSettingsTitle),
               const SizedBox(height: 12),
               _dropdownField(
-                label: 'Payroll Period',
+                context: context,
+                label: l10n.payrollPeriodLabel,
                 value: _periodCtrl.text,
                 items: const ['weekly', 'bi_weekly', 'monthly'],
                 onChanged: (v) => setState(() => _periodCtrl.text = v),
               ),
               const SizedBox(height: 12),
-              _textField(_startDayCtrl, 'Payroll Start Day (1-31)', keyboardType: TextInputType.number),
+              _textField(_startDayCtrl, l10n.payrollStartDayLabel, keyboardType: TextInputType.number),
               const SizedBox(height: 12),
               _dropdownField(
-                label: 'Working Days Calculation Type',
+                context: context,
+                label: l10n.workingDaysCalcTypeLabel,
                 value: _workingDaysType,
                 items: const ['calendar_days', 'calendar_minus_holidays', 'fixed'],
                 onChanged: (v) => setState(() => _workingDaysType = v),
               ),
               if (_workingDaysType == 'fixed') ...[
                 const SizedBox(height: 12),
-                _textField(_workingDaysCtrl, 'Fixed Working Days per Period', keyboardType: TextInputType.number),
+                _textField(_workingDaysCtrl, l10n.fixedWorkingDaysLabel, keyboardType: TextInputType.number),
               ],
               const SizedBox(height: 12),
-              _textField(_currencyCtrl, 'Currency (e.g. USD)'),
+              _textField(_currencyCtrl, l10n.currencyLabel),
               const SizedBox(height: 12),
-              _textField(_currencySymbolCtrl, 'Currency Symbol (e.g. \$)'),
+              _textField(_currencySymbolCtrl, l10n.currencySymbolLabel),
 
               const SizedBox(height: 28),
-              _sectionHeader('Overtime Settings'),
+              _sectionHeader(l10n.overtimeSettingsTitle),
               const SizedBox(height: 12),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Enable Overtime Pay'),
+                title: Text(l10n.enableOvertimePayLabel),
                 value: _otEnabled,
                 onChanged: (val) => setState(() => _otEnabled = val),
               ),
               if (_otEnabled) ...[
                 const SizedBox(height: 8),
-                _textField(_otThresholdCtrl, 'Overtime Threshold (hours/day)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                _textField(_otThresholdCtrl, l10n.overtimeThresholdLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 const SizedBox(height: 12),
-                _textField(_otMultiplierCtrl, 'Regular OT Multiplier (e.g. 1.5)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                _textField(_otMultiplierCtrl, l10n.regularOtMultiplierLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 const SizedBox(height: 12),
-                _textField(_weekendOtCtrl, 'Rest Day OT Multiplier (e.g. 2.0)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                _textField(_weekendOtCtrl, l10n.restDayOtMultiplierLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 const SizedBox(height: 12),
-                _textField(_pubHolidayOtCtrl, 'Public Holiday OT Multiplier (e.g. 2.0)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                _textField(_pubHolidayOtCtrl, l10n.publicHolidayOtMultiplierLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 const SizedBox(height: 12),
-                _textField(_compHolidayOtCtrl, 'Company Holiday OT Multiplier (e.g. 1.5)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                _textField(_compHolidayOtCtrl, l10n.companyHolidayOtMultiplierLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
               ],
 
               const SizedBox(height: 28),
-              _sectionHeader('Late Deduction Settings'),
+              _sectionHeader(l10n.lateDeductionSettingsTitle),
               const SizedBox(height: 12),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Enable Late Deductions'),
+                title: Text(l10n.enableLateDeductionsLabel),
                 value: _lateEnabled,
                 onChanged: (val) => setState(() => _lateEnabled = val),
               ),
               if (_lateEnabled) ...[
                 const SizedBox(height: 8),
-                _textField(_graceMinutesCtrl, 'Grace Period (minutes)', keyboardType: TextInputType.number),
+                _textField(_graceMinutesCtrl, l10n.gracePeriodMinutesLabel, keyboardType: TextInputType.number),
                 const SizedBox(height: 12),
                 _dropdownField(
-                  label: 'Calculation Method',
+                  context: context,
+                  label: l10n.calculationMethodLabel,
                   value: _lateCalcMethod,
                   items: const ['per_minute', 'fixed_amount', 'half_day'],
                   onChanged: (v) {
@@ -642,19 +647,20 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                   const SizedBox(height: 12),
                   _textField(
                     _lateDeductionCtrl,
-                    _lateCalcMethod == 'fixed_amount' ? 'Fixed Penalty Amount (\$)' : 'Per-Minute Multiplier (e.g. 1.0 = exact salary)',
+                    _lateCalcMethod == 'fixed_amount' ? l10n.fixedPenaltyAmountLabel : l10n.perMinuteMultiplierLabel,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   ),
                 ],
               ],
 
               const SizedBox(height: 28),
-              _sectionHeader('Early Leave Penalties'),
+              _sectionHeader(l10n.earlyLeavePenaltiesTitle),
               const SizedBox(height: 12),
-              _textField(_earlyLeaveGraceCtrl, 'Early Leave Grace (minutes)', keyboardType: TextInputType.number),
+              _textField(_earlyLeaveGraceCtrl, l10n.earlyLeaveGraceLabel, keyboardType: TextInputType.number),
               const SizedBox(height: 12),
               _dropdownField(
-                label: 'Deduction Type',
+                context: context,
+                label: l10n.deductionTypeLabel,
                 value: _earlyLeaveDedType,
                 items: const ['per_minute', 'fixed_amount', 'half_day'],
                 onChanged: (v) {
@@ -673,33 +679,34 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                 const SizedBox(height: 12),
                 _textField(
                   _earlyLeaveRateCtrl,
-                  _earlyLeaveDedType == 'fixed_amount' ? 'Fixed Penalty Amount (\$)' : 'Per-Minute Multiplier (e.g. 1.0 = exact salary)',
+                  _earlyLeaveDedType == 'fixed_amount' ? l10n.fixedPenaltyAmountLabel : l10n.perMinuteMultiplierLabel,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 ),
               ],
 
               const SizedBox(height: 28),
-              _sectionHeader('Pre-Shift & Early Clock-In'),
+              _sectionHeader(l10n.preShiftEarlyClockInTitle),
               const SizedBox(height: 12),
               _dropdownField(
-                label: 'Early Clock-In Policy',
+                context: context,
+                label: l10n.earlyClockInPolicyLabel,
                 value: _earlyClockInPolicy,
                 items: const ['ignore', 'treat_as_ot', 'paid_outside'],
                 onChanged: (v) => setState(() => _earlyClockInPolicy = v),
               ),
               if (_earlyClockInPolicy == 'treat_as_ot') ...[
                 const SizedBox(height: 12),
-                _textField(_preShiftOtCtrl, 'Pre-Shift OT Multiplier', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                _textField(_preShiftOtCtrl, l10n.preShiftOtMultiplierLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                 const SizedBox(height: 12),
-                _textField(_maxPreShiftCtrl, 'Max Allowed Early Minutes', keyboardType: TextInputType.number),
+                _textField(_maxPreShiftCtrl, l10n.maxAllowedEarlyMinutesLabel, keyboardType: TextInputType.number),
               ],
 
               const SizedBox(height: 28),
-              _sectionHeader('Half-Day Settings'),
+              _sectionHeader(l10n.halfDaySettingsTitle),
               const SizedBox(height: 12),
-              _textField(_halfDayHoursCtrl, 'Half-Day Minimum Hours', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+              _textField(_halfDayHoursCtrl, l10n.halfDayMinHoursLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
               const SizedBox(height: 12),
-              _textField(_halfDayPctCtrl, 'Half-Day Deduction %', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+              _textField(_halfDayPctCtrl, l10n.halfDayDeductionPctLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
 
               const SizedBox(height: 32),
               ElevatedButton(
@@ -707,19 +714,19 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: const Text('Save Settings', style: TextStyle(fontSize: 16)),
+                child: Text(l10n.saveSettingsBtn, style: const TextStyle(fontSize: 16)),
               ),
               const SizedBox(height: 40),
             ],
           ),
         );
       },
-      loading: () => const LoadingIndicator(message: 'Loading settings...'),
+      loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingSettings),
       error: (e, _) => Center(
         child: OutlinedButton.icon(
           onPressed: () => ref.invalidate(payrollSettingsProvider),
           icon: const Icon(Icons.refresh),
-          label: const Text('Retry'),
+          label: Text(AppLocalizations.of(context)!.tryAgain),
         ),
       ),
     );
@@ -761,7 +768,7 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
       ref.invalidate(payrollSettingsProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Settings saved'), backgroundColor: AppColors.success),
+          SnackBar(content: Text(AppLocalizations.of(context)!.settingsSavedSuccess), backgroundColor: AppColors.success),
         );
       }
     } catch (e) {
@@ -786,6 +793,7 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
   }
 
   Widget _dropdownField({
+    required BuildContext context,
     required String label,
     required String value,
     required List<String> items,
@@ -794,26 +802,27 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
     return DropdownButtonFormField<String>(
       initialValue: items.contains(value) ? value : items.first,
       decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
-      items: items.map((i) => DropdownMenuItem(value: i, child: Text(_formatLabel(i)))).toList(),
+      items: items.map((i) => DropdownMenuItem(value: i, child: Text(_formatLabel(context, i)))).toList(),
       onChanged: (v) { if (v != null) onChanged(v); },
     );
   }
 
-  String _formatLabel(String key) {
+  String _formatLabel(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
     switch (key) {
-      case 'weekly': return 'Weekly';
-      case 'bi_weekly': return 'Bi-Weekly';
-      case 'monthly': return 'Monthly';
-      case 'calendar_days': return 'Calendar Days';
-      case 'calendar_minus_holidays': return 'Calendar Minus Holidays';
-      case 'fixed': return 'Fixed Days';
-      case 'treat_as_ot': return 'Treat as Overtime';
-      case 'paid_outside': return 'Paid Outside (No OT Mult)';
-      case 'flat': return 'Flat Amount';
-      case 'hourly': return 'Hourly Rate';
-      case 'per_minute': return 'Per Minute Rate';
-      case 'half_day': return 'Half Day Deduction';
-      case 'ignore': return 'Ignore (No Extra Pay)';
+      case 'weekly': return l10n.weeklyLabel;
+      case 'bi_weekly': return l10n.biWeeklyLabel;
+      case 'monthly': return l10n.monthlyLabel;
+      case 'calendar_days': return l10n.calendarDaysLabel;
+      case 'calendar_minus_holidays': return l10n.calendarMinusHolidaysLabel;
+      case 'fixed': return l10n.fixedDaysLabel;
+      case 'treat_as_ot': return l10n.treatAsOvertimeLabel;
+      case 'paid_outside': return l10n.paidOutsideLabel;
+      case 'flat': return l10n.flatAmountLabel;
+      case 'hourly': return l10n.hourlyRateLabel;
+      case 'per_minute': return l10n.perMinuteRateLabel;
+      case 'half_day': return l10n.halfDayDeductionLabel;
+      case 'ignore': return l10n.ignoreNoExtraPayLabel;
       default: return key.replaceAll('_', ' ').split(' ').map((w) => w[0].toUpperCase() + w.substring(1)).join(' ');
     }
   }

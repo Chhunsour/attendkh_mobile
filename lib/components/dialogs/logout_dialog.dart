@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 /// Shows a reusable confirmation dialog for logging out.
 /// If the user confirms, it triggers the logout flow.
 Future<void> showLogoutConfirmation(BuildContext context, WidgetRef ref) async {
+  final l10n = AppLocalizations.of(context)!;
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (ctx) => Dialog(
@@ -38,19 +40,19 @@ Future<void> showLogoutConfirmation(BuildContext context, WidgetRef ref) async {
               child: const Icon(Icons.logout_rounded, color: AppColors.danger, size: 36),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Log Out',
-              style: TextStyle(
+            Text(
+              l10n.logOut,
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: AppColors.grey800,
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Are you sure you want to log out of your account?',
+            Text(
+              l10n.logoutConfirmationDesc,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 15,
                 color: AppColors.grey500,
                 height: 1.4,
@@ -68,7 +70,7 @@ Future<void> showLogoutConfirmation(BuildContext context, WidgetRef ref) async {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Cancel', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    child: Text(l10n.cancel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -82,7 +84,7 @@ Future<void> showLogoutConfirmation(BuildContext context, WidgetRef ref) async {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                     ),
-                    child: const Text('Log Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    child: Text(l10n.logOut, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   ),
                 ),
               ],

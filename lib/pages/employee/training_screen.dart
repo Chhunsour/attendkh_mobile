@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/services/performance_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/training_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class TrainingScreen extends ConsumerStatefulWidget {
   const TrainingScreen({super.key});
@@ -28,18 +29,18 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
     super.dispose();
   }
 
-  Future<void> _handleEnroll(TrainingCourseData training) async {
+  Future<void> _handleEnroll(TrainingCourseData training, AppLocalizations l10n) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('Enroll in Training'),
-        content: Text('Are you sure you want to enroll in "${training.title}"?'),
+        title: Text(l10n.enrollInTraining),
+        content: Text(l10n.enrollConfirm(training.title)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(l10n.cancel)),
           ElevatedButton(
             onPressed: () => Navigator.pop(c, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Enroll', style: TextStyle(color: Colors.white)),
+            child: Text(l10n.enroll, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -52,7 +53,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Successfully enrolled!'), backgroundColor: AppColors.success),
+            SnackBar(content: Text(l10n.enrolledSuccess), backgroundColor: AppColors.success),
           );
           // Refresh both providers
           ref.invalidate(availableTrainingsProvider);
@@ -61,7 +62,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to enroll: $e'), backgroundColor: AppColors.danger),
+            SnackBar(content: Text('${l10n.enrolledFailed}: $e'), backgroundColor: AppColors.danger),
           );
         }
       }
@@ -70,10 +71,11 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('My Training'),
+        title: Text(l10n.myTraining),
         elevation: 0,
         backgroundColor: AppColors.backgroundLight,
         centerTitle: true,
@@ -82,9 +84,9 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.grey500,
           indicatorColor: AppColors.primary,
-          tabs: const [
-            Tab(text: 'Available Courses'),
-            Tab(text: 'My Enrollments'),
+          tabs: [
+            Tab(text: l10n.availableCourses),
+            Tab(text: l10n.myEnrollments),
           ],
         ),
       ),
@@ -101,11 +103,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
   Widget _buildAvailableTrainings() {
     final asyncTrainings = ref.watch(availableTrainingsProvider);
     final asyncMyTrainings = ref.watch(myTrainingsProvider); // Need this to check if already enrolled
+    final l10n = AppLocalizations.of(context)!;
 
     return asyncTrainings.when(
       data: (trainings) {
         if (trainings.isEmpty) {
-          return const Center(child: Text('No available trainings.', style: TextStyle(color: AppColors.grey500)));
+          return Center(child: Text(l10n.noAvailableTrainings, style: const TextStyle(color: AppColors.grey500)));
         }
 
         // We check enrollment status from myTrainingsProvider
@@ -129,17 +132,17 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
               return _CourseCard(
                 training: t,
                 isEnrolled: isEnrolled,
-                onEnroll: () => _handleEnroll(t),
+                onEnroll: () => _handleEnroll(t, l10n),
               );
             },
           ),
         );
       },
-      loading: () => const LoadingIndicator(message: 'Loading courses...'),
+      loading: () => LoadingIndicator(message: l10n.loadingCourses),
       error: (e, _) => Center(
         child: OutlinedButton(
           onPressed: () => ref.invalidate(availableTrainingsProvider),
-          child: const Text('Retry'),
+          child: Text(l10n.retry),
         ),
       ),
     );
@@ -147,11 +150,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
 
   Widget _buildMyTrainings() {
     final asyncMyTrainings = ref.watch(myTrainingsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return asyncMyTrainings.when(
       data: (enrollments) {
         if (enrollments.isEmpty) {
-          return const Center(child: Text('You have not enrolled in any trainings.', style: TextStyle(color: AppColors.grey500)));
+          return Center(child: Text(l10n.noEnrolledTrainings, style: const TextStyle(color: AppColors.grey500)));
         }
 
         return RefreshIndicator(
@@ -175,11 +179,11 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
           ),
         );
       },
-      loading: () => const LoadingIndicator(message: 'Loading enrollments...'),
+      loading: () => LoadingIndicator(message: l10n.loadingEnrollments),
       error: (e, _) => Center(
         child: OutlinedButton(
           onPressed: () => ref.invalidate(myTrainingsProvider),
-          child: const Text('Retry'),
+          child: Text(l10n.retry),
         ),
       ),
     );
@@ -195,6 +199,7 @@ class _CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 0,
       clipBehavior: Clip.antiAlias,
@@ -234,7 +239,7 @@ class _CourseCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        training.department?.name ?? 'Company-Wide',
+                        training.department?.name ?? l10n.companyWide,
                         style: const TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -287,7 +292,7 @@ class _CourseCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      isEnrolled ? 'Enrolled' : 'Enroll Now',
+                      isEnrolled ? l10n.enrolled : l10n.enrollNow,
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -309,6 +314,7 @@ class _MyEnrollmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 0,
       clipBehavior: Clip.antiAlias,
@@ -345,7 +351,7 @@ class _MyEnrollmentCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Course Progress', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                    Text(l10n.courseProgress, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
                     Text('$progress%', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary)),
                   ],
                 ),

@@ -4,6 +4,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class AdminAttendanceScreen extends ConsumerStatefulWidget {
   const AdminAttendanceScreen({super.key});
@@ -48,17 +49,17 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen> w
                   color: AppColors.primary, size: 20),
             ),
             const SizedBox(width: 10),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Attendance Logs',
-                    style: TextStyle(
+                Text(AppLocalizations.of(context)!.attendanceLogsTitle,
+                    style: const TextStyle(
                         color: AppColors.grey800,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         height: 1.2)),
-                Text('Daily logs & corrections',
-                    style: TextStyle(
+                Text(AppLocalizations.of(context)!.attendanceLogsSubtitle,
+                    style: const TextStyle(
                         color: AppColors.grey400,
                         fontSize: 11,
                         fontWeight: FontWeight.w400)),
@@ -77,9 +78,9 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen> w
               const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
           unselectedLabelStyle:
               const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          tabs: const [
-            Tab(text: 'Daily Logs'),
-            Tab(text: 'Corrections'),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.tabDailyLogs),
+            Tab(text: AppLocalizations.of(context)!.tabCorrections),
           ],
         ),
       ),
@@ -99,9 +100,10 @@ class _DailyLogsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final logsAsync = ref.watch(allAttendanceLogsProvider);
+    final l10n = AppLocalizations.of(context)!;
     return logsAsync.when(
       data: (items) => items.isEmpty
-          ? const Center(child: Text('No attendance records', style: TextStyle(color: AppColors.grey400)))
+          ? Center(child: Text(l10n.noAttendanceRecords, style: const TextStyle(color: AppColors.grey400)))
           : ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: items.length,
@@ -132,9 +134,9 @@ class _DailyLogsTab extends ConsumerWidget {
                       if (c.clockIn != null || c.clockOut != null) ...[
                         const SizedBox(height: 8),
                         Row(children: [
-                          if (c.clockIn != null) Text('In: ${formatTime(c.clockIn)}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                          if (c.clockIn != null) Text('${l10n.inTime}: ${formatTime(c.clockIn)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
                           if (c.clockIn != null && c.clockOut != null) const SizedBox(width: 16),
-                          if (c.clockOut != null) Text('Out: ${formatTime(c.clockOut)}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                          if (c.clockOut != null) Text('${l10n.outTime}: ${formatTime(c.clockOut)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
                         ]),
                       ],
                       if ((c.earlyClockInMinutes ?? 0) > 0) ...[
@@ -145,10 +147,10 @@ class _DailyLogsTab extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(color: Colors.blue.withAlpha(26), borderRadius: BorderRadius.circular(4)),
-                              child: Text('Early In: ${c.earlyClockInMinutes! ~/ 60}h ${c.earlyClockInMinutes! % 60}m', style: const TextStyle(fontSize: 11, color: Colors.blue, fontWeight: FontWeight.w600)),
+                              child: Text('${l10n.earlyIn}: ${c.earlyClockInMinutes! ~/ 60}h ${c.earlyClockInMinutes! % 60}m', style: const TextStyle(fontSize: 11, color: Colors.blue, fontWeight: FontWeight.w600)),
                             ),
                             if ((c.approvedPreShiftOtMinutes ?? 0) > 0)
-                              Text('Approved: ${c.approvedPreShiftOtMinutes! ~/ 60}h ${c.approvedPreShiftOtMinutes! % 60}m', style: const TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w600)),
+                              Text('${l10n.approved}: ${c.approvedPreShiftOtMinutes! ~/ 60}h ${c.approvedPreShiftOtMinutes! % 60}m', style: const TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ],
@@ -159,7 +161,7 @@ class _DailyLogsTab extends ConsumerWidget {
                           child: ElevatedButton(
                             onPressed: () => _handleApproveOt(context, ref, c.id),
                             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, padding: const EdgeInsets.symmetric(vertical: 8)),
-                            child: const Text('Approve Pre-shift OT', style: TextStyle(fontSize: 12)),
+                            child: Text(l10n.approvePreShiftOT, style: const TextStyle(fontSize: 12)),
                           ),
                         ),
                       ],
@@ -168,27 +170,28 @@ class _DailyLogsTab extends ConsumerWidget {
                 );
               },
             ),
-      loading: () => const LoadingIndicator(message: 'Loading logs...'),
+      loading: () => LoadingIndicator(message: l10n.loadingLogs),
       error: (e, _) => Center(
         child: OutlinedButton.icon(
           onPressed: () => ref.invalidate(allAttendanceLogsProvider),
           icon: const Icon(Icons.refresh),
-          label: const Text('Retry'),
+          label: Text(l10n.retry),
         ),
       ),
     );
   }
 
   Future<void> _handleApproveOt(BuildContext context, WidgetRef ref, int id) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       await ref.read(adminOpsRepositoryProvider).approveOvertime(id);
       ref.invalidate(allAttendanceLogsProvider);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Pre-shift OT approved'), backgroundColor: AppColors.success));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.preShiftOtApprovedSuccess), backgroundColor: AppColors.success));
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: AppColors.danger));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.failedMessage(e.toString())), backgroundColor: AppColors.danger));
       }
     }
   }
@@ -198,9 +201,10 @@ class _CorrectionsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final correctionsAsync = ref.watch(attendanceCorrectionsProvider);
+    final l10n = AppLocalizations.of(context)!;
     return correctionsAsync.when(
       data: (items) => items.isEmpty
-          ? const Center(child: Text('No pending corrections', style: TextStyle(color: AppColors.grey400)))
+          ? Center(child: Text(l10n.noPendingCorrections, style: const TextStyle(color: AppColors.grey400)))
           : ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: items.length,
@@ -228,9 +232,9 @@ class _CorrectionsTab extends ConsumerWidget {
                       if (c.clockIn != null || c.clockOut != null) ...[
                         const SizedBox(height: 8),
                         Row(children: [
-                          if (c.clockIn != null) Text('In: ${formatTime(c.clockIn)}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                          if (c.clockIn != null) Text('${l10n.inTime}: ${formatTime(c.clockIn)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
                           if (c.clockIn != null && c.clockOut != null) const SizedBox(width: 16),
-                          if (c.clockOut != null) Text('Out: ${formatTime(c.clockOut)}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                          if (c.clockOut != null) Text('${l10n.outTime}: ${formatTime(c.clockOut)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
                         ]),
                       ],
                       if (c.reason != null && c.reason!.isNotEmpty) ...[
@@ -238,16 +242,16 @@ class _CorrectionsTab extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(color: AppColors.grey100, borderRadius: BorderRadius.circular(6)),
-                          child: Text('Reason: ${c.reason}', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                          child: Text('${l10n.reason}: ${c.reason}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
                         ),
                       ],
                       if (c.status == 'pending') ...[
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            Expanded(child: OutlinedButton(onPressed: () => _handleAction(context, ref, c.id, false), style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger), child: const Text('Reject'))),
+                            Expanded(child: OutlinedButton(onPressed: () => _handleAction(context, ref, c.id, false), style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger), child: Text(l10n.reject))),
                             const SizedBox(width: 12),
-                            Expanded(child: ElevatedButton(onPressed: () => _handleAction(context, ref, c.id, true), style: ElevatedButton.styleFrom(backgroundColor: AppColors.success), child: const Text('Approve'))),
+                            Expanded(child: ElevatedButton(onPressed: () => _handleAction(context, ref, c.id, true), style: ElevatedButton.styleFrom(backgroundColor: AppColors.success), child: Text(l10n.approve))),
                           ],
                         ),
                       ],
@@ -256,30 +260,33 @@ class _CorrectionsTab extends ConsumerWidget {
                 );
               },
             ),
-      loading: () => const LoadingIndicator(message: 'Loading corrections...'),
+      loading: () => LoadingIndicator(message: l10n.loadingLogs),
       error: (e, _) => Center(
         child: OutlinedButton.icon(
           onPressed: () => ref.invalidate(attendanceCorrectionsProvider),
           icon: const Icon(Icons.refresh),
-          label: const Text('Retry'),
+          label: Text(l10n.retry),
         ),
       ),
     );
   }
 
-  Future<void> _handleAction(BuildContext context, WidgetRef ref, int id, bool isApprove) async {
+  Future<void> _handleAction(BuildContext context, WidgetRef ref, int id, bool approve) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
-      if (isApprove) {
+      if (approve) {
         await ref.read(adminOpsRepositoryProvider).approveCorrection(id);
       } else {
         await ref.read(adminOpsRepositoryProvider).rejectCorrection(id);
       }
       ref.invalidate(attendanceCorrectionsProvider);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isApprove ? '✅ Correction approved' : '❌ Correction rejected'), backgroundColor: isApprove ? AppColors.success : AppColors.danger));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(approve ? l10n.correctionApprovedSuccess : l10n.correctionRejectedSuccess), backgroundColor: approve ? AppColors.success : AppColors.danger));
       }
     } catch (e) {
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: AppColors.danger));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.failedMessage(e.toString())), backgroundColor: AppColors.danger));
+      }
     }
   }
 }

@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 // ─── Accent colors (work on white backgrounds) ───────────────────────────────
@@ -47,11 +48,11 @@ class AdminShiftsScreen extends ConsumerWidget {
               child: const Icon(Icons.schedule_rounded, color: AppColors.primary, size: 20),
             ),
             const SizedBox(width: 10),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Shifts & Calendars',
+                  AppLocalizations.of(context)!.shiftsAndCalendars,
                   style: TextStyle(
                     color: AppColors.grey800,
                     fontSize: 17,
@@ -60,7 +61,7 @@ class AdminShiftsScreen extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  'Manage work schedules',
+                  AppLocalizations.of(context)!.manageWorkSchedules,
                   style: TextStyle(
                     color: AppColors.grey400,
                     fontSize: 11,
@@ -83,7 +84,7 @@ class AdminShiftsScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${shifts.length} shifts',
+                  AppLocalizations.of(context)!.shiftsCount(shifts.length.toString()),
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w700,
@@ -110,7 +111,7 @@ class AdminShiftsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-        loading: () => const LoadingIndicator(message: 'Loading shifts...'),
+        loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingShifts),
         error: (e, _) => _ErrorState(onRetry: () => ref.invalidate(shiftsProvider)),
       ),
       floatingActionButton: _GradientFAB(
@@ -126,15 +127,7 @@ class _ShiftCard extends ConsumerWidget {
   final int colorIndex;
   const _ShiftCard({required this.shift, required this.colorIndex});
 
-  static const _dayAbbr = {
-    'monday': 'Mo',
-    'tuesday': 'Tu',
-    'wednesday': 'We',
-    'thursday': 'Th',
-    'friday': 'Fr',
-    'saturday': 'Sa',
-    'sunday': 'Su',
-  };
+
   static const _dayOrder = [
     'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
   ];
@@ -155,6 +148,16 @@ class _ShiftCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final dayAbbr = {
+      'monday': l10n.dayMo,
+      'tuesday': l10n.dayTu,
+      'wednesday': l10n.dayWe,
+      'thursday': l10n.dayTh,
+      'friday': l10n.dayFr,
+      'saturday': l10n.daySa,
+      'sunday': l10n.daySu,
+    };
     final accent = _cardAccents[colorIndex];
     final schedule = shift.schedule;
 
@@ -305,7 +308,7 @@ class _ShiftCard extends ConsumerWidget {
                               Row(
                                 children: [
                                   _Badge(
-                                    label: shift.isActive ? 'ACTIVE' : 'INACTIVE',
+                                    label: shift.isActive ? l10n.activeShiftBadge : l10n.inactiveShiftBadge,
                                     color: shift.isActive
                                         ? AppColors.success
                                         : AppColors.grey500,
@@ -315,8 +318,8 @@ class _ShiftCard extends ConsumerWidget {
                                   ),
                                   if (shift.isOvernight) ...[
                                     const SizedBox(width: 5),
-                                    const _Badge(
-                                      label: 'OVERNIGHT',
+                                    _Badge(
+                                      label: l10n.overnightBadge,
                                       color: Color(0xFF4F46E5),
                                       bg: Color(0xFFEEF2FF),
                                     ),
@@ -376,7 +379,7 @@ class _ShiftCard extends ConsumerWidget {
                                     Wrap(
                                       spacing: 3,
                                       children: days.map((d) {
-                                        final abbr = _dayAbbr[d] ?? d.substring(0, 2);
+                                        final abbr = dayAbbr[d] ?? d.substring(0, 2);
                                         return Container(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 6, vertical: 2),
@@ -424,7 +427,7 @@ class _ShiftCard extends ConsumerWidget {
                                           size: 10, color: AppColors.grey400),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'Break ${p['breakStart']} – ${p['breakEnd']}',
+                                        l10n.breakTimeRange(p['breakStart'].toString(), p['breakEnd'].toString()),
                                         style: const TextStyle(
                                           fontSize: 10,
                                           color: AppColors.grey500,
@@ -448,12 +451,12 @@ class _ShiftCard extends ConsumerWidget {
                       children: [
                         _StatPill(
                             icon: Icons.timer_outlined,
-                            label: '${shift.gracePeriod}m grace',
+                            label: l10n.gracePeriodBadge(shift.gracePeriod.toString()),
                             color: accent),
                         const SizedBox(width: 8),
                         _StatPill(
                             icon: Icons.more_time_rounded,
-                            label: 'OT≥${shift.overtimeThreshold}m',
+                            label: l10n.otThresholdBadge(shift.overtimeThreshold.toString()),
                             color: accent),
                         const Spacer(),
                         _StatPill(
@@ -471,14 +474,14 @@ class _ShiftCard extends ConsumerWidget {
                               color: accent,
                               borderRadius: BorderRadius.circular(9),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.person_add_alt_1_rounded,
+                                const Icon(Icons.person_add_alt_1_rounded,
                                     color: Colors.white, size: 13),
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Text(
-                                  'Assign',
+                                  l10n.assign,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 12,
@@ -502,6 +505,7 @@ class _ShiftCard extends ConsumerWidget {
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
+  final l10n = AppLocalizations.of(context)!;
   final confirm = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
@@ -534,8 +538,8 @@ class _ShiftCard extends ConsumerWidget {
 
               const SizedBox(height: 20),
 
-              const Text(
-                "Delete Shift?",
+              Text(
+                l10n.deleteShiftTitle,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -553,8 +557,8 @@ class _ShiftCard extends ConsumerWidget {
                     height: 1.5,
                   ),
                   children: [
-                    const TextSpan(
-                      text: "Are you sure you want to delete\n",
+                    TextSpan(
+                      text: l10n.deleteShiftConfirmPrefix,
                     ),
                     TextSpan(
                       text: '"${shift.name}"',
@@ -587,8 +591,8 @@ class _ShiftCard extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
-                        "Cancel",
+                      child: Text(
+                        l10n.cancel,
                         style: TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.w600,
@@ -603,7 +607,7 @@ class _ShiftCard extends ConsumerWidget {
                     child: ElevatedButton.icon(
                       onPressed: () => Navigator.pop(ctx, true),
                       icon: const Icon(Icons.delete_outline),
-                      label: const Text("Delete"),
+                      label: Text(l10n.delete),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.danger,
                         foregroundColor: Colors.white,
@@ -634,7 +638,7 @@ class _ShiftCard extends ConsumerWidget {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("✅ ${shift.name} deleted successfully"),
+          content: Text(l10n.shiftDeletedSuccess(shift.name)),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
@@ -644,7 +648,7 @@ class _ShiftCard extends ConsumerWidget {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("❌ Failed to delete: $e"),
+          content: Text(l10n.shiftDeleteFailed(e.toString())),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -769,6 +773,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final employeesAsync = ref.watch(allEmployeesProvider);
     final assignmentsAsync = ref.watch(shiftAssignmentsProvider);
 
@@ -835,13 +840,13 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Assign Employees',
+                      Text(l10n.assignEmployeesTitle,
                           style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                               color: AppColors.grey800)),
                       Text(
-                        '${widget.shift.name} · ${_selectedIds.length} selected',
+                        l10n.assignEmployeesSubtitle(widget.shift.name, _selectedIds.length.toString()),
                         style: const TextStyle(
                             color: AppColors.primary,
                             fontSize: 13,
@@ -882,8 +887,8 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                 controller: _searchCtrl,
                 onChanged: (v) => setState(() => _searchQuery = v.toLowerCase()),
                 style: const TextStyle(fontSize: 13),
-                decoration: const InputDecoration(
-                  hintText: 'Search employees...',
+                decoration: InputDecoration(
+                  hintText: l10n.searchEmployeesHint,
                   hintStyle: TextStyle(fontSize: 12, color: AppColors.grey400),
                   prefixIcon:
                       Icon(Icons.search_rounded, size: 18, color: AppColors.grey400),
@@ -961,7 +966,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                allFilteredSelected ? 'Deselect All' : 'Select All',
+                                allFilteredSelected ? l10n.deselectAll : l10n.selectAll,
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -971,7 +976,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                 ),
                               ),
                               const Spacer(),
-                              Text('${filtered.length} employees',
+                              Text(l10n.employeesCountLabel(filtered.length.toString()),
                                   style: const TextStyle(
                                       fontSize: 11, color: AppColors.grey400)),
                             ],
@@ -1075,8 +1080,8 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                                   borderRadius: BorderRadius.circular(6),
                                                   border: Border.all(color: AppColors.success.withAlpha(60)),
                                                 ),
-                                                child: const Text(
-                                                  'Assigned',
+                                                child: Text(
+                                                  l10n.assignedBadge,
                                                   style: TextStyle(
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.w700,
@@ -1094,7 +1099,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                                   border: Border.all(color: AppColors.info.withAlpha(60)),
                                                 ),
                                                 child: Text(
-                                                  activeAssign.shiftName ?? 'Other Shift',
+                                                  activeAssign.shiftName ?? l10n.otherShiftBadge,
                                                   style: const TextStyle(
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.w600,
@@ -1167,7 +1172,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                           borderRadius: BorderRadius.circular(12)),
                       minimumSize: Size.zero,
                     ),
-                    child: const Text('Cancel',
+                    child: Text(l10n.cancel,
                         style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                   ),
                 ),
@@ -1189,9 +1194,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                             child: CircularProgressIndicator(
                                 color: Colors.white, strokeWidth: 2))
                         : Text(
-                            _selectedIds.isEmpty
-                                ? 'Assign'
-                                : 'Assign ${_selectedIds.length}',
+                            _selectedIds.isEmpty ? l10n.assign : l10n.assignCount(_selectedIds.length.toString()),
                             style: const TextStyle(
                                 fontWeight: FontWeight.w700, fontSize: 14)),
                   ),
@@ -1205,6 +1208,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
   }
 
   Future<void> _assign() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoading = true);
     try {
       final repo = ref.read(adminOpsRepositoryProvider);
@@ -1224,7 +1228,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                '$successCount assigned${failCount > 0 ? ', $failCount failed' : ''}'),
+                failCount > 0 ? l10n.assignSuccessWithFail(successCount.toString(), failCount.toString()) : l10n.assignSuccess(successCount.toString())),
             backgroundColor: failCount == 0 ? AppColors.success : AppColors.warning,
           ),
         );
@@ -1233,7 +1237,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Failed: $e'), backgroundColor: AppColors.danger),
+              content: Text(l10n.assignFailedError(e.toString())), backgroundColor: AppColors.danger),
         );
       }
     } finally {
@@ -1280,8 +1284,8 @@ class _GradientFAB extends StatelessWidget {
               child: const Icon(Icons.add_rounded, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 10),
-            const Text(
-              'New Shift',
+            Text(
+              AppLocalizations.of(context)!.newShift,
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
@@ -1320,14 +1324,14 @@ class _EmptyState extends StatelessWidget {
                   color: AppColors.primary, size: 40),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'No Shifts Yet',
+            Text(
+              AppLocalizations.of(context)!.noShiftsYet,
               style: TextStyle(
                   fontWeight: FontWeight.w700, fontSize: 18, color: AppColors.grey800),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Create your first shift to start managing work schedules.',
+            Text(
+              AppLocalizations.of(context)!.createFirstShiftDesc,
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.grey500, fontSize: 14),
             ),
@@ -1343,7 +1347,7 @@ class _EmptyState extends StatelessWidget {
                 minimumSize: Size.zero,
               ),
               icon: const Icon(Icons.add_rounded),
-              label: const Text('Create First Shift',
+              label: Text(AppLocalizations.of(context)!.createFirstShiftBtn,
                   style: TextStyle(fontWeight: FontWeight.w600)),
             ),
           ],
@@ -1373,13 +1377,13 @@ class _ErrorState extends StatelessWidget {
                 color: AppColors.danger, size: 36),
           ),
           const SizedBox(height: 16),
-          const Text('Failed to load shifts',
+          Text(AppLocalizations.of(context)!.failedToLoadShifts,
               style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
                   color: AppColors.grey700)),
           const SizedBox(height: 8),
-          const Text('Check your connection and try again.',
+          Text(AppLocalizations.of(context)!.checkConnectionRetry,
               style: TextStyle(color: AppColors.grey500, fontSize: 13)),
           const SizedBox(height: 20),
           OutlinedButton.icon(
@@ -1394,7 +1398,7 @@ class _ErrorState extends StatelessWidget {
               minimumSize: Size.zero,
             ),
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Try Again',
+            label: Text(AppLocalizations.of(context)!.tryAgain,
                 style: TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],

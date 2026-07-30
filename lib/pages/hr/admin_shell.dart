@@ -11,6 +11,7 @@ import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 /// Unread notification count provider — polled every 60 seconds.
 final _unreadCountProvider = StateProvider<int>((ref) => 0);
@@ -26,13 +27,15 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   int _selectedIndex = 0;
   Timer? _pollTimer;
 
-  static const List<String> _titles = [
-    'HR Dashboard',
-    'Employees',
-    'Attendance',
-    'Leave Requests',
-    'More',
-  ];
+  List<String> _getTitles(AppLocalizations l10n) {
+    return [
+      l10n.hrDashboard,
+      l10n.employees,
+      l10n.attendanceMenu,
+      l10n.leaveRequests,
+      l10n.more,
+    ];
+  }
 
   @override
   void initState() {
@@ -63,12 +66,13 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   Widget build(BuildContext context) {
     final unreadCount = ref.watch(_unreadCountProvider);
     final branchSwitchState = ref.watch(branchSwitchProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Stack(
       children: [
         Scaffold(
           backgroundColor: const Color(0xFFF8FAFC),
-          appBar: _buildAppBar(context, unreadCount),
+          appBar: _buildAppBar(context, unreadCount, l10n),
           body: IndexedStack(
             index: _selectedIndex,
             children: const [
@@ -79,15 +83,16 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               AdminMoreScreen(),
             ],
           ),
-          bottomNavigationBar: _buildBottomNav(),
+          bottomNavigationBar: _buildBottomNav(l10n),
         ),
         // Branch-switching blur overlay
-        if (branchSwitchState.isSwitching) _buildBlurOverlay(),
+        if (branchSwitchState.isSwitching) _buildBlurOverlay(l10n),
       ],
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, int unreadCount) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, int unreadCount, AppLocalizations l10n) {
+    final titles = _getTitles(l10n);
     return AppBar(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
@@ -105,7 +110,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           ),
           const SizedBox(width: 10),
           Text(
-            _titles[_selectedIndex],
+            titles[_selectedIndex],
             style: const TextStyle(
               color: Colors.black87,
               fontSize: 18,
@@ -164,7 +169,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     );
   }
 
-  Widget _buildBottomNav() {
+  Widget _buildBottomNav(AppLocalizations l10n) {
     const activeColor = Color(0xFFF97316);
     const inactiveColor = Color(0xFF9CA3AF);
     const bgColor = Color(0xFF1A1A1A);
@@ -187,11 +192,11 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _NavItem(index: 0, selectedIndex: _selectedIndex, icon: Icons.home_rounded, label: 'Home', activeColor: activeColor, inactiveColor: inactiveColor, onTap: _onTabTapped),
-              _NavItem(index: 1, selectedIndex: _selectedIndex, icon: Icons.people_rounded, label: 'Employees', activeColor: activeColor, inactiveColor: inactiveColor, onTap: _onTabTapped),
-              _NavItem(index: 2, selectedIndex: _selectedIndex, icon: Icons.fingerprint_rounded, label: 'Attendance', activeColor: activeColor, inactiveColor: inactiveColor, onTap: _onTabTapped),
-              _NavItem(index: 3, selectedIndex: _selectedIndex, icon: Icons.event_busy_rounded, label: 'Leave', activeColor: activeColor, inactiveColor: inactiveColor, onTap: _onTabTapped),
-              _NavItem(index: 4, selectedIndex: _selectedIndex, icon: Icons.apps_rounded, label: 'More', activeColor: activeColor, inactiveColor: inactiveColor, onTap: _onTabTapped),
+              _NavItem(index: 0, selectedIndex: _selectedIndex, icon: Icons.home_rounded, label: l10n.home, activeColor: activeColor, inactiveColor: inactiveColor, onTap: _onTabTapped),
+              _NavItem(index: 1, selectedIndex: _selectedIndex, icon: Icons.people_rounded, label: l10n.employees, activeColor: activeColor, inactiveColor: inactiveColor, onTap: _onTabTapped),
+              _NavItem(index: 2, selectedIndex: _selectedIndex, icon: Icons.fingerprint_rounded, label: l10n.attendanceMenu, activeColor: activeColor, inactiveColor: inactiveColor, onTap: _onTabTapped),
+              _NavItem(index: 3, selectedIndex: _selectedIndex, icon: Icons.event_busy_rounded, label: l10n.leave, activeColor: activeColor, inactiveColor: inactiveColor, onTap: _onTabTapped),
+              _NavItem(index: 4, selectedIndex: _selectedIndex, icon: Icons.apps_rounded, label: l10n.more, activeColor: activeColor, inactiveColor: inactiveColor, onTap: _onTabTapped),
             ],
           ),
         ),
@@ -203,7 +208,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     setState(() => _selectedIndex = index);
   }
 
-  Widget _buildBlurOverlay() {
+  Widget _buildBlurOverlay(AppLocalizations l10n) {
     return Positioned.fill(
       child: Container(
         color: Colors.black.withAlpha(100),
@@ -215,16 +220,16 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [BoxShadow(color: Colors.black.withAlpha(30), blurRadius: 30, offset: const Offset(0, 10))],
             ),
-            child: const Column(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 48,
                   height: 48,
                   child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 4),
                 ),
-                SizedBox(height: 16),
-                Text('Switching Branch View…', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.grey800, fontFamily: 'Inter')),
+                const SizedBox(height: 16),
+                Text(l10n.switchingBranchView, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.grey800, fontFamily: 'Inter')),
               ],
             ),
           ),

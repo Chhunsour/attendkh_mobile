@@ -10,6 +10,7 @@ import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class LeaveRequestScreen extends ConsumerStatefulWidget {
   const LeaveRequestScreen({super.key});
@@ -55,10 +56,10 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
     }
   }
 
-  Future<void> _submitRequest() async {
+  Future<void> _submitRequest(AppLocalizations l10n) async {
     if (_selectedLeaveTypeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a leave type'), backgroundColor: AppColors.danger),
+        SnackBar(content: Text(l10n.selectLeaveType), backgroundColor: AppColors.danger),
       );
       return;
     }
@@ -66,7 +67,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
     final reason = _reasonController.text.trim();
     if (reason.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a reason for the leave'), backgroundColor: AppColors.danger),
+        SnackBar(content: Text(l10n.enterLeaveReason), backgroundColor: AppColors.danger),
       );
       return;
     }
@@ -75,7 +76,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
     final employeeIdStr = authState.employeeId;
     if (employeeIdStr == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No employee profile associated with this account'), backgroundColor: AppColors.danger),
+        SnackBar(content: Text(l10n.noEmployeeProfile), backgroundColor: AppColors.danger),
       );
       return;
     }
@@ -83,7 +84,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
     final employeeId = int.tryParse(employeeIdStr);
     if (employeeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid employee ID configuration'), backgroundColor: AppColors.danger),
+        SnackBar(content: Text(l10n.invalidEmployeeId), backgroundColor: AppColors.danger),
       );
       return;
     }
@@ -111,12 +112,12 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Leave request submitted successfully'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+          SnackBar(content: Text(l10n.leaveRequestSubmitted), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
         );
         Navigator.pop(context);
       }
     } catch (e) {
-      String msg = 'Failed to submit leave request';
+      String msg = l10n.failedToSubmitLeave;
       if (e is AppException) {
         msg = e.message;
       } else {
@@ -136,17 +137,18 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final leaveTypesAsync = ref.watch(leaveTypesProvider);
     final leaveBalancesAsync = ref.watch(leaveBalancesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Request Leave')),
+      appBar: AppBar(title: Text(l10n.requestLeave)),
       body: _isSubmitting
-          ? const LoadingIndicator(message: 'Submitting leave request...')
+          ? LoadingIndicator(message: l10n.submittingLeave)
           : leaveTypesAsync.when(
               data: (leaveTypes) {
                 if (leaveTypes.isEmpty) {
-                  return const Center(child: Text('No leave types configured for your company.', style: TextStyle(color: AppColors.grey500)));
+                  return Center(child: Text(l10n.noLeaveTypesConfigured, style: const TextStyle(color: AppColors.grey500)));
                 }
 
                 // Default selection
@@ -166,7 +168,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Leave Type
-                      const Text('Leave Type', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                      Text(l10n.leaveTypeLabel, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<int>(
                         initialValue: _selectedLeaveTypeId ?? leaveTypes.first.id,
@@ -209,11 +211,11 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                   Expanded(
                                     child: Text.rich(
                                       TextSpan(
-                                        text: '${balance.typeName} balance: ',
+                                        text: '${balance.typeName}${l10n.balanceLabel}',
                                         style: const TextStyle(fontSize: 13, color: AppColors.grey700),
                                         children: [
                                           TextSpan(
-                                            text: '${remaining.toStringAsFixed(remaining % 1 == 0 ? 0 : 1)} days remaining',
+                                            text: remaining.toStringAsFixed(remaining % 1 == 0 ? 0 : 1) + l10n.daysRemaining,
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: isLow ? AppColors.warning : AppColors.success,
@@ -234,11 +236,11 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: AppColors.warning),
                               ),
-                              child: const Row(
+                              child: Row(
                                 children: [
-                                  Icon(Icons.info_outline_rounded, size: 18, color: AppColors.warning),
-                                  SizedBox(width: 8),
-                                  Text('No balance record found for this leave type.', style: TextStyle(fontSize: 13, color: AppColors.grey700)),
+                                  const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.warning),
+                                  const SizedBox(width: 8),
+                                  Text(l10n.noBalanceRecord, style: const TextStyle(fontSize: 13, color: AppColors.grey700)),
                                 ],
                               ),
                             );
@@ -256,7 +258,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Start Date', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                                Text(l10n.startDate, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
                                 const SizedBox(height: 6),
                                 InkWell(
                                   onTap: () => _pickDate(true),
@@ -280,7 +282,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('End Date', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                                Text(l10n.endDate, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
                                 const SizedBox(height: 6),
                                 InkWell(
                                   onTap: () => _pickDate(false),
@@ -312,7 +314,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Request Half Day', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                                Text(l10n.requestHalfDay, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
                                 Switch(
                                   value: _isHalfDay,
                                   onChanged: (v) {
@@ -331,7 +333,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                 children: [
                                   Expanded(
                                     child: RadioListTile<String>(
-                                      title: const Text('Morning', style: TextStyle(fontSize: 14)),
+                                      title: Text(l10n.morning, style: const TextStyle(fontSize: 14)),
                                       value: 'morning',
                                       groupValue: _halfDayPeriod,
                                       onChanged: (v) => setState(() => _halfDayPeriod = v!),
@@ -341,7 +343,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                   ),
                                   Expanded(
                                     child: RadioListTile<String>(
-                                      title: const Text('Afternoon', style: TextStyle(fontSize: 14)),
+                                      title: Text(l10n.afternoon, style: const TextStyle(fontSize: 14)),
                                       value: 'afternoon',
                                       groupValue: _halfDayPeriod,
                                       onChanged: (v) => setState(() => _halfDayPeriod = v!),
@@ -358,13 +360,13 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                       const SizedBox(height: 16),
 
                       // Reason
-                      const Text('Reason', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                      Text(l10n.reason, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _reasonController,
                         maxLines: 4,
-                        decoration: const InputDecoration(
-                          hintText: 'Describe your reason for leave...',
+                        decoration: InputDecoration(
+                          hintText: l10n.describeLeaveReason,
                           filled: true,
                           fillColor: Colors.white,
                         ),
@@ -372,7 +374,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                       const SizedBox(height: 16),
 
                       // Attachment
-                      const Text('Attachment (Optional)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                      Text(l10n.attachmentOptional, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
                       const SizedBox(height: 8),
                       InkWell(
                         onTap: () async {
@@ -398,7 +400,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  _attachment?.name ?? 'Tap to select file (PDF, JPG, PNG)',
+                                  _attachment?.name ?? l10n.tapToSelectFile,
                                   style: TextStyle(
                                     color: _attachment != null ? AppColors.grey800 : AppColors.grey500,
                                     fontWeight: _attachment != null ? FontWeight.w600 : FontWeight.normal,
@@ -420,32 +422,32 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                       const SizedBox(height: 24),
 
                       ElevatedButton(
-                        onPressed: _submitRequest,
+                        onPressed: () => _submitRequest(l10n),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Submit Request', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        child: Text(l10n.submitRequest, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
                     ],
                   ),
                 );
               },
-              loading: () => const LoadingIndicator(message: 'Loading leave types...'),
+              loading: () => LoadingIndicator(message: l10n.loadingLeaveTypes),
               error: (e, _) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.error_outline, size: 48, color: AppColors.grey400),
                     const SizedBox(height: 12),
-                    const Text('Failed to load leave types'),
+                    Text(l10n.failedToLoadLeaveTypes),
                     const SizedBox(height: 8),
                     OutlinedButton.icon(
                       onPressed: () => ref.invalidate(leaveTypesProvider),
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
+                      label: Text(l10n.retry),
                     ),
                   ],
                 ),

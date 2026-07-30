@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/performance_repository.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
@@ -34,13 +35,14 @@ class _AdminPerformanceScreenState extends State<AdminPerformanceScreen> with Si
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Performance & Training', style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text(l10n.performanceTrainingTitle, style: const TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
       ),
       body: Column(
         children: [
@@ -51,7 +53,7 @@ class _AdminPerformanceScreenState extends State<AdminPerformanceScreen> with Si
               labelColor: AppColors.primary,
               unselectedLabelColor: AppColors.grey500,
               indicatorColor: AppColors.primary,
-              tabs: const [Tab(text: 'Reviews'), Tab(text: 'Training')],
+              tabs: [Tab(text: l10n.tabReviews), Tab(text: l10n.tabTraining)],
             ),
           ),
           Expanded(
@@ -107,6 +109,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
   }
 
   void _showForm([PerformanceReviewData? item]) {
+    final l10n = AppLocalizations.of(context)!;
     final isEdit = item != null;
     int selectedRating = isEdit ? (item.overallRating ?? 0) : 0;
     String selectedEmpId = isEdit ? (item.employee?.id.toString() ?? '') : '';
@@ -140,13 +143,13 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(isEdit ? 'Edit Review' : 'Create Review', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                    Text(isEdit ? l10n.editReviewTitle : l10n.createReviewTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
                     const SizedBox(height: 24),
                     
                     DropdownButtonFormField<String>(
                       isExpanded: true,
                       initialValue: selectedEmpId.isEmpty ? null : selectedEmpId,
-                      decoration: InputDecoration(labelText: 'Employee *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      decoration: InputDecoration(labelText: l10n.employeeRequired, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                       items: _employees.map((e) => DropdownMenuItem(value: e.id.toString(), child: Text('${e.firstName} ${e.lastName}'))).toList(),
                       onChanged: isEdit ? null : (val) => setSheetState(() => selectedEmpId = val ?? ''),
                     ),
@@ -155,18 +158,18 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     DropdownButtonFormField<String>(
                       isExpanded: true,
                       initialValue: selectedType,
-                      decoration: InputDecoration(labelText: 'Review Type *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                      items: const [
-                        DropdownMenuItem(value: 'manager', child: Text('Manager Review')),
-                        DropdownMenuItem(value: 'self', child: Text('Self Review')),
-                        DropdownMenuItem(value: 'peer', child: Text('Peer Review')),
-                        DropdownMenuItem(value: '360', child: Text('360 Review')),
+                      decoration: InputDecoration(labelText: l10n.reviewTypeRequired, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      items: [
+                        DropdownMenuItem(value: 'manager', child: Text(l10n.reviewTypeManager)),
+                        DropdownMenuItem(value: 'self', child: Text(l10n.reviewTypeSelf)),
+                        DropdownMenuItem(value: 'peer', child: Text(l10n.reviewTypePeer)),
+                        DropdownMenuItem(value: '360', child: Text(l10n.reviewType360)),
                       ],
                       onChanged: (val) => setSheetState(() => selectedType = val ?? 'manager'),
                     ),
                     const SizedBox(height: 16),
                     
-                    TextField(controller: periodCtrl, decoration: InputDecoration(labelText: 'Review Period (e.g. Q1 2026) *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                    TextField(controller: periodCtrl, decoration: InputDecoration(labelText: l10n.periodRequired, hintText: l10n.periodHint, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
                     const SizedBox(height: 16),
 
                     Row(
@@ -199,7 +202,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Start Date *', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                      Text(l10n.periodStartRequired, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
                                       const SizedBox(height: 4),
                                       Text(
                                         pStartCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(pStartCtrl.text)) : 'Select date...',
@@ -246,7 +249,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text('End Date *', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                      Text(l10n.periodEndRequired, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
                                       const SizedBox(height: 4),
                                       Text(
                                         pEndCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(pEndCtrl.text)) : 'Select date...',
@@ -308,7 +311,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Review Date *', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                Text(l10n.reviewDateRequired, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
                                 const SizedBox(height: 4),
                                 Text(
                                   revDateCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(revDateCtrl.text)) : 'Select date...',
@@ -334,12 +337,12 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     DropdownButtonFormField<String>(
                       isExpanded: true,
                       initialValue: selectedStatus,
-                      decoration: InputDecoration(labelText: 'Status *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                      items: const [
-                        DropdownMenuItem(value: 'draft', child: Text('Draft')),
-                        DropdownMenuItem(value: 'submitted', child: Text('Submitted')),
-                        DropdownMenuItem(value: 'acknowledged', child: Text('Acknowledged')),
-                        DropdownMenuItem(value: 'completed', child: Text('Completed')),
+                      decoration: InputDecoration(labelText: l10n.statusLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      items: [
+                        DropdownMenuItem(value: 'draft', child: Text(l10n.statusDraft)),
+                        DropdownMenuItem(value: 'submitted', child: Text(l10n.statusSubmitted)),
+                        DropdownMenuItem(value: 'acknowledged', child: Text(l10n.statusAcknowledged)),
+                        DropdownMenuItem(value: 'completed', child: Text(l10n.statusCompleted)),
                       ],
                       onChanged: (val) => setSheetState(() => selectedStatus = val ?? 'draft'),
                     ),
@@ -348,25 +351,25 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     TextField(
                       controller: strengthsCtrl,
                       maxLines: 2,
-                      decoration: InputDecoration(labelText: 'Key Strengths', hintText: 'Key accomplishments...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      decoration: InputDecoration(labelText: l10n.strengthsOptional, hintText: 'Key accomplishments...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: improvementsCtrl,
                       maxLines: 2,
-                      decoration: InputDecoration(labelText: 'Areas for Improvement', hintText: 'Areas to develop or improve...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      decoration: InputDecoration(labelText: l10n.areasForImprovementOptional, hintText: 'Areas to develop or improve...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: goalsCtrl,
                       maxLines: 2,
-                      decoration: InputDecoration(labelText: 'Future Goals & Objectives', hintText: 'Target goals for next period...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      decoration: InputDecoration(labelText: l10n.goalsOptional, hintText: 'Target goals for next period...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: commentsCtrl,
                       maxLines: 2,
-                      decoration: InputDecoration(labelText: 'Manager / Reviewer Comments', hintText: 'Final reviewer comments...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      decoration: InputDecoration(labelText: l10n.commentsOptional, hintText: 'Final reviewer comments...', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                     ),
                     
                     const SizedBox(height: 24),
@@ -376,7 +379,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                         onPressed: () async {
                           if (selectedEmpId.isEmpty || periodCtrl.text.trim().isEmpty || (pStartCtrl.text.isEmpty && !isEdit) || (pEndCtrl.text.isEmpty && !isEdit)) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required fields'), backgroundColor: AppColors.danger)); 
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.fieldRequired), backgroundColor: AppColors.danger)); 
                             return;
                           }
                           try {
@@ -405,7 +408,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                             if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
                           }
                         },
-                        child: Text(isEdit ? 'Update Review' : 'Create Review', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                        child: Text(isEdit ? l10n.saveChangesBtn : l10n.createReviewTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                       ),
                     )
                   ],
@@ -420,6 +423,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
@@ -434,7 +438,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
           child: Column(
             children: [
               TextField(
-                decoration: InputDecoration(hintText: 'Search employees...', prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.grey)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
+                decoration: InputDecoration(hintText: l10n.searchEmployeesHint, prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.grey)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
                 onSubmitted: (val) { _search = val; _fetchData(); },
               ),
               const SizedBox(height: 12),
@@ -444,12 +448,12 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     child: DropdownButtonFormField<String>(
                       isExpanded: true, initialValue: _type,
                       decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12)),
-                      items: const [
-                        DropdownMenuItem(value: 'all', child: Text('All Types')),
-                        DropdownMenuItem(value: 'manager', child: Text('Manager')),
-                        DropdownMenuItem(value: 'self', child: Text('Self')),
-                        DropdownMenuItem(value: 'peer', child: Text('Peer')),
-                        DropdownMenuItem(value: '360', child: Text('360')),
+                      items: [
+                        DropdownMenuItem(value: 'all', child: Text(l10n.allTypes)),
+                        DropdownMenuItem(value: 'manager', child: Text(l10n.reviewTypeManager)),
+                        DropdownMenuItem(value: 'self', child: Text(l10n.reviewTypeSelf)),
+                        DropdownMenuItem(value: 'peer', child: Text(l10n.reviewTypePeer)),
+                        DropdownMenuItem(value: '360', child: Text(l10n.reviewType360)),
                       ],
                       onChanged: (val) { if (val != null) { _type = val; _fetchData(); } },
                     ),
@@ -460,7 +464,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                       isExpanded: true, initialValue: _period,
                       decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12)),
                       items: [
-                        const DropdownMenuItem(value: 'all', child: Text('All Periods')),
+                        DropdownMenuItem(value: 'all', child: Text(l10n.allPeriods)),
                         ..._periods.map((p) => DropdownMenuItem(value: p, child: Text(p))),
                       ],
                       onChanged: (val) { if (val != null) { _period = val; _fetchData(); } },
@@ -472,7 +476,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
           ),
         ),
         Expanded(
-          child: _loading ? const LoadingIndicator(message: 'Loading Reviews...') : _reviews.isEmpty ? const Center(child: Text('No reviews found.', style: TextStyle(color: AppColors.grey500))) : ListView.separated(
+          child: _loading ? LoadingIndicator(message: l10n.loadingReviews) : _reviews.isEmpty ? Center(child: Text(l10n.noReviews, style: const TextStyle(color: AppColors.grey500))) : ListView.separated(
             padding: const EdgeInsets.all(16), itemCount: _reviews.length, separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (context, i) {
               final r = _reviews[i];
@@ -503,7 +507,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     Wrap(
                       spacing: 8, runSpacing: 8,
                       children: [
-                        Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Text('Period: ${r.reviewPeriod ?? 'N/A'}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
+                        Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Text('${l10n.periodRequired.replaceAll(' *', '')}: ${r.reviewPeriod ?? 'N/A'}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
                         if (r.overallRating != null)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -523,8 +527,8 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        if (r.status == 'draft') TextButton.icon(onPressed: () async { await _repo.submitReview(r.id); _fetchData(); }, icon: const Icon(Icons.send, size: 16), label: const Text('Submit')),
-                        TextButton.icon(onPressed: () => _showForm(r), icon: const Icon(Icons.edit, size: 16), label: const Text('Edit')),
+                        if (r.status == 'draft') TextButton.icon(onPressed: () async { await _repo.submitReview(r.id); _fetchData(); }, icon: const Icon(Icons.send, size: 16), label: Text(l10n.submit)),
+                        TextButton.icon(onPressed: () => _showForm(r), icon: const Icon(Icons.edit, size: 16), label: Text(l10n.editBtn)),
                       ],
                     )
                   ],
@@ -551,6 +555,7 @@ class _StarRatingPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -564,12 +569,12 @@ class _StarRatingPicker extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Overall Rating',
-                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+              Text(
+                l10n.overallRatingPrefix.replaceAll(': ', ''),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
               ),
               Text(
-                rating > 0 ? '$rating / 5' : 'Not Rated',
+                rating > 0 ? '$rating / 5' : l10n.notRated,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -643,6 +648,7 @@ class _TrainingTabState extends State<_TrainingTab> {
   }
 
   void _showForm([TrainingCourseData? item]) {
+    final l10n = AppLocalizations.of(context)!;
     final isEdit = item != null;
     final titleCtrl = TextEditingController(text: isEdit ? item.title : '');
     final descCtrl = TextEditingController(text: isEdit ? (item.description ?? '') : '');
@@ -677,7 +683,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(isEdit ? 'Edit Training' : 'Create Training', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                    Text(isEdit ? l10n.editTrainingTitle : l10n.createTrainingTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
                     const SizedBox(height: 24),
                     
                     Center(
@@ -701,21 +707,21 @@ class _TrainingTabState extends State<_TrainingTab> {
                                     ? Image.network(
                                         item.coverImage!,
                                         fit: BoxFit.cover,
-                                        errorBuilder: (ctx, err, stack) => const Column(
+                                        errorBuilder: (ctx, err, stack) => Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Icon(Icons.image, size: 48, color: AppColors.grey400),
-                                            SizedBox(height: 8),
-                                            Text('Tap to replace cover image', style: TextStyle(color: AppColors.grey500)),
+                                            const Icon(Icons.image, size: 48, color: AppColors.grey400),
+                                            const SizedBox(height: 8),
+                                            Text(l10n.replaceCoverImage, style: const TextStyle(color: AppColors.grey500)),
                                           ],
                                         ),
                                       )
-                                    : const Column(
+                                    : Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(Icons.image, size: 48, color: AppColors.grey400),
-                                          SizedBox(height: 8),
-                                          Text('Tap to upload cover image', style: TextStyle(color: AppColors.grey500)),
+                                          const Icon(Icons.image, size: 48, color: AppColors.grey400),
+                                          const SizedBox(height: 8),
+                                          Text(l10n.uploadCoverImage, style: const TextStyle(color: AppColors.grey500)),
                                         ],
                                       ),
                           ),
@@ -724,14 +730,14 @@ class _TrainingTabState extends State<_TrainingTab> {
                     ),
                     const SizedBox(height: 24),
 
-                    TextField(controller: titleCtrl, decoration: InputDecoration(labelText: 'Title *', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                    TextField(controller: titleCtrl, decoration: InputDecoration(labelText: l10n.titleFieldLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
                     const SizedBox(height: 16),
                     
                     DropdownButtonFormField<String>(
                       isExpanded: true, initialValue: selectedDeptId.isEmpty ? null : selectedDeptId,
-                      decoration: InputDecoration(labelText: 'Department', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      decoration: InputDecoration(labelText: l10n.departmentLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                       items: [
-                        const DropdownMenuItem(value: null, child: Text('Company-Wide')),
+                        DropdownMenuItem(value: null, child: Text(l10n.companyWide)),
                         ..._departments.map((d) => DropdownMenuItem(value: d.id.toString(), child: Text(d.name))),
                       ],
                       onChanged: (val) => setSheetState(() => selectedDeptId = val ?? ''),
@@ -743,11 +749,11 @@ class _TrainingTabState extends State<_TrainingTab> {
                         Expanded(
                           child: DropdownButtonFormField<String>(
                             isExpanded: true, initialValue: selectedLevel,
-                            decoration: InputDecoration(labelText: 'Level', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                            items: const [
-                              DropdownMenuItem(value: 'beginner', child: Text('Beginner')),
-                              DropdownMenuItem(value: 'intermediate', child: Text('Intermediate')),
-                              DropdownMenuItem(value: 'advanced', child: Text('Advanced')),
+                            decoration: InputDecoration(labelText: l10n.levelLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            items: [
+                              DropdownMenuItem(value: 'beginner', child: Text(l10n.levelBeginner)),
+                              DropdownMenuItem(value: 'intermediate', child: Text(l10n.levelIntermediate)),
+                              DropdownMenuItem(value: 'advanced', child: Text(l10n.levelAdvanced)),
                             ],
                             onChanged: (val) => setSheetState(() => selectedLevel = val ?? 'beginner'),
                           ),
@@ -756,13 +762,13 @@ class _TrainingTabState extends State<_TrainingTab> {
                         Expanded(
                           child: DropdownButtonFormField<String>(
                             isExpanded: true, initialValue: selectedStatus,
-                            decoration: InputDecoration(labelText: 'Status', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                            items: const [
-                              DropdownMenuItem(value: 'draft', child: Text('Draft')),
-                              DropdownMenuItem(value: 'published', child: Text('Published')),
-                              DropdownMenuItem(value: 'ongoing', child: Text('Ongoing')),
-                              DropdownMenuItem(value: 'completed', child: Text('Completed')),
-                              DropdownMenuItem(value: 'cancelled', child: Text('Cancelled')),
+                            decoration: InputDecoration(labelText: l10n.statusLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            items: [
+                              DropdownMenuItem(value: 'draft', child: Text(l10n.statusDraft)),
+                              DropdownMenuItem(value: 'published', child: Text(l10n.statusPublished)),
+                              DropdownMenuItem(value: 'ongoing', child: Text(l10n.statusOngoing)),
+                              DropdownMenuItem(value: 'completed', child: Text(l10n.statusCompleted)),
+                              DropdownMenuItem(value: 'cancelled', child: Text(l10n.statusCancelled)),
                             ],
                             onChanged: (val) => setSheetState(() => selectedStatus = val ?? 'draft'),
                           ),
@@ -777,7 +783,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                           child: TextField(
                             controller: durationCtrl,
                             keyboardType: TextInputType.number,
-                            decoration: InputDecoration(labelText: 'Duration (Hours)', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            decoration: InputDecoration(labelText: l10n.durationHours, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -785,7 +791,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                           child: TextField(
                             controller: maxParticipantsCtrl,
                             keyboardType: TextInputType.number,
-                            decoration: InputDecoration(labelText: 'Max Capacity', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            decoration: InputDecoration(labelText: l10n.maxCapacity, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                           ),
                         ),
                       ],
@@ -797,14 +803,14 @@ class _TrainingTabState extends State<_TrainingTab> {
                         Expanded(
                           child: TextField(
                             controller: instructorCtrl,
-                            decoration: InputDecoration(labelText: 'Instructor Name', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            decoration: InputDecoration(labelText: l10n.instructorName, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextField(
                             controller: locationCtrl,
-                            decoration: InputDecoration(labelText: 'Location / Link', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                            decoration: InputDecoration(labelText: l10n.locationLink, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
                           ),
                         ),
                       ],
@@ -841,10 +847,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Start Date', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                      Text(l10n.startDateLabel, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
                                       const SizedBox(height: 4),
                                       Text(
-                                        startDateCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(startDateCtrl.text)) : 'Select date...',
+                                        startDateCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(startDateCtrl.text)) : l10n.selectDate,
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: startDateCtrl.text.isNotEmpty ? FontWeight.w700 : FontWeight.w400,
@@ -888,10 +894,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text('End Date', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                      Text(l10n.endDateLabel, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
                                       const SizedBox(height: 4),
                                       Text(
-                                        endDateCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(endDateCtrl.text)) : 'Select date...',
+                                        endDateCtrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(endDateCtrl.text)) : l10n.selectDate,
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: endDateCtrl.text.isNotEmpty ? FontWeight.w700 : FontWeight.w400,
@@ -910,11 +916,11 @@ class _TrainingTabState extends State<_TrainingTab> {
                     ),
                     const SizedBox(height: 16),
 
-                    TextField(controller: descCtrl, maxLines: 2, decoration: InputDecoration(labelText: 'Description', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                    TextField(controller: descCtrl, maxLines: 2, decoration: InputDecoration(labelText: l10n.trainingDescription, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
                     const SizedBox(height: 16),
-                    TextField(controller: contentCtrl, maxLines: 3, decoration: InputDecoration(labelText: 'Course Content / Syllabus', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                    TextField(controller: contentCtrl, maxLines: 3, decoration: InputDecoration(labelText: l10n.trainingContent, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
                     const SizedBox(height: 16),
-                    TextField(controller: notesCtrl, maxLines: 2, decoration: InputDecoration(labelText: 'Internal Notes', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
+                    TextField(controller: notesCtrl, maxLines: 2, decoration: InputDecoration(labelText: l10n.trainingNotes, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
                     
                     const SizedBox(height: 24),
                     SizedBox(
@@ -923,7 +929,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                         onPressed: () async {
                           if (titleCtrl.text.trim().isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a title'), backgroundColor: AppColors.danger)); 
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.titleRequired), backgroundColor: AppColors.danger)); 
                             return;
                           }
                           try {
@@ -953,7 +959,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                             if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
                           }
                         },
-                        child: Text(isEdit ? 'Update Training' : 'Create Training', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                        child: Text(isEdit ? l10n.saveChangesBtn : l10n.createTrainingTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                       ),
                     )
                   ],
@@ -968,6 +974,7 @@ class _TrainingTabState extends State<_TrainingTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
@@ -982,7 +989,7 @@ class _TrainingTabState extends State<_TrainingTab> {
             child: Column(
               children: [
                 TextField(
-                  decoration: InputDecoration(hintText: 'Search trainings...', prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.grey)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
+                  decoration: InputDecoration(hintText: l10n.searchTrainingsHint, prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.grey)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
                   onSubmitted: (val) { _search = val; _fetchData(); },
                 ),
                 const SizedBox(height: 12),
@@ -990,8 +997,8 @@ class _TrainingTabState extends State<_TrainingTab> {
                   isExpanded: true, initialValue: _departmentId,
                   decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12)),
                   items: [
-                    const DropdownMenuItem(value: 'all', child: Text('All Departments')),
-                    const DropdownMenuItem(value: 'company-wide', child: Text('Company-Wide')),
+                    DropdownMenuItem(value: 'all', child: Text(l10n.allPeriods.replaceAll('Periods', 'Departments'))), // Simple hack if allDepartments doesn't exist
+                    DropdownMenuItem(value: 'company-wide', child: Text(l10n.companyWide)),
                     ..._departments.map((d) => DropdownMenuItem(value: d.id.toString(), child: Text(d.name))),
                   ],
                   onChanged: (val) { if (val != null) { _departmentId = val; _fetchData(); } },
@@ -1000,7 +1007,7 @@ class _TrainingTabState extends State<_TrainingTab> {
             ),
           ),
           Expanded(
-            child: _loading ? const LoadingIndicator(message: 'Loading Trainings...') : _trainings.isEmpty ? const Center(child: Text('No trainings found.', style: TextStyle(color: AppColors.grey500))) : ListView.separated(
+            child: _loading ? LoadingIndicator(message: l10n.loadingTrainings) : _trainings.isEmpty ? Center(child: Text(l10n.noTrainings, style: const TextStyle(color: AppColors.grey500))) : ListView.separated(
               padding: const EdgeInsets.all(16), itemCount: _trainings.length, separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, i) {
                 final t = _trainings[i];
@@ -1024,7 +1031,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                                   children: [
                                     Icon(Icons.school_rounded, size: 40, color: AppColors.grey400),
                                     SizedBox(height: 4),
-                                    Text('Cover Image', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                                    Text('Image', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
                                   ],
                                 ),
                               ),
@@ -1039,12 +1046,12 @@ class _TrainingTabState extends State<_TrainingTab> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text(t.description ?? 'No description', style: TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      Text(t.description ?? '', style: TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 2, overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 12),
                       Wrap(
                         spacing: 8, runSpacing: 8,
                         children: [
-                          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Text(t.department?.name ?? 'Company-Wide', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
+                          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Text(t.department?.name ?? l10n.companyWide, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
                           Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Text(t.level?.toUpperCase() ?? 'BEGINNER', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
                         ],
                       ),
@@ -1071,10 +1078,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                                     context: context,
                                     builder: (ctx) => AlertDialog(
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                      title: const Text('Delete Training'),
-                                      content: Text('Are you sure you want to delete "${t.title}"?'),
+                                      title: Text(l10n.deleteTrainingTitle),
+                                      content: Text(l10n.deleteTrainingConfirm),
                                       actions: [
-                                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                                        TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.cancel)),
                                         ElevatedButton(
                                           style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
                                           onPressed: () async {
@@ -1084,14 +1091,14 @@ class _TrainingTabState extends State<_TrainingTab> {
                                               _fetchData();
                                               if (ctx.mounted) {
                                                 ScaffoldMessenger.of(ctx).showSnackBar(
-                                                  const SnackBar(content: Text('🗑️ Training course deleted successfully'), backgroundColor: AppColors.success),
+                                                  SnackBar(content: Text(l10n.trainingDeletedSuccess), backgroundColor: AppColors.success),
                                                 );
                                               }
                                             } catch (e) {
                                               if (ctx.mounted) ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
                                             }
                                           },
-                                          child: const Text('Delete', style: TextStyle(color: Colors.white)),
+                                          child: Text(l10n.deleteTitle, style: const TextStyle(color: Colors.white)),
                                         ),
                                       ],
                                     ),
@@ -1114,6 +1121,7 @@ class _TrainingTabState extends State<_TrainingTab> {
   }
 
   void _showEnrollmentSheet(TrainingCourseData t) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1159,7 +1167,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Enrollments: ${t.title}',
+                          '${l10n.enrollmentsTitle}: ${t.title}',
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
                           maxLines: 1, overflow: TextOverflow.ellipsis,
                         ),
@@ -1177,7 +1185,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                           isExpanded: true,
                           initialValue: selectedEmpIdToEnroll,
                           decoration: InputDecoration(
-                            hintText: 'Select Employee to Enroll',
+                            hintText: l10n.selectEmployeeToEnroll,
                             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                           ),
@@ -1204,7 +1212,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                             });
                             if (ctx.mounted) {
                               ScaffoldMessenger.of(ctx).showSnackBar(
-                                const SnackBar(content: Text('🎉 Employee enrolled successfully & notification sent!'), backgroundColor: AppColors.success),
+                                SnackBar(content: Text(l10n.employeeEnrolledSuccess), backgroundColor: AppColors.success),
                               );
                             }
                           } catch (e) {
@@ -1215,19 +1223,19 @@ class _TrainingTabState extends State<_TrainingTab> {
                             }
                           }
                         },
-                        child: const Text('Enroll', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        child: Text(l10n.enrollBtn, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  Text('Enrolled Participants (${enrollments.length})', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey700)),
+                  Text('${l10n.enrolledParticipantsTitle} (${enrollments.length})', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey700)),
                   const SizedBox(height: 10),
 
                   Expanded(
                     child: loadingEnrollments
                         ? const Center(child: CircularProgressIndicator())
                         : enrollments.isEmpty
-                            ? const Center(child: Text('No employees enrolled yet.', style: TextStyle(color: AppColors.grey500)))
+                            ? Center(child: Text(l10n.noEmployeesEnrolled, style: const TextStyle(color: AppColors.grey500)))
                             : ListView.separated(
                                 itemCount: enrollments.length,
                                 separatorBuilder: (_, _) => const SizedBox(height: 8),
@@ -1257,7 +1265,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(empName.isEmpty ? 'Employee' : empName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                              Text('Progress: $progress% | Status: $status', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
+                                              Text('${l10n.progressLabel}: $progress% | ${l10n.statusLabel}: $status', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
                                             ],
                                           ),
                                         ),

@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -327,7 +328,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
           content: Row(children: [
             const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
             const SizedBox(width: 8),
-            Text(widget.employee == null ? 'Employee created successfully' : 'Employee updated successfully'),
+            Text(widget.employee == null ? AppLocalizations.of(context)!.employeeCreatedSuccess : AppLocalizations.of(context)!.employeeUpdatedSuccess),
           ]),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
@@ -357,6 +358,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.employee != null;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6FA),
@@ -366,7 +368,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black87),
         title: Text(
-          isEditing ? 'Edit Employee' : 'Add Employee',
+          isEditing ? l10n.editEmployee : l10n.addEmployee,
           style: const TextStyle(color: Colors.black87, fontSize: 17, fontWeight: FontWeight.w700),
         ),
         actions: [
@@ -377,7 +379,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
                 : TextButton.icon(
                     onPressed: _save,
                     icon: const Icon(Icons.check_rounded, size: 18),
-                    label: const Text('Save', style: TextStyle(fontWeight: FontWeight.w700)),
+                    label: Text(l10n.save, style: const TextStyle(fontWeight: FontWeight.w700)),
                     style: TextButton.styleFrom(
                       foregroundColor: AppColors.primary,
                       backgroundColor: AppColors.primary.withAlpha(15),
@@ -395,55 +397,61 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ── Photo Banner ──────────────────────────────────────
-              _buildPhotoBanner(isEditing),
+              _buildPhotoBanner(isEditing, l10n),
 
               // ── Personal Info ─────────────────────────────────────
               _Section(
-                title: 'Personal Information',
+                title: l10n.personalInformation,
                 icon: Icons.person_outline_rounded,
                 children: [
                   _buildRow([
                     _buildField(
                       controller: _firstNameCtrl,
-                      label: 'First Name',
+                      label: l10n.firstName,
                       required: true,
                       icon: Icons.badge_outlined,
+                      l10n: l10n,
                     ),
                     _buildField(
                       controller: _lastNameCtrl,
-                      label: 'Last Name',
+                      label: l10n.lastName,
                       required: true,
+                      l10n: l10n,
                     ),
                   ]),
                   const SizedBox(height: 12),
                   _buildField(
                     controller: _employeeIdCtrl,
-                    label: 'Employee ID (Leave blank to auto-generate)',
+                    label: l10n.employeeIdHint,
                     icon: Icons.badge_outlined,
+                    l10n: l10n,
                   ),
                   const SizedBox(height: 12),
                   _buildField(
                     controller: _emailCtrl,
-                    label: (!isEditing && _createAccount) ? 'Email Address *' : 'Email Address',
+                    label: (!isEditing && _createAccount) ? l10n.emailAddressRequired : l10n.emailAddress,
                     icon: Icons.email_outlined,
                     keyboard: TextInputType.emailAddress,
                     required: !isEditing && _createAccount,
+                    l10n: l10n,
                   ),
                   const SizedBox(height: 12),
-                  _buildField(controller: _phoneCtrl, label: 'Phone Number', icon: Icons.phone_outlined, keyboard: TextInputType.phone),
+                  _buildField(controller: _phoneCtrl, label: l10n.phoneNumber, icon: Icons.phone_outlined, keyboard: TextInputType.phone, l10n: l10n),
                   const SizedBox(height: 12),
                   _buildRow([
                     _buildDropdown<String>(
-                      label: 'Gender',
+                      label: l10n.gender,
                       value: _gender,
-                      items: const {'male': 'Male', 'female': 'Female', 'other': 'Other'},
+                      items: {'male': l10n.male, 'female': l10n.female, 'other': l10n.other},
                       onChanged: (v) => setState(() => _gender = v),
+                      l10n: l10n,
                     ),
                     _buildDropdown<String>(
-                      label: 'Marital Status',
+                      label: l10n.maritalStatus,
                       value: _maritalStatus,
-                      items: const {'single': 'Single', 'married': 'Married', 'divorced': 'Divorced', 'widowed': 'Widowed'},
+                      items: {'single': l10n.single, 'married': l10n.married, 'divorced': l10n.divorced, 'widowed': l10n.widowed},
                       onChanged: (v) => setState(() => _maritalStatus = v),
+                      l10n: l10n,
                     ),
                   ]),
                   const SizedBox(height: 12),
@@ -452,108 +460,112 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
                     onTap: _pickDob,
                     borderRadius: BorderRadius.circular(12),
                     child: InputDecorator(
-                      decoration: _fieldDecor('Date of Birth', icon: Icons.cake_outlined),
+                      decoration: _fieldDecor(l10n.dateOfBirth, icon: Icons.cake_outlined),
                       child: Text(
-                        _dateOfBirth != null ? _dateOfBirth.toString().substring(0, 10) : 'Tap to select',
+                        _dateOfBirth != null ? _dateOfBirth.toString().substring(0, 10) : l10n.tapToSelect,
                         style: TextStyle(fontSize: 14, color: _dateOfBirth != null ? Colors.black87 : AppColors.grey400),
                       ),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _buildField(controller: _nationalIdCtrl, label: 'National ID / Passport', icon: Icons.credit_card_outlined),
+                  _buildField(controller: _nationalIdCtrl, label: l10n.nationalIdPassport, icon: Icons.credit_card_outlined, l10n: l10n),
                   const SizedBox(height: 12),
-                  _buildField(controller: _addressCtrl, label: 'Address', icon: Icons.location_on_outlined, maxLines: 2),
+                  _buildField(controller: _addressCtrl, label: l10n.address, icon: Icons.location_on_outlined, maxLines: 2, l10n: l10n),
                 ],
               ),
 
               // ── Employment Details ─────────────────────────────────
               _Section(
-                title: 'Employment Details',
+                title: l10n.employmentDetailsRequired,
                 icon: Icons.work_outline_rounded,
                 children: [
                   _buildRow([
                     _buildDropdown<String>(
-                      label: 'Employment Type *',
+                      label: l10n.employmentTypeRequired,
                       value: _employmentType,
                       required: true,
-                      items: const {'full_time': 'Full-Time', 'part_time': 'Part-Time', 'contract': 'Contract', 'intern': 'Intern'},
+                      items: {'full_time': l10n.fullTime, 'part_time': l10n.partTime, 'contract': l10n.contract, 'intern': l10n.intern},
                       onChanged: (v) => setState(() => _employmentType = v),
+                      l10n: l10n,
                     ),
                     _buildDropdown<String>(
-                      label: 'Status *',
+                      label: l10n.statusRequired,
                       value: _employmentStatus,
                       required: true,
-                      items: const {'active': 'Active', 'inactive': 'Inactive', 'terminated': 'Terminated', 'resigned': 'Resigned', 'on_leave': 'On Leave'},
+                      items: {'active': l10n.active, 'inactive': l10n.inactive, 'terminated': l10n.terminated, 'resigned': l10n.resigned, 'on_leave': l10n.onLeave},
                       onChanged: (v) => setState(() => _employmentStatus = v),
+                      l10n: l10n,
                     ),
                   ]),
                   const SizedBox(height: 12),
                   _buildRow([
-                    _buildDateField(label: 'Hire Date *', ctrl: _hireDateCtrl, required: true),
-                    _buildDateField(label: 'Probation End', ctrl: _probationEndCtrl),
+                    _buildDateField(label: l10n.hireDateRequired, ctrl: _hireDateCtrl, required: true, l10n: l10n),
+                    _buildDateField(label: l10n.probationEnd, ctrl: _probationEndCtrl, l10n: l10n),
                   ]),
                   if (_employmentStatus == 'terminated' || _employmentStatus == 'resigned') ...[
                     const SizedBox(height: 12),
-                    _buildDateField(label: 'Termination Date', ctrl: _terminationDateCtrl),
+                    _buildDateField(label: l10n.terminationDate, ctrl: _terminationDateCtrl, l10n: l10n),
                   ],
                   const SizedBox(height: 12),
                   _buildDropdown<String>(
-                    label: 'System Role *',
+                    label: l10n.systemRoleRequired,
                     value: _role,
                     required: true,
-                    items: const {
-                      'employee': 'Employee',
-                      'branch_manager': 'Branch Manager',
-                      'company_admin': 'Company Admin',
-                      'company_owner': 'Company Owner',
+                    items: {
+                      'employee': l10n.roleEmployee,
+                      'branch_manager': l10n.roleBranchManager,
+                      'company_admin': l10n.roleCompanyAdmin,
+                      'company_owner': l10n.roleCompanyOwner,
                     },
                     onChanged: (v) => setState(() => _role = v),
+                    l10n: l10n,
                   ),
                   const SizedBox(height: 12),
                   _buildRow([
-                    _buildDepartmentDropdown(),
-                    _buildPositionDropdown(),
+                    _buildDepartmentDropdown(l10n),
+                    _buildPositionDropdown(l10n),
                   ]),
                   const SizedBox(height: 12),
                   _buildRow([
-                    _buildBranchDropdown(),
-                    _buildTeamDropdown(),
+                    _buildBranchDropdown(l10n),
+                    _buildTeamDropdown(l10n),
                   ]),
                   const SizedBox(height: 12),
-                  _buildManagerDropdown(),
+                  _buildManagerDropdown(l10n),
                   const SizedBox(height: 12),
-                  _buildField(controller: _notesCtrl, label: 'Admin Notes', icon: Icons.notes_outlined, maxLines: 3),
+                  _buildField(controller: _notesCtrl, label: l10n.adminNotes, icon: Icons.notes_outlined, maxLines: 3, l10n: l10n),
                 ],
               ),
 
               // ── Payroll ────────────────────────────────────────────
               _Section(
-                title: 'Payroll & Bank',
+                title: l10n.payrollAndBank,
                 icon: Icons.account_balance_outlined,
                 children: [
                   _buildField(
                     controller: _salaryCtrl,
-                    label: 'Monthly Salary',
+                    label: l10n.monthlySalary,
                     icon: Icons.attach_money_outlined,
                     keyboard: const TextInputType.numberWithOptions(decimal: true),
+                    l10n: l10n,
                   ),
                   const SizedBox(height: 12),
-                  _buildField(controller: _bankNameCtrl, label: 'Bank Name', icon: Icons.account_balance_outlined),
+                  _buildField(controller: _bankNameCtrl, label: l10n.bankName, icon: Icons.account_balance_outlined, l10n: l10n),
                   const SizedBox(height: 12),
-                  _buildField(controller: _bankAccountCtrl, label: 'Bank Account Number', icon: Icons.credit_card_outlined),
+                  _buildField(controller: _bankAccountCtrl, label: l10n.bankAccountNumber, icon: Icons.credit_card_outlined, l10n: l10n),
                 ],
               ),
 
               // ── Emergency Contact ──────────────────────────────────
               _Section(
-                title: 'Emergency Contact',
+                title: l10n.emergencyContact,
                 icon: Icons.emergency_outlined,
                 children: [
-                  _buildField(controller: _emergNameCtrl, label: 'Contact Name', icon: Icons.person_outline_rounded),
+                  _buildField(controller: _emergNameCtrl, label: l10n.contactName, icon: Icons.person_outline_rounded, l10n: l10n),
                   const SizedBox(height: 12),
                   _buildRow([
-                    _buildField(controller: _emergRelCtrl, label: 'Relationship', icon: Icons.people_outline_rounded),
-                    _buildField(controller: _emergPhoneCtrl, label: 'Phone', icon: Icons.phone_outlined, keyboard: TextInputType.phone),
+                    _buildField(controller: _emergRelCtrl, label: l10n.relationship, icon: Icons.people_outline_rounded, l10n: l10n),
+                    _buildField(controller: _emergPhoneCtrl, label: l10n.phoneNumber, icon: Icons.phone_outlined, keyboard: TextInputType.phone, l10n: l10n),
                   ]),
                 ],
               ),
@@ -561,7 +573,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
               const SizedBox(height: 20),
 
               _Section(
-                title: 'System Access',
+                title: l10n.systemAccess,
                 icon: Icons.computer_outlined,
                 children: [
                   Row(
@@ -574,8 +586,8 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
                       Expanded(
                         child: Text(
                           isEditing 
-                            ? 'Reset password or create login account'
-                            : 'Create a login account for this employee',
+                            ? l10n.resetPasswordHint
+                            : l10n.createAccountHint,
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
                         ),
                       ),
@@ -585,7 +597,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
                     const SizedBox(height: 12),
                     _buildField(
                       controller: _passwordCtrl,
-                      label: 'Password *',
+                      label: l10n.passwordRequired,
                       icon: Icons.lock_outline,
                       required: true,
                       obscureText: !_showPassword,
@@ -593,11 +605,12 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
                         icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
                         onPressed: () => setState(() => _showPassword = !_showPassword),
                       ),
+                      l10n: l10n,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Employee will use their email and this password to log in.',
-                        style: TextStyle(fontSize: 12, color: Colors.black54),
+                    Text(
+                      l10n.passwordLoginHint,
+                        style: const TextStyle(fontSize: 12, color: Colors.black54),
                       ),
                     ],
                   ],
@@ -610,7 +623,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.check_rounded, size: 20),
                 label: Text(
-                  _isLoading ? 'Saving…' : (isEditing ? 'Update Employee' : 'Create Employee'),
+                  _isLoading ? l10n.saving : (isEditing ? l10n.updateEmployee : l10n.createEmployee),
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -630,7 +643,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
   }
 
   // ─── Photo Banner ──────────────────────────────────────────────────────────
-  Widget _buildPhotoBanner(bool isEditing) {
+  Widget _buildPhotoBanner(bool isEditing, AppLocalizations l10n) {
     final emp = widget.employee;
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -680,11 +693,11 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isEditing ? '${widget.employee!.firstName ?? ''} ${widget.employee!.lastName ?? ''}' : 'New Employee',
+                  isEditing ? '${widget.employee!.firstName ?? ''} ${widget.employee!.lastName ?? ''}' : l10n.newEmployee,
                   style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                const Text('Tap photo to change', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(l10n.tapPhotoToChange, style: const TextStyle(color: Colors.white70, fontSize: 12)),
               ],
             ),
           ),
@@ -712,6 +725,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     int maxLines = 1,
     bool obscureText = false,
     Widget? suffixIcon,
+    AppLocalizations? l10n,
   }) {
     return TextFormField(
       controller: controller,
@@ -720,18 +734,18 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
       obscureText: obscureText,
       style: const TextStyle(fontSize: 14),
       decoration: _fieldDecor(label, icon: icon, suffixIcon: suffixIcon),
-      validator: required ? (v) => (v == null || v.trim().isEmpty) ? 'Required' : null : null,
+      validator: required ? (v) => (v == null || v.trim().isEmpty) ? (l10n?.required ?? 'Required') : null : null,
     );
   }
 
-  Widget _buildDateField({required String label, required TextEditingController ctrl, bool required = false}) {
+  Widget _buildDateField({required String label, required TextEditingController ctrl, bool required = false, AppLocalizations? l10n}) {
     return TextFormField(
       controller: ctrl,
       readOnly: true,
       style: const TextStyle(fontSize: 14),
       decoration: _fieldDecor(label, icon: Icons.calendar_today_outlined),
       onTap: () => _pickDate(ctrl),
-      validator: required ? (v) => (v == null || v.isEmpty) ? 'Required' : null : null,
+      validator: required ? (v) => (v == null || v.isEmpty) ? (l10n?.required ?? 'Required') : null : null,
     );
   }
 
@@ -741,21 +755,22 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     required Map<T, String> items,
     required void Function(T?) onChanged,
     bool required = false,
+    AppLocalizations? l10n,
   }) {
     return DropdownButtonFormField<T>(
       initialValue: value,
       decoration: _fieldDecor(label),
       style: const TextStyle(fontSize: 14, color: Colors.black87),
       items: [
-        DropdownMenuItem<T>(value: null, child: Text('— None —', style: TextStyle(color: AppColors.grey400))),
+        DropdownMenuItem<T>(value: null, child: Text(l10n?.none ?? '— None —', style: TextStyle(color: AppColors.grey400))),
         ...items.entries.map((e) => DropdownMenuItem<T>(value: e.key, child: Text(e.value))),
       ],
       onChanged: onChanged,
-      validator: required ? (v) => v == null ? 'Required' : null : null,
+      validator: required ? (v) => v == null ? (l10n?.required ?? 'Required') : null : null,
     );
   }
 
-  Widget _buildDepartmentDropdown() {
+  Widget _buildDepartmentDropdown(AppLocalizations l10n) {
     final async = ref.watch(departmentsProvider);
     return async.when(
       data: (depts) => DropdownButtonFormField<int>(
@@ -763,7 +778,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
         decoration: _fieldDecor('Department', icon: Icons.business_outlined),
         style: const TextStyle(fontSize: 14, color: Colors.black87),
         items: [
-          DropdownMenuItem<int>(value: null, child: Text('— None —', style: TextStyle(color: AppColors.grey400))),
+          DropdownMenuItem<int>(value: null, child: Text(l10n.none, style: TextStyle(color: AppColors.grey400))),
           ...depts.map((d) => DropdownMenuItem(value: d.id, child: Text(d.name))),
         ],
         onChanged: (v) => setState(() => _departmentId = v),
@@ -773,7 +788,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     );
   }
 
-  Widget _buildPositionDropdown() {
+  Widget _buildPositionDropdown(AppLocalizations l10n) {
     final async = ref.watch(positionsProvider);
     return async.when(
       data: (pos) => DropdownButtonFormField<int>(
@@ -781,7 +796,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
         decoration: _fieldDecor('Position', icon: Icons.work_outline),
         style: const TextStyle(fontSize: 14, color: Colors.black87),
         items: [
-          DropdownMenuItem<int>(value: null, child: Text('— None —', style: TextStyle(color: AppColors.grey400))),
+          DropdownMenuItem<int>(value: null, child: Text(l10n.none, style: TextStyle(color: AppColors.grey400))),
           ...pos.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))),
         ],
         onChanged: (v) => setState(() => _positionId = v),
@@ -791,7 +806,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     );
   }
 
-  Widget _buildBranchDropdown() {
+  Widget _buildBranchDropdown(AppLocalizations l10n) {
     final async = ref.watch(branchesProvider);
     return async.when(
       data: (branches) => DropdownButtonFormField<int>(
@@ -799,7 +814,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
         decoration: _fieldDecor('Branch', icon: Icons.location_city_outlined),
         style: const TextStyle(fontSize: 14, color: Colors.black87),
         items: [
-          DropdownMenuItem<int>(value: null, child: Text('— None —', style: TextStyle(color: AppColors.grey400))),
+          DropdownMenuItem<int>(value: null, child: Text(l10n.none, style: TextStyle(color: AppColors.grey400))),
           ...branches.map((b) => DropdownMenuItem(value: b.id, child: Text(b.name))),
         ],
         onChanged: (v) => setState(() => _branchId = v),
@@ -809,7 +824,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     );
   }
 
-  Widget _buildTeamDropdown() {
+  Widget _buildTeamDropdown(AppLocalizations l10n) {
     final async = ref.watch(teamsProvider);
     return async.when(
       data: (teams) => DropdownButtonFormField<int>(
@@ -817,7 +832,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
         decoration: _fieldDecor('Team', icon: Icons.group_outlined),
         style: const TextStyle(fontSize: 14, color: Colors.black87),
         items: [
-          DropdownMenuItem<int>(value: null, child: Text('— None —', style: TextStyle(color: AppColors.grey400))),
+          DropdownMenuItem<int>(value: null, child: Text(l10n.none, style: TextStyle(color: AppColors.grey400))),
           ...teams.map((t) => DropdownMenuItem(value: t.id, child: Text(t.name))),
         ],
         onChanged: (v) => setState(() => _teamId = v),
@@ -827,7 +842,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
     );
   }
 
-  Widget _buildManagerDropdown() {
+  Widget _buildManagerDropdown(AppLocalizations l10n) {
     final async = ref.watch(allEmployeesProvider);
     return async.when(
       data: (employees) => DropdownButtonFormField<int>(
@@ -835,7 +850,7 @@ class _AdminEmployeeFormScreenState extends ConsumerState<AdminEmployeeFormScree
         decoration: _fieldDecor('Direct Manager', icon: Icons.manage_accounts_outlined),
         style: const TextStyle(fontSize: 14, color: Colors.black87),
         items: [
-          DropdownMenuItem<int>(value: null, child: Text('— None —', style: TextStyle(color: AppColors.grey400))),
+          DropdownMenuItem<int>(value: null, child: Text(l10n.none, style: TextStyle(color: AppColors.grey400))),
           ...employees
               .where((e) => e.id != widget.employee?.id)
               .map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))),

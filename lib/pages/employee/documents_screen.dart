@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/services/documents_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 final employeeDocumentsProvider = FutureProvider.autoDispose<List<DocumentData>>((ref) async {
   final repo = DocumentsRepository();
@@ -47,9 +48,9 @@ class DocumentsScreen extends ConsumerWidget {
     return '${size.toStringAsFixed(1)} ${sizes[i]}';
   }
 
-  Future<void> _downloadFile(BuildContext context, DocumentData doc) async {
+  Future<void> _downloadFile(BuildContext context, DocumentData doc, AppLocalizations l10n) async {
     if (doc.downloadUrl == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Download URL is not available.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.downloadUrlNotAvailable)));
       return;
     }
     try {
@@ -57,12 +58,12 @@ class DocumentsScreen extends ConsumerWidget {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw 'Could not launch url';
+        throw l10n.couldNotLaunchUrl;
       }
     } catch (e) {
       AppLogger.e('Failed to download document', e);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to download document: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.failedToDownloadDoc + e.toString())));
       }
     }
   }
@@ -70,24 +71,25 @@ class DocumentsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final docsAsync = ref.watch(employeeDocumentsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Company Documents'),
+        title: Text(l10n.companyDocuments),
       ),
       body: docsAsync.when(
         loading: () => const Center(child: LoadingIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text(l10n.errorPrefix + err.toString())),
         data: (documents) {
           if (documents.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.folder_off_outlined, size: 64, color: AppColors.grey300),
-                  SizedBox(height: 16),
-                  Text('No documents available', style: TextStyle(color: AppColors.grey600, fontSize: 16)),
+                  const Icon(Icons.folder_off_outlined, size: 64, color: AppColors.grey300),
+                  const SizedBox(height: 16),
+                  Text(l10n.noDocumentsAvailable, style: const TextStyle(color: AppColors.grey600, fontSize: 16)),
                 ],
               ),
             );
@@ -145,7 +147,7 @@ class DocumentsScreen extends ConsumerWidget {
                     ],
                   ),
                   trailing: IconButton(
-                    onPressed: () => _downloadFile(context, doc),
+                    onPressed: () => _downloadFile(context, doc, l10n),
                     icon: const Icon(Icons.download_rounded, color: AppColors.primary),
                     style: IconButton.styleFrom(backgroundColor: AppColors.primaryLight),
                   ),

@@ -6,13 +6,15 @@ import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
+import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'branch_payroll_settings_screen.dart';
 import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class CompanyAdminDashboardScreen extends ConsumerStatefulWidget {
   const CompanyAdminDashboardScreen({super.key});
@@ -36,17 +38,19 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final branchSwitchState = ref.watch(branchSwitchProvider);
+    final profileAsync = ref.watch(profileProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Stack(
       children: [
-        _buildMainScaffold(context, ref, authState),
+        _buildMainScaffold(context, ref, authState, profileAsync, l10n),
         // Blur overlay when switching branches
-        if (branchSwitchState.isSwitching) _buildBlurOverlay(),
+        if (branchSwitchState.isSwitching) _buildBlurOverlay(l10n),
       ],
     );
   }
 
-  Widget _buildBlurOverlay() {
+  Widget _buildBlurOverlay(AppLocalizations l10n) {
     return Positioned.fill(
       child: ClipRect(
         child: BackdropFilter(
@@ -89,9 +93,9 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text(
-                        'Switching Branch View…',
-                        style: TextStyle(
+                      Text(
+                        l10n.switchingBranchView,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: AppColors.grey800,
@@ -100,9 +104,9 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                         ),
                       ),
                       const SizedBox(height: 6),
-                      const Text(
-                        'Loading branch data',
-                        style: TextStyle(
+                      Text(
+                        l10n.loadingBranchData,
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.grey500,
                           fontFamily: 'Inter',
@@ -124,6 +128,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
     BuildContext context,
     WidgetRef ref,
     AuthState authState,
+    AsyncValue<ProfileData> profileAsync,
+    AppLocalizations l10n,
   ) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -149,9 +155,9 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
             const SizedBox(width: 10),
             Expanded(
               child: !authState.isCompanyAdmin
-                  ? const Text(
-                      'HR Dashboard',
-                      style: TextStyle(
+                  ? Text(
+                      l10n.hrDashboard,
+                      style: const TextStyle(
                         color: Colors.black87,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -161,9 +167,9 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                     )
                   : ref.watch(branchesProvider).when(
                         data: (branches) => branches.isEmpty
-                            ? const Text(
-                                'HR Dashboard',
-                                style: TextStyle(
+                            ? Text(
+                                l10n.hrDashboard,
+                                style: const TextStyle(
                                   color: Colors.black87,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
@@ -183,9 +189,9 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Text(
-                                      'HR Dashboard',
-                                      style: TextStyle(
+                                    Text(
+                                      l10n.hrDashboard,
+                                      style: const TextStyle(
                                         color: Colors.black87,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700,
@@ -195,18 +201,18 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                                     ),
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      children: const [
+                                      children: [
                                         Text(
-                                          'Select Branch',
-                                          style: TextStyle(
+                                          l10n.selectBranch,
+                                          style: const TextStyle(
                                             color: AppColors.primary,
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
                                             fontFamily: 'Inter',
                                           ),
                                         ),
-                                        SizedBox(width: 2),
-                                        Icon(
+                                        const SizedBox(width: 2),
+                                        const Icon(
                                           Icons.keyboard_arrow_down_rounded,
                                           color: AppColors.primary,
                                           size: 14,
@@ -223,12 +229,12 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                                 },
                                 itemBuilder: (context) {
                                   return [
-                                    const PopupMenuItem<BranchData>(
+                                    PopupMenuItem<BranchData>(
                                       enabled: false,
                                       height: 30,
                                       child: Text(
-                                        'VIEW AS BRANCH MANAGER',
-                                        style: TextStyle(
+                                        l10n.viewAsBranchManager,
+                                        style: const TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.w800,
                                           color: AppColors.grey500,
@@ -338,11 +344,28 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: Colors.black87),
-            onPressed: () => showLogoutConfirmation(context, ref),
-          ),
-          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.only(right: 20, left: 8),
+            child: GestureDetector(
+              onTap: () => context.push(AppRoutes.profile),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.grey200, width: 1.5),
+                ),
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColors.primaryLight,
+                  backgroundImage: profileAsync.value?.photoUrl != null
+                      ? CachedNetworkImageProvider(profileAsync.value!.photoUrl!)
+                      : null,
+                  child: profileAsync.value?.photoUrl == null
+                      ? const Icon(Icons.person, color: AppColors.primary, size: 20)
+                      : null,
+                ),
+              ),
+            ),
+          )
         ],
       ),
       body: RefreshIndicator(
@@ -358,6 +381,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
           _buildWelcomeBanner(
             name: authState.userName ?? 'Manager',
             companyName: authState.companyName ?? 'My Company',
+            l10n: l10n,
           ),
           const SizedBox(height: 24),
 
@@ -368,9 +392,9 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                 data: (kpi) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Company Overview',
-                      style: TextStyle(
+                    Text(
+                      l10n.companyOverview,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: AppColors.grey800,
@@ -382,7 +406,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                       children: [
                         Expanded(
                           child: _buildKpiCard(
-                            'Total Staff',
+                            l10n.totalStaff,
                             kpi.totalEmployees.toString(),
                             Icons.people,
                             const Color(0xFF3B82F6),
@@ -391,7 +415,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildKpiCard(
-                            'On Leave',
+                            l10n.onLeave,
                             kpi.pendingLeaves.toString(),
                             Icons.event_busy,
                             const Color(0xFFEF4444),
@@ -404,7 +428,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                       children: [
                         Expanded(
                           child: _buildKpiCard(
-                            'Open Jobs',
+                            l10n.openJobs,
                             kpi.openJobs.toString(),
                             Icons.work,
                             const Color(0xFF10B981),
@@ -413,7 +437,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildKpiCard(
-                            'Assets',
+                            l10n.assets,
                             '${kpi.assignedAssets}/${kpi.totalAssets}',
                             Icons.devices,
                             const Color(0xFFF59E0B),
@@ -438,15 +462,15 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Error loading KPIs: $e',
+                    '${l10n.errorLoadingKpis}$e',
                     style: const TextStyle(color: AppColors.danger),
                   ),
                 ),
               ),
           // ── Quick Operations Grid Menu
-          const Text(
-            'Quick Operations',
-            style: TextStyle(
+          Text(
+            l10n.quickOperations,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: AppColors.grey800,
@@ -465,8 +489,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'HR Structure',
-                  description: 'Depts & branches',
+                  title: l10n.hrStructure,
+                  description: l10n.deptsAndBranches,
                   icon: Icons.corporate_fare_rounded,
                   color: const Color(0xFF6366F1),
                   routePath: AppRoutes.hrStructure,
@@ -474,8 +498,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin || authState.isBranchManager)
                 _buildGridItem(
                   context,
-                  title: 'KPIs',
-                  description: 'Performance goals',
+                  title: l10n.kpis,
+                  description: l10n.performanceGoals,
                   icon: Icons.track_changes_outlined,
                   color: AppColors.primary,
                   routePath: AppRoutes.kpi,
@@ -483,8 +507,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin || authState.isBranchManager)
                 _buildGridItem(
                   context,
-                  title: 'Employees',
-                  description: 'Manage staff',
+                  title: l10n.employees,
+                  description: l10n.manageStaff,
                   icon: Icons.people_rounded,
                   color: const Color(0xFF0EA5E9),
                   routePath: AppRoutes.adminEmployees,
@@ -492,8 +516,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin || authState.isBranchManager)
                 _buildGridItem(
                   context,
-                  title: 'Attendance',
-                  description: 'View logs',
+                  title: l10n.attendanceMenu,
+                  description: l10n.viewLogs,
                   icon: Icons.fingerprint_rounded,
                   color: const Color(0xFF14B8A6), // Teal
                   routePath: AppRoutes.adminAttendance,
@@ -501,8 +525,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin || authState.isBranchManager)
                 _buildGridItem(
                   context,
-                  title: 'Shift Rules',
-                  description: 'Work schedules',
+                  title: l10n.shiftRules,
+                  description: l10n.workSchedules,
                   icon: Icons.schedule_rounded,
                   color: const Color(0xFF10B981),
                   routePath: AppRoutes.adminShifts,
@@ -510,8 +534,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Holidays',
-                  description: 'Manage company holidays',
+                  title: l10n.holidays,
+                  description: l10n.manageCompanyHolidays,
                   icon: Icons.celebration_rounded,
                   color: const Color(0xFFEAB308), // Yellow
                   routePath: AppRoutes.adminHolidays,
@@ -519,8 +543,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin || authState.isBranchManager)
                 _buildGridItem(
                   context,
-                  title: 'Leave Requests',
-                  description: 'Review submissions',
+                  title: l10n.leaveRequests,
+                  description: l10n.reviewSubmissions,
                   icon: Icons.event_busy_rounded,
                   color: const Color(0xFFEF4444),
                   routePath: AppRoutes.adminLeave,
@@ -528,8 +552,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isBranchManager && !authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Branch Settings',
-                  description: 'Payroll & rules',
+                  title: l10n.branchSettings,
+                  description: l10n.payrollAndRules,
                   icon: Icons.settings_applications_rounded,
                   color: const Color(0xFFF97316),
                   onTap: () {
@@ -543,7 +567,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                       ));
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Branch information is missing. Please refresh profile.')),
+                        SnackBar(content: Text(l10n.branchInfoMissing)),
                       );
                     }
                   },
@@ -551,8 +575,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Payroll',
-                  description: 'Process runs',
+                  title: l10n.payroll,
+                  description: l10n.processRuns,
                   icon: Icons.payments_rounded,
                   color: const Color(0xFFF59E0B),
                   routePath: AppRoutes.adminPayroll,
@@ -560,8 +584,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Expense Claims',
-                  description: 'Review claims',
+                  title: l10n.expenseClaims,
+                  description: l10n.reviewClaims,
                   icon: Icons.receipt_long_rounded,
                   color: const Color(0xFFEC4899),
                   routePath: AppRoutes.adminExpenses,
@@ -569,8 +593,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Assets',
-                  description: 'Devices & stock',
+                  title: l10n.assets,
+                  description: l10n.devicesAndStock,
                   icon: Icons.devices_rounded,
                   color: const Color(0xFF6B7280),
                   routePath: AppRoutes.adminAssets,
@@ -578,8 +602,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Announcements',
-                  description: 'Broadcast alerts',
+                  title: l10n.announcements,
+                  description: l10n.broadcastAlerts,
                   icon: Icons.campaign_rounded,
                   color: const Color(0xFF8B5CF6),
                   routePath: AppRoutes.adminSendNotification,
@@ -587,8 +611,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Recruitment',
-                  description: 'Jobs & candidates',
+                  title: l10n.recruitment,
+                  description: l10n.jobsAndCandidates,
                   icon: Icons.work_outline_rounded,
                   color: const Color(0xFFF97316),
                   routePath: AppRoutes.adminRecruitment,
@@ -596,8 +620,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Performance',
-                  description: 'Reviews & training',
+                  title: l10n.performance,
+                  description: l10n.reviewsAndTraining,
                   icon: Icons.trending_up_rounded,
                   color: const Color(0xFFA855F7),
                   routePath: AppRoutes.adminPerformance,
@@ -605,8 +629,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Reports',
-                  description: 'Analytics & exports',
+                  title: l10n.reports,
+                  description: l10n.analyticsAndExports,
                   icon: Icons.assessment_rounded,
                   color: const Color(0xFF14B8A6),
                   routePath: AppRoutes.adminReports,
@@ -614,8 +638,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Documents',
-                  description: 'Company files',
+                  title: l10n.documents,
+                  description: l10n.companyFiles,
                   icon: Icons.folder_open_rounded,
                   color: const Color(0xFFF59E0B),
                   routePath: AppRoutes.adminDocuments,
@@ -623,8 +647,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Policies',
-                  description: 'Rules & guidelines',
+                  title: l10n.policies,
+                  description: l10n.rulesAndGuidelines,
                   icon: Icons.book_rounded,
                   color: const Color(0xFF3B82F6),
                   routePath: AppRoutes.adminPolicies,
@@ -632,8 +656,8 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               if (authState.isCompanyAdmin)
                 _buildGridItem(
                   context,
-                  title: 'Notifications',
-                  description: 'View inbox',
+                  title: l10n.notifications,
+                  description: l10n.viewInbox,
                   icon: Icons.notifications_rounded,
                   color: const Color(0xFFEF4444),
                   routePath: AppRoutes.notifications,
@@ -672,23 +696,23 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                   ),
                 ),
                 const SizedBox(width: 14),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'HR Portal Active',
-                        style: TextStyle(
+                        l10n.hrPortalActive,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: AppColors.grey800,
                           fontFamily: 'Inter',
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        'Process monthly payroll runs, manage dynamic shift rosters, and approve leaves on the go.',
-                        style: TextStyle(
+                        l10n.hrPortalDesc,
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.grey500,
                           height: 1.4,
@@ -766,6 +790,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
   Widget _buildWelcomeBanner({
     required String name,
     required String companyName,
+    required AppLocalizations l10n,
   }) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -812,9 +837,9 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                     color: AppColors.primary.withAlpha(50),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    '💼  Company Administrator',
-                    style: TextStyle(
+                  child: Text(
+                    '💼  ${l10n.companyAdministrator}',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

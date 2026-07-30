@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/services/payslip_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/payslip_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class PayslipScreen extends ConsumerWidget {
   const PayslipScreen({super.key});
@@ -12,11 +13,12 @@ class PayslipScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final payslipsAsync = ref.watch(payslipsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Digital Wallet'),
+        title: Text(l10n.digitalWallet),
         elevation: 0,
         backgroundColor: AppColors.backgroundLight,
         centerTitle: true,
@@ -28,23 +30,23 @@ class PayslipScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildBankCard(context, ref, payslips.isNotEmpty ? payslips.first : null),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
+                  _buildBankCard(context, ref, payslips.isNotEmpty ? payslips.first : null, l10n),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
                     child: Text(
-                      'Recent Transactions',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                      l10n.recentTransactions,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800),
                     ),
                   ),
                 ],
               ),
             ),
             if (payslips.isEmpty)
-              const SliverToBoxAdapter(
+              SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 40),
+                  padding: const EdgeInsets.only(top: 40),
                   child: Center(
-                    child: Text('No payslips available', style: TextStyle(color: AppColors.grey400)),
+                    child: Text(l10n.noPayslipsAvailable, style: const TextStyle(color: AppColors.grey400)),
                   ),
                 ),
               )
@@ -55,7 +57,7 @@ class PayslipScreen extends ConsumerWidget {
                     final p = payslips[i];
                     return _WalletCard(
                       payslip: p,
-                      onDownload: () => _handleDownload(context, p),
+                      onDownload: () => _handleDownload(context, p, l10n),
                     );
                   },
                   childCount: payslips.length,
@@ -64,21 +66,21 @@ class PayslipScreen extends ConsumerWidget {
             const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         ),
-        loading: () => const LoadingIndicator(message: 'Loading secure wallet...'),
+        loading: () => LoadingIndicator(message: l10n.loadingSecureWallet),
         error: (e, _) => Center(
           child: OutlinedButton.icon(
             onPressed: () => ref.invalidate(payslipsProvider),
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(l10n.retry),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildBankCard(BuildContext context, WidgetRef ref, PayslipData? latest) {
+  Widget _buildBankCard(BuildContext context, WidgetRef ref, PayslipData? latest, AppLocalizations l10n) {
     final authState = ref.watch(authProvider);
-    final employeeName = authState.userName ?? 'Employee';
+    final employeeName = authState.userName ?? l10n.employee;
     final amount = latest != null ? latest.netPay.toStringAsFixed(2) : '0.00';
 
     return Container(
@@ -118,9 +120,9 @@ class PayslipScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 32),
-          const Text(
-            'Last Net Pay',
-            style: TextStyle(
+          Text(
+            l10n.lastNetPay,
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -165,13 +167,13 @@ class PayslipScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleDownload(BuildContext context, PayslipData p) async {
+  Future<void> _handleDownload(BuildContext context, PayslipData p, AppLocalizations l10n) async {
     try {
       final repo = PayslipRepository();
       await repo.downloadPayslip(p.id?.toString() ?? p.period);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Download started'), backgroundColor: AppColors.success),
+          SnackBar(content: Text(l10n.downloadStarted), backgroundColor: AppColors.success),
         );
       }
     } catch (e) {
@@ -200,6 +202,7 @@ class _WalletCardState extends State<_WalletCard> {
   @override
   Widget build(BuildContext context) {
     final p = widget.payslip;
+    final l10n = AppLocalizations.of(context)!;
     final statusColor = p.status == 'completed'
         ? AppColors.success
         : p.status == 'processing'
@@ -239,7 +242,7 @@ class _WalletCardState extends State<_WalletCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(p.period, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                          Text(p.payDate ?? 'Pending', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                          Text(p.payDate ?? l10n.pending, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
                         ],
                       ),
                     ),
@@ -271,30 +274,30 @@ class _WalletCardState extends State<_WalletCard> {
                 ),
                 if (_expanded) ...[
                   const Divider(height: 20),
-                  _detailRow('Basic Salary', '\$${p.basicSalary.toStringAsFixed(2)}'),
-                  if (p.overtimePay > 0) _detailRow('Overtime Pay', '\$${p.overtimePay.toStringAsFixed(2)}', color: AppColors.info),
-                  if (p.allowances > 0) _detailRow('Allowances', '\$${p.allowances.toStringAsFixed(2)}'),
+                  _detailRow(l10n.basicSalary, '\$${p.basicSalary.toStringAsFixed(2)}'),
+                  if (p.overtimePay > 0) _detailRow(l10n.overtimePay, '\$${p.overtimePay.toStringAsFixed(2)}', color: AppColors.info),
+                  if (p.allowances > 0) _detailRow(l10n.allowances, '\$${p.allowances.toStringAsFixed(2)}'),
                   const SizedBox(height: 4),
-                  _detailRow('Gross Pay', '\$${p.grossPay.toStringAsFixed(2)}', bold: true),
+                  _detailRow(l10n.grossPay, '\$${p.grossPay.toStringAsFixed(2)}', bold: true),
                   const SizedBox(height: 8),
-                  if (p.taxDeduction > 0) _detailRow('Tax', '-\$${p.taxDeduction.toStringAsFixed(2)}', color: AppColors.danger),
-                  if (p.insuranceDeduction > 0) _detailRow('Insurance', '-\$${p.insuranceDeduction.toStringAsFixed(2)}', color: AppColors.danger),
-                  if (p.lateDeduction > 0) _detailRow('Late Deduction', '-\$${p.lateDeduction.toStringAsFixed(2)}', color: AppColors.warning),
-                  if (p.earlyLeaveDeduction > 0) _detailRow('Early Leave Deduction', '-\$${p.earlyLeaveDeduction.toStringAsFixed(2)}', color: AppColors.warning),
+                  if (p.taxDeduction > 0) _detailRow(l10n.tax, '-\$${p.taxDeduction.toStringAsFixed(2)}', color: AppColors.danger),
+                  if (p.insuranceDeduction > 0) _detailRow(l10n.insurance, '-\$${p.insuranceDeduction.toStringAsFixed(2)}', color: AppColors.danger),
+                  if (p.lateDeduction > 0) _detailRow(l10n.lateDeduction, '-\$${p.lateDeduction.toStringAsFixed(2)}', color: AppColors.warning),
+                  if (p.earlyLeaveDeduction > 0) _detailRow(l10n.earlyLeaveDeduction, '-\$${p.earlyLeaveDeduction.toStringAsFixed(2)}', color: AppColors.warning),
                   const SizedBox(height: 4),
-                  _detailRow('Total Deductions', '-\$${p.totalDeductions.toStringAsFixed(2)}', color: AppColors.danger, bold: true),
+                  _detailRow(l10n.totalDeductions, '-\$${p.totalDeductions.toStringAsFixed(2)}', color: AppColors.danger, bold: true),
                   const Divider(height: 16),
-                  _detailRow('Net Pay', '\$${p.netPay.toStringAsFixed(2)}', bold: true, netRow: true),
+                  _detailRow(l10n.netPay, '\$${p.netPay.toStringAsFixed(2)}', bold: true, netRow: true),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _statChip('Working Days', p.workingDays.toString(), AppColors.primary),
-                      _statChip('Present', p.presentDays.toString(), AppColors.success),
-                      _statChip('Late', p.lateDays.toString(), AppColors.warning),
+                      _statChip(l10n.workingDays, p.workingDays.toString(), AppColors.primary),
+                      _statChip(l10n.present, p.presentDays.toString(), AppColors.success),
+                      _statChip(l10n.late, p.lateDays.toString(), AppColors.warning),
                       if (p.earlyLeaveDays > 0)
-                        _statChip('Early Out', p.earlyLeaveDays.toString(), Colors.orange),
-                      _statChip('OT Hours', p.overtimeHours.toString(), AppColors.info),
+                        _statChip(l10n.earlyOut, p.earlyLeaveDays.toString(), Colors.orange),
+                      _statChip(l10n.otHours, p.overtimeHours.toString(), AppColors.info),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -303,7 +306,7 @@ class _WalletCardState extends State<_WalletCard> {
                     child: OutlinedButton.icon(
                       onPressed: widget.onDownload,
                       icon: const Icon(Icons.download, size: 18),
-                      label: const Text('Download PDF'),
+                      label: Text(l10n.downloadPdf),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         side: const BorderSide(color: AppColors.primary),

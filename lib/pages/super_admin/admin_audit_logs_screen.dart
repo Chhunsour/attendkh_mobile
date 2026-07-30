@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_audit_logs_repository.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 final adminAuditLogsProvider =
     FutureProvider.autoDispose<List<AdminAuditLog>>((ref) {
@@ -40,6 +41,7 @@ class AdminAuditLogsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final logsAsync = ref.watch(adminAuditLogsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -47,9 +49,9 @@ class AdminAuditLogsScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Audit Logs',
-          style: TextStyle(
+        title: Text(
+          l10n.auditLogsTitle,
+          style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -63,24 +65,24 @@ class AdminAuditLogsScreen extends ConsumerWidget {
           loading: () => const Center(
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
-          error: (err, _) => _buildError(context, err, ref),
-          data: (logs) => _buildList(context, logs),
+          error: (err, _) => _buildError(context, err, ref, l10n),
+          data: (logs) => _buildList(context, logs, l10n),
         ),
       ),
     );
   }
 
-  Widget _buildError(BuildContext context, Object err, WidgetRef ref) {
+  Widget _buildError(BuildContext context, Object err, WidgetRef ref, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
+            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
             const SizedBox(height: 16),
-            Text('Failed to load audit logs',
-                style: TextStyle(
+            Text(l10n.failedToLoadAuditLogs,
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.grey800)),
@@ -92,7 +94,7 @@ class AdminAuditLogsScreen extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(adminAuditLogsProvider),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Retry'),
+              label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -106,16 +108,16 @@ class AdminAuditLogsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, List<AdminAuditLog> logs) {
+  Widget _buildList(BuildContext context, List<AdminAuditLog> logs, AppLocalizations l10n) {
     if (logs.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.history_rounded, size: 64, color: AppColors.grey300),
+            const Icon(Icons.history_rounded, size: 64, color: AppColors.grey300),
             const SizedBox(height: 16),
-            Text('No audit logs yet',
-                style: TextStyle(
+            Text(l10n.noAuditLogsYet,
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.grey500)),
@@ -142,7 +144,7 @@ class AdminAuditLogsScreen extends ConsumerWidget {
         return Padding(
           padding: const EdgeInsets.only(bottom: 4),
           child: InkWell(
-            onTap: () => _showDetails(context, log),
+            onTap: () => _showDetails(context, log, l10n),
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.all(14),
@@ -194,7 +196,7 @@ class AdminAuditLogsScreen extends ConsumerWidget {
                           child: Text(
                             [
                               if (log.performedBy != null)
-                                'By ${log.performedBy}',
+                                l10n.byUser(log.performedBy!),
                               if (log.createdAt != null) '• ${_formatDate(log.createdAt)}',
                             ].join(' '),
                             style: TextStyle(
@@ -237,11 +239,11 @@ class AdminAuditLogsScreen extends ConsumerWidget {
     }
   }
 
-  void _showDetails(BuildContext context, AdminAuditLog log) {
+  void _showDetails(BuildContext context, AdminAuditLog log, AppLocalizations l10n) {
     if (log.changes == null || log.changes!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('No details available for this log'),
+          content: Text(l10n.noDetailsAvailable),
           backgroundColor: AppColors.grey800,
           behavior: SnackBarBehavior.floating,
         ),
@@ -277,7 +279,7 @@ class AdminAuditLogsScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Changes',
+                l10n.changesTitle,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -381,9 +383,9 @@ class AdminAuditLogsScreen extends ConsumerWidget {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Close',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.closeBtn,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),

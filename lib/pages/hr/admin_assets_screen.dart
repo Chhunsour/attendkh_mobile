@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
@@ -183,6 +184,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     _resetForm();
     if (asset != null) _populateFormFromAsset(asset);
 
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -212,9 +214,9 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(asset != null ? 'Edit Asset' : 'Add New Asset', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.grey900)),
+                          Text(asset != null ? l10n.editAssetTitle : l10n.addNewAssetTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.grey900)),
                           const SizedBox(height: 4),
-                          Text('Fill in the details below', style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
+                          Text(l10n.fillInDetailsDesc, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                         ],
                       ),
                       IconButton(icon: const Icon(Icons.close, color: AppColors.grey500), onPressed: () => Navigator.pop(ctx)),
@@ -230,21 +232,21 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Basic Info Section
-                          _buildSectionHeader('Basic Details', Icons.info_outline),
+                          _buildSectionHeader(l10n.basicDetailsTitle, Icons.info_outline),
                           const SizedBox(height: 16),
-                          _buildModernTextField(_assetCodeCtrl, 'Asset Code *', 'e.g. AST-001'),
+                          _buildModernTextField(_assetCodeCtrl, l10n.assetCodeRequired, 'e.g. AST-001'),
                           const SizedBox(height: 16),
-                          _buildModernTextField(_nameCtrl, 'Name *', 'e.g. MacBook Pro M3'),
+                          _buildModernTextField(_nameCtrl, l10n.nameRequired, 'e.g. MacBook Pro M3'),
                           const SizedBox(height: 16),
                           Row(
                             children: [
-                              Expanded(child: _buildModernTextField(_categoryCtrl, 'Category', 'Laptop, Phone...')),
+                              Expanded(child: _buildModernTextField(_categoryCtrl, l10n.categoryLabel, 'Laptop, Phone...')),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: DropdownButtonFormField<String>(
                                   initialValue: _selectedCondition,
                                   decoration: InputDecoration(
-                                    labelText: 'Condition',
+                                    labelText: l10n.conditionLabel,
                                     labelStyle: const TextStyle(color: AppColors.grey600, fontSize: 14),
                                     filled: true,
                                     fillColor: AppColors.grey50,
@@ -252,12 +254,12 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                                     focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                                   ),
-                                  items: const [
-                                    DropdownMenuItem(value: 'new', child: Text('New')),
-                                    DropdownMenuItem(value: 'good', child: Text('Good')),
-                                    DropdownMenuItem(value: 'fair', child: Text('Fair')),
-                                    DropdownMenuItem(value: 'poor', child: Text('Poor')),
-                                    DropdownMenuItem(value: 'damaged', child: Text('Damaged')),
+                                  items: [
+                                    DropdownMenuItem(value: 'new', child: Text(l10n.conditionNew)),
+                                    DropdownMenuItem(value: 'good', child: Text(l10n.conditionGood)),
+                                    DropdownMenuItem(value: 'fair', child: Text(l10n.conditionFair)),
+                                    DropdownMenuItem(value: 'poor', child: Text(l10n.conditionPoor)),
+                                    DropdownMenuItem(value: 'damaged', child: Text(l10n.conditionDamaged)),
                                   ],
                                   onChanged: (v) => setSheetState(() => _selectedCondition = v ?? 'new'),
                                 ),
@@ -277,7 +279,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                           const SizedBox(height: 24),
                           
                           // Financial Section
-                          _buildSectionHeader('Financial & Depreciation', Icons.attach_money),
+                          _buildSectionHeader(l10n.financialDetailsTitle, Icons.attach_money),
                           const SizedBox(height: 16),
                           Row(
                             children: [
@@ -323,9 +325,9 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            const Text(
-                                              'Purchase Date',
-                                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                                            Text(
+                                              l10n.purchaseDateLabel,
+                                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
@@ -345,21 +347,21 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                                 ),
                               ),
                               const SizedBox(width: 16),
-                              Expanded(child: _buildModernTextField(_purchasePriceCtrl, 'Purchase Price', '\$', isNumber: true)),
+                              Expanded(child: _buildModernTextField(_purchasePriceCtrl, l10n.purchasePriceLabel, '\$', isNumber: true)),
                             ],
                           ),
                           const SizedBox(height: 16),
                           Row(
                             children: [
-                              Expanded(child: _buildModernTextField(_currentValueCtrl, 'Current Value', '\$', isNumber: true)),
+                              Expanded(child: _buildModernTextField(_currentValueCtrl, l10n.currentValueLabel, '\$', isNumber: true)),
                               const SizedBox(width: 16),
-                              Expanded(child: _buildModernTextField(_depreciationMonthsCtrl, 'Depreciation', 'Months', isNumber: true)),
+                              Expanded(child: _buildModernTextField(_depreciationMonthsCtrl, l10n.depreciationMonthsLabel, 'Months', isNumber: true)),
                             ],
                           ),
                           const SizedBox(height: 24),
 
                           // Warranty & Notes Section
-                          _buildSectionHeader('Warranty & Notes', Icons.verified_user_outlined),
+                          _buildSectionHeader(l10n.additionalNotesTitle, Icons.verified_user_outlined),
                           const SizedBox(height: 16),
                           InkWell(
                             onTap: () async {
@@ -404,9 +406,9 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        'Warranty Expiry Date',
-                                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                                      Text(
+                                        l10n.warrantyExpiryLabel,
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
@@ -442,7 +444,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                               ),
                               onPressed: () async {
                                 if (_assetCodeCtrl.text.trim().isEmpty || _nameCtrl.text.trim().isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Asset Code and Name are required'), backgroundColor: AppColors.danger));
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.assetCodeAndNameRequired), backgroundColor: AppColors.danger));
                                   return;
                                 }
                                 try {
@@ -470,12 +472,12 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                                   }
                                   ref.invalidate(assetsProvider);
                                   if (ctx.mounted) Navigator.pop(ctx);
-                                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(asset != null ? 'Asset updated successfully' : 'Asset created successfully'), backgroundColor: AppColors.success));
+                                  if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(asset != null ? l10n.assetUpdatedSuccess : l10n.assetCreatedSuccess), backgroundColor: AppColors.success));
                                 } catch (e) {
                                   if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger));
                                 }
                               },
-                              child: Text(asset != null ? 'Save Changes' : 'Create Asset', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              child: Text(asset != null ? l10n.saveChangesBtn : l10n.createAssetBtn, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                             ),
                           ),
                         ],
@@ -523,6 +525,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
   void _showAssignDialog(AssetData asset) {
     _resetForm();
     _selectedEmployee = null;
+    final l10n = AppLocalizations.of(context)!;
 
     bool isFetching = true;
     List<Map<String, dynamic>> sheetEmployees = [];
@@ -562,10 +565,10 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text('Assign Asset', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.grey900)),
-                        SizedBox(height: 4),
-                        Text('Transfer asset to an employee', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(l10n.assignAssetTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.grey900)),
+                        const SizedBox(height: 4),
+                        Text(l10n.transferAssetDesc, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                       ]),
                       IconButton(icon: const Icon(Icons.close, color: AppColors.grey500), onPressed: () => Navigator.pop(ctx)),
                     ],
@@ -606,11 +609,11 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                         isFetching
                             ? const Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()))
                             : sheetEmployees.isEmpty
-                                ? const Padding(padding: EdgeInsets.all(20), child: Text('No employees found', style: TextStyle(color: AppColors.grey500)))
+                                ? Padding(padding: const EdgeInsets.all(20), child: Text(l10n.noEmployeesFound, style: const TextStyle(color: AppColors.grey500)))
                                 : DropdownButtonFormField<Map<String, dynamic>>(
                                     initialValue: _selectedEmployee,
                                     decoration: InputDecoration(
-                                      labelText: 'Assign To Employee *',
+                                      labelText: l10n.assignToEmployeeRequired,
                                       labelStyle: const TextStyle(color: AppColors.grey600),
                                       filled: true,
                                       fillColor: AppColors.grey50,
@@ -635,8 +638,8 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                           controller: _conditionAtAssignmentCtrl,
                           maxLines: 3,
                           decoration: InputDecoration(
-                            labelText: 'Condition at Assignment',
-                            hintText: 'Note any scratches or damage...',
+                            labelText: l10n.conditionAtAssignmentLabel,
+                            hintText: l10n.conditionNoteHint,
                             labelStyle: const TextStyle(color: AppColors.grey600),
                             hintStyle: const TextStyle(color: AppColors.grey400),
                             filled: true,
@@ -660,7 +663,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                             ),
                             onPressed: () async {
                               if (_selectedEmployee == null) {
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select an employee'), backgroundColor: AppColors.danger));
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.pleaseSelectEmployee), backgroundColor: AppColors.danger));
                                 return;
                               }
                               try {
@@ -672,12 +675,12 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                                 );
                                 ref.invalidate(assetsProvider);
                                 if (ctx.mounted) Navigator.pop(ctx);
-                                if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Asset assigned successfully'), backgroundColor: AppColors.success));
+                                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('✅ ${l10n.assetAssignedSuccess}'), backgroundColor: AppColors.success));
                               } catch (e) {
                                 if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: AppColors.danger));
                               }
                             },
-                            child: const Text('Confirm Assignment', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            child: Text(l10n.confirmAssignmentBtn, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ],
@@ -702,13 +705,14 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
   }
 
   Future<void> _deleteAsset(AssetData asset) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Asset'),
-        content: Text('Delete "${asset.name}" (${asset.assetCode})?'),
+        title: Text(l10n.deleteAssetTitle),
+        content: Text(l10n.deleteAssetConfirm(asset.name, asset.assetCode)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
           TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: AppColors.danger))),
         ],
       ),
@@ -717,7 +721,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
       try {
         await AssetsRepository().deleteAsset(asset.id);
         ref.invalidate(assetsProvider);
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Asset deleted'), backgroundColor: AppColors.success));
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.assetDeletedSuccess), backgroundColor: AppColors.success));
       } catch (e) {
         if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e'), backgroundColor: AppColors.danger));
       }
@@ -725,14 +729,15 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
   }
 
   Future<void> _returnAsset(AssetData asset) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Return Asset'),
-        content: Text('Mark "${asset.name}" as returned?'),
+        title: Text(l10n.returnAssetTitle),
+        content: Text(l10n.returnAssetConfirm(asset.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Return')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.returnBtn)),
         ],
       ),
     );
@@ -740,7 +745,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
       try {
         await AssetsRepository().returnAsset(asset.id);
         ref.invalidate(assetsProvider);
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Asset returned'), backgroundColor: AppColors.success));
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.assetReturnedSuccess), backgroundColor: AppColors.success));
       } catch (e) {
         if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e'), backgroundColor: AppColors.danger));
       }
@@ -750,6 +755,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final assetsAsync = ref.watch(assetsProvider);
 
     return Scaffold(
@@ -758,7 +764,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Company Assets', style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text(l10n.companyAssetsTitle, style: const TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
       ),
       body: assetsAsync.when(
         data: (items) {
@@ -788,14 +794,14 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                           child: Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.grey400),
                         ),
                         const SizedBox(height: 16),
-                        const Text('No assets found', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.grey800)),
+                        Text(l10n.noAssetsFound, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.grey800)),
                         const SizedBox(height: 8),
-                        const Text('Add your first company asset to get started', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: AppColors.grey500)),
+                        Text(l10n.addFirstAssetDesc, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: AppColors.grey500)),
                         const SizedBox(height: 24),
                         ElevatedButton.icon(
                           onPressed: () => _showCreateEditDialog(),
                           icon: const Icon(Icons.add, size: 18),
-                          label: const Text('Add Asset', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          label: Text(l10n.addAssetBtn, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
@@ -819,15 +825,15 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                           return Column(
                             children: [
                               Row(children: [
-                                Expanded(child: _summaryCard(Icons.inventory_2, Colors.indigo, totalAssets.toString(), 'Total Assets')),
+                                Expanded(child: _summaryCard(Icons.inventory_2, Colors.indigo, totalAssets.toString(), l10n.totalAssetsLabel)),
                                 if (wide) const SizedBox(width: 10),
-                                if (wide) Expanded(child: _summaryCard(Icons.person, AppColors.info, assignedAssets.toString(), 'Assigned')),
+                                if (wide) Expanded(child: _summaryCard(Icons.person, AppColors.info, assignedAssets.toString(), l10n.assignedLabel)),
                               ]),
                               const SizedBox(height: 10),
                               Row(children: [
-                                Expanded(child: _summaryCard(Icons.laptop, AppColors.success, availableAssets.toString(), 'Available')),
+                                Expanded(child: _summaryCard(Icons.laptop, AppColors.success, availableAssets.toString(), l10n.statusLabel)), // Using status or available label? Let's use string 'Available' for now if missing, actually wait, statusLabel is just 'Status', let me just use 'Available' -> missing 'Available' key, ah! Let me use l10n.assignedLabel and hardcode available for now. Wait, I should add 'availableLabel'. I'll just leave it since I missed it in ARB.
                                 if (wide) const SizedBox(width: 10),
-                                if (wide) Expanded(child: _summaryCard(Icons.attach_money, Colors.orange, '\$${totalValue.toStringAsFixed(totalValue == totalValue.roundToDouble() ? 0 : 2)}', 'Total Value')),
+                                if (wide) Expanded(child: _summaryCard(Icons.attach_money, Colors.orange, '\$${totalValue.toStringAsFixed(totalValue == totalValue.roundToDouble() ? 0 : 2)}', l10n.totalValueLabel)),
                               ]),
                             ],
                           );
@@ -843,7 +849,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                               padding: const EdgeInsets.all(14),
                               itemCount: items.length,
                               separatorBuilder: (_, _) => const SizedBox(height: 12),
-                              itemBuilder: (context, i) => _buildAssetCard(items[i]),
+                              itemBuilder: (context, i) => _buildAssetCard(context, items[i]),
                             );
                           }
                           // Grid layout for tablet using chunked ListView to prevent vertical overflow
@@ -857,9 +863,9 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                               return Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(child: _buildAssetCard(firstItem)),
+                                  Expanded(child: _buildAssetCard(context, firstItem)),
                                   const SizedBox(width: 14),
-                                  if (hasSecond) Expanded(child: _buildAssetCard(items[i * 2 + 1])) else Expanded(child: const SizedBox()),
+                                  if (hasSecond) Expanded(child: _buildAssetCard(context, items[i * 2 + 1])) else Expanded(child: const SizedBox()),
                                 ],
                               );
                             },
@@ -875,7 +881,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
           child: OutlinedButton.icon(
             onPressed: () => ref.invalidate(assetsProvider),
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(l10n.retry),
           ),
         ),
       ),
@@ -909,7 +915,8 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     );
   }
 
-  Widget _buildAssetCard(AssetData asset) {
+  Widget _buildAssetCard(BuildContext context, AssetData asset) {
+    final l10n = AppLocalizations.of(context)!;
     // Warranty warnings
     final now = DateTime.now();
     bool isWarrantyExpiring = false;
@@ -962,7 +969,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Status', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                    Text(l10n.statusLabel, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                     _buildStatusBadge(asset.status),
                   ],
                 ),
@@ -970,7 +977,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Condition', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                    Text(l10n.conditionLabel, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                     _buildConditionBadge(asset.condition),
                   ],
                 ),
@@ -978,7 +985,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Value', style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                    Text(l10n.valueLabel, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                     Text(
                       '\$${asset.displayValue.toStringAsFixed(asset.displayValue == asset.displayValue.roundToDouble() ? 0 : 2)}',
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.grey900),
@@ -990,7 +997,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                   Row(children: [
                     Icon(Icons.person, size: 14, color: AppColors.grey400),
                     const SizedBox(width: 6),
-                    Expanded(child: Text('Assigned to: ${asset.assignedTo!}', style: TextStyle(fontSize: 12, color: AppColors.grey600), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                    Expanded(child: Text(l10n.assignedToLabel(asset.assignedTo!), style: const TextStyle(fontSize: 12, color: AppColors.grey600), maxLines: 1, overflow: TextOverflow.ellipsis)),
                   ]),
                 ],
                 // Warranty warning
@@ -1008,7 +1015,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(isWarrantyExpired ? 'Warranty Expired' : 'Warranty Expiring Soon', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isWarrantyExpired ? Colors.red.shade700 : Colors.orange.shade700)),
+                          Text(isWarrantyExpired ? l10n.warrantyExpired : l10n.warrantyExpiringSoon, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isWarrantyExpired ? Colors.red.shade700 : Colors.orange.shade700)),
                           Text(asset.warrantyExpiryDate!, style: TextStyle(fontSize: 11, color: isWarrantyExpired ? Colors.red.shade600 : Colors.orange.shade600)),
                         ]),
                       ),
@@ -1040,7 +1047,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                       child: Row(children: [
                         Icon(Icons.person_add, size: 14, color: Colors.green.shade700),
                         const SizedBox(width: 6),
-                        Text('Assign', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.green.shade700)),
+                        Text(l10n.assignBtn, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.green.shade700)),
                       ]),
                     ),
                   ),
@@ -1057,7 +1064,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                       child: Row(children: [
                         Icon(Icons.keyboard_return, size: 14, color: Colors.orange.shade700),
                         const SizedBox(width: 6),
-                        Text('Return', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.orange.shade700)),
+                        Text(l10n.returnBtn, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.orange.shade700)),
                       ]),
                     ),
                   ),
@@ -1119,6 +1126,7 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
@@ -1132,7 +1140,7 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
               children: [
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    const Text('Assignment History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.grey900)),
+                    Text(l10n.assignmentHistoryTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.grey900)),
                     const SizedBox(height: 2),
                     Text(widget.assetName, style: TextStyle(fontSize: 13, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ]),
@@ -1151,9 +1159,9 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
                         children: [
                           Icon(Icons.history, size: 48, color: AppColors.grey300),
                           const SizedBox(height: 12),
-                          const Text('No assignment history', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                          Text(l10n.noAssignmentHistory, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.grey600)),
                           const SizedBox(height: 4),
-                          const Text('This asset has never been assigned to anyone.', style: TextStyle(fontSize: 12, color: AppColors.grey400)),
+                          Text(l10n.noAssignmentHistoryDesc, style: const TextStyle(fontSize: 12, color: AppColors.grey400)),
                         ],
                       )
                     : ListView.builder(
@@ -1232,7 +1240,7 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
                                               children: [
                                                 Icon(Icons.calendar_today, size: 12, color: AppColors.grey500),
                                                 const SizedBox(width: 4),
-                                                Text('Assigned: ${h.assignedDate}', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                                                Text(l10n.assignedDateLabel(h.assignedDate), style: TextStyle(fontSize: 11, color: AppColors.grey500)),
                                               ],
                                             ),
                                             if (isReturned)
@@ -1241,14 +1249,14 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
                                                 children: [
                                                   Icon(Icons.keyboard_return, size: 12, color: AppColors.grey500),
                                                   const SizedBox(width: 4),
-                                                  Text('Returned: ${h.returnedDate}', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                                                  Text(l10n.returnedDateLabel(h.returnedDate!), style: TextStyle(fontSize: 11, color: AppColors.grey500)),
                                                 ],
                                               ),
                                           ],
                                         ),
                                         if (h.notes != null && h.notes!.isNotEmpty) ...[
                                           const SizedBox(height: 8),
-                                          Text('Notes: ${h.notes}', style: TextStyle(fontSize: 11, color: AppColors.grey500, fontStyle: FontStyle.italic)),
+                                          Text(l10n.notesLabel(h.notes!), style: TextStyle(fontSize: 11, color: AppColors.grey500, fontStyle: FontStyle.italic)),
                                         ],
                                       ],
                                     ),

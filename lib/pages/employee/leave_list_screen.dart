@@ -7,6 +7,7 @@ import 'package:mpg_hr_mobile_app/services/leave_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/leave_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class LeaveListScreen extends ConsumerWidget {
   const LeaveListScreen({super.key});
@@ -14,10 +15,11 @@ class LeaveListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final balancesAsync = ref.watch(leaveBalancesProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Leave Management'),
+        title: Text(l10n.leaveManagement),
         actions: [
           IconButton(
             icon: const Icon(Icons.history),
@@ -46,14 +48,14 @@ class LeaveListScreen extends ConsumerWidget {
           child: InkWell(
             onTap: () => context.push(AppRoutes.leaveRequest),
             borderRadius: BorderRadius.circular(30),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.add_circle_outline, color: Colors.white, size: 22),
-                  SizedBox(width: 8),
-                  Text('Request Leave', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: 0.5)),
+                   const Icon(Icons.add_circle_outline, color: Colors.white, size: 22),
+                   const SizedBox(width: 8),
+                  Text(l10n.requestLeave, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: 0.5)),
                 ],
               ),
             ),
@@ -61,8 +63,8 @@ class LeaveListScreen extends ConsumerWidget {
         ),
       ),
       body: balancesAsync.when(
-        data: (balances) => _buildContent(context, ref, balances),
-        loading: () => const LoadingIndicator(message: 'Loading balances...'),
+        data: (balances) => _buildContent(context, ref, balances, l10n),
+        loading: () => LoadingIndicator(message: l10n.loadingBalances),
         error: (e, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -72,7 +74,7 @@ class LeaveListScreen extends ConsumerWidget {
               OutlinedButton.icon(
                 onPressed: () => ref.invalidate(leaveBalancesProvider),
                 icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: Text(l10n.retry),
               ),
             ],
           ),
@@ -81,7 +83,7 @@ class LeaveListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, WidgetRef ref, List<LeaveBalance> balances) {
+  Widget _buildContent(BuildContext context, WidgetRef ref, List<LeaveBalance> balances, AppLocalizations l10n) {
     final requestsAsync = ref.watch(leaveRequestsProvider);
 
     return Column(
@@ -97,28 +99,28 @@ class LeaveListScreen extends ConsumerWidget {
                 itemCount: balances.length,
                 clipBehavior: Clip.none,
                 separatorBuilder: (_, _) => const SizedBox(width: 16),
-                itemBuilder: (context, i) => _LeaveBalanceCard(balance: balances[i]),
+                itemBuilder: (context, i) => _LeaveBalanceCard(balance: balances[i], l10n: l10n),
               ),
             ),
           )
         else
           Container(
             padding: const EdgeInsets.all(16),
-            child: const Text('No leave balances found', style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.noLeaveBalances, style: const TextStyle(color: AppColors.grey400)),
           ),
 
         // Leave History
         Expanded(
           child: requestsAsync.when(
             data: (requests) => requests.isEmpty
-                ? const Center(child: Text('No leave history', style: TextStyle(color: AppColors.grey400)))
+                ? Center(child: Text(l10n.noLeaveHistory, style: const TextStyle(color: AppColors.grey400)))
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: requests.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
-                    itemBuilder: (context, i) => _LeaveRequestCard(request: requests[i]),
+                    itemBuilder: (context, i) => _LeaveRequestCard(request: requests[i], l10n: l10n),
                   ),
-            loading: () => const LoadingIndicator(message: 'Loading history...'),
+            loading: () => LoadingIndicator(message: l10n.loadingHistory),
             error: (e, _) => const SizedBox.shrink(),
           ),
         ),
@@ -129,7 +131,8 @@ class LeaveListScreen extends ConsumerWidget {
 
 class _LeaveBalanceCard extends StatelessWidget {
   final LeaveBalance balance;
-  const _LeaveBalanceCard({required this.balance});
+  final AppLocalizations l10n;
+  const _LeaveBalanceCard({required this.balance, required this.l10n});
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +193,7 @@ class _LeaveBalanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '${used.toStringAsFixed(used % 1 == 0 ? 0 : 1)} / ${total.toStringAsFixed(total % 1 == 0 ? 0 : 1)} used',
+            '${used.toStringAsFixed(used % 1 == 0 ? 0 : 1)} / ${total.toStringAsFixed(total % 1 == 0 ? 0 : 1)}${l10n.usedLabel}',
             style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontWeight: FontWeight.w500),
           ),
         ],
@@ -201,7 +204,8 @@ class _LeaveBalanceCard extends StatelessWidget {
 
 class _LeaveRequestCard extends ConsumerWidget {
   final LeaveRequest request;
-  const _LeaveRequestCard({required this.request});
+  final AppLocalizations l10n;
+  const _LeaveRequestCard({required this.request, required this.l10n});
 
   Color get _statusColor {
     switch (request.status) {
@@ -253,7 +257,7 @@ class _LeaveRequestCard extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(color: Colors.blue.withAlpha(30), borderRadius: BorderRadius.circular(4)),
-                        child: const Text('HALF', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue)),
+                        child: Text(l10n.halfLabel, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue)),
                       ),
                     ],
                   ],
@@ -270,9 +274,9 @@ class _LeaveRequestCard extends ConsumerWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      Icon(Icons.attach_file, size: 12, color: AppColors.primary),
+                      const Icon(Icons.attach_file, size: 12, color: AppColors.primary),
                       const SizedBox(width: 4),
-                      const Text('Attachment included', style: TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w500)),
+                      Text(l10n.attachmentIncluded, style: const TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w500)),
                     ],
                   ),
                 ]
@@ -293,11 +297,11 @@ class _LeaveRequestCard extends ConsumerWidget {
               if (request.status == 'pending') ...[
                 const SizedBox(height: 12),
                 InkWell(
-                  onTap: () => _cancelRequest(context, ref),
+                  onTap: () => _cancelRequest(context, ref, l10n),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(border: Border.all(color: AppColors.danger.withAlpha(100)), borderRadius: BorderRadius.circular(12)),
-                    child: const Text('Cancel', style: TextStyle(color: AppColors.danger, fontSize: 12, fontWeight: FontWeight.w600)),
+                    child: Text(l10n.cancel, style: const TextStyle(color: AppColors.danger, fontSize: 12, fontWeight: FontWeight.w600)),
                   ),
                 ),
               ]
@@ -308,15 +312,15 @@ class _LeaveRequestCard extends ConsumerWidget {
     );
   }
 
-  Future<void> _cancelRequest(BuildContext context, WidgetRef ref) async {
+  Future<void> _cancelRequest(BuildContext context, WidgetRef ref, AppLocalizations l10n) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Cancel Request'),
-        content: const Text('Are you sure you want to cancel this leave request?'),
+        title: Text(l10n.cancelRequest),
+        content: Text(l10n.cancelLeaveConfirm),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Yes, cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.no)),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.yesCancel)),
         ],
       ),
     );
@@ -329,7 +333,7 @@ class _LeaveRequestCard extends ConsumerWidget {
         ref.invalidate(leaveRequestsProvider);
         // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Leave request cancelled'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+          SnackBar(content: Text(l10n.leaveRequestCancelled), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
         );
       } catch (e) {
         // ignore: use_build_context_synchronously
