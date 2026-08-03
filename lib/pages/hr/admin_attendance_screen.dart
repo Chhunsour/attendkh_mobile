@@ -112,7 +112,7 @@ class _DailyLogsTab extends ConsumerWidget {
                 final c = items[i];
                 final statusColor = c.status == 'present' ? AppColors.success : c.status == 'late' || c.status == 'early_leave' ? AppColors.warning : AppColors.danger;
                 
-                final hasUnapprovedEarlyIn = (c.earlyClockInMinutes ?? 0) > 0 && (c.approvedPreShiftOtMinutes ?? 0) == 0;
+                final hasUnapprovedEarlyIn = (c.earlyClockInMinutes ?? 0) > 0 && (c.approvedPreShiftOtMinutes ?? 0) == 0 && c.canApprovePreShiftOt;
                 
                 return Container(
                   padding: const EdgeInsets.all(14),

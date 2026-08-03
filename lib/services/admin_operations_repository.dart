@@ -57,6 +57,7 @@ class AdminAttendanceRecord {
   final double? workHours;
   final int? earlyClockInMinutes;
   final int? approvedPreShiftOtMinutes;
+  final bool canApprovePreShiftOt;
 
   const AdminAttendanceRecord({
     required this.id,
@@ -69,6 +70,7 @@ class AdminAttendanceRecord {
     this.workHours,
     this.earlyClockInMinutes,
     this.approvedPreShiftOtMinutes,
+    this.canApprovePreShiftOt = false,
   });
 
   factory AdminAttendanceRecord.fromJson(Map<String, dynamic> json) {
@@ -88,6 +90,7 @@ class AdminAttendanceRecord {
           : null,
       earlyClockInMinutes: json['early_clock_in_minutes'] as int?,
       approvedPreShiftOtMinutes: json['approved_pre_shift_ot_minutes'] as int?,
+      canApprovePreShiftOt: json['can_approve_pre_shift_ot'] == true,
     );
   }
 }
