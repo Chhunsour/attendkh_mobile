@@ -273,7 +273,10 @@ class EmployeeData {
   final String? employmentType;
   final String? employmentStatus;
   final String? joinDate;
+  final String? probationEndDate;
   final String? terminationDate;
+  final String? team;
+  final String? manager;
   final String? avatar;
   final double? salary;
   final int? departmentId;
@@ -309,7 +312,10 @@ class EmployeeData {
     this.employmentType,
     this.employmentStatus,
     this.joinDate,
+    this.probationEndDate,
     this.terminationDate,
+    this.team,
+    this.manager,
     this.avatar,
     this.salary,
     this.departmentId,
@@ -347,7 +353,10 @@ class EmployeeData {
       employmentType: json['employment_type'] as String?,
       employmentStatus: json['employment_status'] as String?,
       joinDate: json['hire_date'] as String? ?? json['join_date'] as String?,
+      probationEndDate: json['probation_end_date'] as String?,
       terminationDate: json['termination_date'] as String?,
+      team: json['team']?['name'] as String? ?? json['team'] as String?,
+      manager: json['manager']?['name'] as String? ?? (json['manager'] != null && json['manager'] is Map ? '${json['manager']['first_name']} ${json['manager']['last_name']}' : json['manager'] as String?),
       avatar: json['avatar'] as String? ?? json['photo'] as String?,
       salary: json['salary'] != null ? double.tryParse(json['salary'].toString()) : null,
       departmentId: _safeInt(json['department_id']),

@@ -23,6 +23,21 @@ class ProfileData {
   final String? department;
   final String? jobTitle;
 
+  // New Fields
+  final String? employeeId;
+  final String? nationalId;
+  final String? maritalStatus;
+  final String? employmentType;
+  final String? employmentStatus;
+  final String? hireDate;
+  final String? probationEndDate;
+  final String? team;
+  final String? manager;
+  final num? salary;
+  final String? bankName;
+  final String? bankAccount;
+  final Map<String, dynamic>? emergencyContact;
+
   const ProfileData({
     required this.id,
     required this.name,
@@ -42,10 +57,24 @@ class ProfileData {
     this.photoUrl,
     this.department,
     this.jobTitle,
+    this.employeeId,
+    this.nationalId,
+    this.maritalStatus,
+    this.employmentType,
+    this.employmentStatus,
+    this.hireDate,
+    this.probationEndDate,
+    this.team,
+    this.manager,
+    this.salary,
+    this.bankName,
+    this.bankAccount,
+    this.emergencyContact,
   });
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
-    final user = json['user'] as Map<String, dynamic>? ?? json; // handle nested or flat
+    final user =
+        json['user'] as Map<String, dynamic>? ?? json; // handle nested or flat
     if (!user.containsKey('id')) {
       return ProfileData(id: 0, name: 'Unknown', companyId: 0, roles: []);
     }
@@ -59,8 +88,12 @@ class ProfileData {
       companyName: company?['name'] as String?,
       branchId: user['branch_id'] as int?,
       branchName: user['branch_name'] as String?,
-      branchLat: user['branch_lat'] != null ? double.tryParse(user['branch_lat'].toString()) : null,
-      branchLng: user['branch_lng'] != null ? double.tryParse(user['branch_lng'].toString()) : null,
+      branchLat: user['branch_lat'] != null
+          ? double.tryParse(user['branch_lat'].toString())
+          : null,
+      branchLng: user['branch_lng'] != null
+          ? double.tryParse(user['branch_lng'].toString())
+          : null,
       branchRadius: user['branch_radius'] as int?,
       roles: (user['roles'] as List<dynamic>?)?.cast<String>() ?? [],
       phone: user['phone'] as String?,
@@ -70,6 +103,25 @@ class ProfileData {
       photoUrl: user['photo_url'] as String?,
       department: user['department'] as String?,
       jobTitle: user['job_title'] as String?,
+      employeeId: user['employee_id'] as String?,
+      nationalId: user['national_id'] as String?,
+      maritalStatus: user['marital_status'] as String?,
+      employmentType: user['employment_type'] as String?,
+      employmentStatus: user['employment_status'] as String?,
+      hireDate: user['hire_date'] as String?,
+      probationEndDate: user['probation_end_date'] as String?,
+      team: user['team'] as String?,
+      manager: user['manager'] as String?,
+      salary: user['salary'] != null
+          ? num.tryParse(user['salary'].toString())
+          : null,
+      bankName: user['bank_name'] as String?,
+      bankAccount: user['bank_account'] as String?,
+      emergencyContact: user['emergency_contact'] is Map
+          ? Map<String, dynamic>.from(user['emergency_contact'])
+          : (user['emergency_contact'] is String
+                ? (const {})
+                : null), // simplified string parsing if any
     );
   }
 }
@@ -101,6 +153,12 @@ class ProfileRepository {
     String? gender,
     String? dateOfBirth,
     String? address,
+    String? maritalStatus,
+    String? bankName,
+    String? bankAccount,
+    String? emergencyContactName,
+    String? emergencyContactRelationship,
+    String? emergencyContactPhone,
     File? photo,
   }) async {
     try {
@@ -111,6 +169,12 @@ class ProfileRepository {
         'gender': gender,
         'date_of_birth': dateOfBirth,
         'address': address,
+        'marital_status': ?maritalStatus,
+        'bank_name': ?bankName,
+        'bank_account': ?bankAccount,
+        'emergency_contact_name': ?emergencyContactName,
+        'emergency_contact_relationship': ?emergencyContactRelationship,
+        'emergency_contact_phone': ?emergencyContactPhone,
       };
 
       if (photo != null) {
@@ -132,13 +196,20 @@ class ProfileRepository {
     }
   }
 
-  Future<void> updatePassword({required String currentPassword, required String password, required String passwordConfirmation}) async {
+  Future<void> updatePassword({
+    required String currentPassword,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
     try {
-      await _api.put('/profile/password', data: {
-        'current_password': currentPassword,
-        'password': password,
-        'password_confirmation': passwordConfirmation,
-      });
+      await _api.put(
+        '/profile/password',
+        data: {
+          'current_password': currentPassword,
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+        },
+      );
     } catch (e) {
       AppLogger.e('Failed to update password', e);
       rethrow;

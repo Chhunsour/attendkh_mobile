@@ -25,9 +25,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late TextEditingController _emailCtrl;
 
   String? _gender;
+  String? _maritalStatus;
   DateTime? _dateOfBirth;
   File? _photo;
   bool _isLoading = false;
+
+  late TextEditingController _bankNameCtrl;
+  late TextEditingController _bankAccountCtrl;
+  late TextEditingController _emergencyContactNameCtrl;
+  late TextEditingController _emergencyContactRelationshipCtrl;
+  late TextEditingController _emergencyContactPhoneCtrl;
 
   @override
   void initState() {
@@ -37,6 +44,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _lastNameCtrl = TextEditingController();
     _phoneCtrl = TextEditingController();
     _emailCtrl = TextEditingController();
+    _bankNameCtrl = TextEditingController();
+    _bankAccountCtrl = TextEditingController();
+    _emergencyContactNameCtrl = TextEditingController();
+    _emergencyContactRelationshipCtrl = TextEditingController();
+    _emergencyContactPhoneCtrl = TextEditingController();
     
     // We will populate data in a post-frame callback or by watching the provider
   }
@@ -55,8 +67,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _phoneCtrl.text = data.phone ?? '';
 
     _gender = data.gender;
+    _maritalStatus = data.maritalStatus;
     if (data.dateOfBirth != null) {
       _dateOfBirth = DateTime.tryParse(data.dateOfBirth!);
+    }
+    
+    _bankNameCtrl.text = data.bankName ?? '';
+    _bankAccountCtrl.text = data.bankAccount ?? '';
+    
+    if (data.emergencyContact != null) {
+      _emergencyContactNameCtrl.text = data.emergencyContact!['name']?.toString() ?? '';
+      _emergencyContactRelationshipCtrl.text = data.emergencyContact!['relationship']?.toString() ?? '';
+      _emergencyContactPhoneCtrl.text = data.emergencyContact!['phone']?.toString() ?? '';
     }
   }
 
@@ -66,6 +88,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _lastNameCtrl.dispose();
     _phoneCtrl.dispose();
     _emailCtrl.dispose();
+    _bankNameCtrl.dispose();
+    _bankAccountCtrl.dispose();
+    _emergencyContactNameCtrl.dispose();
+    _emergencyContactRelationshipCtrl.dispose();
+    _emergencyContactPhoneCtrl.dispose();
     super.dispose();
   }
 
@@ -95,6 +122,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         phone: phone.isNotEmpty ? phone : null,
         gender: _gender,
         dateOfBirth: _dateOfBirth != null ? DateFormat('yyyy-MM-dd').format(_dateOfBirth!) : null,
+        maritalStatus: _maritalStatus,
+        bankName: _bankNameCtrl.text.trim().isNotEmpty ? _bankNameCtrl.text.trim() : null,
+        bankAccount: _bankAccountCtrl.text.trim().isNotEmpty ? _bankAccountCtrl.text.trim() : null,
+        emergencyContactName: _emergencyContactNameCtrl.text.trim().isNotEmpty ? _emergencyContactNameCtrl.text.trim() : null,
+        emergencyContactRelationship: _emergencyContactRelationshipCtrl.text.trim().isNotEmpty ? _emergencyContactRelationshipCtrl.text.trim() : null,
+        emergencyContactPhone: _emergencyContactPhoneCtrl.text.trim().isNotEmpty ? _emergencyContactPhoneCtrl.text.trim() : null,
         photo: _photo,
       );
       if (mounted) {
@@ -307,6 +340,55 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       onChanged: (val) => setState(() => _gender = val),
                     ),
                   ),
+
+                  // Marital Status Dropdown
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _maritalStatus,
+                      decoration: InputDecoration(
+                        labelText: 'Marital Status',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: AppColors.grey300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: AppColors.grey300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: AppColors.success, width: 2),
+                        ),
+                        labelStyle: const TextStyle(color: AppColors.grey500, fontSize: 14),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'single', child: Text('Single')),
+                        DropdownMenuItem(value: 'married', child: Text('Married')),
+                        DropdownMenuItem(value: 'divorced', child: Text('Divorced')),
+                        DropdownMenuItem(value: 'widowed', child: Text('Widowed')),
+                      ],
+                      onChanged: (val) => setState(() => _maritalStatus = val),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+                  const Text('Financial & Banking', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+                  const SizedBox(height: 16),
+                  _buildOutlinedField('Bank Name', _bankNameCtrl),
+                  _buildOutlinedField('Bank Account Number', _bankAccountCtrl),
+
+                  const SizedBox(height: 16),
+                  const Text('Emergency Contact', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+                  const SizedBox(height: 16),
+                  _buildOutlinedField('Contact Name', _emergencyContactNameCtrl),
+                  _buildOutlinedField('Relationship', _emergencyContactRelationshipCtrl),
+                  _buildOutlinedField('Phone Number', _emergencyContactPhoneCtrl, keyboardType: TextInputType.phone),
+
                   
                   const SizedBox(height: 32),
                 ],

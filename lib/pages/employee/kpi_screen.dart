@@ -25,18 +25,17 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
   void _initTabs(KpiData data) {
     final isSuperAdmin = data.userRole == 'super_admin';
     final isOwner = data.userRole == 'company_owner' || data.userRole == 'company_admin';
-    final isManager = data.userRole == 'branch_manager' || isOwner;
+    final isManager = data.userRole == 'branch_manager';
 
     int newTabCount = 1;
-    if (!isSuperAdmin) {
+    if (!isSuperAdmin && !isOwner) {
       if (isManager) newTabCount = 2;
-      if (isOwner) newTabCount = 3;
     }
 
     if (_tabController == null || _tabCount != newTabCount) {
       _tabCount = newTabCount;
       _tabController?.dispose();
-      _tabController = TabController(length: _tabCount, vsync: this, initialIndex: _tabCount - 1);
+      _tabController = TabController(length: _tabCount, vsync: this, initialIndex: 0);
     }
   }
 
@@ -59,7 +58,7 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
 
           final isSuperAdmin = data.userRole == 'super_admin';
           final isOwner = data.userRole == 'company_owner' || data.userRole == 'company_admin';
-          final isManager = data.userRole == 'branch_manager' || isOwner;
+          final isManager = data.userRole == 'branch_manager';
 
           return Scaffold(
             backgroundColor: AppColors.backgroundLight,
@@ -68,28 +67,28 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
               backgroundColor: Colors.white,
               elevation: 0,
               iconTheme: const IconThemeData(color: AppColors.grey900),
-              bottom: isSuperAdmin ? null : TabBar(
+              bottom: (isSuperAdmin || isOwner) ? null : TabBar(
                 controller: _tabController,
                 labelColor: AppColors.primary,
                 unselectedLabelColor: AppColors.grey500,
                 indicatorColor: AppColors.primary,
                 tabs: [
-                  if (!isSuperAdmin) Tab(text: l10n.myPerf),
-                  if (!isSuperAdmin && isManager) Tab(text: l10n.team),
-                  if (!isSuperAdmin && isOwner) Tab(text: l10n.company),
+                  if (!isSuperAdmin && !isOwner) Tab(text: l10n.myPerf),
+                  if (!isSuperAdmin && !isOwner && isManager) Tab(text: l10n.team),
                 ],
               ),
             ),
             body: isSuperAdmin
               ? KpiSuperAdminView(data: data)
-              : TabBarView(
-                  controller: _tabController,
-                  children: [
-                    if (!isSuperAdmin) KpiEmployeeView(data: data),
-                    if (!isSuperAdmin && isManager) KpiManagerView(data: data),
-                    if (!isSuperAdmin && isOwner) KpiOwnerView(data: data),
-                  ],
-                ),
+              : isOwner
+                ? KpiOwnerView(data: data)
+                : TabBarView(
+                    controller: _tabController,
+                    children: [
+                      if (!isSuperAdmin && !isOwner) KpiEmployeeView(data: data),
+                      if (!isSuperAdmin && !isOwner && isManager) KpiManagerView(data: data),
+                    ],
+                  ),
           );
         },
         loading: () => Scaffold(

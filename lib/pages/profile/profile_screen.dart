@@ -189,20 +189,20 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 32),
                 
-                // Settings List
+                // Employment Details
+                _buildSectionHeader('EMPLOYMENT DETAILS'),
+                if (data.employeeId != null)
+                  _buildListTile(icon: Icons.badge_outlined, title: 'Employee ID', subtitle: data.employeeId),
+                if (data.nationalId != null)
+                  _buildListTile(icon: Icons.perm_identity, title: 'National ID', subtitle: data.nationalId),
                 _buildListTile(
                   icon: Icons.business_outlined,
                   title: l10n.company,
                   subtitle: data.companyName ?? data.companyId.toString(),
                   onTap: null,
                 ),
-                if (data.jobTitle != null)
-                  _buildListTile(
-                    icon: Icons.work_outline,
-                    title: l10n.jobTitle,
-                    subtitle: data.jobTitle,
-                    onTap: null,
-                  ),
+                if (data.branchName != null)
+                  _buildListTile(icon: Icons.store_outlined, title: 'Branch', subtitle: data.branchName),
                 if (data.department != null)
                   _buildListTile(
                     icon: Icons.group_work_outlined,
@@ -210,11 +210,27 @@ class ProfileScreen extends ConsumerWidget {
                     subtitle: data.department,
                     onTap: null,
                   ),
+                if (data.jobTitle != null)
+                  _buildListTile(
+                    icon: Icons.work_outline,
+                    title: l10n.jobTitle,
+                    subtitle: data.jobTitle,
+                    onTap: null,
+                  ),
+                if (data.team != null)
+                  _buildListTile(icon: Icons.group_outlined, title: 'Team', subtitle: data.team),
+                if (data.manager != null)
+                  _buildListTile(icon: Icons.person_outline, title: 'Manager', subtitle: data.manager),
+                if (data.hireDate != null)
+                  _buildListTile(icon: Icons.calendar_today, title: 'Join Date', subtitle: data.hireDate),
+                if (data.salary != null)
+                  _buildListTile(icon: Icons.attach_money, title: 'Salary', subtitle: '\$${data.salary}'),
+
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Divider(height: 1, color: AppColors.grey200),
                 ),
-                const SizedBox(height: 8),
+                _buildSectionHeader('ACCESS & SETTINGS'),
                 _buildListTile(
                   icon: Icons.shield_outlined,
                   title: l10n.accessRoles,
@@ -277,6 +293,20 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 4),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: AppColors.grey500,
+        ),
+      ),
     );
   }
 
