@@ -265,7 +265,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                     description: l10n.dailyRecords,
                     icon: Icons.fingerprint_rounded,
                     color: const Color(0xFF8B5CF6),
-                    routePath: AppRoutes.adminEmployees,
+                    routePath: AppRoutes.adminAttendance,
                   ),
                   _buildGridItem(
                     context,
