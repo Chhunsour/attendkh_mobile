@@ -1027,6 +1027,42 @@ class _JobCandidatesSheet extends ConsumerWidget {
                                     ),
                                   ),
                                 ],
+                                if (c.stage == 'hired') ...[
+                                  const SizedBox(height: 12),
+                                  ElevatedButton.icon(
+                                    onPressed: () async {
+                                      try {
+                                        await RecruitmentRepository().convertToEmployee(c.id);
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Candidate successfully converted to Employee.'),
+                                              backgroundColor: AppColors.success,
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('❌ $e'),
+                                              backgroundColor: AppColors.danger,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.person_add_outlined, size: 18),
+                                    label: const Text('Convert to Employee', style: TextStyle(fontWeight: FontWeight.w600)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.purple.shade50,
+                                      foregroundColor: Colors.purple.shade700,
+                                      elevation: 0,
+                                      minimumSize: const Size(double.infinity, 44),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    ),
+                                  ),
+                                ],
                                 const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 12),
                                   child: Divider(

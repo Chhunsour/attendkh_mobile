@@ -151,4 +151,8 @@ class RecruitmentRepository {
   Future<void> updateCandidateStatus(int candidateId, String status) async {
     await _api.post('/company/recruitment/candidates/$candidateId/status', data: {'status': status});
   }
+
+  Future<void> convertToEmployee(int candidateId) async {
+    await _api.post('/company/recruitment/candidates/$candidateId/convert');
+  }
 }
