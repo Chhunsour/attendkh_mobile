@@ -13,7 +13,7 @@ final dashboardProvider = FutureProvider<DashboardData>((ref) async {
   return data;
 });
 
-final employeeDashboardSummaryProvider = FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
+final employeeDashboardSummaryProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repo = ref.watch(dashboardRepositoryProvider);
   final data = await repo.getEmployeeDashboardSummary();
   return data;

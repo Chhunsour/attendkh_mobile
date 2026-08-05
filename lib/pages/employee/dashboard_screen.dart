@@ -94,14 +94,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
       if (mounted) setState(() => _locationPermissionGranted = true);
 
 
-      // ignore: deprecated_member_use
-      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      // Use medium accuracy for initial background dashboard location check to avoid blocking GPS satellite lock
+      final pos = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium));
       if (mounted) setState(() => _currentPosition = pos);
 
       _positionStreamSubscription = Geolocator.getPositionStream(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 5,
+          accuracy: LocationAccuracy.medium,
+          distanceFilter: 15,
         ),
       ).listen((Position position) {
         if (mounted) setState(() => _currentPosition = position);
@@ -356,7 +356,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                   radius: 18,
                   backgroundColor: AppColors.primaryLight,
                   backgroundImage: profileAsync.value?.photoUrl != null
-                      ? CachedNetworkImageProvider(profileAsync.value!.photoUrl!)
+                      ? CachedNetworkImageProvider(
+                          profileAsync.value!.photoUrl!,
+                          maxWidth: 120,
+                          maxHeight: 120,
+                        )
                       : null,
                   child: profileAsync.value?.photoUrl == null
                       ? const Icon(Icons.person, color: AppColors.primary, size: 20)

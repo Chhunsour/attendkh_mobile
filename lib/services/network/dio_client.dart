@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
@@ -74,11 +73,11 @@ class DioClient {
 
 class _AuthInterceptor extends Interceptor {
   @override
-  Future<void> onRequest(
+  void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
-  ) async {
-    final token = await SecureStorageService.instance.accessToken;
+  ) {
+    final token = SecureStorageService.instance.cachedAccessToken;
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
@@ -97,11 +96,11 @@ class _AuthInterceptor extends Interceptor {
 
 class _TenantInterceptor extends Interceptor {
   @override
-  Future<void> onRequest(
+  void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
-  ) async {
-    final companyId = await SecureStorageService.instance.companyId;
+  ) {
+    final companyId = SecureStorageService.instance.cachedCompanyId;
     if (companyId != null && companyId.isNotEmpty) {
       options.headers['X-Company-Id'] = companyId;
     }
@@ -114,18 +113,8 @@ class _ConnectivityInterceptor extends Interceptor {
   void onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
-  ) async {
-    final connectivity = await Connectivity().checkConnectivity();
-    if (connectivity.contains(ConnectivityResult.none)) {
-      handler.reject(
-        DioException(
-          requestOptions: options,
-          type: DioExceptionType.connectionError,
-          error: 'No internet connection',
-        ),
-      );
-      return;
-    }
+  ) {
+    // Pass straight to network execution; Dio connectionTimeout handles offline errors without pre-flight platform IPC delay
     handler.next(options);
   }
 }

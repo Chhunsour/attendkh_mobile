@@ -130,7 +130,11 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   radius: 18,
                   backgroundColor: AppColors.primaryLight,
                   backgroundImage: profileAsync.value?.photoUrl != null
-                      ? CachedNetworkImageProvider(profileAsync.value!.photoUrl!)
+                      ? CachedNetworkImageProvider(
+                          profileAsync.value!.photoUrl!,
+                          maxWidth: 120,
+                          maxHeight: 120,
+                        )
                       : null,
                   child: profileAsync.value?.photoUrl == null
                       ? const Icon(Icons.person, color: AppColors.primary, size: 20)

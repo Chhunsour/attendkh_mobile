@@ -5,7 +5,7 @@ final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
   return ProfileRepository();
 });
 
-final profileProvider = FutureProvider.autoDispose<ProfileData>((ref) async {
+final profileProvider = FutureProvider<ProfileData>((ref) async {
   final repo = ref.watch(profileRepositoryProvider);
   return repo.getProfile();
 });
