@@ -620,6 +620,7 @@ class AdminPayslipDetailData {
   final double taxDeduction;
   final double insuranceDeduction;
   final double lateDeduction;
+  final double earlyLeaveDeduction;
   final double otherDeductions;
   final double totalDeductions;
   final int workingDays;
@@ -639,6 +640,7 @@ class AdminPayslipDetailData {
     required this.taxDeduction,
     required this.insuranceDeduction,
     required this.lateDeduction,
+    this.earlyLeaveDeduction = 0,
     required this.otherDeductions,
     required this.totalDeductions,
     required this.workingDays,
@@ -674,6 +676,8 @@ class AdminPayslipDetailData {
           double.tryParse(json['insurance_deduction']?.toString() ?? '') ?? 0,
       lateDeduction:
           double.tryParse(json['late_deduction']?.toString() ?? '') ?? 0,
+      earlyLeaveDeduction:
+          double.tryParse(json['early_leave_deduction']?.toString() ?? '') ?? 0,
       otherDeductions:
           double.tryParse(json['other_deductions']?.toString() ?? '') ?? 0,
       totalDeductions:

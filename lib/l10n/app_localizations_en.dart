@@ -3098,10 +3098,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get grossSalaryLabel => 'Gross Salary';
 
   @override
-  String get taxDeductionLabel => 'Tax Deduction (10%)';
+  String get taxDeductionLabel => 'Tax Deduction';
 
   @override
-  String get insuranceDeductionLabel => 'Insurance (5%)';
+  String get insuranceDeductionLabel => 'Insurance Deduction';
 
   @override
   String get lateDeductionLabel => 'Late Deduction';
