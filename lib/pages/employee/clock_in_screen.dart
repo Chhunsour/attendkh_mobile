@@ -15,7 +15,6 @@ import 'package:mpg_hr_mobile_app/providers/attendance_provider.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
-import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class ClockInArgs {
@@ -231,12 +230,6 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
       ref.invalidate(todayAttendanceProvider);
       ref.invalidate(unreadCountProvider);
       ref.invalidate(notificationsProvider);
-      
-      final String actionTitle = widget.args.isClockIn ? l10n.clockedInSuccessfully : l10n.clockedOutSuccessfully;
-      FcmService.instance.showLocalNotification(
-        title: actionTitle,
-        body: l10n.attendanceRecorded,
-      );
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

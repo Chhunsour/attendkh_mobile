@@ -342,24 +342,30 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: AppColors.grey50, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16))),
-              child: Wrap(
-                spacing: 16,
-                runSpacing: 12,
-                children: displayData.entries.map((e) {
-                  final key = e.key.replaceAll('_', ' ').split(' ').map((w) => w.isNotEmpty ? w[0].toUpperCase() + w.substring(1) : '').join(' ');
-                  final val = e.value?.toString() ?? '-';
-                  return SizedBox(
-                    width: 140,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(key, style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontWeight: FontWeight.w500)),
-                        const SizedBox(height: 2),
-                        Text(val, style: const TextStyle(fontSize: 13, color: AppColors.grey800, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ],
-                    ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  const double spacing = 16;
+                  final double itemWidth = (constraints.maxWidth - spacing) / 2;
+                  return Wrap(
+                    spacing: spacing,
+                    runSpacing: 12,
+                    children: displayData.entries.map((e) {
+                      final key = e.key.replaceAll('_', ' ').split(' ').map((w) => w.isNotEmpty ? w[0].toUpperCase() + w.substring(1) : '').join(' ');
+                      final val = e.value?.toString() ?? '-';
+                      return SizedBox(
+                        width: itemWidth > 110 ? itemWidth : constraints.maxWidth,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(key, style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontWeight: FontWeight.w500)),
+                            const SizedBox(height: 2),
+                            Text(val, style: const TextStyle(fontSize: 13, color: AppColors.grey800, fontWeight: FontWeight.w600), maxLines: 2, overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   );
-                }).toList(),
+                },
               ),
             ),
           ]

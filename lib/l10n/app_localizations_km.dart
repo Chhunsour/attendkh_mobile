@@ -3110,10 +3110,10 @@ class AppLocalizationsKm extends AppLocalizations {
   String get grossSalaryLabel => 'ប្រាក់ខែដើម';
 
   @override
-  String get taxDeductionLabel => 'ការកាត់ពន្ធ';
+  String get taxDeductionLabel => 'ការកាត់ពន្ធ (១០%)';
 
   @override
-  String get insuranceDeductionLabel => 'ធានារ៉ាប់រង';
+  String get insuranceDeductionLabel => 'ធានារ៉ាប់រង (៥%)';
 
   @override
   String get lateDeductionLabel => 'ការកាត់ប្រាក់ចូលយឺត';
