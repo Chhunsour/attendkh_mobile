@@ -12,6 +12,8 @@ class LeaveBalance {
   final double carriedForward;
   final double pending;
   final String? color;
+  final double? accruedToDate;
+  final double? availableDays;
 
   const LeaveBalance({
     required this.id,
@@ -23,9 +25,16 @@ class LeaveBalance {
     required this.carriedForward,
     required this.pending,
     this.color,
+    this.accruedToDate,
+    this.availableDays,
   });
 
-  double get remaining => allocated + carriedForward - used - pending;
+  double get remaining {
+    if (availableDays != null) return availableDays!;
+    final total = allocated + carriedForward;
+    final rem = total - used - pending;
+    return rem < 0 ? 0.0 : rem;
+  }
 
   factory LeaveBalance.fromJson(Map<String, dynamic> json) {
     double parseDouble(dynamic val) {
@@ -33,6 +42,13 @@ class LeaveBalance {
       if (val is num) return val.toDouble();
       if (val is String) return double.tryParse(val) ?? 0.0;
       return 0.0;
+    }
+
+    double? parseNullableDouble(dynamic val) {
+      if (val == null) return null;
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val);
+      return null;
     }
 
     return LeaveBalance(
@@ -45,6 +61,8 @@ class LeaveBalance {
       carriedForward: parseDouble(json['carried_forward']),
       pending: parseDouble(json['pending_days']),
       color: json['leave_type']?['color'] as String? ?? json['color'] as String?,
+      accruedToDate: parseNullableDouble(json['accrued_to_date']),
+      availableDays: parseNullableDouble(json['available_days']),
     );
   }
 }
@@ -191,20 +209,36 @@ class LeaveType {
   final String name;
   final int daysPerYear;
   final bool isPaid;
+  final String accrualMode;
+  final double? maxDaysPerMonth;
+  final String exceedAccrualAction;
 
   const LeaveType({
     required this.id,
     required this.name,
     required this.daysPerYear,
     this.isPaid = true,
+    this.accrualMode = 'upfront',
+    this.maxDaysPerMonth,
+    this.exceedAccrualAction = 'convert_to_unpaid',
   });
 
   factory LeaveType.fromJson(Map<String, dynamic> json) {
+    double? parseNullableDouble(dynamic val) {
+      if (val == null) return null;
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val);
+      return null;
+    }
+
     return LeaveType(
       id: json['id'] as int,
       name: json['name'] as String,
       daysPerYear: json['days_per_year'] as int? ?? 0,
       isPaid: json['is_paid'] == true || json['is_paid'] == 1,
+      accrualMode: json['accrual_mode'] as String? ?? 'upfront',
+      maxDaysPerMonth: parseNullableDouble(json['max_days_per_month']),
+      exceedAccrualAction: json['exceed_accrual_action'] as String? ?? 'convert_to_unpaid',
     );
   }
 }

@@ -193,7 +193,9 @@ class _LeaveBalanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '${used.toStringAsFixed(used % 1 == 0 ? 0 : 1)} / ${total.toStringAsFixed(total % 1 == 0 ? 0 : 1)}${l10n.usedLabel}',
+            balance.accruedToDate != null
+                ? '${balance.accruedToDate!.toStringAsFixed(1)}d Accrued'
+                : '${used.toStringAsFixed(used % 1 == 0 ? 0 : 1)} / ${total.toStringAsFixed(total % 1 == 0 ? 0 : 1)}${l10n.usedLabel}',
             style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontWeight: FontWeight.w500),
           ),
         ],
