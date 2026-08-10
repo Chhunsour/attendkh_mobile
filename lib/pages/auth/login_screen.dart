@@ -477,7 +477,6 @@ class _TopBranding extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -486,10 +485,10 @@ class _TopBranding extends StatelessWidget {
         const SizedBox(height: 16),
         // Brand name
         const Text(
-          'MPG GARAGE',
+          'AttendKH',
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
             color: _white,
             letterSpacing: 1.2,
             fontFamily: 'Inter',
@@ -498,11 +497,11 @@ class _TopBranding extends StatelessWidget {
         const SizedBox(height: 6),
         // Tagline
         Text(
-          l10n.hrManagementSystem,
+          'Smart Attendance & Payroll',
           style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w400,
-            color: _white.withAlpha(179),
+            fontWeight: FontWeight.w500,
+            color: _white.withAlpha(200),
             fontFamily: 'Inter',
           ),
         ),

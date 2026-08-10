@@ -9,7 +9,7 @@ class AppLogo extends StatelessWidget {
 
   const AppLogo({super.key, this.size = 120});
 
-  static const _primaryColor = Color(0xFF4F7DF3);
+  static const _primaryColor = Color(0xFF0052FF);
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class AppLogo extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF4F7DF3), Color(0xFF1E3A5F)],
+          colors: [Color(0xFF0052FF), Color(0xFF16A34A)],
         ),
         boxShadow: [
           BoxShadow(
@@ -34,16 +34,16 @@ class AppLogo extends StatelessWidget {
       ),
       child: ClipOval(
         child: Image.asset(
-          'assets/images/logo.png',
+          'assets/images/attendkh_logo.png',
           fit: BoxFit.cover,
           errorBuilder: (_, _, _) => const Center(
             child: Text(
-              'MPG',
+              'AttendKH',
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
-                letterSpacing: 2.5,
+                letterSpacing: 1.5,
                 fontFamily: 'Inter',
               ),
             ),

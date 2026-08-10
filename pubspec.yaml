@@ -1,5 +1,5 @@
 name: mpg_hr_mobile_app
-description: "MPG HR Mobile App - Multi-Tenant HR Management System"
+description: "AttendKH Mobile App - Smart Attendance & Payroll"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -101,11 +101,11 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/images/logo.png"
+  image_path: "assets/images/attendkh_logo.png"
   min_sdk_android: 21
   web:
     generate: true
-    image_path: "assets/images/logo.png"
+    image_path: "assets/images/attendkh_logo.png"
   macos:
     generate: true
-    image_path: "assets/images/logo.png"
+    image_path: "assets/images/attendkh_logo.png"

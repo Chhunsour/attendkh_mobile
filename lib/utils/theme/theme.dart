@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Primary - Orange
-  static const Color primary = Color(0xFFF97316);
-  static const Color primaryLight = Color(0xFFFFEDD5);
-  static const Color primaryDark = Color(0xFFEA580C);
+  // Primary - AttendKH Royal Blue
+  static const Color primary = Color(0xFF0052FF);
+  static const Color primaryLight = Color(0xFFDBEAFE);
+  static const Color primaryDark = Color(0xFF0038B8);
 
-  // Secondary - Blue
-  static const Color secondary = Color(0xFF3B82F6);
-  static const Color secondaryLight = Color(0xFFDBEAFE);
-  static const Color secondaryDark = Color(0xFF2563EB);
+  // Secondary - KH Emerald Green
+  static const Color secondary = Color(0xFF16A34A);
+  static const Color secondaryLight = Color(0xFFDCFCE7);
+  static const Color secondaryDark = Color(0xFF15803D);
 
   // Dark Sidebar/Nav
   static const Color darkSurface = Color(0xFF1A1A1A);
