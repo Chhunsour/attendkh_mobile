@@ -237,9 +237,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     final bool isRegularCompleted = today?.clockIn != null && today?.clockOut != null;
     final bool isOvertimeIn = today?.overtimeIn != null && today?.overtimeOut == null;
     final bool isOvertimeCompleted = today?.overtimeIn != null && today?.overtimeOut != null;
+    final bool isEarlyLeave = (today?.earlyLeaveMinutes ?? 0) > 0;
 
-    if (isOvertimeCompleted) {
-      return const SizedBox(); // Should not show any button
+    if (isOvertimeCompleted || (isRegularCompleted && isEarlyLeave)) {
+      return const SizedBox(); // Do not show Overtime option if clocked out early or OT completed
     }
 
     final isClockingOut = isClockedIn || isOvertimeIn;
