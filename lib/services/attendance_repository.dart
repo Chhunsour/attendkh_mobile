@@ -12,6 +12,7 @@ class TodayAttendance {
   final double? workHours;
   final String? date;
   final int? lateMinutes;
+  final String? lateReason;
   final int? breakMinutes;
   final int? earlyClockInMinutes;
   final int? approvedPreShiftOtMinutes;
@@ -29,6 +30,7 @@ class TodayAttendance {
     this.workHours,
     this.date,
     this.lateMinutes,
+    this.lateReason,
     this.breakMinutes,
     this.earlyClockInMinutes,
     this.approvedPreShiftOtMinutes,
@@ -48,6 +50,7 @@ class TodayAttendance {
       workHours: json['work_hours'] != null ? double.tryParse(json['work_hours'].toString()) : null,
       date: json['date'] as String?,
       lateMinutes: json['late_minutes'] as int?,
+      lateReason: json['late_reason'] as String? ?? json['notes'] as String?,
       breakMinutes: json['break_minutes'] as int?,
       earlyClockInMinutes: json['early_clock_in_minutes'] as int?,
       approvedPreShiftOtMinutes: json['approved_pre_shift_ot_minutes'] as int?,
@@ -116,6 +119,7 @@ class AttendanceRepository {
     String? deviceId,
     String? photoPath,
     bool? isGeoValid,
+    String? lateReason,
   }) async {
     dynamic payload;
 
@@ -125,6 +129,7 @@ class AttendanceRepository {
         'lng': lng,
         'device_id': deviceId,
         'is_geo_valid': isGeoValid == true ? 1 : 0,
+        if (lateReason != null && lateReason.isNotEmpty) 'late_reason': lateReason,
         'photo': await MultipartFile.fromFile(photoPath, filename: 'clock_in.jpg'),
         'method': 'mobile',
       });
@@ -134,6 +139,7 @@ class AttendanceRepository {
         'lng': lng,
         'device_id': deviceId,
         'is_geo_valid': isGeoValid == true ? 1 : 0,
+        if (lateReason != null && lateReason.isNotEmpty) 'late_reason': lateReason,
         'method': 'mobile',
       };
     }

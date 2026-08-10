@@ -49,6 +49,13 @@ class ClockInScreen extends ConsumerStatefulWidget {
 class _ClockInScreenState extends ConsumerState<ClockInScreen> {
   String? _photoPath;
   bool _isSubmitting = false;
+  final TextEditingController _lateReasonController = TextEditingController();
+
+  @override
+  void dispose() {
+    _lateReasonController.dispose();
+    super.dispose();
+  }
 
   Future<void> _takeSelfie() async {
     final l10n = AppLocalizations.of(context)!;
@@ -206,6 +213,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
             photoPath: _photoPath!,
             deviceId: deviceName,
             isGeoValid: isGeoValid,
+            lateReason: _lateReasonController.text.trim(),
           );
         }
       } else {
@@ -320,6 +328,28 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
               ),
               
               const Spacer(),
+              
+              if (widget.args.isClockIn && !widget.args.isOvertime) ...[
+                TextField(
+                  controller: _lateReasonController,
+                  decoration: InputDecoration(
+                    labelText: 'Late Reason / Notes (Optional)',
+                    hintText: 'e.g. Traffic jam, doctor appointment',
+                    prefixIcon: const Icon(Icons.edit_note, color: AppColors.primary),
+                    filled: true,
+                    fillColor: AppColors.grey50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppColors.grey200),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppColors.grey200),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               
               // Location Info Card
               Container(
