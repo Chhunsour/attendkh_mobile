@@ -205,6 +205,13 @@ class FcmService {
         'User granted FCM permission: ${settings.authorizationStatus}',
       );
 
+      // Enable foreground notification banners on iOS & Android
+      await messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
       // Handle foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         AppLogger.i('Got a message whilst in the foreground!');
