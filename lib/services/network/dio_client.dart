@@ -7,7 +7,7 @@ import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
 /// - Android Emulator : 10.0.2.2 maps to the host machine's localhost.
 /// - Real device (WiFi): Use the Mac's LAN IP so the device can reach the server.
 /// Change [_devServerIp] to match your machine's current IP when on a real device.
-const String _devServerIp = 'phplaravel-1627268-6571483.cloudwaysapps.com';
+const String _devServerIp = 'attendkh.com';
 const String _r2StorageUrl =
     'https://pub-ccd9b4a59b6e4eddb12ef2a2c45e75c7.r2.dev';
 

@@ -217,7 +217,7 @@ class _CourseCard extends StatelessWidget {
             color: AppColors.grey100,
             child: training.coverImage != null
                 ? CachedNetworkImage(
-                    imageUrl: 'http://192.168.100.252:8000${training.coverImage}',
+                    imageUrl: 'https://attendkh.com${training.coverImage}',
                     fit: BoxFit.cover,
                     memCacheWidth: 600,
                     placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
@@ -332,7 +332,7 @@ class _MyEnrollmentCard extends StatelessWidget {
             color: AppColors.grey100,
             child: training.coverImage != null
                 ? CachedNetworkImage(
-                    imageUrl: 'http://192.168.100.252:8000${training.coverImage}',
+                    imageUrl: 'https://attendkh.com${training.coverImage}',
                     fit: BoxFit.cover,
                     placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
                     errorWidget: (context, url, error) => const Icon(Icons.menu_book, size: 40, color: AppColors.grey300),
