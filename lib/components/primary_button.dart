@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 
 /// Full-width primary button with rounded pill shape and press animation.
 ///
 /// Matches login-screen spec:
 /// - Height: 55
 /// - Border radius: 28
-/// - Background: #4F7DF3
+/// - Background: AppColors.primary
 /// - White bold text
 /// - Button shadow (blue with low opacity)
 /// - Scale-down animation on press
@@ -30,8 +31,8 @@ class _PrimaryButtonState extends State<PrimaryButton> {
 
   static const _height = 55.0;
   static const _radius = 18.0;
-  static const _bgColor = Color(0xFF4F7DF3);
-  static const _shadowColor = Color(0x4D4F7DF3); // ~30 % opacity
+  static const _bgColor = AppColors.primary;
+  static final _shadowColor = AppColors.primary.withAlpha(77); // ~30 % opacity
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +78,7 @@ class _PrimaryButtonState extends State<PrimaryButton> {
                 textStyle: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  fontFamily: 'Inter',
+                  
                 ),
               ),
               child: AnimatedSwitcher(

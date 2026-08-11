@@ -99,7 +99,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: AppColors.grey800,
-                          fontFamily: 'Inter',
+                          
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -109,7 +109,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.grey500,
-                          fontFamily: 'Inter',
+                          
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -132,9 +132,9 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
     AppLocalizations l10n,
   ) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Row(
@@ -158,10 +158,10 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                   ? Text(
                       l10n.hrDashboard,
                       style: const TextStyle(
-                        color: Colors.black87,
+                        color: AppColors.grey800,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        fontFamily: 'Inter',
+                        
                       ),
                       overflow: TextOverflow.ellipsis,
                     )
@@ -170,10 +170,10 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                             ? Text(
                                 l10n.hrDashboard,
                                 style: const TextStyle(
-                                  color: Colors.black87,
+                                  color: AppColors.grey800,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
-                                  fontFamily: 'Inter',
+                                  
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               )
@@ -192,10 +192,10 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                                     Text(
                                       l10n.hrDashboard,
                                       style: const TextStyle(
-                                        color: Colors.black87,
+                                        color: AppColors.grey800,
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700,
-                                        fontFamily: 'Inter',
+                                        
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -208,7 +208,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                                             color: AppColors.primary,
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
-                                            fontFamily: 'Inter',
+                                            
                                           ),
                                         ),
                                         const SizedBox(width: 2),
@@ -238,7 +238,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                                           fontSize: 10,
                                           fontWeight: FontWeight.w800,
                                           color: AppColors.grey500,
-                                          fontFamily: 'Inter',
+                                          
                                         ),
                                       ),
                                     ),
@@ -272,7 +272,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                                                       fontSize: 14,
                                                       fontWeight: FontWeight.w600,
                                                       color: AppColors.grey800,
-                                                      fontFamily: 'Inter',
+                                                      
                                                     ),
                                                   ),
                                                   if (b.address != null)
@@ -283,7 +283,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                                                       style: const TextStyle(
                                                         fontSize: 11,
                                                         color: AppColors.grey500,
-                                                        fontFamily: 'Inter',
+                                                        
                                                       ),
                                                     ),
                                                 ],
@@ -402,7 +402,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: AppColors.grey800,
-                        fontFamily: 'Inter',
+                        
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -478,7 +478,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: AppColors.grey800,
-              fontFamily: 'Inter',
+              
             ),
           ),
           const SizedBox(height: 12),
@@ -710,7 +710,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: AppColors.grey800,
-                          fontFamily: 'Inter',
+                          
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -720,7 +720,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                           fontSize: 12,
                           color: AppColors.grey500,
                           height: 1.4,
-                          fontFamily: 'Inter',
+                          
                         ),
                       ),
                     ],
@@ -770,7 +770,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.grey500,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -780,7 +780,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: AppColors.grey800,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
               ],
@@ -814,7 +814,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                     color: Colors.white.withAlpha(180),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    fontFamily: 'Inter',
+                    
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -826,7 +826,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    fontFamily: 'Inter',
+                    
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -847,7 +847,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      fontFamily: 'Inter',
+                      
                     ),
                   ),
                 ),
@@ -921,7 +921,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppColors.grey800,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -930,7 +930,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                   style: const TextStyle(
                     fontSize: 10,
                     color: AppColors.grey500,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
               ],

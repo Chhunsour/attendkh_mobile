@@ -161,7 +161,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           floatingLabelBehavior: FloatingLabelBehavior.always,
           prefixIcon: prefixIcon,
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppColors.surfaceLight,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: AppColors.grey300),
@@ -187,17 +187,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.grey900, size: 20),
           onPressed: () => context.pop(),
         ),
         title: Text(
           l10n.editProfile,
-          style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: AppColors.grey900, fontSize: 18, fontWeight: FontWeight.bold),
         ),
         actions: [
           if (!_isLoading)
@@ -249,18 +249,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: AppColors.surfaceLight,
                               shape: BoxShape.circle,
                               border: Border.all(color: AppColors.grey200, width: 1),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withAlpha(20),
+                                  color: AppColors.grey900.withAlpha(20),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                            child: const Icon(Icons.camera_alt_outlined, size: 16, color: Colors.black87),
+                            child: const Icon(Icons.camera_alt_outlined, size: 16, color: AppColors.grey800),
                           ),
                         ],
                       ),
@@ -269,7 +269,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   const SizedBox(height: 32),
                   Text(
                     l10n.profileInfoTitle,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey900),
                   ),
                   const SizedBox(height: 16),
                   
@@ -286,7 +286,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         labelText: l10n.phoneLabel,
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: AppColors.surfaceLight,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(color: AppColors.grey300),
@@ -316,7 +316,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         labelText: l10n.genderLabel,
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: AppColors.surfaceLight,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(color: AppColors.grey300),
@@ -350,7 +350,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         labelText: 'Marital Status',
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: AppColors.surfaceLight,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(color: AppColors.grey300),
@@ -377,13 +377,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
 
                   const SizedBox(height: 16),
-                  const Text('Financial & Banking', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+                  const Text('Financial & Banking', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey900)),
                   const SizedBox(height: 16),
                   _buildOutlinedField('Bank Name', _bankNameCtrl),
                   _buildOutlinedField('Bank Account Number', _bankAccountCtrl),
 
                   const SizedBox(height: 16),
-                  const Text('Emergency Contact', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+                  const Text('Emergency Contact', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey900)),
                   const SizedBox(height: 16),
                   _buildOutlinedField('Contact Name', _emergencyContactNameCtrl),
                   _buildOutlinedField('Relationship', _emergencyContactRelationshipCtrl),

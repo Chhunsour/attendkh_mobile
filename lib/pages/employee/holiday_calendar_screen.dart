@@ -52,7 +52,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
         title: Text(l10n.holidayCalendar),
         centerTitle: true,
@@ -66,11 +66,11 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
               Container(
                 margin: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.grey200),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
+                    BoxShadow(color: AppColors.grey900.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
                   ],
                 ),
                 child: TableCalendar<Holiday>(

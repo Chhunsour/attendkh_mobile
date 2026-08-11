@@ -186,19 +186,19 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.grey800),
           onPressed: () => context.pop(),
         ),
         title: Text(
           l10n.profileSettingsTitle,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -212,7 +212,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.grey200),
                 boxShadow: [
@@ -251,7 +251,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                             Container(
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: AppColors.surfaceLight,
                                 shape: BoxShape.circle,
                                 border: Border.all(color: AppColors.grey200, width: 1),
                                 boxShadow: [
@@ -262,7 +262,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                   ),
                                 ],
                               ),
-                              child: const Icon(Icons.camera_alt_outlined, size: 14, color: Colors.black87),
+                              child: const Icon(Icons.camera_alt_outlined, size: 14, color: AppColors.grey800),
                             ),
                           ],
                         ),
@@ -349,7 +349,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                         ),
                         child: Text(
                           _dateOfBirth != null ? "${_dateOfBirth!.year}-${_dateOfBirth!.month.toString().padLeft(2, '0')}-${_dateOfBirth!.day.toString().padLeft(2, '0')}" : l10n.selectDate,
-                          style: TextStyle(fontSize: 14, color: _dateOfBirth != null ? Colors.black87 : AppColors.grey500),
+                          style: TextStyle(fontSize: 14, color: _dateOfBirth != null ? AppColors.grey800 : AppColors.grey500),
                         ),
                       ),
                     ),
@@ -392,7 +392,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.grey200),
                 boxShadow: [
@@ -471,7 +471,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.grey200),
                 boxShadow: [
@@ -542,7 +542,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
       isDense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       filled: true,
-      fillColor: const Color(0xFFF8FAFC),
+      fillColor: AppColors.backgroundLight,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.grey200)),
       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.grey200)),
       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: AppColors.primary)),

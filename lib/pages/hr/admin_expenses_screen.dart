@@ -26,14 +26,14 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     final l10n = AppLocalizations.of(context)!;
     final expensesAsync = ref.watch(expensesProvider);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.expenseClaimsTitle,
-          style: const TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700),
+          style: const TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700),
         ),
         actions: [
           IconButton(
@@ -270,7 +270,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _AdminExpenseDetailSheet(
         expense: e,
@@ -284,7 +284,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _AdminExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider)),
     );
@@ -294,7 +294,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _AdminExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider), initial: e),
     );
@@ -877,7 +877,7 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: AppColors.backgroundLight,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.grey300),
                   ),

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 
 /// Full-width outlined secondary button with rounded pill shape.
 ///
 /// Matches login-screen spec:
 /// - Height: 55
 /// - Border radius: 28
-/// - Blue (#4F7DF3) border, white background
+/// - Blue (AppColors.primary) border, white background
 /// - Bold text
 class SecondaryButton extends StatelessWidget {
   final String label;
@@ -19,7 +20,7 @@ class SecondaryButton extends StatelessWidget {
 
   static const _height = 55.0;
   static const _radius = 18.0;
-  static const _borderColor = Color(0xFF4F7DF3);
+  static const _borderColor = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class SecondaryButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           foregroundColor: _borderColor,
           side: const BorderSide(color: _borderColor, width: 1.5),
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.surfaceLight,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(_radius),
           ),
@@ -39,7 +40,7 @@ class SecondaryButton extends StatelessWidget {
           textStyle: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            fontFamily: 'Inter',
+            
           ),
         ),
         child: Text(label),

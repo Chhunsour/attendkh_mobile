@@ -128,7 +128,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                              decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey300)),
+                              decoration: BoxDecoration(color: AppColors.backgroundLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey300)),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -151,7 +151,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                        decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey300)),
+                        decoration: BoxDecoration(color: AppColors.backgroundLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey300)),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -270,7 +270,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                  decoration: BoxDecoration(color: AppColors.backgroundLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
                   child: Text(p.content, style: const TextStyle(fontSize: 14, height: 1.6, color: AppColors.grey800)),
                 ),
               ),
@@ -327,12 +327,12 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Policies', style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: const Text('Policies', style: TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700)),
         actions: [
           IconButton(icon: const Icon(Icons.add, color: AppColors.primary), onPressed: () => _showForm())
         ],
@@ -476,7 +476,7 @@ class _AdminPoliciesScreenState extends State<AdminPoliciesScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF8FAFC),
+                                      color: AppColors.backgroundLight,
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(color: AppColors.grey200),
                                     ),

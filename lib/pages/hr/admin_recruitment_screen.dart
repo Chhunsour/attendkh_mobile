@@ -22,15 +22,15 @@ class AdminRecruitmentScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final jobsAsync = ref.watch(recruitmentJobsProvider);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.recruitment,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -437,7 +437,7 @@ class _JobFormSheetState extends State<_JobFormSheet> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: AppColors.grey800,
             ),
           ),
         ],
@@ -497,7 +497,7 @@ class _JobFormSheetState extends State<_JobFormSheet> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: Colors.black87,
+                    color: AppColors.grey800,
                   ),
                 ),
                 IconButton(
@@ -872,7 +872,7 @@ class _JobCandidatesSheet extends ConsumerWidget {
                                             style: const TextStyle(
                                               fontWeight: FontWeight.w700,
                                               fontSize: 16,
-                                              color: Colors.black87,
+                                              color: AppColors.grey800,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
@@ -934,7 +934,7 @@ class _JobCandidatesSheet extends ConsumerWidget {
                                           vertical: 6,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFF8FAFC),
+                                          color: AppColors.backgroundLight,
                                           borderRadius: BorderRadius.circular(
                                             8,
                                           ),
@@ -1138,12 +1138,12 @@ class _JobCandidatesSheet extends ConsumerWidget {
                                             ),
                                           ),
                                           filled: true,
-                                          fillColor: const Color(0xFFF8FAFC),
+                                          fillColor: AppColors.backgroundLight,
                                         ),
                                         style: const TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.black87,
+                                          color: AppColors.grey800,
                                         ),
                                         items: const [
                                           DropdownMenuItem(

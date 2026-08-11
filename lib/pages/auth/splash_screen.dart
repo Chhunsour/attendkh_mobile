@@ -76,8 +76,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF0F172A),
-                    Color(0xFF1E293B),
+                    AppColors.backgroundDark,
+                    AppColors.surfaceDark,
                     Color(0xFF0D1B3E),
                   ],
                 ),
@@ -111,7 +111,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
                           letterSpacing: 4,
-                          fontFamily: 'Inter',
                         ),
                       ),
 
@@ -124,7 +123,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                           color: Colors.white.withAlpha(179),
                           fontWeight: FontWeight.w400,
                           letterSpacing: 0.5,
-                          fontFamily: 'Inter',
                         ),
                       ),
 
@@ -149,7 +147,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white.withAlpha(100),
-                          fontFamily: 'Inter',
                         ),
                       ),
                     ],

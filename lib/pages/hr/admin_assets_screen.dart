@@ -315,7 +315,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF8FAFC),
+                                      color: AppColors.backgroundLight,
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(color: AppColors.grey300),
                                     ),
@@ -396,7 +396,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF8FAFC),
+                                color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: AppColors.grey300),
                               ),
@@ -759,12 +759,12 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     final assetsAsync = ref.watch(assetsProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: Text(l10n.companyAssetsTitle, style: const TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text(l10n.companyAssetsTitle, style: const TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700)),
       ),
       body: assetsAsync.when(
         data: (items) {

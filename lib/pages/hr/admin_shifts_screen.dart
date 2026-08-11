@@ -29,7 +29,7 @@ class AdminShiftsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         bottom: PreferredSize(
@@ -511,7 +511,7 @@ class _ShiftCard extends ConsumerWidget {
     barrierDismissible: false,
     builder: (ctx) {
       return Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -552,7 +552,7 @@ class _ShiftCard extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: const TextStyle(
-                    color: Colors.black87,
+                    color: AppColors.grey800,
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -594,7 +594,7 @@ class _ShiftCard extends ConsumerWidget {
                       child: Text(
                         l10n.cancel,
                         style: TextStyle(
-                          color: Colors.black87,
+                          color: AppColors.grey800,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

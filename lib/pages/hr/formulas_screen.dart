@@ -20,7 +20,7 @@ class FormulasScreen extends StatelessWidget {
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         title: Text(l10n.formulasHandbookScreenTitle, style: const TextStyle(color: Colors.black87)),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         iconTheme: const IconThemeData(color: Colors.black87),
         elevation: 0,
         centerTitle: true,

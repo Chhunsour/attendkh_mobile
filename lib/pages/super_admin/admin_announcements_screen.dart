@@ -18,22 +18,22 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.platformAnnouncementsTitle,
-          style: TextStyle(
-            color: Colors.black87,
+          style: const TextStyle(
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_rounded, color: Colors.black87),
+            icon: const Icon(Icons.add_rounded, color: AppColors.grey800),
             onPressed: () => _showCreateEditDialog(context, ref),
           ),
         ],
@@ -117,11 +117,11 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(10),
+                  color: AppColors.grey900.withAlpha(10),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -380,7 +380,7 @@ class _AnnouncementFormSheetState
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -525,7 +525,7 @@ class _AnnouncementFormSheetState
         borderSide: BorderSide(color: AppColors.danger),
       ),
       filled: true,
-      fillColor: const Color(0xFFF8FAFC),
+      fillColor: AppColors.backgroundLight,
     );
   }
 }

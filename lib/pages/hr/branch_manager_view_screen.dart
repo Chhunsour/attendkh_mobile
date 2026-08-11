@@ -41,9 +41,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: const SizedBox.shrink(),
@@ -67,10 +67,10 @@ class BranchManagerViewScreen extends ConsumerWidget {
                   Text(
                     branchName,
                     style: const TextStyle(
-                      color: Colors.black87,
+                      color: AppColors.grey800,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      fontFamily: 'Inter',
+                      
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -80,7 +80,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                       color: Color(0xFFF97316),
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      fontFamily: 'Inter',
+                      
                     ),
                   ),
                 ],
@@ -101,7 +101,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
               style: const TextStyle(
                 color: Color(0xFFF97316),
                 fontWeight: FontWeight.w700,
-                fontFamily: 'Inter',
+                
                 fontSize: 13,
               ),
             ),
@@ -147,7 +147,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                               color: Colors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              fontFamily: 'Inter',
+                              
                             ),
                           ),
                           Text(
@@ -155,7 +155,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 11,
-                              fontFamily: 'Inter',
+                              
                             ),
                           ),
                         ],
@@ -172,7 +172,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey800,
-                  fontFamily: 'Inter',
+                  
                 ),
               ),
               const SizedBox(height: 12),
@@ -222,7 +222,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey800,
-                  fontFamily: 'Inter',
+                  
                 ),
               ),
               const SizedBox(height: 12),
@@ -291,7 +291,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.grey800,
-                  fontFamily: 'Inter',
+                  
                 ),
               ),
               const SizedBox(height: 12),
@@ -310,7 +310,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                       child: Center(
                         child: Text(
                           l10n.noPendingLeaveRequests,
-                          style: const TextStyle(color: AppColors.grey500, fontFamily: 'Inter', fontSize: 13),
+                          style: const TextStyle(color: AppColors.grey500,  fontSize: 13),
                         ),
                       ),
                     );
@@ -379,7 +379,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      fontFamily: 'Inter',
+                      
                     ),
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
@@ -418,9 +418,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontFamily: 'Inter')),
+                Text(title, style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
                 const SizedBox(height: 2),
-                Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey800, fontFamily: 'Inter')),
+                Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey800)),
               ],
             ),
           ),
@@ -465,9 +465,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800, fontFamily: 'Inter')),
+                Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800)),
                 const SizedBox(height: 2),
-                Text(description, style: const TextStyle(fontSize: 10, color: AppColors.grey500, fontFamily: 'Inter')),
+                Text(description, style: const TextStyle(fontSize: 10, color: AppColors.grey500)),
               ],
             ),
           ],
@@ -478,19 +478,19 @@ class BranchManagerViewScreen extends ConsumerWidget {
 
   Widget _buildLeaveRequestTile(AdminLeaveRequestData req) {
     final statusColor = req.status == 'pending'
-        ? const Color(0xFFF59E0B)
+        ? AppColors.warning
         : req.status == 'approved'
-            ? const Color(0xFF10B981)
-            : const Color(0xFFEF4444);
+            ? AppColors.success
+            : AppColors.danger;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.grey200),
-        boxShadow: [BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: AppColors.grey900.withAlpha(5), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Row(
         children: [
@@ -510,12 +510,12 @@ class BranchManagerViewScreen extends ConsumerWidget {
               children: [
                 Text(
                   req.employeeName,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800, fontFamily: 'Inter'),
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${req.leaveTypeName} · ${req.startDate} → ${req.endDate}',
-                  style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontFamily: 'Inter'),
+                  style: const TextStyle(fontSize: 11, color: AppColors.grey500),
                 ),
               ],
             ),
@@ -528,7 +528,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
             ),
             child: Text(
               req.status.toUpperCase(),
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: statusColor, fontFamily: 'Inter'),
+              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: statusColor),
             ),
           ),
         ],

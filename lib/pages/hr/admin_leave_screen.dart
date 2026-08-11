@@ -61,7 +61,7 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Row(
@@ -165,7 +165,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
           children: [
             // ── Filter chips ───────────────────────────────────────────────
             Container(
-              color: Colors.white,
+              color: AppColors.surfaceLight,
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -309,7 +309,7 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -689,11 +689,11 @@ class _RequestCard extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(8),
+            color: AppColors.grey900.withAlpha(8),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -2850,7 +2850,7 @@ class _LeaveTypeCard extends ConsumerWidget {
       barrierDismissible: false,
       builder: (ctx) {
         return Dialog(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.surfaceLight,
           surfaceTintColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
@@ -2888,7 +2888,7 @@ class _LeaveTypeCard extends ConsumerWidget {
                   textAlign: TextAlign.center,
                   text: TextSpan(
                     style: const TextStyle(
-                      color: Colors.black87,
+                      color: AppColors.grey800,
                       fontSize: 15,
                       height: 1.5,
                     ),
@@ -2915,7 +2915,7 @@ class _LeaveTypeCard extends ConsumerWidget {
                         child: Text(
                           AppLocalizations.of(context)!.cancel,
                           style: const TextStyle(
-                            color: Colors.black87,
+                            color: AppColors.grey800,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

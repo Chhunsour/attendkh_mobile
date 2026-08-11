@@ -13,11 +13,11 @@ import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 // ── Status config ────────────────────────────────────────────────────────────
 const _statusConfig = {
-  'active':     _StatusCfg(Color(0xFF16A34A), Color(0xFFDCFCE7), Icons.check_circle_rounded),
-  'inactive':   _StatusCfg(Color(0xFF6B7280), Color(0xFFF3F4F6), Icons.pause_circle_rounded),
-  'terminated': _StatusCfg(Color(0xFFDC2626), Color(0xFFFEE2E2), Icons.cancel_rounded),
-  'resigned':   _StatusCfg(Color(0xFFCA8A04), Color(0xFFFEF9C3), Icons.logout_rounded),
-  'on_leave':   _StatusCfg(Color(0xFF2563EB), Color(0xFFDBEAFE), Icons.beach_access_rounded),
+  'active':     _StatusCfg(AppColors.success, AppColors.successLight, Icons.check_circle_rounded),
+  'inactive':   _StatusCfg(AppColors.grey600, AppColors.grey100, Icons.pause_circle_rounded),
+  'terminated': _StatusCfg(AppColors.danger, AppColors.dangerLight, Icons.cancel_rounded),
+  'resigned':   _StatusCfg(AppColors.warning, AppColors.warningLight, Icons.logout_rounded),
+  'on_leave':   _StatusCfg(AppColors.primary, AppColors.primaryLight, Icons.beach_access_rounded),
 };
 
 class _StatusCfg {
@@ -110,7 +110,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
       backgroundColor: AppColors.backgroundLight,
       // ── App Bar ──────────────────────────────────────────────────────────
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
@@ -174,7 +174,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
         children: [
           // ── Search + Filter Bar ────────────────────────────────────────────
           Container(
-            color: Colors.white,
+            color: AppColors.surfaceLight,
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
             child: Column(
               children: [
@@ -737,7 +737,7 @@ class _EmployeeCard extends ConsumerWidget {
     barrierDismissible: false,
     builder: (ctx) {
       return Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -778,7 +778,7 @@ class _EmployeeCard extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: const TextStyle(
-                    color: Colors.black87,
+                    color: AppColors.grey800,
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -819,7 +819,7 @@ class _EmployeeCard extends ConsumerWidget {
                       child: Text(
                         l10n.cancel,
                         style: const TextStyle(
-                          color: Colors.black87,
+                          color: AppColors.grey800,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

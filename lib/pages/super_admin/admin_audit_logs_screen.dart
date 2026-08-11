@@ -44,15 +44,15 @@ class AdminAuditLogsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.auditLogsTitle,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -149,11 +149,11 @@ class AdminAuditLogsScreen extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withAlpha(6),
+                    color: AppColors.grey900.withAlpha(6),
                     blurRadius: 4,
                     offset: const Offset(0, 1),
                   ),
@@ -262,7 +262,7 @@ class AdminAuditLogsScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -293,7 +293,7 @@ class AdminAuditLogsScreen extends ConsumerWidget {
                   maxHeight: MediaQuery.of(context).size.height * 0.5,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: AppColors.backgroundLight,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.grey200),
                 ),

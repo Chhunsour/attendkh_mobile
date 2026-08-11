@@ -118,22 +118,22 @@ class AdminCompaniesScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.adminCompaniesTitle,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_rounded, color: Colors.black87),
+            icon: const Icon(Icons.add_rounded, color: AppColors.grey800),
             onPressed: () => _showCreateEditDialog(context, ref),
           ),
         ],
@@ -227,11 +227,11 @@ class AdminCompaniesScreen extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(10),
+                  color: AppColors.grey900.withAlpha(10),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -245,7 +245,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
                   clipBehavior: Clip.hardEdge,
                   decoration: BoxDecoration(
                     color: isActive
-                        ? const Color(0xFFEEF2FF)
+                        ? AppColors.infoLight
                         : AppColors.dangerLight,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.grey200),
@@ -256,12 +256,12 @@ class AdminCompaniesScreen extends ConsumerWidget {
                           fit: BoxFit.cover,
                           fallbackIcon: Icon(
                             Icons.business_rounded,
-                            color: isActive ? const Color(0xFF6366F1) : AppColors.danger,
+                            color: isActive ? AppColors.info : AppColors.danger,
                           ),
                         )
                       : Icon(
                           Icons.business_rounded,
-                          color: isActive ? const Color(0xFF6366F1) : AppColors.danger,
+                          color: isActive ? AppColors.info : AppColors.danger,
                         ),
                 ),
                 const SizedBox(width: 14),
@@ -311,7 +311,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  color: Colors.white,
+                  color: AppColors.surfaceLight,
                   surfaceTintColor: Colors.transparent,
                   elevation: 8,
                   position: PopupMenuPosition.under,
@@ -765,7 +765,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -821,23 +821,23 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF7ED),
+                        color: AppColors.warningLight,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFFFEDD5)),
+                        border: Border.all(color: AppColors.warning.withAlpha(80)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             l10n.companyOwnerAccountTitle,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF9A3412)),
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.warning),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             _isEditing
                                 ? l10n.companyOwnerEditDesc
                                 : l10n.companyOwnerCreateDesc,
-                            style: TextStyle(fontSize: 11, color: Colors.orange.shade800),
+                            style: const TextStyle(fontSize: 11, color: AppColors.warning),
                           ),
                           const SizedBox(height: 10),
                           _buildField(l10n.ownerNameLabel, _adminNameCtrl),
@@ -901,7 +901,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
                                   enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
                                   filled: true,
-                                  fillColor: const Color(0xFFF8FAFC),
+                                  fillColor: AppColors.backgroundLight,
                                 ),
                                 items: const [
                                   DropdownMenuItem(value: 'Asia/Phnom_Penh', child: Text('Asia/Phnom_Penh', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
@@ -936,7 +936,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
                                   enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
                                   filled: true,
-                                  fillColor: const Color(0xFFF8FAFC),
+                                  fillColor: AppColors.backgroundLight,
                                 ),
                                 items: const [
                                   DropdownMenuItem(value: 'USD', child: Text('USD (\$)', style: TextStyle(fontSize: 13))),
@@ -1001,7 +1001,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                       decoration: BoxDecoration(
                         border: Border.all(color: AppColors.grey200),
                         borderRadius: BorderRadius.circular(12),
-                        color: const Color(0xFFF8FAFC),
+                        color: AppColors.backgroundLight,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1104,7 +1104,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                               border: Border.all(
                                   color: AppColors.grey200, style: BorderStyle.solid),
                               borderRadius: BorderRadius.circular(12),
-                              color: const Color(0xFFF8FAFC),
+                              color: AppColors.backgroundLight,
                             ),
                             child: _logoFile != null
                                 ? ClipRRect(
@@ -1261,7 +1261,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
               borderSide: BorderSide(color: AppColors.danger),
             ),
             filled: true,
-            fillColor: const Color(0xFFF8FAFC),
+            fillColor: AppColors.backgroundLight,
           ),
         ),
       ],
@@ -1303,7 +1303,7 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -1426,7 +1426,7 @@ class _CompanyCreatedSuccessDialogState
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 0,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
         child: Column(
@@ -1472,7 +1472,7 @@ class _CompanyCreatedSuccessDialogState
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: AppColors.backgroundLight,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.grey200),
               ),

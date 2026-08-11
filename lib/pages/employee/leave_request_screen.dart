@@ -175,7 +175,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.category),
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: AppColors.surfaceLight,
                         ),
                         items: leaveTypes.map((lt) {
                           return DropdownMenuItem<int>(
@@ -199,7 +199,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             return Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
-                                color: isLow ? const Color(0xFFFFF7ED) : const Color(0xFFF0FDF4),
+                                color: isLow ? AppColors.warningLight : AppColors.successLight,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: isLow ? AppColors.warning : AppColors.success),
                               ),
@@ -232,7 +232,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             return Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFFF7ED),
+                                color: AppColors.warningLight,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: AppColors.warning),
                               ),
@@ -264,7 +264,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                   onTap: () => _pickDate(true),
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), border: Border.all(color: AppColors.grey300), borderRadius: BorderRadius.circular(12)),
+                                    decoration: BoxDecoration(color: AppColors.backgroundLight, border: Border.all(color: AppColors.grey300), borderRadius: BorderRadius.circular(12)),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
@@ -288,7 +288,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                   onTap: () => _pickDate(false),
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), border: Border.all(color: AppColors.grey300), borderRadius: BorderRadius.circular(12)),
+                                    decoration: BoxDecoration(color: AppColors.backgroundLight, border: Border.all(color: AppColors.grey300), borderRadius: BorderRadius.circular(12)),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
@@ -308,7 +308,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                       // Half Day Toggle
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                        decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
                         child: Column(
                           children: [
                             Row(
@@ -368,7 +368,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                         decoration: InputDecoration(
                           hintText: l10n.describeLeaveReason,
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: AppColors.surfaceLight,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -389,7 +389,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.surfaceLight,
                             border: Border.all(color: _attachment != null ? AppColors.primary : AppColors.grey300),
                             borderRadius: BorderRadius.circular(12),
                           ),

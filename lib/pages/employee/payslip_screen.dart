@@ -296,7 +296,7 @@ class _WalletCardState extends State<_WalletCard> {
                       _statChip(l10n.present, p.presentDays.toString(), AppColors.success),
                       _statChip(l10n.late, p.lateDays.toString(), AppColors.warning),
                       if (p.earlyLeaveDays > 0)
-                        _statChip(l10n.earlyOut, p.earlyLeaveDays.toString(), Colors.orange),
+                        _statChip(l10n.earlyOut, p.earlyLeaveDays.toString(), AppColors.warning),
                       _statChip(l10n.otHours, p.overtimeHours.toString(), AppColors.info),
                     ],
                   ),

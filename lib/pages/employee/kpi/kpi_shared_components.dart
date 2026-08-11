@@ -15,11 +15,11 @@ class KpiSharedComponents {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.grey900.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           )
@@ -88,11 +88,11 @@ class KpiSharedComponents {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
+                color: AppColors.grey900.withValues(alpha: 0.02),
                 blurRadius: 5,
                 offset: const Offset(0, 2),
               )
@@ -116,13 +116,13 @@ class KpiSharedComponents {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: isMock ? Colors.amber[50] : Colors.green[50],
+                            color: isMock ? AppColors.warningLight : AppColors.successLight,
                             borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: isMock ? Colors.amber[200]! : Colors.green[200]!),
+                            border: Border.all(color: isMock ? AppColors.warning : AppColors.success),
                           ),
                           child: Text(
                             isMock ? l10n.estimatedBadge : l10n.liveDataBadge,
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isMock ? Colors.amber[800] : Colors.green[700]),
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isMock ? AppColors.warning : AppColors.success),
                           ),
                         ),
                       ],

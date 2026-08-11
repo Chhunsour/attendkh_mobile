@@ -166,7 +166,7 @@ class _State extends State<AdminDocumentsScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
+                          color: AppColors.backgroundLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppColors.grey300),
                         ),
@@ -306,12 +306,12 @@ class _State extends State<AdminDocumentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Documents', style: TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: const Text('Documents', style: TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700)),
         actions: [
           IconButton(icon: const Icon(Icons.add, color: AppColors.primary), onPressed: () => _showForm())
         ],

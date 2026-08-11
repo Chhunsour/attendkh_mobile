@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 
 /// Circular logo widget used on login / splash screens.
 ///
@@ -9,7 +10,7 @@ class AppLogo extends StatelessWidget {
 
   const AppLogo({super.key, this.size = 120});
 
-  static const _primaryColor = Color(0xFF0052FF);
+  static const _primaryColor = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class AppLogo extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0052FF), Color(0xFF16A34A)],
+          colors: [AppColors.primary, AppColors.success],
         ),
         boxShadow: [
           BoxShadow(
@@ -30,7 +31,7 @@ class AppLogo extends StatelessWidget {
             spreadRadius: size * 0.04,
           ),
         ],
-        border: Border.all(color: Colors.white, width: 3),
+        border: Border.all(color: AppColors.surfaceLight, width: 3),
       ),
       child: ClipOval(
         child: Image.asset(
@@ -44,7 +45,7 @@ class AppLogo extends StatelessWidget {
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
                 letterSpacing: 1.5,
-                fontFamily: 'Inter',
+                
               ),
             ),
           ),

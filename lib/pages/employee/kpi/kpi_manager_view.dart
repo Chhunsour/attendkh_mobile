@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/models/kpi_model.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'kpi_shared_components.dart';
 
 class KpiManagerView extends StatelessWidget {
@@ -17,14 +18,14 @@ class KpiManagerView extends StatelessWidget {
           title: l10n.branchAverageScore,
           score: data.metrics.branchAverage,
           subtitle: l10n.aggregatedFromTeam,
-          color: Colors.indigo,
+          color: AppColors.info,
           icon: Icons.group,
         ),
         Expanded(
           child: KpiSharedComponents.buildKpiList(
             context: context,
             kpis: data.managerKpis,
-            themeColor: Colors.indigo,
+            themeColor: AppColors.info,
           ),
         ),
       ],

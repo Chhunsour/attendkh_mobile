@@ -71,7 +71,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
+          backgroundColor: AppColors.backgroundLight,
           appBar: _buildAppBar(context, unreadCount, l10n),
           body: IndexedStack(
             index: _selectedIndex,
@@ -94,7 +94,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   PreferredSizeWidget _buildAppBar(BuildContext context, int unreadCount, AppLocalizations l10n) {
     final titles = _getTitles(l10n);
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       title: Row(
@@ -112,10 +112,10 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           Text(
             titles[_selectedIndex],
             style: const TextStyle(
-              color: Colors.black87,
+              color: AppColors.grey800,
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              fontFamily: 'Inter',
+              
             ),
           ),
         ],
@@ -128,7 +128,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
             clipBehavior: Clip.none,
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications_outlined, color: Colors.black87, size: 26),
+                icon: const Icon(Icons.notifications_outlined, color: AppColors.grey800, size: 26),
                 onPressed: () async {
                   context.push(AppRoutes.notifications);
                   // Reset count after viewing
@@ -156,7 +156,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
                         height: 1.2,
-                        fontFamily: 'Inter',
+                        
                       ),
                     ),
                   ),
@@ -216,9 +216,9 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 28),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(24),
-              boxShadow: [BoxShadow(color: Colors.black.withAlpha(30), blurRadius: 30, offset: const Offset(0, 10))],
+              boxShadow: [BoxShadow(color: AppColors.grey900.withAlpha(30), blurRadius: 30, offset: const Offset(0, 10))],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -229,7 +229,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                   child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 4),
                 ),
                 const SizedBox(height: 16),
-                Text(l10n.switchingBranchView, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.grey800, fontFamily: 'Inter')),
+                Text(l10n.switchingBranchView, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.grey800)),
               ],
             ),
           ),
@@ -291,7 +291,7 @@ class _NavItem extends StatelessWidget {
                 color: color,
                 fontSize: 10,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                fontFamily: 'Inter',
+                
               ),
             ),
           ],

@@ -2,17 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/services/auth_repository.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/app_logo.dart';
 import 'package:mpg_hr_mobile_app/components/custom_text_field.dart';
 import 'package:mpg_hr_mobile_app/components/primary_button.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-
-/// ── Design tokens (matching login screen) ──
-const _primaryBlue = Color(0xFF4F7DF3);
-const _textDark = Color(0xFF222222);
-const _textSecondary = Color(0xFF777777);
-const _white = Colors.white;
-const _overlayColor = Color(0x73000000); // 45 % black
 
 class RegisterCompanyScreen extends ConsumerStatefulWidget {
   const RegisterCompanyScreen({super.key});
@@ -137,7 +131,7 @@ class _RegisterCompanyScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.companyPrefix + result.companyName + l10n.createdSuccessSuffix),
-          backgroundColor: const Color(0xFF22C55E),
+          backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -168,7 +162,7 @@ class _RegisterCompanyScreenState
     }
 
     return Scaffold(
-      backgroundColor: _white,
+      backgroundColor: AppColors.surfaceLight,
       body: Stack(
         children: [
           // ── Layer 1: Background image ──
@@ -202,7 +196,7 @@ class _RegisterCompanyScreenState
             left: 0,
             right: 0,
             height: size.height,
-            child: Container(color: _overlayColor),
+            child: Container(color: const Color(0x73000000)),
           ),
 
           // ── Layer 3: Back button (app-bar style, top-left) ──
@@ -217,12 +211,12 @@ class _RegisterCompanyScreenState
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: _white.withAlpha(51), // ~20 % white
+                      color: Colors.white.withAlpha(51),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
                       Icons.arrow_back_rounded,
-                      color: _white,
+                      color: Colors.white,
                       size: 22,
                     ),
                   ),
@@ -252,7 +246,7 @@ class _RegisterCompanyScreenState
               position: _slideAnim,
               child: Container(
                 decoration: const BoxDecoration(
-                  color: _white,
+                  color: AppColors.surfaceLight,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(35),
                     topRight: Radius.circular(35),
@@ -282,8 +276,7 @@ class _RegisterCompanyScreenState
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: _textDark,
-              fontFamily: 'Inter',
+              color: AppColors.grey900,
             ),
           ),
           const SizedBox(height: 4),
@@ -294,8 +287,7 @@ class _RegisterCompanyScreenState
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: _textSecondary,
-              fontFamily: 'Inter',
+              color: AppColors.grey500,
             ),
           ),
 
@@ -309,7 +301,7 @@ class _RegisterCompanyScreenState
                   height: 4,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(2),
-                    color: _primaryBlue,
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -320,8 +312,8 @@ class _RegisterCompanyScreenState
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(2),
                     color: _step == 2
-                        ? _primaryBlue
-                        : const Color(0xFFE5E5E5),
+                        ? AppColors.primary
+                        : AppColors.grey200,
                   ),
                 ),
               ),
@@ -336,17 +328,16 @@ class _RegisterCompanyScreenState
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
+                color: AppColors.dangerLight,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.redAccent.withAlpha(50)),
+                border: Border.all(color: AppColors.danger.withValues(alpha: 0.5)),
               ),
               child: Text(
                 _serverError!,
                 style: const TextStyle(
-                  color: Colors.redAccent,
+                  color: AppColors.danger,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  fontFamily: 'Inter',
                 ),
               ),
             ),
@@ -416,7 +407,7 @@ class _RegisterCompanyScreenState
                 _obscurePassword
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: const Color(0xFF9CA3AF),
+                color: AppColors.grey400,
                 size: 22,
               ),
               onPressed: () =>
@@ -440,7 +431,7 @@ class _RegisterCompanyScreenState
                 _obscureConfirmPassword
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: const Color(0xFF9CA3AF),
+                color: AppColors.grey400,
                 size: 22,
               ),
               onPressed: () => setState(
@@ -489,62 +480,58 @@ class _RegisterCompanyScreenState
               hint: Text(
                 l10n.selectCompanySize,
                 style: const TextStyle(
-                  color: Color(0xFF9CA3AF),
+                  color: AppColors.grey400,
                   fontSize: 16,
-                  fontFamily: 'Inter',
                 ),
               ),
-              dropdownColor: _white,
+              dropdownColor: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(16),
               style: const TextStyle(
                 fontSize: 16,
-                fontFamily: 'Inter',
-                color: _textDark,
+                color: AppColors.grey900,
               ),
               icon: const Icon(
                 Icons.keyboard_arrow_down_rounded,
-                color: Color(0xFF9CA3AF),
+                color: AppColors.grey400,
               ),
               decoration: InputDecoration(
                 labelText: l10n.companySize,
                 hintStyle: const TextStyle(
-                  color: Color(0xFF9CA3AF),
+                  color: AppColors.grey400,
                   fontSize: 16,
-                  fontFamily: 'Inter',
                 ),
                 labelStyle: const TextStyle(
-                  color: Color(0xFF9CA3AF),
+                  color: AppColors.grey400,
                   fontSize: 14,
-                  fontFamily: 'Inter',
                   fontWeight: FontWeight.w500,
                 ),
                 prefixIcon: const Icon(
                   Icons.people_outline_rounded,
-                  color: Color(0xFF9CA3AF),
+                  color: AppColors.grey400,
                   size: 22,
                 ),
                 filled: true,
-                fillColor: const Color(0xFFFAFAFA),
+                fillColor: AppColors.grey50,
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
+                  borderSide: const BorderSide(color: AppColors.grey200),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
+                  borderSide: const BorderSide(color: AppColors.grey200),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: const BorderSide(
-                    color: _primaryBlue,
+                    color: AppColors.primary,
                     width: 2,
                   ),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Colors.redAccent),
+                  borderSide: const BorderSide(color: AppColors.danger),
                 ),
               ),
               items: _companySizes
@@ -554,7 +541,6 @@ class _RegisterCompanyScreenState
                           size,
                           style: const TextStyle(
                             fontSize: 14,
-                            fontFamily: 'Inter',
                           ),
                         ),
                       ))
@@ -584,17 +570,16 @@ class _RegisterCompanyScreenState
                   child: OutlinedButton(
                     onPressed: _goToStep1,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: _textSecondary,
-                      side: const BorderSide(color: Color(0xFFE5E5E5)),
+                      foregroundColor: AppColors.grey500,
+                      side: const BorderSide(color: AppColors.grey200),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28),
                       ),
                       textStyle: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        fontFamily: 'Inter',
                       ),
-                      backgroundColor: _white,
+                      backgroundColor: AppColors.surfaceLight,
                     ),
                     child: Text(l10n.back),
                   ),
@@ -630,15 +615,14 @@ class _TopBranding extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const AppLogo(size: 100),
-        SizedBox(height: 16),
-        Text(
+        const SizedBox(height: 16),
+        const Text(
           'MPG GARAGE',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w700,
-            color: _white,
+            color: Colors.white,
             letterSpacing: 1.2,
-            fontFamily: 'Inter',
           ),
         ),
         const SizedBox(height: 6),
@@ -647,8 +631,7 @@ class _TopBranding extends StatelessWidget {
           style: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w400,
-            color: Color(0xB3FFFFFF), // white.withAlpha(179)
-            fontFamily: 'Inter',
+            color: Color(0xB3FFFFFF),
           ),
         ),
       ],

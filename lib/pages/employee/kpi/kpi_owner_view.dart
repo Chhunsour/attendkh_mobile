@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/models/kpi_model.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 
 class KpiOwnerView extends StatelessWidget {
   final KpiData data;
@@ -211,9 +212,9 @@ class _OwnerKpiCard extends StatelessWidget {
 
   Color get _scoreColor {
     final s = kpi.score.toDouble();
-    if (s >= 80) return Colors.green;
-    if (s >= 60) return Colors.orange;
-    return Colors.red;
+    if (s >= 80) return AppColors.success;
+    if (s >= 60) return AppColors.warning;
+    return AppColors.danger;
   }
 
   String _scoreLabel(BuildContext context) {
@@ -233,7 +234,7 @@ class _OwnerKpiCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
@@ -274,37 +275,37 @@ class _OwnerKpiCard extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF111827),
+                            color: AppColors.grey900,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           kpi.description,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[500],
+                            color: AppColors.grey500,
                           ),
                         ),
                       ],
                     ),
                   ),
                   // Live badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.green[50],
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: Colors.green[200]!),
-                    ),
-                    child: Text(
-                      l10n.liveDataBadge,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green[700],
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.successLight,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: AppColors.success),
+                      ),
+                      child: Text(
+                        l10n.liveDataBadge,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.success,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -440,17 +441,17 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.analytics_outlined, size: 64, color: Colors.grey[300]),
+          const Icon(Icons.analytics_outlined, size: 64, color: AppColors.grey300),
           const SizedBox(height: 16),
           Text(
             l10n.noCompanyKpisFound,
-            style: TextStyle(color: Colors.grey[500], fontSize: 15),
+            style: const TextStyle(color: AppColors.grey500, fontSize: 15),
           ),
           const SizedBox(height: 8),
           Text(
             l10n.noCompanyKpisDesc,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[400], fontSize: 12),
+            style: const TextStyle(color: AppColors.grey400, fontSize: 12),
           ),
         ],
       ),

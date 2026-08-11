@@ -65,13 +65,13 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: Text(l10n.branchPayrollTitle(widget.branchName), style: const TextStyle(color: Colors.black87)),
-        backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        title: Text(l10n.branchPayrollTitle(widget.branchName), style: const TextStyle(color: AppColors.grey800)),
+        backgroundColor: AppColors.surfaceLight,
+        iconTheme: const IconThemeData(color: AppColors.grey800),
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.calculate, color: Colors.teal),
+            icon: const Icon(Icons.calculate, color: AppColors.primary),
             tooltip: l10n.formulasHandbookTitle,
             onPressed: () async {
               final s = await ref.read(branchFormulasProvider(widget.branchId).future);
@@ -130,9 +130,9 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surfaceLight,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: AppColors.grey200),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,14 +144,14 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                       const SizedBox(height: 8),
                       Text(
                         l10n.branchCustomizationDesc,
-                        style: const TextStyle(color: Colors.grey, fontSize: 13),
+                        style: const TextStyle(color: AppColors.grey500, fontSize: 13),
                       ),
                       const SizedBox(height: 12),
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(l10n.useCustomBranchRulesLabel),
                         value: _isCustom,
-                        activeThumbColor: Colors.teal,
+                        activeThumbColor: AppColors.primary,
                         onChanged: (val) {
                           setState(() => _isCustom = val);
                         },
@@ -166,17 +166,17 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                       padding: const EdgeInsets.all(32),
                       child: Column(
                         children: [
-                          Icon(Icons.account_balance, size: 64, color: Colors.grey.shade300),
+                          const Icon(Icons.account_balance, size: 64, color: AppColors.grey300),
                           const SizedBox(height: 16),
                           Text(
                             l10n.inheritingCompanyRulesTitle,
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey700),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             l10n.inheritingCompanyRulesDesc,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.grey.shade500),
+                            style: const TextStyle(color: AppColors.grey500),
                           ),
                           const SizedBox(height: 24),
                           ElevatedButton.icon(

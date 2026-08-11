@@ -4,17 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 // import 'package:mpg_hr_mobile_app/services/auth_repository.dart';
 import 'package:mpg_hr_mobile_app/components/app_logo.dart';
 import 'package:mpg_hr_mobile_app/components/custom_text_field.dart';
 import 'package:mpg_hr_mobile_app/components/primary_button.dart';
 import 'package:mpg_hr_mobile_app/components/secondary_button.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-
-/// ── Design tokens (matches prompt spec) ──
-// const _primaryBlue = Color(0xFF4F7DF3);
-const _textDark = Color(0xFF222222);
-const _white = Colors.white;
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -108,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
 
     return Scaffold(
-      backgroundColor: _white,
+      backgroundColor: AppColors.surfaceLight,
       body: Stack(
         children: [
           // ── Layer 1: Full-screen garage/workshop background image ──
@@ -218,11 +214,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             Text(
               l10n.welcomeBack,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
-                color: _textDark,
-                fontFamily: 'Inter',
+                color: AppColors.grey900,
               ),
             ),
             const SizedBox(height: 30),
@@ -253,7 +248,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   _obscurePassword
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                  color: const Color(0xFF9CA3AF),
+                  color: AppColors.grey400,
                   size: 22,
                 ),
                 onPressed: () =>
@@ -489,9 +484,8 @@ class _TopBranding extends StatelessWidget {
           style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.w800,
-            color: _white,
+            color: Colors.white,
             letterSpacing: 1.2,
-            fontFamily: 'Inter',
           ),
         ),
         const SizedBox(height: 6),
@@ -501,8 +495,7 @@ class _TopBranding extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: _white.withAlpha(200),
-            fontFamily: 'Inter',
+            color: Colors.white.withAlpha(200),
           ),
         ),
       ],
@@ -524,7 +517,7 @@ class _OrDivider extends StatelessWidget {
         Expanded(
           child: Container(
             height: 1,
-            color: const Color(0xFFD1D5DB),
+            color: AppColors.grey300,
           ),
         ),
         Padding(
@@ -534,15 +527,14 @@ class _OrDivider extends StatelessWidget {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF9CA3AF),
-              fontFamily: 'Inter',
+              color: AppColors.grey400,
             ),
           ),
         ),
         Expanded(
           child: Container(
             height: 1,
-            color: const Color(0xFFD1D5DB),
+            color: AppColors.grey300,
           ),
         ),
       ],

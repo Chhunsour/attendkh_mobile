@@ -26,15 +26,15 @@ class AdminSettingsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.platformSettingsTitle,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -200,8 +200,7 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
             keyboardType: keyboardType,
             style: const TextStyle(
               fontSize: 14,
-              color: Colors.black87,
-              fontFamily: 'Inter',
+              color: AppColors.grey800,
             ),
             decoration: InputDecoration(
               isDense: true,
@@ -220,7 +219,7 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
                 borderSide: BorderSide(color: AppColors.primary),
               ),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: AppColors.surfaceLight,
             ),
           ),
         ],
@@ -265,7 +264,6 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                fontFamily: 'Inter',
               ),
             ),
             style: ElevatedButton.styleFrom(
@@ -301,7 +299,6 @@ class _SectionTitle extends StatelessWidget {
           fontWeight: FontWeight.w700,
           color: AppColors.grey500,
           letterSpacing: 0.5,
-          fontFamily: 'Inter',
         ),
       ),
     );

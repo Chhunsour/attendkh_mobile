@@ -27,11 +27,11 @@ class DocumentsScreen extends ConsumerWidget {
 
   Color _getIconColor(String? mimeType) {
     if (mimeType == null) return AppColors.grey500;
-    if (mimeType.contains('image/')) return Colors.blue;
-    if (mimeType.contains('pdf')) return Colors.red;
-    if (mimeType.contains('spreadsheet') || mimeType.contains('excel') || mimeType.contains('csv')) return Colors.green;
-    if (mimeType.contains('word') || mimeType.contains('document')) return Colors.blue.shade700;
-    if (mimeType.contains('zip') || mimeType.contains('archive') || mimeType.contains('rar')) return Colors.orange;
+    if (mimeType.contains('image/')) return AppColors.primary;
+    if (mimeType.contains('pdf')) return AppColors.danger;
+    if (mimeType.contains('spreadsheet') || mimeType.contains('excel') || mimeType.contains('csv')) return AppColors.success;
+    if (mimeType.contains('word') || mimeType.contains('document')) return AppColors.primaryDark;
+    if (mimeType.contains('zip') || mimeType.contains('archive') || mimeType.contains('rar')) return AppColors.warning;
     return AppColors.grey500;
   }
 
@@ -103,10 +103,10 @@ class DocumentsScreen extends ConsumerWidget {
               final doc = documents[index];
               return Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.grey200),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
+                  boxShadow: [BoxShadow(color: AppColors.grey900.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
                 ),
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(16),
@@ -138,8 +138,8 @@ class DocumentsScreen extends ConsumerWidget {
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
-                              child: Text(doc.department!.name, style: TextStyle(fontSize: 12, color: Colors.blue.shade700)),
+                              decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(4)),
+                              child: Text(doc.department!.name, style: const TextStyle(fontSize: 12, color: AppColors.primaryDark)),
                             ),
                           ],
                         ],

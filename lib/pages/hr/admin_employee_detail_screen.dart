@@ -11,11 +11,11 @@ import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 // Status config
 const _statusConfig = {
-  'active':     _StatusCfg(Color(0xFF16A34A), Color(0xFFDCFCE7), Icons.check_circle_rounded),
-  'inactive':   _StatusCfg(Color(0xFF6B7280), Color(0xFFF3F4F6), Icons.pause_circle_rounded),
-  'terminated': _StatusCfg(Color(0xFFDC2626), Color(0xFFFEE2E2), Icons.cancel_rounded),
-  'resigned':   _StatusCfg(Color(0xFFCA8A04), Color(0xFFFEF9C3), Icons.logout_rounded),
-  'on_leave':   _StatusCfg(Color(0xFF2563EB), Color(0xFFDBEAFE), Icons.beach_access_rounded),
+  'active':     _StatusCfg(AppColors.success, AppColors.successLight, Icons.check_circle_rounded),
+  'inactive':   _StatusCfg(AppColors.grey600, AppColors.grey100, Icons.pause_circle_rounded),
+  'terminated': _StatusCfg(AppColors.danger, AppColors.dangerLight, Icons.cancel_rounded),
+  'resigned':   _StatusCfg(AppColors.warning, AppColors.warningLight, Icons.logout_rounded),
+  'on_leave':   _StatusCfg(AppColors.primary, AppColors.primaryLight, Icons.beach_access_rounded),
 };
 
 class _StatusCfg {
@@ -55,7 +55,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.grey800),
@@ -733,7 +733,7 @@ class _AdminEmployeeDetailScreenState extends ConsumerState<AdminEmployeeDetailS
       case 'present':
         return AppColors.success;
       case 'late':
-        return Colors.orange;
+        return AppColors.warning;
       case 'absent':
         return AppColors.danger;
       default:

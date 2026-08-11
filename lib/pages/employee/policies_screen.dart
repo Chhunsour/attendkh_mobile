@@ -100,22 +100,22 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.grey200),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
+              boxShadow: [BoxShadow(color: AppColors.grey900.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2))],
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: policy.isAcknowledged ? Colors.green.shade50 : Colors.orange.shade50,
+                    color: policy.isAcknowledged ? AppColors.successLight : AppColors.warningLight,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     policy.isAcknowledged ? Icons.verified : Icons.warning_amber_rounded,
-                    color: policy.isAcknowledged ? Colors.green : Colors.orange,
+                    color: policy.isAcknowledged ? AppColors.success : AppColors.warning,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -186,11 +186,11 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
         title: Text(widget.l10n.policyDocument),
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
       ),
       body: Column(
         children: [
@@ -234,21 +234,21 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
           if (widget.policy.isAcknowledged)
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                border: Border(top: BorderSide(color: Colors.green.shade200)),
+              decoration: const BoxDecoration(
+                color: AppColors.successLight,
+                border: Border(top: BorderSide(color: AppColors.success)),
               ),
               child: SafeArea(
                 top: false,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.check_circle, color: Colors.green),
+                    const Icon(Icons.check_circle, color: AppColors.success),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         '${widget.l10n.acknowledgedOn}${widget.policy.acknowledgedAt?.split("T").first ?? ""}',
-                        style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -259,15 +259,15 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -4))],
+                color: AppColors.surfaceLight,
+                boxShadow: [BoxShadow(color: AppColors.grey900.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -4))],
               ),
               child: SafeArea(
                 top: false,
                 child: ElevatedButton(
                   onPressed: _submitting ? null : _handleAcknowledge,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: AppColors.warning,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 
 /// Reusable text field for auth screens.
 ///
@@ -39,12 +40,12 @@ class CustomTextField extends StatelessWidget {
   // ── Design token constants (matches login-screen spec) ──
   static const _borderRadius = 16.0;
   static const _height = 56.0;
-  static const _borderColor = Color(0xFFE5E5E5);
-  static const _fillColor = Color(0xFFFAFAFA);
-  static const _textColor = Color(0xFF222222);
-  static const _hintColor = Color(0xFF9CA3AF);
-  static const _iconColor = Color(0xFF9CA3AF);
-  static const _primaryColor = Color(0xFF4F7DF3);
+  static const _borderColor = AppColors.grey200;
+  static const _fillColor = AppColors.grey50;
+  static const _textColor = AppColors.grey900;
+  static const _hintColor = AppColors.grey400;
+  static const _iconColor = AppColors.grey400;
+  static const _primaryColor = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +61,7 @@ class CustomTextField extends StatelessWidget {
         validator: validator,
         style: const TextStyle(
           fontSize: 16,
-          fontFamily: 'Inter',
+          
           color: _textColor,
         ),
         decoration: InputDecoration(
@@ -69,12 +70,12 @@ class CustomTextField extends StatelessWidget {
           hintStyle: const TextStyle(
             color: _hintColor,
             fontSize: 16,
-            fontFamily: 'Inter',
+            
           ),
           labelStyle: const TextStyle(
             color: _hintColor,
             fontSize: 14,
-            fontFamily: 'Inter',
+            
             fontWeight: FontWeight.w500,
           ),
           prefixIcon: Icon(prefixIcon, color: _iconColor, size: 22),
@@ -97,11 +98,11 @@ class CustomTextField extends StatelessWidget {
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: Colors.redAccent),
+            borderSide: const BorderSide(color: AppColors.danger),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: Colors.redAccent, width: 2),
+            borderSide: const BorderSide(color: AppColors.danger, width: 2),
           ),
         ),
       ),

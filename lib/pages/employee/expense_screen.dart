@@ -92,7 +92,7 @@ class ExpenseScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _ExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider)),
     );
@@ -102,7 +102,7 @@ class ExpenseScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _ExpenseForm(
         onSubmitted: () => ref.invalidate(expensesProvider),
@@ -115,7 +115,7 @@ class ExpenseScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _ExpenseDetailSheet(expense: e, statusColor: statusColor),
     );
@@ -700,7 +700,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: AppColors.backgroundLight,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.grey300),
                   ),

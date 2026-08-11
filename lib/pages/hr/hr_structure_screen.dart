@@ -36,15 +36,15 @@ class _HrStructureScreenState extends ConsumerState<HrStructureScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.hrStructureTitle,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -550,7 +550,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
     barrierDismissible: false,
     builder: (ctx) {
       return Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -591,7 +591,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: const TextStyle(
-                    color: Colors.black87,
+                    color: AppColors.grey800,
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -618,7 +618,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                       child: Text(
                         l10n.cancel,
                         style: const TextStyle(
-                          color: Colors.black87,
+                          color: AppColors.grey800,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -1955,7 +1955,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
     barrierDismissible: false,
     builder: (ctx) {
       return Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -1996,7 +1996,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: const TextStyle(
-                    color: Colors.black87,
+                    color: AppColors.grey800,
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -2023,7 +2023,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                       child: Text(
                         l10n.cancel,
                         style: const TextStyle(
-                          color: Colors.black87,
+                          color: AppColors.grey800,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -2710,7 +2710,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
     barrierDismissible: false,
     builder: (ctx) {
       return Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -2751,7 +2751,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: const TextStyle(
-                    color: Colors.black87,
+                    color: AppColors.grey800,
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -2780,7 +2780,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                       child: Text(
                         l10n.cancel,
                         style: const TextStyle(
-                          color: Colors.black87,
+                          color: AppColors.grey800,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -3289,7 +3289,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
     barrierDismissible: false,
     builder: (ctx) {
       return Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -3330,7 +3330,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: const TextStyle(
-                    color: Colors.black87,
+                    color: AppColors.grey800,
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -3359,7 +3359,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                       child: Text(
                         l10n.cancel,
                         style: const TextStyle(
-                          color: Colors.black87,
+                          color: AppColors.grey800,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -3978,7 +3978,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                           FloatingActionButton.small(
                             heroTag: 'zoomIn',
                             onPressed: () => _zoom(1.3),
-                            backgroundColor: Colors.white,
+                            backgroundColor: AppColors.surfaceLight,
                             foregroundColor: AppColors.grey700,
                             child: const Icon(Icons.add_rounded),
                           ),
@@ -3986,7 +3986,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                           FloatingActionButton.small(
                             heroTag: 'zoomOut',
                             onPressed: () => _zoom(1 / 1.3),
-                            backgroundColor: Colors.white,
+                            backgroundColor: AppColors.surfaceLight,
                             foregroundColor: AppColors.grey700,
                             child: const Icon(Icons.remove_rounded),
                           ),

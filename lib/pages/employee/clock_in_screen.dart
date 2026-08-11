@@ -271,11 +271,11 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
         : (widget.args.isOvertime ? l10n.overtimeCheckOut : l10n.checkOutTitle);
     
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.grey900),
       ),

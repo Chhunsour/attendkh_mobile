@@ -18,7 +18,7 @@ Future<DateTime?> showCustomDatePicker(
           colorScheme: const ColorScheme.light(
             primary: AppColors.primary,
             onPrimary: Colors.white,
-            surface: Colors.white,
+            surface: AppColors.surfaceLight,
             onSurface: AppColors.grey900,
           ),
           dialogTheme: DialogThemeData(
@@ -28,7 +28,7 @@ Future<DateTime?> showCustomDatePicker(
           datePickerTheme: DatePickerThemeData(
             headerBackgroundColor: AppColors.primary,
             headerForegroundColor: Colors.white,
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.surfaceLight,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             dayStyle: const TextStyle(fontWeight: FontWeight.w600),
             todayBorder: const BorderSide(color: AppColors.primary, width: 1.5),

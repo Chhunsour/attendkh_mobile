@@ -37,12 +37,12 @@ class _AdminPerformanceScreenState extends State<AdminPerformanceScreen> with Si
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: Text(l10n.performanceTrainingTitle, style: const TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text(l10n.performanceTrainingTitle, style: const TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700)),
       ),
       body: Column(
         children: [
@@ -137,7 +137,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
             child: Container(
               padding: const EdgeInsets.all(24),
               height: MediaQuery.of(context).size.height * 0.85,
-              decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+              decoration: const BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -192,7 +192,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF8FAFC),
+                                color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: AppColors.grey300),
                               ),
@@ -239,7 +239,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF8FAFC),
+                                color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: AppColors.grey300),
                               ),
@@ -301,7 +301,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
+                          color: AppColors.backgroundLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppColors.grey300),
                         ),
@@ -434,11 +434,11 @@ class _ReviewsTabState extends State<_ReviewsTab> {
       body: Column(
         children: [
           Container(
-          padding: const EdgeInsets.all(16), color: Colors.white,
+          padding: const EdgeInsets.all(16), color: AppColors.surfaceLight,
           child: Column(
             children: [
               TextField(
-                decoration: InputDecoration(hintText: l10n.searchEmployeesHint, prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.grey)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
+                decoration: InputDecoration(hintText: l10n.searchEmployeesHint, prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey300)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
                 onSubmitted: (val) { _search = val; _fetchData(); },
               ),
               const SizedBox(height: 12),
@@ -482,7 +482,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
               final r = _reviews[i];
               final statusColor = r.status == 'completed' ? AppColors.success : r.status == 'submitted' ? AppColors.info : AppColors.warning;
               return Container(
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.grey200)), padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.grey200)), padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -507,17 +507,17 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     Wrap(
                       spacing: 8, runSpacing: 8,
                       children: [
-                        Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Text('${l10n.periodRequired.replaceAll(' *', '')}: ${r.reviewPeriod ?? 'N/A'}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
+                        Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: AppColors.grey100, borderRadius: BorderRadius.circular(12)), child: Text('${l10n.periodRequired.replaceAll(' *', '')}: ${r.reviewPeriod ?? 'N/A'}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
                         if (r.overallRating != null)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(12)),
+                            decoration: BoxDecoration(color: AppColors.warningLight, borderRadius: BorderRadius.circular(12)),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.star_rounded, size: 14, color: Color(0xFFD97706)),
+                                const Icon(Icons.star_rounded, size: 14, color: AppColors.warning),
                                 const SizedBox(width: 4),
-                                Text('${r.overallRating} / 5', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
+                                Text('${r.overallRating} / 5', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.warning)),
                               ],
                             ),
                           ),
@@ -559,7 +559,7 @@ class _StarRatingPicker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.grey300),
       ),
@@ -578,7 +578,7 @@ class _StarRatingPicker extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
-                  color: rating > 0 ? const Color(0xFFD97706) : AppColors.grey400,
+                  color: rating > 0 ? AppColors.warning : AppColors.grey400,
                 ),
               ),
             ],
@@ -596,7 +596,7 @@ class _StarRatingPicker extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Icon(
                     isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
-                    color: isFilled ? const Color(0xFFF59E0B) : AppColors.grey400,
+                    color: isFilled ? AppColors.warning : AppColors.grey400,
                     size: 28,
                   ),
                 ),
@@ -677,7 +677,7 @@ class _TrainingTabState extends State<_TrainingTab> {
             child: Container(
               padding: const EdgeInsets.all(24),
               height: MediaQuery.of(context).size.height * 0.85,
-              decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+              decoration: const BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -700,7 +700,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                           child: Container(
                             width: double.infinity,
                             height: 160,
-                            color: const Color(0xFFF1F5F9),
+                            color: AppColors.grey100,
                             child: coverImageFile != null
                                 ? Image.file(coverImageFile!, fit: BoxFit.cover)
                                 : (item?.coverImage != null && item!.coverImage!.isNotEmpty)
@@ -837,7 +837,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF8FAFC),
+                                color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: AppColors.grey300),
                               ),
@@ -884,7 +884,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF8FAFC),
+                                color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: AppColors.grey300),
                               ),
@@ -985,11 +985,11 @@ class _TrainingTabState extends State<_TrainingTab> {
       body: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16), color: Colors.white,
+            padding: const EdgeInsets.all(16), color: AppColors.surfaceLight,
             child: Column(
               children: [
                 TextField(
-                  decoration: InputDecoration(hintText: l10n.searchTrainingsHint, prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.grey)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
+                  decoration: InputDecoration(hintText: l10n.searchTrainingsHint, prefixIcon: const Icon(Icons.search), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey300)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
                   onSubmitted: (val) { _search = val; _fetchData(); },
                 ),
                 const SizedBox(height: 12),
@@ -1051,8 +1051,8 @@ class _TrainingTabState extends State<_TrainingTab> {
                       Wrap(
                         spacing: 8, runSpacing: 8,
                         children: [
-                          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Text(t.department?.name ?? l10n.companyWide, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
-                          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)), child: Text(t.level?.toUpperCase() ?? 'BEGINNER', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
+                          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: AppColors.grey100, borderRadius: BorderRadius.circular(12)), child: Text(t.department?.name ?? l10n.companyWide, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
+                          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: AppColors.grey100, borderRadius: BorderRadius.circular(12)), child: Text(t.level?.toUpperCase() ?? 'BEGINNER', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold))),
                         ],
                       ),
                       const Divider(height: 24),
@@ -1156,7 +1156,7 @@ class _TrainingTabState extends State<_TrainingTab> {
               ),
               height: MediaQuery.of(context).size.height * 0.8,
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Column(
@@ -1249,7 +1249,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                                   return Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF8FAFC),
+                                      color: AppColors.backgroundLight,
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(color: AppColors.grey200),
                                     ),

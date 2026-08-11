@@ -22,17 +22,17 @@ class ProfileScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.grey900, size: 20),
           onPressed: () => context.pop(),
         ),
         title: Text(
           l10n.myProfile,
-          style: const TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: AppColors.grey900, fontSize: 18, fontWeight: FontWeight.bold),
         ),
         
       ),
@@ -151,7 +151,7 @@ class ProfileScreen extends ConsumerWidget {
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: AppColors.grey900,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -262,7 +262,7 @@ class ProfileScreen extends ConsumerWidget {
                     child: DropdownButton<String>(
                       value: ref.watch(localeProvider).languageCode,
                       icon: const Icon(Icons.arrow_drop_down, color: AppColors.grey500),
-                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      style: const TextStyle(fontSize: 14, color: AppColors.grey800),
                       items: [
                         DropdownMenuItem(
                           value: 'en',
@@ -318,7 +318,7 @@ class ProfileScreen extends ConsumerWidget {
     bool isDestructive = false,
     Widget? trailingWidget,
   }) {
-    final color = isDestructive ? AppColors.danger : Colors.black87;
+    final color = isDestructive ? AppColors.danger : AppColors.grey800;
     return InkWell(
       onTap: onTap,
       child: Padding(

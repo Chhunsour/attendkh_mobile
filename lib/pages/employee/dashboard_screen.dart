@@ -129,7 +129,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     await showDialog(
       context: context,
       builder: (ctx) => Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
@@ -428,20 +428,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
       margin: const EdgeInsets.only(top: 24),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.amber.withAlpha(20),
-        border: Border.all(color: Colors.amber.shade300),
+        color: AppColors.warningLight,
+        border: Border.all(color: AppColors.warning),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 28),
+          const Icon(Icons.warning_amber_rounded, color: AppColors.warning, size: 28),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.lateWarningTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amber, fontSize: 16)),
+                Text(l10n.lateWarningTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.warning, fontSize: 16)),
                 const SizedBox(height: 4),
                 Text(
                   l10n.lateWarningDesc1 + lateCount.toString() + l10n.lateWarningDesc2,
@@ -523,22 +523,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: a.priority == 'urgent' ? Colors.red.shade50 : Colors.orange.shade50,
+            color: a.priority == 'urgent' ? AppColors.dangerLight : AppColors.warningLight,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: a.priority == 'urgent' ? Colors.red.shade200 : Colors.orange.shade200),
+            border: Border.all(color: a.priority == 'urgent' ? AppColors.danger : AppColors.warning),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.campaign, color: a.priority == 'urgent' ? Colors.red.shade700 : Colors.orange.shade700, size: 28),
+              Icon(Icons.campaign, color: a.priority == 'urgent' ? AppColors.danger : AppColors.warning, size: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(a.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: a.priority == 'urgent' ? Colors.red.shade900 : Colors.orange.shade900)),
+                    Text(a.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: a.priority == 'urgent' ? AppColors.danger : AppColors.warning)),
                     const SizedBox(height: 4),
-                    Text(a.content, style: TextStyle(color: a.priority == 'urgent' ? Colors.red.shade800 : Colors.orange.shade800)),
+                    Text(a.content, style: TextStyle(color: a.priority == 'urgent' ? AppColors.danger : AppColors.warning)),
                   ],
                 ),
               ),
@@ -560,12 +560,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.grey200),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
+                color: AppColors.grey900.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               )
@@ -596,7 +596,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceLight,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.grey200),
         ),
@@ -740,7 +740,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                             _startLocationTracking();
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
+                            backgroundColor: AppColors.surfaceLight,
                             foregroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),

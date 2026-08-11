@@ -64,7 +64,7 @@ class _State extends State<AdminHolidaysScreen> {
             padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
             child: Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+              decoration: const BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -156,7 +156,7 @@ class _State extends State<AdminHolidaysScreen> {
     barrierDismissible: false,
     builder: (ctx) {
       return Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -197,7 +197,7 @@ class _State extends State<AdminHolidaysScreen> {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: const TextStyle(
-                    color: Colors.black87,
+                    color: AppColors.grey800,
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -238,7 +238,7 @@ class _State extends State<AdminHolidaysScreen> {
                       child: const Text(
                         "Cancel",
                         style: TextStyle(
-                          color: Colors.black87,
+                          color: AppColors.grey800,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -309,12 +309,12 @@ class _State extends State<AdminHolidaysScreen> {
     final selectedHolidays = _selectedDay != null ? _getHolidaysForDay(_selectedDay!) : <HolidayData>[];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: Text(l10n.holidaysTitle, style: const TextStyle(color: Colors.black87, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text(l10n.holidaysTitle, style: const TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700)),
         actions: [
           IconButton(icon: const Icon(Icons.add, color: AppColors.primary), onPressed: () => _showForm(null, _selectedDay))
         ],
@@ -324,7 +324,7 @@ class _State extends State<AdminHolidaysScreen> {
           : Column(
               children: [
                 Container(
-                  color: Colors.white,
+                  color: AppColors.surfaceLight,
                   child: TableCalendar<HolidayData>(
                     firstDay: DateTime.utc(2020, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
@@ -345,7 +345,7 @@ class _State extends State<AdminHolidaysScreen> {
                     eventLoader: _getHolidaysForDay,
                     calendarStyle: const CalendarStyle(
                       todayDecoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                      selectedDecoration: BoxDecoration(color: Colors.black87, shape: BoxShape.circle),
+                      selectedDecoration: BoxDecoration(color: AppColors.grey800, shape: BoxShape.circle),
                       markerDecoration: BoxDecoration(color: Colors.transparent),
                     ),
                     calendarBuilders: CalendarBuilders(
@@ -356,14 +356,14 @@ class _State extends State<AdminHolidaysScreen> {
                           return Container(
                             margin: const EdgeInsets.all(6.0),
                             decoration: BoxDecoration(
-                              color: isNational ? Colors.red.shade50 : Colors.purple.shade50,
+                              color: isNational ? AppColors.dangerLight : AppColors.infoLight,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             alignment: Alignment.center,
                             child: Text(
                               '${day.day}',
                               style: TextStyle(
-                                color: isNational ? Colors.red.shade700 : Colors.purple.shade700,
+                                color: isNational ? AppColors.danger : AppColors.info,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -381,10 +381,10 @@ class _State extends State<AdminHolidaysScreen> {
                                 margin: const EdgeInsets.symmetric(horizontal: 1.0),
                                 width: 5.0,
                                 height: 5.0,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: e.type == 'national' ? Colors.red : Colors.purple,
-                                ),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: e.type == 'national' ? AppColors.danger : AppColors.info,
+                                  ),
                               )).toList(),
                             ),
                           );
@@ -405,9 +405,9 @@ class _State extends State<AdminHolidaysScreen> {
                           itemBuilder: (context, i) {
                             final e = selectedHolidays[i];
                             final isNational = e.type == 'national';
-                            final bgColor = isNational ? Colors.red.shade50 : Colors.purple.shade50;
-                            final textColor = isNational ? Colors.red.shade700 : Colors.purple.shade700;
-                            final borderColor = isNational ? Colors.red.shade200 : Colors.purple.shade200;
+                            final bgColor = isNational ? AppColors.dangerLight : AppColors.infoLight;
+                            final textColor = isNational ? AppColors.danger : AppColors.info;
+                            final borderColor = isNational ? AppColors.danger.withAlpha(80) : AppColors.info.withAlpha(80);
 
                             return Container(
                               decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: borderColor)),
@@ -417,7 +417,7 @@ class _State extends State<AdminHolidaysScreen> {
                                     Expanded(child: Text(e.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: textColor))),
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(color: isNational ? Colors.red.shade100 : Colors.purple.shade100, borderRadius: BorderRadius.circular(8)),
+                                      decoration: BoxDecoration(color: isNational ? AppColors.danger.withAlpha(40) : AppColors.info.withAlpha(40), borderRadius: BorderRadius.circular(8)),
                                       child: Text(e.type == 'national' ? l10n.nationalBadge : l10n.companyBadge, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor)),
                                     ),
                                   ],

@@ -201,7 +201,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         bottom: PreferredSize(

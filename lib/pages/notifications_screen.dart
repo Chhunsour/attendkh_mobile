@@ -65,15 +65,15 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.notifications,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -120,13 +120,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isUnread ? const Color(0xFFFFF7ED) : Colors.white, // orange-50 or white
+                    color: isUnread ? AppColors.warningLight : AppColors.surfaceLight,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
+                      BoxShadow(color: AppColors.grey900.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4)),
                     ],
                     border: Border.all(
-                      color: isUnread ? const Color(0xFFFED7AA) : AppColors.grey200, // orange-200 or grey
+                      color: isUnread ? AppColors.warning : AppColors.grey200,
                     ),
                   ),
                   child: Row(
@@ -136,13 +136,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: isUnread ? const Color(0xFFFFEDD5) : const Color(0xFFF1F5F9), // orange-100 or grey-100
+                          color: isUnread ? AppColors.warningLight : AppColors.grey100,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isUnread ? const Color(0xFFFED7AA) : AppColors.grey200)
+                          border: Border.all(color: isUnread ? AppColors.warning : AppColors.grey200)
                         ),
                         child: Icon(
                           isUnread ? Icons.notifications_active : Icons.notifications_outlined,
-                          color: isUnread ? const Color(0xFFF97316) : AppColors.grey500, // orange-500
+                          color: isUnread ? AppColors.warning : AppColors.grey500,
                           size: 24,
                         ),
                       ),
@@ -156,7 +156,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                               style: TextStyle(
                                 fontWeight: isUnread ? FontWeight.w700 : FontWeight.w500,
                                 fontSize: 15,
-                                color: isUnread ? Colors.black87 : AppColors.grey600,
+                                color: isUnread ? AppColors.grey900 : AppColors.grey600,
                               ),
                             ),
                             if (n.body != null && n.body!.isNotEmpty) ...[
@@ -222,7 +222,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       builder: (ctx) => Container(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceLight,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(

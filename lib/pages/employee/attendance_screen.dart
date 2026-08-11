@@ -28,7 +28,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     
     final newDate = await showModalBottomSheet<DateTime>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => Padding(
@@ -118,7 +118,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => Padding(
@@ -310,7 +310,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.surfaceLight,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: AppColors.grey200),
                           ),
@@ -478,7 +478,7 @@ class _SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.grey200),
       ),
@@ -512,7 +512,7 @@ class _HistoryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.grey200),
       ),
@@ -571,8 +571,8 @@ class _HistoryCard extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                        decoration: BoxDecoration(color: Colors.blue.withAlpha(26), borderRadius: BorderRadius.circular(4)),
-                        child: Text('${l10n.earlyIn}${record.earlyClockInMinutes! ~/ 60}${l10n.hLabel}${record.earlyClockInMinutes! % 60}${l10n.mLabel}', style: const TextStyle(fontSize: 10, color: Colors.blue, fontWeight: FontWeight.w600)),
+                        decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(4)),
+                        child: Text('${l10n.earlyIn}${record.earlyClockInMinutes! ~/ 60}${l10n.hLabel}${record.earlyClockInMinutes! % 60}${l10n.mLabel}', style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600)),
                       ),
                       if ((record.approvedPreShiftOtMinutes ?? 0) > 0) ...[
                         const SizedBox(width: 6),

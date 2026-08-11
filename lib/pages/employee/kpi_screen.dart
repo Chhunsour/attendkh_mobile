@@ -64,7 +64,7 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
             backgroundColor: AppColors.backgroundLight,
             appBar: AppBar(
               title: Text(isSuperAdmin ? l10n.platformHealth : l10n.performanceKpis, style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold)),
-              backgroundColor: Colors.white,
+              backgroundColor: AppColors.surfaceLight,
               elevation: 0,
               iconTheme: const IconThemeData(color: AppColors.grey900),
               bottom: (isSuperAdmin || isOwner) ? null : TabBar(
@@ -94,7 +94,7 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
         loading: () => Scaffold(
           appBar: AppBar(
             title: Text(l10n.performanceKpis, style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold)),
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.surfaceLight,
             elevation: 0,
           ),
           body: const Center(child: LoadingIndicator()),
@@ -102,7 +102,7 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
         error: (error, stack) => Scaffold(
           appBar: AppBar(
             title: Text(l10n.performanceKpis, style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold)),
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.surfaceLight,
             elevation: 0,
           ),
           body: Center(child: Text('Error: $error', style: const TextStyle(color: AppColors.danger))),

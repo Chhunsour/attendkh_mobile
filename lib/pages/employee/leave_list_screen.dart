@@ -147,12 +147,12 @@ class _LeaveBalanceCard extends StatelessWidget {
       width: 150,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: color.withAlpha(30), width: 1.5),
         boxShadow: [
           BoxShadow(color: color.withAlpha(25), blurRadius: 20, offset: const Offset(0, 10)),
-          BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 5, offset: const Offset(0, 2)),
+          BoxShadow(color: AppColors.grey900.withAlpha(5), blurRadius: 5, offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -223,11 +223,11 @@ class _LeaveRequestCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.grey100),
         boxShadow: [
-          BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 15, offset: const Offset(0, 5)),
+          BoxShadow(color: AppColors.grey900.withAlpha(8), blurRadius: 15, offset: const Offset(0, 5)),
         ],
       ),
       child: Row(
@@ -258,8 +258,8 @@ class _LeaveRequestCard extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(color: Colors.blue.withAlpha(30), borderRadius: BorderRadius.circular(4)),
-                        child: Text(l10n.halfLabel, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue)),
+                        decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(4)),
+                        child: Text(l10n.halfLabel, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.primary)),
                       ),
                     ],
                   ],

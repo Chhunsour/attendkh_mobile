@@ -33,15 +33,15 @@ class _AdminPayrollScreenState extends ConsumerState<AdminPayrollScreen> with Si
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           AppLocalizations.of(context)!.payrollManagementTitle,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -247,7 +247,7 @@ class _PayrollRunsTab extends ConsumerWidget {
     barrierDismissible: false,
     builder: (ctx) {
       return Dialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
@@ -375,7 +375,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                       child: Text(
                         AppLocalizations.of(context)!.cancel,
                         style: const TextStyle(
-                          color: Colors.black87,
+                          color: AppColors.grey800,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

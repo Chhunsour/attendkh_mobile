@@ -63,7 +63,7 @@ class _AdminSendNotificationScreenState extends ConsumerState<AdminSendNotificat
       backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
         title: Text(l10n.sendNotificationTitle, style: const TextStyle(color: AppColors.primary)),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         iconTheme: const IconThemeData(color: AppColors.primary),
         elevation: 0,
         centerTitle: true,

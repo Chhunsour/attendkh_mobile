@@ -19,7 +19,7 @@ class KpiSuperAdminView extends StatelessWidget {
           title: l10n.platformGlobalHealth,
           score: data.metrics.companyAverage,
           subtitle: l10n.aggregatedAcrossWorkspaces,
-          color: Colors.blue,
+          color: AppColors.primary,
           icon: Icons.public,
         ),
         // Missing "Platform Summary" card added to match the web app!
@@ -27,11 +27,11 @@ class KpiSuperAdminView extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: AppColors.grey900.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               )
@@ -42,7 +42,7 @@ class KpiSuperAdminView extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.trending_up, color: Colors.blue, size: 20),
+                  const Icon(Icons.trending_up, color: AppColors.primary, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     l10n.platformSummary,
@@ -71,7 +71,7 @@ class KpiSuperAdminView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              const Icon(Icons.analytics, color: Colors.blue, size: 20),
+              const Icon(Icons.analytics, color: AppColors.primary, size: 20),
               const SizedBox(width: 8),
               Text(
                 l10n.platformStrategicKpis,
@@ -87,7 +87,7 @@ class KpiSuperAdminView extends StatelessWidget {
         KpiSharedComponents.buildKpiList(
           context: context,
           kpis: data.ownerKpis,
-          themeColor: Colors.blue,
+          themeColor: AppColors.primary,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
         ),

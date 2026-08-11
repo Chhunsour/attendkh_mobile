@@ -17,12 +17,12 @@ Future<void> showLogoutConfirmation(BuildContext context, WidgetRef ref) async {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceLight,
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(30),
+              color: AppColors.grey900.withAlpha(30),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),

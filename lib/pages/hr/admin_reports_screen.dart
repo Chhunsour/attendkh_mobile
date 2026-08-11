@@ -44,15 +44,15 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       {'key': 'performance', 'label': l10n.reportPerformance, 'icon': Icons.assessment, 'color': AppColors.primaryDark},
     ];
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.reportsTitle,
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),

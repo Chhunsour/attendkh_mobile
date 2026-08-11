@@ -51,7 +51,7 @@ class _MainShellState extends ConsumerState<MainShell> {
           margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
+            color: AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
@@ -60,7 +60,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                 offset: const Offset(0, 10),
               ),
               BoxShadow(
-                color: Colors.black.withAlpha(10),
+                color: AppColors.grey900.withAlpha(10),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -82,7 +82,7 @@ class _MainShellState extends ConsumerState<MainShell> {
 
   Widget _buildNavItem(int index, IconData outlineIcon, IconData filledIcon, String label) {
     final isSelected = _currentIndex == index;
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    final primaryColor = AppColors.primary;
     final unselectedColor = AppColors.grey400;
 
     return GestureDetector(

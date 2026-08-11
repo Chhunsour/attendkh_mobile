@@ -48,9 +48,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Row(
@@ -73,10 +73,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               child: Text(
                 l10n.platformAdminTitle,
                 style: const TextStyle(
-                  color: Colors.black87,
+                  color: AppColors.grey800,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  fontFamily: 'Inter',
+                  
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -88,7 +88,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.notifications_outlined, color: Colors.black87),
+                const Icon(Icons.notifications_outlined, color: AppColors.grey800),
                 if (unreadCountAsync.valueOrNull != null && unreadCountAsync.valueOrNull! > 0)
                   Positioned(
                     right: -4,
@@ -102,7 +102,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                       child: Text(
                         '${unreadCountAsync.valueOrNull}',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppColors.surfaceLight,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
@@ -184,7 +184,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(radius),
       ),
       child: const _ShimmerEffect(),
@@ -219,7 +219,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.grey800,
-                fontFamily: 'Inter',
+                
               ),
             ),
             const SizedBox(height: 8),
@@ -228,7 +228,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               style: const TextStyle(
                 fontSize: 13,
                 color: AppColors.grey500,
-                fontFamily: 'Inter',
+                
               ),
               textAlign: TextAlign.center,
             ),
@@ -277,7 +277,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: AppColors.grey800,
-            fontFamily: 'Inter',
+            
           ),
         ),
         const SizedBox(height: 12),
@@ -365,7 +365,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: AppColors.grey800,
-            fontFamily: 'Inter',
+            
           ),
         ),
         const SizedBox(height: 12),
@@ -478,7 +478,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceLight,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.grey200),
           boxShadow: [
@@ -510,7 +510,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppColors.grey800,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -519,7 +519,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   style: const TextStyle(
                     fontSize: 10,
                     color: AppColors.grey500,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
               ],
@@ -548,17 +548,17 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   style: TextStyle(
                     color: Colors.white.withAlpha(180),
                     fontSize: 13,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   name,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppColors.surfaceLight,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -574,10 +574,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   child: Text(
                     l10n.platformAdministratorBadge,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.surfaceLight,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      fontFamily: 'Inter',
+                      
                     ),
                   ),
                 ),
@@ -593,7 +593,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             ),
             child: const Icon(
               Icons.shield_rounded,
-              color: Colors.white,
+              color: AppColors.surfaceLight,
               size: 32,
             ),
           ),
@@ -613,7 +613,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             fontSize: 15,
             fontWeight: FontWeight.w700,
             color: AppColors.grey800,
-            fontFamily: 'Inter',
+            
           ),
         ),
       ],
@@ -653,7 +653,7 @@ class _KpiCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.grey200),
         boxShadow: [
@@ -683,7 +683,7 @@ class _KpiCard extends StatelessWidget {
               fontSize: 26,
               fontWeight: FontWeight.w800,
               color: color,
-              fontFamily: 'Inter',
+              
             ),
           ),
           const SizedBox(height: 2),
@@ -693,7 +693,7 @@ class _KpiCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppColors.grey700,
-              fontFamily: 'Inter',
+              
             ),
           ),
           const SizedBox(height: 2),
@@ -702,7 +702,7 @@ class _KpiCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               color: AppColors.grey400,
-              fontFamily: 'Inter',
+              
             ),
           ),
         ],
@@ -733,7 +733,7 @@ class _ActivityTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.grey200),
         boxShadow: [
@@ -766,7 +766,7 @@ class _ActivityTile extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.grey800,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -775,7 +775,7 @@ class _ActivityTile extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.grey500,
-                    fontFamily: 'Inter',
+                    
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -788,7 +788,7 @@ class _ActivityTile extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               color: AppColors.grey400,
-              fontFamily: 'Inter',
+              
             ),
           ),
         ],

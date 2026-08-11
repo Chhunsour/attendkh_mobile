@@ -21,7 +21,7 @@ class AdminMoreScreen extends ConsumerWidget {
     final isBranchManager = authState.isBranchManager;
 
     return Scaffold(
-      backgroundColor:  Colors.white,
+      backgroundColor: AppColors.surfaceLight,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         children: [
@@ -98,7 +98,7 @@ class AdminMoreScreen extends ConsumerWidget {
             ),
 
           // ── Divider before logout
-          const Divider(height: 1, color: Color(0xFFE5E7EB)),
+          const Divider(height: 1, color: AppColors.grey200),
           const SizedBox(height: 20),
 
           // ── Logout Button
@@ -113,7 +113,7 @@ class AdminMoreScreen extends ConsumerWidget {
                   color: AppColors.danger,
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
-                  fontFamily: 'Inter',
+                  
                 ),
               ),
               style: OutlinedButton.styleFrom(
@@ -137,7 +137,7 @@ class AdminMoreScreen extends ConsumerWidget {
         fontWeight: FontWeight.w800,
         color: AppColors.grey400,
         letterSpacing: 1.2,
-        fontFamily: 'Inter',
+        
       ),
     );
   }
@@ -161,12 +161,12 @@ class AdminMoreScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surfaceLight,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppColors.grey200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(5),
+              color: AppColors.grey900.withAlpha(5),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -193,7 +193,7 @@ class AdminMoreScreen extends ConsumerWidget {
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppColors.grey800,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -202,7 +202,7 @@ class AdminMoreScreen extends ConsumerWidget {
                   style: const TextStyle(
                     fontSize: 10,
                     color: AppColors.grey500,
-                    fontFamily: 'Inter',
+                    
                   ),
                 ),
               ],
@@ -232,11 +232,11 @@ class _BranchSwitcherTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.grey200),
         boxShadow: [
-          BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 8, offset: const Offset(0, 3)),
+          BoxShadow(color: AppColors.grey900.withAlpha(5), blurRadius: 8, offset: const Offset(0, 3)),
         ],
       ),
       child: Column(
@@ -253,11 +253,11 @@ class _BranchSwitcherTile extends ConsumerWidget {
             ),
             title: Text(
               branch.name,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'Inter'),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             subtitle: branch.address != null
                 ? Text(branch.address!, maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 11, fontFamily: 'Inter'))
+                    style: const TextStyle(fontSize: 11))
                 : null,
             trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.grey400),
             onTap: () async {

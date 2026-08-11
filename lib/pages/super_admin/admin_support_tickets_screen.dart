@@ -13,17 +13,17 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
   const AdminSupportTicketsScreen({super.key});
 
   static const _statusColors = {
-    'open': Color(0xFFF59E0B),
-    'in_progress': Color(0xFF3B82F6),
-    'resolved': Color(0xFF10B981),
-    'closed': Color(0xFF10B981),
+    'open': AppColors.warning,
+    'in_progress': AppColors.primary,
+    'resolved': AppColors.success,
+    'closed': AppColors.success,
   };
 
   static const _statusBgs = {
-    'open': Color(0xFFFFFBEB),
-    'in_progress': Color(0xFFEFF6FF),
-    'resolved': Color(0xFFECFDF5),
-    'closed': Color(0xFFECFDF5),
+    'open': AppColors.warningLight,
+    'in_progress': AppColors.primaryLight,
+    'resolved': AppColors.successLight,
+    'closed': AppColors.successLight,
   };
 
   static const _statusIcons = {
@@ -39,15 +39,15 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surfaceLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.supportTicketsTitle,
-          style: TextStyle(
-            color: Colors.black87,
+          style: const TextStyle(
+            color: AppColors.grey800,
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -139,11 +139,11 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(10),
+                  color: AppColors.grey900.withAlpha(10),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -220,7 +220,7 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
                         value: 'in_progress',
                         child: Row(children: [
                           const Icon(Icons.sync_rounded,
-                              size: 18, color: Color(0xFF3B82F6)),
+                              size: 18, color: AppColors.primary),
                           const SizedBox(width: 8),
                           Text(l10n.markInProgress)
                         ]),
@@ -230,7 +230,7 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
                         value: 'resolved',
                         child: Row(children: [
                           const Icon(Icons.check_circle_outline_rounded,
-                              size: 18, color: Color(0xFF10B981)),
+                              size: 18, color: AppColors.success),
                           const SizedBox(width: 8),
                           Text(l10n.markResolved)
                         ]),
@@ -240,7 +240,7 @@ class AdminSupportTicketsScreen extends ConsumerWidget {
                         value: 'closed',
                         child: Row(children: [
                           const Icon(Icons.check_circle_rounded,
-                              size: 18, color: Color(0xFF10B981)),
+                              size: 18, color: AppColors.success),
                           const SizedBox(width: 8),
                           Text(l10n.closeTicket)
                         ]),
