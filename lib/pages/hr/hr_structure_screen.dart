@@ -3459,14 +3459,14 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
 
   // Dept colors for visual grouping
   static const _deptColors = [
-    Color(0xFFFFF7ED), // orange
+    Color(0xFFEFF6FF), // orange
     Color(0xFFEFF6FF), // blue
     Color(0xFFF5F3FF), // purple
     Color(0xFFECFDF5), // emerald
     Color(0xFFFDF2F8), // pink
   ];
   static const _deptDots = [
-    Color(0xFFF97316),
+    Color(0xFF0052FF),
     Color(0xFF3B82F6),
     Color(0xFF8B5CF6),
     Color(0xFF10B981),

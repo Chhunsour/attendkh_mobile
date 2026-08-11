@@ -113,7 +113,7 @@ class _State extends State<AdminDocumentsScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFF7ED),
+                          color: const Color(0xFFEFF6FF),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppColors.primary, width: 2, style: BorderStyle.none),
                         ),

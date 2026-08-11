@@ -82,7 +82,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             channelDescription:
                 'This channel is used for important notifications.',
             icon: '@mipmap/ic_launcher',
-            color: Color(0xFFF97316),
+            color: Color(0xFF0052FF),
             importance: Importance.max,
             priority: Priority.high,
           ),
@@ -322,7 +322,7 @@ class FcmService {
             channelDescription:
                 'This channel is used for important notifications.',
             icon: '@mipmap/ic_launcher',
-            color: const Color(0xFFF97316),
+            color: const Color(0xFF0052FF),
             importance: Importance.max,
             priority: Priority.high,
           ),
@@ -355,7 +355,7 @@ class FcmService {
           'High Importance Notifications', // channel name
           channelDescription: 'This channel is used for important notifications.',
           icon: '@mipmap/ic_launcher',
-          color: Color(0xFFF97316),
+          color: Color(0xFF0052FF),
           importance: Importance.max,
           priority: Priority.high,
         ),
@@ -439,16 +439,16 @@ class FcmService {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF7ED),
+                  color: const Color(0xFFEFF6FF),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFFFEDD5),
+                    color: const Color(0xFFDBEAFE),
                     width: 2,
                   ),
                 ),
                 child: const Icon(
                   Icons.notifications_active_rounded,
-                  color: Color(0xFFF97316),
+                  color: Color(0xFF0052FF),
                   size: 32,
                 ),
               ),
@@ -505,7 +505,7 @@ class FcmService {
                         openAppSettings();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF97316),
+                        backgroundColor: const Color(0xFF0052FF),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
@@ -546,7 +546,7 @@ class FcmService {
             channelDescription:
                 'This channel is used for important notifications.',
             icon: '@mipmap/ic_launcher',
-            color: Color(0xFFF97316),
+            color: Color(0xFF0052FF),
             importance: Importance.max,
             priority: Priority.high,
           ),

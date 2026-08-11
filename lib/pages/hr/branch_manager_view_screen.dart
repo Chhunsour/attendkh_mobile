@@ -55,9 +55,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFF97316).withAlpha(20),
+                color: const Color(0xFF0052FF).withAlpha(20),
               ),
-              child: const Icon(Icons.business_rounded, color: Color(0xFFF97316), size: 18),
+              child: const Icon(Icons.business_rounded, color: Color(0xFF0052FF), size: 18),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -77,7 +77,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                   Text(
                     l10n.branchManagerView,
                     style: const TextStyle(
-                      color: Color(0xFFF97316),
+                      color: Color(0xFF0052FF),
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       
@@ -95,11 +95,11 @@ class BranchManagerViewScreen extends ConsumerWidget {
               ref.read(branchSwitchProvider.notifier).exitBranchView();
               context.go(AppRoutes.companyAdmin);
             },
-            icon: const Icon(Icons.close_rounded, size: 16, color: Color(0xFFF97316)),
+            icon: const Icon(Icons.close_rounded, size: 16, color: Color(0xFF0052FF)),
             label: Text(
               l10n.exit,
               style: const TextStyle(
-                color: Color(0xFFF97316),
+                color: Color(0xFF0052FF),
                 fontWeight: FontWeight.w700,
                 
                 fontSize: 13,
@@ -120,14 +120,14 @@ class BranchManagerViewScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFF97316), Color(0xFFEA580C)],
+                    colors: [Color(0xFF0052FF), Color(0xFF0038B8)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFF97316).withAlpha(60),
+                      color: const Color(0xFF0052FF).withAlpha(60),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -200,7 +200,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                 loading: () => const Center(
                   child: Padding(
                     padding: EdgeInsets.all(24),
-                    child: CircularProgressIndicator(color: Color(0xFFF97316)),
+                    child: CircularProgressIndicator(color: Color(0xFF0052FF)),
                   ),
                 ),
                 error: (e, _) => Container(
@@ -319,7 +319,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                     children: pending.map((req) => _buildLeaveRequestTile(req)).toList(),
                   );
                 },
-                loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: Color(0xFFF97316)))),
+                loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: Color(0xFF0052FF)))),
                 error: (e, _) => const SizedBox.shrink(),
               ),
             ],
@@ -352,8 +352,8 @@ class BranchManagerViewScreen extends ConsumerWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFFF97316).withAlpha(230),
-                  const Color(0xFFEA580C).withAlpha(230),
+                  const Color(0xFF0052FF).withAlpha(230),
+                  const Color(0xFF0038B8).withAlpha(230),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -361,7 +361,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFFF97316).withAlpha(80),
+                  color: const Color(0xFF0052FF).withAlpha(80),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),

@@ -58,7 +58,7 @@ class AdminMoreScreen extends ConsumerWidget {
             _sectionHeader(l10n.talentSection),
             const SizedBox(height: 10),
             _buildGrid(context, [
-              _MoreItem(l10n.moreRecruitment, l10n.moreRecruitmentDesc, Icons.work_outline_rounded, const Color(0xFFF97316), AppRoutes.adminRecruitment),
+              _MoreItem(l10n.moreRecruitment, l10n.moreRecruitmentDesc, Icons.work_outline_rounded, const Color(0xFF0052FF), AppRoutes.adminRecruitment),
               _MoreItem(l10n.morePerformance, l10n.morePerformanceDesc, Icons.trending_up_rounded, const Color(0xFFA855F7), AppRoutes.adminPerformance),
               _MoreItem(l10n.moreReports, l10n.moreReportsDesc, Icons.assessment_rounded, const Color(0xFF14B8A6), AppRoutes.adminReports),
               _MoreItem(l10n.moreDocuments, l10n.moreDocumentsDesc, Icons.folder_open_rounded, const Color(0xFFF59E0B), AppRoutes.adminDocuments),

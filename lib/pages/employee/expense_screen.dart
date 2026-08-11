@@ -960,7 +960,7 @@ class _ReceiptPickerSheet extends StatelessWidget {
                     label: 'Camera',
                     subtitle: 'Take a photo',
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFFF6B35), Color(0xFFF97316)],
+                      colors: [Color(0xFF0052FF), Color(0xFF0052FF)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),

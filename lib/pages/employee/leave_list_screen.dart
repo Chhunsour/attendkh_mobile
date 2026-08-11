@@ -139,7 +139,7 @@ class _LeaveBalanceCard extends StatelessWidget {
     final remaining = balance.remaining;
     final total = balance.allocated + balance.carriedForward;
     final used = total - remaining;
-    final baseColor = Color(int.tryParse(balance.color?.replaceFirst('#', 'FF') ?? 'FFF97316') ?? 0xFFF97316);
+    final baseColor = Color(int.tryParse(balance.color?.replaceFirst('#', 'FF') ?? 'FF0052FF') ?? 0xFF0052FF);
     final color = baseColor.withValues(alpha: 1.0);
     final value = total > 0 ? (used / total).clamp(0.0, 1.0) : 0.0;
 

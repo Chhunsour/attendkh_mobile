@@ -40,7 +40,7 @@ String _getLocalizedType(String type, AppLocalizations l10n) {
 
 // Avatar background colors (cycling)
 const _avatarColors = [
-  Color(0xFFFFF7ED), // orange
+  Color(0xFFEFF6FF), // orange
   Color(0xFFEFF6FF), // blue
   Color(0xFFF0FDF4), // green
   Color(0xFFFDF4FF), // purple

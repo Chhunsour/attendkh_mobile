@@ -69,7 +69,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: const Color(0xFFFFEDD5),
+                      color: const Color(0xFFDBEAFE),
                       width: 1,
                     ),
                     boxShadow: [
@@ -87,7 +87,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                         width: 56,
                         height: 56,
                         child: CircularProgressIndicator(
-                          color: Color(0xFFF97316),
+                          color: Color(0xFF0052FF),
                           backgroundColor: Color(0xFFFED7AA),
                           strokeWidth: 4.0,
                         ),
@@ -251,12 +251,12 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                                               width: 32,
                                               height: 32,
                                               decoration: BoxDecoration(
-                                                color: const Color(0xFFF97316).withAlpha(15),
+                                                color: const Color(0xFF0052FF).withAlpha(15),
                                                 shape: BoxShape.circle,
                                               ),
                                               child: const Icon(
                                                 Icons.business_rounded,
-                                                color: Color(0xFFF97316),
+                                                color: Color(0xFF0052FF),
                                                 size: 16,
                                               ),
                                             ),
@@ -559,7 +559,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                   title: l10n.branchSettings,
                   description: l10n.payrollAndRules,
                   icon: Icons.settings_applications_rounded,
-                  color: const Color(0xFFF97316),
+                  color: const Color(0xFF0052FF),
                   onTap: () {
                     final profile = ref.read(profileProvider).value;
                     if (profile != null && profile.branchId != null) {
@@ -618,7 +618,7 @@ class _CompanyAdminDashboardScreenState extends ConsumerState<CompanyAdminDashbo
                   title: l10n.recruitment,
                   description: l10n.jobsAndCandidates,
                   icon: Icons.work_outline_rounded,
-                  color: const Color(0xFFF97316),
+                  color: const Color(0xFF0052FF),
                   routePath: AppRoutes.adminRecruitment,
                 ),
               if (authState.isCompanyAdmin)

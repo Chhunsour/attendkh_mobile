@@ -170,7 +170,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   }
 
   Widget _buildBottomNav(AppLocalizations l10n) {
-    const activeColor = Color(0xFFF97316);
+    const activeColor = Color(0xFF0052FF);
     const inactiveColor = Color(0xFF9CA3AF);
     const bgColor = Color(0xFF1A1A1A);
 

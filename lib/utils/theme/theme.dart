@@ -43,6 +43,19 @@ class AppColors {
   static const Color backgroundDark = Color(0xFF0F172A);
   static const Color surfaceLight = Colors.white;
   static const Color surfaceDark = Color(0xFF1E293B);
+
+  // Brand Gradients (AttendKH Signature Identity)
+  static const LinearGradient brandGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [primary, secondary],
+  );
+
+  static const LinearGradient primaryGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [primary, primaryDark],
+  );
 }
 
 class AppTheme {
