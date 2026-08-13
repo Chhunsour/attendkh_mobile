@@ -25,7 +25,8 @@ class AdminDashboardScreen extends ConsumerStatefulWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  ConsumerState<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+  ConsumerState<AdminDashboardScreen> createState() =>
+      _AdminDashboardScreenState();
 }
 
 class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
@@ -76,7 +77,6 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   color: AppColors.grey800,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -88,8 +88,12 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.notifications_outlined, color: AppColors.grey800),
-                if (unreadCountAsync.valueOrNull != null && unreadCountAsync.valueOrNull! > 0)
+                const Icon(
+                  Icons.notifications_outlined,
+                  color: AppColors.grey800,
+                ),
+                if (unreadCountAsync.valueOrNull != null &&
+                    unreadCountAsync.valueOrNull! > 0)
                   Positioned(
                     right: -4,
                     top: -4,
@@ -120,7 +124,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 20, left: 8),
             child: GestureDetector(
-              onTap: () => context.push(AppRoutes.profile),
+              onTap: () => context.push(AppRoutes.adminProfile),
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -137,12 +141,16 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                         )
                       : null,
                   child: profileAsync.value?.photoUrl == null
-                      ? const Icon(Icons.person, color: AppColors.primary, size: 20)
+                      ? const Icon(
+                          Icons.person,
+                          color: AppColors.primary,
+                          size: 20,
+                        )
                       : null,
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
       body: RefreshIndicator(
@@ -219,17 +227,12 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.grey800,
-                
               ),
             ),
             const SizedBox(height: 8),
             Text(
               err.toString(),
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.grey500,
-                
-              ),
+              style: const TextStyle(fontSize: 13, color: AppColors.grey500),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -277,7 +280,6 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: AppColors.grey800,
-            
           ),
         ),
         const SizedBox(height: 12),
@@ -365,7 +367,6 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: AppColors.grey800,
-            
           ),
         ),
         const SizedBox(height: 12),
@@ -510,7 +511,6 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppColors.grey800,
-                    
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -519,7 +519,6 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   style: const TextStyle(
                     fontSize: 10,
                     color: AppColors.grey500,
-                    
                   ),
                 ),
               ],
@@ -548,7 +547,6 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   style: TextStyle(
                     color: Colors.white.withAlpha(180),
                     fontSize: 13,
-                    
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -558,7 +556,6 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                     color: AppColors.surfaceLight,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -577,7 +574,6 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                       color: AppColors.surfaceLight,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      
                     ),
                   ),
                 ),
@@ -613,7 +609,6 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             fontSize: 15,
             fontWeight: FontWeight.w700,
             color: AppColors.grey800,
-            
           ),
         ),
       ],
@@ -683,7 +678,6 @@ class _KpiCard extends StatelessWidget {
               fontSize: 26,
               fontWeight: FontWeight.w800,
               color: color,
-              
             ),
           ),
           const SizedBox(height: 2),
@@ -693,17 +687,12 @@ class _KpiCard extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppColors.grey700,
-              
             ),
           ),
           const SizedBox(height: 2),
           Text(
             sub,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.grey400,
-              
-            ),
+            style: const TextStyle(fontSize: 11, color: AppColors.grey400),
           ),
         ],
       ),
@@ -766,7 +755,6 @@ class _ActivityTile extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.grey800,
-                    
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -775,7 +763,6 @@ class _ActivityTile extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.grey500,
-                    
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -785,11 +772,7 @@ class _ActivityTile extends StatelessWidget {
           ),
           Text(
             item.date,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.grey400,
-              
-            ),
+            style: const TextStyle(fontSize: 11, color: AppColors.grey400),
           ),
         ],
       ),

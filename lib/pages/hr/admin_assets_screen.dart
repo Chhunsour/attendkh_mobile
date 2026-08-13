@@ -39,8 +39,15 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
   final _assignEmployeeIdCtrl = TextEditingController();
   Map<String, dynamic>? _selectedEmployee;
 
+  // Search & Filter state
+  final _searchCtrl = TextEditingController();
+  String _searchQuery = '';
+  String _statusFilter = 'all';
+  String _categoryFilter = 'all';
+
   @override
   void dispose() {
+    _searchCtrl.dispose();
     _assetCodeCtrl.dispose();
     _nameCtrl.dispose();
     _categoryCtrl.dispose();
@@ -774,6 +781,20 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
           final availableAssets = items.where((a) => a.status == 'available').length;
           final totalValue = items.fold<double>(0, (sum, a) => sum + a.displayValue);
 
+          // Filter items dynamically
+          final q = _searchQuery.trim().toLowerCase();
+          final categories = ['all', ...items.map((a) => a.category).whereType<String>().where((c) => c.isNotEmpty).toSet()];
+          final filteredItems = items.where((a) {
+            final matchesQuery = q.isEmpty ||
+                a.assetCode.toLowerCase().contains(q) ||
+                a.name.toLowerCase().contains(q) ||
+                (a.serialNumber != null && a.serialNumber!.toLowerCase().contains(q)) ||
+                (a.model != null && a.model!.toLowerCase().contains(q));
+            final matchesStatus = _statusFilter == 'all' || a.status.toLowerCase() == _statusFilter.toLowerCase();
+            final matchesCategory = _categoryFilter == 'all' || (a.category ?? '').toLowerCase() == _categoryFilter.toLowerCase();
+            return matchesQuery && matchesStatus && matchesCategory;
+          }).toList();
+
           return items.isEmpty
               ? Center(
                   child: Container(
@@ -831,7 +852,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                               ]),
                               const SizedBox(height: 10),
                               Row(children: [
-                                Expanded(child: _summaryCard(Icons.laptop, AppColors.success, availableAssets.toString(), l10n.statusLabel)), // Using status or available label? Let's use string 'Available' for now if missing, actually wait, statusLabel is just 'Status', let me just use 'Available' -> missing 'Available' key, ah! Let me use l10n.assignedLabel and hardcode available for now. Wait, I should add 'availableLabel'. I'll just leave it since I missed it in ARB.
+                                Expanded(child: _summaryCard(Icons.laptop, AppColors.success, availableAssets.toString(), l10n.statusLabel)),
                                 if (wide) const SizedBox(width: 10),
                                 if (wide) Expanded(child: _summaryCard(Icons.attach_money, Colors.orange, '\$${totalValue.toStringAsFixed(totalValue == totalValue.roundToDouble() ? 0 : 2)}', l10n.totalValueLabel)),
                               ]),
@@ -840,36 +861,143 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                         },
                       ),
                     ),
+
+                    // ── Search & Filter Controls ──────────────────────
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: _searchCtrl,
+                            onChanged: (val) => setState(() => _searchQuery = val),
+                            decoration: InputDecoration(
+                              hintText: 'Search code, name, serial, model...',
+                              hintStyle: const TextStyle(fontSize: 13, color: AppColors.grey400),
+                              prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.grey400),
+                              suffixIcon: _searchQuery.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear_rounded, size: 18),
+                                      onPressed: () {
+                                        _searchCtrl.clear();
+                                        setState(() => _searchQuery = '');
+                                      },
+                                    )
+                                  : null,
+                              filled: true,
+                              fillColor: AppColors.surfaceLight,
+                              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppColors.grey200),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(color: AppColors.grey200),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                'all',
+                                'available',
+                                'assigned',
+                                'maintenance',
+                                'retired',
+                              ].map((st) {
+                                final isActive = _statusFilter == st;
+                                final label = st == 'all' ? 'All Status' : st[0].toUpperCase() + st.substring(1);
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: ChoiceChip(
+                                    label: Text(label),
+                                    selected: isActive,
+                                    onSelected: (_) => setState(() => _statusFilter = st),
+                                    selectedColor: AppColors.primary,
+                                    labelStyle: TextStyle(
+                                      color: isActive ? Colors.white : AppColors.grey700,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                    ),
+                                    backgroundColor: AppColors.surfaceLight,
+                                    side: BorderSide(color: isActive ? AppColors.primary : AppColors.grey200),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          if (categories.length > 1) ...[
+                            const SizedBox(height: 6),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: categories.map((cat) {
+                                  final isActive = _categoryFilter.toLowerCase() == cat.toLowerCase();
+                                  final label = cat == 'all' ? 'All Categories' : cat;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 6),
+                                    child: ChoiceChip(
+                                      label: Text(label),
+                                      selected: isActive,
+                                      onSelected: (_) => setState(() => _categoryFilter = cat),
+                                      selectedColor: const Color(0xFF0284C7),
+                                      labelStyle: TextStyle(
+                                        color: isActive ? Colors.white : AppColors.grey700,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 11,
+                                      ),
+                                      backgroundColor: AppColors.surfaceLight,
+                                      side: BorderSide(color: isActive ? const Color(0xFF0284C7) : AppColors.grey200),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+
                     // ── Asset grid/cards ──────────────────────────────
                     Expanded(
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          if (constraints.maxWidth <= 600) {
-                            return ListView.separated(
-                              padding: const EdgeInsets.all(14),
-                              itemCount: items.length,
-                              separatorBuilder: (_, _) => const SizedBox(height: 12),
-                              itemBuilder: (context, i) => _buildAssetCard(context, items[i]),
-                            );
-                          }
-                          // Grid layout for tablet using chunked ListView to prevent vertical overflow
-                          return ListView.separated(
-                            padding: const EdgeInsets.all(14),
-                            itemCount: (items.length / 2).ceil(),
-                            separatorBuilder: (_, _) => const SizedBox(height: 14),
-                            itemBuilder: (context, i) {
-                              final firstItem = items[i * 2];
-                              final hasSecond = i * 2 + 1 < items.length;
-                              return Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(child: _buildAssetCard(context, firstItem)),
-                                  const SizedBox(width: 14),
-                                  if (hasSecond) Expanded(child: _buildAssetCard(context, items[i * 2 + 1])) else Expanded(child: const SizedBox()),
-                                ],
-                              );
-                            },
-                          );
+                      child: filteredItems.isEmpty
+                          ? Center(
+                              child: Text(
+                                l10n.noAssetsFound,
+                                style: const TextStyle(fontSize: 14, color: AppColors.grey500, fontWeight: FontWeight.w500),
+                              ),
+                            )
+                          : LayoutBuilder(
+                              builder: (context, constraints) {
+                                if (constraints.maxWidth <= 600) {
+                                  return ListView.separated(
+                                    padding: const EdgeInsets.all(14),
+                                    itemCount: filteredItems.length,
+                                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                                    itemBuilder: (context, i) => _buildAssetCard(context, filteredItems[i]),
+                                  );
+                                }
+                                return ListView.separated(
+                                  padding: const EdgeInsets.all(14),
+                                  itemCount: (filteredItems.length / 2).ceil(),
+                                  separatorBuilder: (_, _) => const SizedBox(height: 14),
+                                  itemBuilder: (context, i) {
+                                    final firstItem = filteredItems[i * 2];
+                                    final hasSecond = i * 2 + 1 < filteredItems.length;
+                                    return Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(child: _buildAssetCard(context, firstItem)),
+                                        const SizedBox(width: 14),
+                                        if (hasSecond) Expanded(child: _buildAssetCard(context, filteredItems[i * 2 + 1])) else const Expanded(child: SizedBox()),
+                                      ],
+                                    );
+                                  },
+                                );
                         },
                       ),
                     ),

@@ -14,6 +14,8 @@ class ExpenseData {
   final String status;
   final String? employeeName;
   final String? employeeId;
+  final String? employeeCode;
+  final String? employeePhoto;
   final String? rejectionReason;
   final String? paidAt;
   final String? receiptPath;
@@ -29,6 +31,8 @@ class ExpenseData {
     required this.status,
     this.employeeName,
     this.employeeId,
+    this.employeeCode,
+    this.employeePhoto,
     this.rejectionReason,
     this.paidAt,
     this.receiptPath,
@@ -43,10 +47,14 @@ class ExpenseData {
 
   factory ExpenseData.fromJson(Map<String, dynamic> json) {
     String employeeName = '';
+    String? employeeCode;
+    String? employeePhoto;
     final emp = json['employee'];
     if (emp != null && emp is Map) {
-      employeeName = '${emp['first_name'] ?? ''} ${emp['last_name'] ?? ''}'.trim();
+      employeeName = emp['full_name'] as String? ?? '${emp['first_name'] ?? ''} ${emp['last_name'] ?? ''}'.trim();
       if (employeeName.isEmpty) employeeName = emp['name'] as String? ?? '';
+      employeeCode = emp['employee_id'] as String? ?? emp['code'] as String?;
+      employeePhoto = emp['photo_url'] as String? ?? emp['photo'] as String? ?? emp['profile_photo_url'] as String?;
     }
 
     return ExpenseData(
@@ -59,7 +67,9 @@ class ExpenseData {
       date: json['expense_date'] as String? ?? json['date'] as String? ?? json['created_at'] as String? ?? '',
       status: json['status'] as String? ?? 'pending',
       employeeName: employeeName.isNotEmpty ? employeeName : null,
-      employeeId: emp is Map ? (emp['employee_id'] as String?) : null,
+      employeeId: emp is Map ? (emp['id']?.toString() ?? emp['employee_id']?.toString()) : null,
+      employeeCode: employeeCode,
+      employeePhoto: employeePhoto,
       rejectionReason: json['rejection_reason'] as String?,
       paidAt: json['paid_at'] as String?,
       receiptPath: json['receipt_path'] as String?,

@@ -194,3 +194,8 @@ final employeeDetailProvider = FutureProvider.autoDispose.family<EmployeeData, i
 final orgChartProvider = FutureProvider.autoDispose<List<OrgNode>>((ref) {
   return ref.watch(hrRepositoryProvider).getOrgChart();
 });
+
+// ── Shift Assignments Provider ──────────────────────────────────────────────
+final shiftAssignmentsProvider = FutureProvider.autoDispose<List<ShiftAssignmentData>>((ref) {
+  return ref.watch(adminOpsRepositoryProvider).getShiftAssignments();
+});

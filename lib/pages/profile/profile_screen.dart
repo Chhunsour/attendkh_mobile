@@ -27,14 +27,21 @@ class ProfileScreen extends ConsumerWidget {
         backgroundColor: AppColors.surfaceLight,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.grey900, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.grey900,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           l10n.myProfile,
-          style: const TextStyle(color: AppColors.grey900, fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: AppColors.grey900,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        
       ),
       body: profileAsync.when(
         data: (data) => _buildContent(context, ref, data, authState, l10n),
@@ -109,19 +116,27 @@ class ProfileScreen extends ConsumerWidget {
                                       height: 80,
                                       memCacheWidth: 200,
                                       fit: BoxFit.cover,
-                                      placeholder: (context, url) => const Center(
-                                        child: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
-                                        ),
-                                      ),
-                                      errorWidget: (context, url, error) => Center(
-                                        child: Text(
-                                          _initials(data.name),
-                                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.grey600),
-                                        ),
-                                      ),
+                                      placeholder: (context, url) =>
+                                          const Center(
+                                            child: SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            ),
+                                          ),
+                                      errorWidget: (context, url, error) =>
+                                          Center(
+                                            child: Text(
+                                              _initials(data.name),
+                                              style: const TextStyle(
+                                                fontSize: 28,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.grey600,
+                                              ),
+                                            ),
+                                          ),
                                     ),
                                   )
                                 : Center(
@@ -135,11 +150,10 @@ class ProfileScreen extends ConsumerWidget {
                                     ),
                                   ),
                           ),
-                          
                         ],
                       ),
                       const SizedBox(width: 20),
-                      
+
                       // Info & Button
                       Expanded(
                         child: Column(
@@ -173,12 +187,20 @@ class ProfileScreen extends ConsumerWidget {
                                   backgroundColor: AppColors.success,
                                   foregroundColor: Colors.white,
                                   elevation: 0,
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
-                                child: Text(l10n.editProfile, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                child: Text(
+                                  l10n.editProfile,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -188,13 +210,21 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                
+
                 // Employment Details
                 _buildSectionHeader('EMPLOYMENT DETAILS'),
                 if (data.employeeId != null)
-                  _buildListTile(icon: Icons.badge_outlined, title: 'Employee ID', subtitle: data.employeeId),
+                  _buildListTile(
+                    icon: Icons.badge_outlined,
+                    title: 'Employee ID',
+                    subtitle: data.employeeId,
+                  ),
                 if (data.nationalId != null)
-                  _buildListTile(icon: Icons.perm_identity, title: 'National ID', subtitle: data.nationalId),
+                  _buildListTile(
+                    icon: Icons.perm_identity,
+                    title: 'National ID',
+                    subtitle: data.nationalId,
+                  ),
                 _buildListTile(
                   icon: Icons.business_outlined,
                   title: l10n.company,
@@ -202,7 +232,11 @@ class ProfileScreen extends ConsumerWidget {
                   onTap: null,
                 ),
                 if (data.branchName != null)
-                  _buildListTile(icon: Icons.store_outlined, title: 'Branch', subtitle: data.branchName),
+                  _buildListTile(
+                    icon: Icons.store_outlined,
+                    title: 'Branch',
+                    subtitle: data.branchName,
+                  ),
                 if (data.department != null)
                   _buildListTile(
                     icon: Icons.group_work_outlined,
@@ -218,13 +252,29 @@ class ProfileScreen extends ConsumerWidget {
                     onTap: null,
                   ),
                 if (data.team != null)
-                  _buildListTile(icon: Icons.group_outlined, title: 'Team', subtitle: data.team),
+                  _buildListTile(
+                    icon: Icons.group_outlined,
+                    title: 'Team',
+                    subtitle: data.team,
+                  ),
                 if (data.manager != null)
-                  _buildListTile(icon: Icons.person_outline, title: 'Manager', subtitle: data.manager),
+                  _buildListTile(
+                    icon: Icons.person_outline,
+                    title: 'Manager',
+                    subtitle: data.manager,
+                  ),
                 if (data.hireDate != null)
-                  _buildListTile(icon: Icons.calendar_today, title: 'Join Date', subtitle: data.hireDate),
+                  _buildListTile(
+                    icon: Icons.calendar_today,
+                    title: 'Join Date',
+                    subtitle: data.hireDate,
+                  ),
                 if (data.salary != null)
-                  _buildListTile(icon: Icons.attach_money, title: 'Salary', subtitle: '\$${data.salary}'),
+                  _buildListTile(
+                    icon: Icons.attach_money,
+                    title: 'Salary',
+                    subtitle: '\$${data.salary}',
+                  ),
 
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
@@ -234,7 +284,10 @@ class ProfileScreen extends ConsumerWidget {
                 _buildListTile(
                   icon: Icons.shield_outlined,
                   title: l10n.accessRoles,
-                  subtitle: data.roles.map((r) => r.replaceAll('_', ' ')).join(', ').toUpperCase(),
+                  subtitle: data.roles
+                      .map((r) => r.replaceAll('_', ' '))
+                      .join(', ')
+                      .toUpperCase(),
                   onTap: null,
                 ),
                 if (authState.isSuperAdmin || authState.isCompanyAdmin)
@@ -261,21 +314,26 @@ class ProfileScreen extends ConsumerWidget {
                   trailingWidget: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: ref.watch(localeProvider).languageCode,
-                      icon: const Icon(Icons.arrow_drop_down, color: AppColors.grey500),
-                      style: const TextStyle(fontSize: 14, color: AppColors.grey800),
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: AppColors.grey500,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.grey800,
+                      ),
                       items: [
                         DropdownMenuItem(
                           value: 'en',
                           child: Text(l10n.english),
                         ),
-                        DropdownMenuItem(
-                          value: 'km',
-                          child: Text(l10n.khmer),
-                        ),
+                        DropdownMenuItem(value: 'km', child: Text(l10n.khmer)),
                       ],
                       onChanged: (String? newValue) {
                         if (newValue != null) {
-                          ref.read(localeProvider.notifier).setLocale(Locale(newValue));
+                          ref
+                              .read(localeProvider.notifier)
+                              .setLocale(Locale(newValue));
                         }
                       },
                     ),
@@ -355,7 +413,11 @@ class ProfileScreen extends ConsumerWidget {
             ?trailingWidget,
             if (onTap != null) ...[
               const SizedBox(width: 8),
-              const Icon(Icons.chevron_right, size: 20, color: AppColors.grey400),
+              const Icon(
+                Icons.chevron_right,
+                size: 20,
+                color: AppColors.grey400,
+              ),
             ],
           ],
         ),

@@ -4,7 +4,7 @@ import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 class AdminCompany {
   final int id;
   final String name;
-  final String email;
+  final String? email;
   final String? phone;
   final String? address;
   final String? timezone;
@@ -13,11 +13,21 @@ class AdminCompany {
   final String? status;
   final String? logo;
   final String? createdAt;
+  final String? businessType;
+  final String? companySize;
+  final String? vattin;
+  final bool? isVatRegistered;
+  final bool? telegramEnabled;
+  final String? telegramBotToken;
+  final String? telegramChatId;
+  final String? mapUrl;
+  final double? latitude;
+  final double? longitude;
 
   const AdminCompany({
     required this.id,
     required this.name,
-    required this.email,
+    this.email,
     this.phone,
     this.address,
     this.timezone,
@@ -26,6 +36,16 @@ class AdminCompany {
     this.status,
     this.logo,
     this.createdAt,
+    this.businessType,
+    this.companySize,
+    this.vattin,
+    this.isVatRegistered,
+    this.telegramEnabled,
+    this.telegramBotToken,
+    this.telegramChatId,
+    this.mapUrl,
+    this.latitude,
+    this.longitude,
   });
 
   factory AdminCompany.fromJson(Map<String, dynamic> json) {
@@ -34,10 +54,9 @@ class AdminCompany {
     if (rawSm is List) {
       parsedSocialMedia = rawSm;
     } else if (rawSm is Map) {
-      parsedSocialMedia = rawSm.entries.map((e) => {
-        'platform': e.key.toString(),
-        'url': e.value.toString(),
-      }).toList();
+      parsedSocialMedia = rawSm.entries
+          .map((e) => {'platform': e.key.toString(), 'url': e.value.toString()})
+          .toList();
     }
 
     return AdminCompany(
@@ -52,19 +71,33 @@ class AdminCompany {
       status: json['status'] as String? ?? 'active',
       logo: json['logo'] as String?,
       createdAt: json['created_at'] as String?,
+      businessType: json['business_type'] as String?,
+      companySize: json['company_size'] as String?,
+      vattin: json['vattin'] as String?,
+      isVatRegistered: json['is_vat_registered'] is bool
+          ? json['is_vat_registered'] as bool
+          : (json['is_vat_registered'] as int?) == 1,
+      telegramEnabled: json['telegram_enabled'] is bool
+          ? json['telegram_enabled'] as bool
+          : (json['telegram_enabled'] as int?) == 1,
+      telegramBotToken: json['telegram_bot_token'] as String?,
+      telegramChatId: json['telegram_chat_id'] as String?,
+      mapUrl: json['map_url'] as String?,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'email': email,
-        'phone': phone,
-        'address': address,
-        'timezone': timezone,
-        'currency': currency,
-        'social_media': socialMedia,
-        'status': status,
-      };
+    'name': name,
+    'email': email,
+    'phone': phone,
+    'address': address,
+    'timezone': timezone,
+    'currency': currency,
+    'social_media': socialMedia,
+    'status': status,
+  };
 }
 
 class AdminCompanyCreationResult {
@@ -83,7 +116,7 @@ class AdminCompaniesRepository {
   final ApiRepository _api;
 
   AdminCompaniesRepository({ApiRepository? api})
-      : _api = api ?? ApiRepository();
+    : _api = api ?? ApiRepository();
 
   /// GET /api/v1/admin/companies
   Future<List<AdminCompany>> getCompanies() async {
@@ -112,7 +145,10 @@ class AdminCompaniesRepository {
 
   /// POST /api/v1/admin/companies
   /// Supports JSON data (no file) or FormData with file uploads.
-  Future<AdminCompanyCreationResult> createCompany(Map<String, dynamic> data, {String? logoPath}) async {
+  Future<AdminCompanyCreationResult> createCompany(
+    Map<String, dynamic> data, {
+    String? logoPath,
+  }) async {
     final dynamic body;
     if (logoPath != null) {
       body = FormData.fromMap({
@@ -142,7 +178,11 @@ class AdminCompaniesRepository {
 
   /// PUT /api/v1/admin/companies/{id}
   /// Supports JSON data (no file) or FormData with file uploads.
-  Future<AdminCompany> updateCompany(int id, Map<String, dynamic> data, {String? logoPath}) async {
+  Future<AdminCompany> updateCompany(
+    int id,
+    Map<String, dynamic> data, {
+    String? logoPath,
+  }) async {
     final dynamic body;
     final ApiResponse<dynamic> response;
     if (logoPath != null) {
@@ -159,7 +199,6 @@ class AdminCompaniesRepository {
     final company = _unwrapSingle(response.data);
     return AdminCompany.fromJson(company);
   }
-
 
   /// Unwrap single-entity response that may be { data: { ... } }
   Map<String, dynamic> _unwrapSingle(dynamic raw) {

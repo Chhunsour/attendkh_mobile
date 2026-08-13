@@ -105,7 +105,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
                       // ── App name ──
                       const Text(
-                        'MPG HR',
+                        'AttendKH',
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.w800,

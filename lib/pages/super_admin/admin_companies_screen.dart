@@ -13,8 +13,9 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/admin_companies_repository.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
-final adminCompaniesProvider =
-    FutureProvider.autoDispose<List<AdminCompany>>((ref) {
+final adminCompaniesProvider = FutureProvider.autoDispose<List<AdminCompany>>((
+  ref,
+) {
   return AdminCompaniesRepository().getCompanies();
 });
 
@@ -53,7 +54,8 @@ class CompanyLogoImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (logo.isEmpty) {
-      return fallbackIcon ?? const Icon(Icons.business_rounded, color: AppColors.grey400);
+      return fallbackIcon ??
+          const Icon(Icons.business_rounded, color: AppColors.grey400);
     }
 
     final primaryUrl = _getLogoUrl(logo);
@@ -84,7 +86,12 @@ class CompanyLogoImage extends StatelessWidget {
       placeholder: (context, url) => SizedBox(
         width: width,
         height: height,
-        child: const Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
+        child: const Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColors.primary,
+          ),
+        ),
       ),
       errorWidget: (context, url, error) {
         if (secondaryUrl != null && secondaryUrl != primaryUrl) {
@@ -96,18 +103,24 @@ class CompanyLogoImage extends StatelessWidget {
             placeholder: (context, url) => SizedBox(
               width: width,
               height: height,
-              child: const Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              ),
             ),
             errorWidget: (context, url, error) =>
-                fallbackIcon ?? const Icon(Icons.business_rounded, color: AppColors.grey400),
+                fallbackIcon ??
+                const Icon(Icons.business_rounded, color: AppColors.grey400),
           );
         }
-        return fallbackIcon ?? const Icon(Icons.business_rounded, color: AppColors.grey400);
+        return fallbackIcon ??
+            const Icon(Icons.business_rounded, color: AppColors.grey400);
       },
     );
   }
 }
-
 
 class AdminCompaniesScreen extends ConsumerWidget {
   const AdminCompaniesScreen({super.key});
@@ -152,14 +165,23 @@ class AdminCompaniesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildError(BuildContext context, Object err, WidgetRef ref, AppLocalizations l10n) {
+  Widget _buildError(
+    BuildContext context,
+    Object err,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
+            const Icon(
+              Icons.wifi_off_rounded,
+              color: AppColors.danger,
+              size: 48,
+            ),
             const SizedBox(height: 16),
             Text(
               l10n.failedToLoadCompanies,
@@ -184,7 +206,8 @@ class AdminCompaniesScreen extends ConsumerWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -194,14 +217,21 @@ class AdminCompaniesScreen extends ConsumerWidget {
   }
 
   Widget _buildList(
-      BuildContext context, WidgetRef ref, List<AdminCompany> companies, AppLocalizations l10n) {
+    BuildContext context,
+    WidgetRef ref,
+    List<AdminCompany> companies,
+    AppLocalizations l10n,
+  ) {
     if (companies.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.business_rounded,
-                size: 64, color: AppColors.grey300),
+            const Icon(
+              Icons.business_rounded,
+              size: 64,
+              color: AppColors.grey300,
+            ),
             const SizedBox(height: 16),
             Text(
               l10n.noCompaniesYet,
@@ -279,7 +309,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        company.email,
+                        company.email ?? '',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.grey500,
@@ -289,8 +319,10 @@ class AdminCompaniesScreen extends ConsumerWidget {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isActive
                         ? AppColors.successLight
@@ -323,8 +355,11 @@ class AdminCompaniesScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppColors.grey200),
                     ),
-                    child: const Icon(Icons.more_horiz_rounded,
-                        color: AppColors.grey700, size: 20),
+                    child: const Icon(
+                      Icons.more_horiz_rounded,
+                      color: AppColors.grey700,
+                      size: 20,
+                    ),
                   ),
                   onSelected: (action) {
                     if (action == 'edit') {
@@ -345,9 +380,20 @@ class AdminCompaniesScreen extends ConsumerWidget {
                       height: 44,
                       child: Row(
                         children: [
-                          const Icon(Icons.edit_rounded, size: 20, color: AppColors.grey600),
+                          const Icon(
+                            Icons.edit_rounded,
+                            size: 20,
+                            color: AppColors.grey600,
+                          ),
                           const SizedBox(width: 12),
-                          Text(l10n.actionEdit, style: const TextStyle(color: AppColors.grey800, fontWeight: FontWeight.w600, fontSize: 14)),
+                          Text(
+                            l10n.actionEdit,
+                            style: const TextStyle(
+                              color: AppColors.grey800,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -356,9 +402,20 @@ class AdminCompaniesScreen extends ConsumerWidget {
                       height: 44,
                       child: Row(
                         children: [
-                          const Icon(Icons.bar_chart_rounded, size: 20, color: AppColors.info),
+                          const Icon(
+                            Icons.bar_chart_rounded,
+                            size: 20,
+                            color: AppColors.info,
+                          ),
                           const SizedBox(width: 12),
-                          Text(l10n.actionStats, style: const TextStyle(color: AppColors.grey800, fontWeight: FontWeight.w600, fontSize: 14)),
+                          Text(
+                            l10n.actionStats,
+                            style: const TextStyle(
+                              color: AppColors.grey800,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -368,11 +425,20 @@ class AdminCompaniesScreen extends ConsumerWidget {
                         height: 44,
                         child: Row(
                           children: [
-                            const Icon(Icons.block_rounded,
-                                size: 20, color: AppColors.danger),
+                            const Icon(
+                              Icons.block_rounded,
+                              size: 20,
+                              color: AppColors.danger,
+                            ),
                             const SizedBox(width: 12),
-                            Text(l10n.actionSuspend,
-                                style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600, fontSize: 14)),
+                            Text(
+                              l10n.actionSuspend,
+                              style: const TextStyle(
+                                color: AppColors.danger,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -382,11 +448,20 @@ class AdminCompaniesScreen extends ConsumerWidget {
                         height: 44,
                         child: Row(
                           children: [
-                            const Icon(Icons.check_circle_rounded,
-                                size: 20, color: AppColors.success),
+                            const Icon(
+                              Icons.check_circle_rounded,
+                              size: 20,
+                              color: AppColors.success,
+                            ),
                             const SizedBox(width: 12),
-                            Text(l10n.actionActivate,
-                                style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.w600, fontSize: 14)),
+                            Text(
+                              l10n.actionActivate,
+                              style: const TextStyle(
+                                color: AppColors.success,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -396,11 +471,20 @@ class AdminCompaniesScreen extends ConsumerWidget {
                       height: 44,
                       child: Row(
                         children: [
-                          const Icon(Icons.delete_outline_rounded,
-                              size: 20, color: AppColors.danger),
+                          const Icon(
+                            Icons.delete_outline_rounded,
+                            size: 20,
+                            color: AppColors.danger,
+                          ),
                           const SizedBox(width: 12),
-                          Text(l10n.actionDelete,
-                              style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600, fontSize: 14)),
+                          Text(
+                            l10n.actionDelete,
+                            style: const TextStyle(
+                              color: AppColors.danger,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -437,7 +521,8 @@ class AdminCompaniesScreen extends ConsumerWidget {
               backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             child: Text(l10n.actionSuspend),
           ),
@@ -483,10 +568,19 @@ class AdminCompaniesScreen extends ConsumerWidget {
         title: Text(l10n.activateCompanyTitle),
         content: Text(l10n.activateCompanyContent(company.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.success,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
             child: Text(l10n.actionActivate),
           ),
         ],
@@ -496,9 +590,23 @@ class AdminCompaniesScreen extends ConsumerWidget {
       try {
         await AdminCompaniesRepository().activateCompany(company.id);
         ref.invalidate(adminCompaniesProvider);
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.companyActivatedSuccess(company.name)), backgroundColor: AppColors.success));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.companyActivatedSuccess(company.name)),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
       } catch (e) {
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: AppColors.danger));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed: $e'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+        }
       }
     }
   }
@@ -516,10 +624,19 @@ class AdminCompaniesScreen extends ConsumerWidget {
         title: Text(l10n.deleteCompanyTitle),
         content: Text(l10n.deleteCompanyContent(company.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
             child: Text(l10n.actionDelete),
           ),
         ],
@@ -529,9 +646,23 @@ class AdminCompaniesScreen extends ConsumerWidget {
       try {
         await AdminCompaniesRepository().deleteCompany(company.id);
         ref.invalidate(adminCompaniesProvider);
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.companyDeletedSuccess(company.name)), backgroundColor: AppColors.success));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.companyDeletedSuccess(company.name)),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
       } catch (e) {
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: AppColors.danger));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed: $e'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+        }
       }
     }
   }
@@ -554,8 +685,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) =>
-          _CompanyFormSheet(company: company, ref: ref),
+      builder: (ctx) => _CompanyFormSheet(company: company, ref: ref),
     );
   }
 }
@@ -581,14 +711,27 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
   late final TextEditingController _adminNameCtrl;
   late final TextEditingController _adminEmailCtrl;
   late final TextEditingController _adminPasswordCtrl;
+  late final TextEditingController _businessTypeCtrl;
+  late final TextEditingController _companySizeCtrl;
+  late final TextEditingController _vattinCtrl;
+  late final TextEditingController _telegramBotTokenCtrl;
+  late final TextEditingController _telegramChatIdCtrl;
+  late final TextEditingController _mapUrlCtrl;
   String _selectedTimezone = 'Asia/Phnom_Penh';
   String _selectedCurrency = 'USD';
   String _status = 'active';
   bool _isSaving = false;
   bool _isLoadingLocation = false;
+  bool _isParsingMapUrl = false;
+  bool _isVatRegistered = false;
+  bool _telegramEnabled = false;
+  bool _isTestingTelegram = false;
+  Map<String, dynamic>? _telegramTestStatus;
+  double? _latitude;
+  double? _longitude;
   File? _logoFile;
   final _picker = ImagePicker();
-  
+
   List<Map<String, String>> _socialMediaList = [];
 
   bool get _isEditing => widget.company != null;
@@ -602,13 +745,27 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     _emailCtrl = TextEditingController(text: c?.email ?? '');
     _phoneCtrl = TextEditingController(text: c?.phone ?? '');
     _addressCtrl = TextEditingController(text: c?.address ?? '');
-    _timezoneCtrl = TextEditingController(text: c?.timezone ?? 'Asia/Phnom_Penh');
+    _timezoneCtrl = TextEditingController(
+      text: c?.timezone ?? 'Asia/Phnom_Penh',
+    );
     _currencyCtrl = TextEditingController(text: c?.currency ?? 'USD');
     _selectedTimezone = c?.timezone ?? 'Asia/Phnom_Penh';
     _selectedCurrency = c?.currency ?? 'USD';
     _adminNameCtrl = TextEditingController();
     _adminEmailCtrl = TextEditingController();
     _adminPasswordCtrl = TextEditingController();
+    _businessTypeCtrl = TextEditingController(text: c?.businessType ?? '');
+    _companySizeCtrl = TextEditingController(text: c?.companySize ?? '');
+    _vattinCtrl = TextEditingController(text: c?.vattin ?? '');
+    _telegramBotTokenCtrl = TextEditingController(
+      text: c?.telegramBotToken ?? '',
+    );
+    _telegramChatIdCtrl = TextEditingController(text: c?.telegramChatId ?? '');
+    _mapUrlCtrl = TextEditingController(text: c?.mapUrl ?? '');
+    _isVatRegistered = c?.isVatRegistered ?? false;
+    _telegramEnabled = c?.telegramEnabled ?? false;
+    _latitude = c?.latitude;
+    _longitude = c?.longitude;
     _status = c?.status ?? 'active';
 
     if (sm != null) {
@@ -635,6 +792,12 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     _adminNameCtrl.dispose();
     _adminEmailCtrl.dispose();
     _adminPasswordCtrl.dispose();
+    _businessTypeCtrl.dispose();
+    _companySizeCtrl.dispose();
+    _vattinCtrl.dispose();
+    _telegramBotTokenCtrl.dispose();
+    _telegramChatIdCtrl.dispose();
+    _mapUrlCtrl.dispose();
     super.dispose();
   }
 
@@ -648,29 +811,128 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
           throw Exception('Location permissions are denied');
         }
       }
-      
+
       if (permission == LocationPermission.deniedForever) {
         throw Exception('Location permissions are permanently denied');
       }
 
       // ignore: deprecated_member_use
-      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      
-      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+      Position position = await Geolocator.getCurrentPosition(
+        // ignore: deprecated_member_use
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
-        String address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
-        address = address.split(', ').where((part) => part.trim().isNotEmpty && part != 'null').join(', ');
+        String address =
+            '${place.street}, ${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
+        address = address
+            .split(', ')
+            .where((part) => part.trim().isNotEmpty && part != 'null')
+            .join(', ');
         setState(() {
           _addressCtrl.text = address;
         });
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to get location: $e'), backgroundColor: AppColors.danger));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to get location: $e'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoadingLocation = false);
+    }
+  }
+
+  void _parseMapUrl(String url) {
+    setState(() => _isParsingMapUrl = true);
+    if (url.trim().isEmpty) {
+      setState(() => _isParsingMapUrl = false);
+      return;
+    }
+
+    // 1. Extract place name from URL
+    final placeNameMatch = RegExp(r'/place/([^/@]+)').firstMatch(url);
+    if (placeNameMatch != null && placeNameMatch.group(1) != null) {
+      try {
+        final rawName = Uri.decodeComponent(
+          placeNameMatch.group(1)!.replaceAll('+', ' '),
+        );
+        if (rawName.isNotEmpty &&
+            !RegExp(r'^-?\d+\.\d+,-?\d+\.\d+$').hasMatch(rawName)) {
+          _addressCtrl.text = rawName;
+        }
+      } catch (_) {}
+    }
+
+    // 2. Extract lat/lng from URL
+    final atMatch =
+        RegExp(r'@(-?\d+\.\d+),(-?\d+\.\d+)').firstMatch(url) ??
+        RegExp(r'!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)').firstMatch(url) ??
+        RegExp(
+          r'[?&](?:q|ll|query)=(-?\d+\.\d+),(-?\d+\.\d+)',
+        ).firstMatch(url) ??
+        RegExp(r'^\s*(-?\d+\.\d+)[,\s]+(-?\d+\.\d+)\s*$').firstMatch(url);
+
+    if (atMatch != null) {
+      final lat = double.tryParse(atMatch.group(1)!);
+      final lon = double.tryParse(atMatch.group(2)!);
+      if (lat != null) _latitude = lat;
+      if (lon != null) _longitude = lon;
+    }
+
+    setState(() => _isParsingMapUrl = false);
+  }
+
+  Future<void> _testTelegram() async {
+    final token = _telegramBotTokenCtrl.text.trim();
+    final chatId = _telegramChatIdCtrl.text.trim();
+    if (token.isEmpty || chatId.isEmpty) return;
+
+    setState(() {
+      _isTestingTelegram = true;
+      _telegramTestStatus = null;
+    });
+
+    try {
+      final dio = DioClient.instance;
+      final response = await dio.post(
+        '/admin/companies/test-telegram',
+        data: {'telegram_bot_token': token, 'telegram_chat_id': chatId},
+      );
+      final data = response.data as Map<String, dynamic>;
+      if (data['success'] == true) {
+        setState(() {
+          _telegramTestStatus = {
+            'success': true,
+            'message': data['message'] ?? 'Test message sent successfully',
+          };
+        });
+      } else {
+        setState(() {
+          _telegramTestStatus = {
+            'success': false,
+            'message': data['message'] ?? 'Failed to send test message',
+          };
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _telegramTestStatus = {
+          'success': false,
+          'message': 'Network error: $e',
+        };
+      });
+    } finally {
+      setState(() => _isTestingTelegram = false);
     }
   }
 
@@ -684,7 +946,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final l10n = AppLocalizations.of(context)!;
 
     setState(() => _isSaving = true);
@@ -699,6 +961,16 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
         'currency': _selectedCurrency,
         'social_media': _socialMediaList,
         'status': _status,
+        'is_vat_registered': _isVatRegistered,
+        'vattin': _isVatRegistered ? _vattinCtrl.text.trim() : null,
+        'business_type': _businessTypeCtrl.text.trim(),
+        'company_size': _companySizeCtrl.text.trim(),
+        'telegram_enabled': _telegramEnabled,
+        'telegram_bot_token': _telegramBotTokenCtrl.text.trim(),
+        'telegram_chat_id': _telegramChatIdCtrl.text.trim(),
+        'map_url': _mapUrlCtrl.text.trim(),
+        'latitude': _latitude,
+        'longitude': _longitude,
       };
 
       if (_adminNameCtrl.text.trim().isNotEmpty) {
@@ -737,9 +1009,11 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(_isEditing
-                  ? l10n.companyUpdatedSuccess
-                  : l10n.companyCreatedSuccess),
+              content: Text(
+                _isEditing
+                    ? l10n.companyUpdatedSuccess
+                    : l10n.companyCreatedSuccess,
+              ),
               backgroundColor: AppColors.success,
             ),
           );
@@ -809,64 +1083,283 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    _buildField(l10n.companyNameLabel, _nameCtrl,
-                        validator: (v) =>
-                            v == null || v.trim().isEmpty ? l10n.fieldRequired : null),
+                    // Company Name + Email (row)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _buildField(
+                            l10n.companyNameLabel,
+                            _nameCtrl,
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? l10n.fieldRequired
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildField(
+                            l10n.emailLabel,
+                            _emailCtrl,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? l10n.fieldRequired
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 14),
-                    _buildField(l10n.emailLabel, _emailCtrl,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (v) =>
-                            v == null || v.trim().isEmpty ? l10n.fieldRequired : null),
+                    // Business Type + Company Size (row)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: _buildDropdownField(
+                            'Type of Business',
+                            _businessTypeCtrl,
+                            [
+                              'Technology & IT',
+                              'Retail & Wholesale',
+                              'Garment & Manufacturing',
+                              'Food & Beverage / Hospitality',
+                              'Construction & Real Estate',
+                              'Banking & Financial Services',
+                              'Logistics & Transportation',
+                              'Education & Healthcare',
+                              'Professional Services',
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildDropdownField(
+                            'Total Staff (Company Size)',
+                            _companySizeCtrl,
+                            [
+                              '1-10 Staff (Micro)',
+                              '11-50 Staff (Small)',
+                              '51-100 Staff (Medium)',
+                              '101-500 Staff (Large)',
+                              '500+ Staff (Enterprise)',
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 16),
+                    // Owner Account Credentials (styled box — primary color like web)
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.warningLight,
+                        color: AppColors.primary.withAlpha(15),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.warning.withAlpha(80)),
+                        border: Border.all(
+                          color: AppColors.primary.withAlpha(40),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             l10n.companyOwnerAccountTitle,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.warning),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             _isEditing
                                 ? l10n.companyOwnerEditDesc
                                 : l10n.companyOwnerCreateDesc,
-                            style: const TextStyle(fontSize: 11, color: AppColors.warning),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.primary,
+                            ),
                           ),
                           const SizedBox(height: 10),
                           _buildField(l10n.ownerNameLabel, _adminNameCtrl),
                           const SizedBox(height: 10),
-                          _buildField(l10n.ownerLoginEmailLabel, _adminEmailCtrl, keyboardType: TextInputType.emailAddress),
+                          _buildField(
+                            l10n.ownerLoginEmailLabel,
+                            _adminEmailCtrl,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
                           const SizedBox(height: 10),
-                          _buildField(_isEditing ? l10n.newPasswordOptionalLabel : l10n.ownerPasswordLabel, _adminPasswordCtrl),
+                          _buildField(
+                            _isEditing
+                                ? l10n.newPasswordOptionalLabel
+                                : l10n.ownerPasswordLabel,
+                            _adminPasswordCtrl,
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 14),
-                    _buildField(l10n.phoneLabel, _phoneCtrl,
-                        keyboardType: TextInputType.phone),
+                    // Phone Number
+                    _buildField(
+                      l10n.phoneLabel,
+                      _phoneCtrl,
+                      keyboardType: TextInputType.phone,
+                    ),
                     const SizedBox(height: 14),
-                    // Address with location
+                    // VAT Taxpayer Status — amber section
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0x0AFFA000),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0x33FFA000)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'VAT Taxpayer Status',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF856404),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Is this company registered for VAT?',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF856404),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Switch(
+                                value: _isVatRegistered,
+                                onChanged: (val) =>
+                                    setState(() => _isVatRegistered = val),
+                                activeThumbColor: const Color(0xFFFFA000),
+                              ),
+                            ],
+                          ),
+                          if (_isVatRegistered) ...[
+                            const SizedBox(height: 10),
+                            const Divider(height: 1, color: Color(0x33FFA000)),
+                            const SizedBox(height: 10),
+                            _buildField('VAT TIN Number', _vattinCtrl),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    // Google Maps URL + Address + GPS display
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          'Google Maps URL',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.grey600,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        TextFormField(
+                          controller: _mapUrlCtrl,
+                          onChanged: _parseMapUrl,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: AppColors.grey200),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: AppColors.grey200),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: AppColors.primary),
+                            ),
+                            filled: true,
+                            fillColor: AppColors.backgroundLight,
+                            hintText: 'Paste Google Maps link...',
+                            suffixIcon: _isParsingMapUrl
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(4),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.map_outlined,
+                                    size: 20,
+                                    color: AppColors.grey400,
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        // Address with Get Location button
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(l10n.addressLabel, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                            Text(
+                              l10n.addressLabel,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.grey600,
+                              ),
+                            ),
                             TextButton.icon(
-                              onPressed: _isLoadingLocation ? null : _getCurrentLocation,
-                              icon: _isLoadingLocation 
-                                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
-                                : const Icon(Icons.my_location_rounded, size: 16, color: AppColors.primary),
-                              label: Text(_isLoadingLocation ? l10n.gettingLocation : l10n.getLocation, style: const TextStyle(fontSize: 12, color: AppColors.primary)),
-                              style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                              onPressed: _isLoadingLocation
+                                  ? null
+                                  : _getCurrentLocation,
+                              icon: _isLoadingLocation
+                                  ? const SizedBox(
+                                      width: 14,
+                                      height: 14,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.primary,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.my_location_rounded,
+                                      size: 16,
+                                      color: AppColors.primary,
+                                    ),
+                              label: Text(
+                                _isLoadingLocation
+                                    ? l10n.gettingLocation
+                                    : l10n.getLocation,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: const Size(0, 0),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
                             ),
                           ],
                         ),
@@ -875,45 +1368,149 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                           controller: _addressCtrl,
                           maxLines: 2,
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: AppColors.grey200),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: AppColors.grey200),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
                           ),
                         ),
+                        if (_latitude != null || _longitude != null) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0x0A10B981),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: const Color(0x3310B981),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.check_circle_rounded,
+                                  size: 16,
+                                  color: Color(0xFF10B981),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'GPS: Lat ${_latitude?.toStringAsFixed(6) ?? "N/A"}, Lng ${_longitude?.toStringAsFixed(6) ?? "N/A"}',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF065F46),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 14),
+                    // Timezone + Currency (row)
                     Row(
                       children: [
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(l10n.timezoneLabel, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                              Text(
+                                l10n.timezoneLabel,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.grey600,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               DropdownButtonFormField<String>(
-                                initialValue: ['Asia/Phnom_Penh', 'UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo', 'Asia/Bangkok', 'Asia/Singapore'].contains(_selectedTimezone)
+                                initialValue:
+                                    [
+                                      'Asia/Phnom_Penh',
+                                      'UTC',
+                                      'America/New_York',
+                                      'Europe/London',
+                                      'Asia/Tokyo',
+                                    ].contains(_selectedTimezone)
                                     ? _selectedTimezone
                                     : 'Asia/Phnom_Penh',
                                 isExpanded: true,
                                 decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
-                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: AppColors.grey200,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: AppColors.grey200,
+                                    ),
+                                  ),
                                   filled: true,
                                   fillColor: AppColors.backgroundLight,
                                 ),
                                 items: const [
-                                  DropdownMenuItem(value: 'Asia/Phnom_Penh', child: Text('Asia/Phnom_Penh', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
-                                  DropdownMenuItem(value: 'UTC', child: Text('UTC', style: TextStyle(fontSize: 13))),
-                                  DropdownMenuItem(value: 'America/New_York', child: Text('America/New_York', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
-                                  DropdownMenuItem(value: 'Europe/London', child: Text('Europe/London', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
-                                  DropdownMenuItem(value: 'Asia/Tokyo', child: Text('Asia/Tokyo', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
-                                  DropdownMenuItem(value: 'Asia/Bangkok', child: Text('Asia/Bangkok', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
-                                  DropdownMenuItem(value: 'Asia/Singapore', child: Text('Asia/Singapore', style: TextStyle(fontSize: 13), overflow: TextOverflow.ellipsis)),
+                                  DropdownMenuItem(
+                                    value: 'Asia/Phnom_Penh',
+                                    child: Text(
+                                      'Asia/Phnom_Penh',
+                                      style: TextStyle(fontSize: 13),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'UTC',
+                                    child: Text(
+                                      'UTC',
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'America/New_York',
+                                    child: Text(
+                                      'America/New_York',
+                                      style: TextStyle(fontSize: 13),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Europe/London',
+                                    child: Text(
+                                      'Europe/London',
+                                      style: TextStyle(fontSize: 13),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Asia/Tokyo',
+                                    child: Text(
+                                      'Asia/Tokyo',
+                                      style: TextStyle(fontSize: 13),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                 ],
                                 onChanged: (val) {
-                                  if (val != null) setState(() => _selectedTimezone = val);
+                                  if (val != null) {
+                                    setState(() => _selectedTimezone = val);
+                                  }
                                 },
                               ),
                             ],
@@ -924,71 +1521,83 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(l10n.currencyLabel, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                              Text(
+                                l10n.currencyLabel,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.grey600,
+                                ),
+                              ),
                               const SizedBox(height: 6),
                               DropdownButtonFormField<String>(
-                                initialValue: ['USD', 'EUR', 'GBP', 'JPY', 'KHR'].contains(_selectedCurrency)
+                                initialValue:
+                                    [
+                                      'USD',
+                                      'EUR',
+                                      'GBP',
+                                      'JPY',
+                                    ].contains(_selectedCurrency)
                                     ? _selectedCurrency
                                     : 'USD',
                                 isExpanded: true,
                                 decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
-                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.grey200)),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: AppColors.grey200,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: AppColors.grey200,
+                                    ),
+                                  ),
                                   filled: true,
                                   fillColor: AppColors.backgroundLight,
                                 ),
                                 items: const [
-                                  DropdownMenuItem(value: 'USD', child: Text('USD (\$)', style: TextStyle(fontSize: 13))),
-                                  DropdownMenuItem(value: 'EUR', child: Text('EUR (€)', style: TextStyle(fontSize: 13))),
-                                  DropdownMenuItem(value: 'GBP', child: Text('GBP (£)', style: TextStyle(fontSize: 13))),
-                                  DropdownMenuItem(value: 'JPY', child: Text('JPY (¥)', style: TextStyle(fontSize: 13))),
-                                  DropdownMenuItem(value: 'KHR', child: Text('KHR (៛)', style: TextStyle(fontSize: 13))),
+                                  DropdownMenuItem(
+                                    value: 'USD',
+                                    child: Text(
+                                      'USD (\$)',
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'EUR',
+                                    child: Text(
+                                      'EUR (€)',
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'GBP',
+                                    child: Text(
+                                      'GBP (£)',
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'JPY',
+                                    child: Text(
+                                      'JPY (¥)',
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  ),
                                 ],
                                 onChanged: (val) {
-                                  if (val != null) setState(() => _selectedCurrency = val);
+                                  if (val != null) {
+                                    setState(() => _selectedCurrency = val);
+                                  }
                                 },
                               ),
                             ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    // Status dropdown
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.statusLabel,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.grey600,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.grey200),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _status,
-                              isExpanded: true,
-                              items: [
-                                DropdownMenuItem(
-                                    value: 'active', child: Text(l10n.statusActive)),
-                                DropdownMenuItem(
-                                    value: 'suspended',
-                                    child: Text(l10n.statusSuspended)),
-                              ],
-                              onChanged: (v) {
-                                if (v != null) setState(() => _status = v);
-                              },
-                            ),
                           ),
                         ),
                       ],
@@ -1020,18 +1629,35 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                               TextButton.icon(
                                 onPressed: () {
                                   setState(() {
-                                    _socialMediaList.add({'platform': '', 'url': ''});
+                                    _socialMediaList.add({
+                                      'platform': '',
+                                      'url': '',
+                                    });
                                   });
                                 },
                                 icon: const Icon(Icons.add_rounded, size: 16),
-                                label: Text(l10n.actionAdd, style: const TextStyle(fontSize: 12)),
-                                style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                                label: Text(
+                                  l10n.actionAdd,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: const Size(0, 0),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 10),
                           if (_socialMediaList.isEmpty)
-                            Text(l10n.noSocialMediaLinks, style: const TextStyle(color: AppColors.grey500, fontSize: 13)),
+                            Text(
+                              l10n.noSocialMediaLinks,
+                              style: const TextStyle(
+                                color: AppColors.grey500,
+                                fontSize: 13,
+                              ),
+                            ),
                           ...List.generate(_socialMediaList.length, (index) {
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 10),
@@ -1040,30 +1666,61 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                   Expanded(
                                     flex: 1,
                                     child: TextFormField(
-                                      initialValue: _socialMediaList[index]['platform'],
+                                      initialValue:
+                                          _socialMediaList[index]['platform'],
                                       decoration: InputDecoration(
                                         hintText: l10n.platformLabel,
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.grey200)),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: AppColors.grey200,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 0,
+                                            ),
                                       ),
-                                      onChanged: (val) => _socialMediaList[index]['platform'] = val,
+                                      onChanged: (val) =>
+                                          _socialMediaList[index]['platform'] =
+                                              val,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     flex: 2,
                                     child: TextFormField(
-                                      initialValue: _socialMediaList[index]['url'],
+                                      initialValue:
+                                          _socialMediaList[index]['url'],
                                       decoration: InputDecoration(
                                         hintText: l10n.urlLabel,
-                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: AppColors.grey200)),
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          borderSide: BorderSide(
+                                            color: AppColors.grey200,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 0,
+                                            ),
                                       ),
-                                      onChanged: (val) => _socialMediaList[index]['url'] = val,
+                                      onChanged: (val) =>
+                                          _socialMediaList[index]['url'] = val,
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.remove_circle_outline, color: AppColors.danger, size: 20),
+                                    icon: const Icon(
+                                      Icons.remove_circle_outline,
+                                      color: AppColors.danger,
+                                      size: 20,
+                                    ),
                                     onPressed: () {
                                       setState(() {
                                         _socialMediaList.removeAt(index);
@@ -1080,7 +1737,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    // Logo upload
+                    // Logo upload (before Telegram — matches web)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1099,10 +1756,14 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                           child: Container(
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
-                                vertical: 20, horizontal: 14),
+                              vertical: 20,
+                              horizontal: 14,
+                            ),
                             decoration: BoxDecoration(
                               border: Border.all(
-                                  color: AppColors.grey200, style: BorderStyle.solid),
+                                color: AppColors.grey200,
+                                style: BorderStyle.solid,
+                              ),
                               borderRadius: BorderRadius.circular(12),
                               color: AppColors.backgroundLight,
                             ),
@@ -1116,62 +1777,342 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                       fit: BoxFit.contain,
                                     ),
                                   )
-                                : (widget.company?.logo != null && widget.company!.logo!.isNotEmpty)
-                                    ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            CompanyLogoImage(
-                                              logo: widget.company!.logo!,
-                                              height: 100,
-                                              width: double.infinity,
-                                              fit: BoxFit.contain,
-                                              fallbackIcon: Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  const Icon(Icons.business_rounded, color: AppColors.grey400, size: 22),
-                                                  const SizedBox(width: 8),
-                                                  Text(l10n.tapToChangeLogo, style: const TextStyle(fontSize: 14, color: AppColors.grey500)),
-                                                ],
+                                : (widget.company?.logo != null &&
+                                      widget.company!.logo!.isNotEmpty)
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        CompanyLogoImage(
+                                          logo: widget.company!.logo!,
+                                          height: 100,
+                                          width: double.infinity,
+                                          fit: BoxFit.contain,
+                                          fallbackIcon: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(
+                                                Icons.business_rounded,
+                                                color: AppColors.grey400,
+                                                size: 22,
                                               ),
-                                            ),
-                                            Positioned(
-                                              bottom: 4,
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black.withValues(alpha: 0.6),
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    const Icon(Icons.edit, color: Colors.white, size: 12),
-                                                    const SizedBox(width: 4),
-                                                    Text(l10n.tapToChangeLogo, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
-                                                  ],
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                l10n.tapToChangeLogo,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: AppColors.grey500,
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      )
-                                    : Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        Positioned(
+                                          bottom: 4,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.6,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(
+                                                  Icons.edit,
+                                                  color: Colors.white,
+                                                  size: 12,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  l10n.tapToChangeLogo,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.cloud_upload_outlined,
+                                        color: AppColors.grey400,
+                                        size: 22,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        l10n.tapToUploadLogo,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: AppColors.grey500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    // Telegram Bot Notifications — sky section (after Logo — matches web)
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0x0A0EA5E9),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0x330EA5E9)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF0EA5E9),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(
+                                        Icons.send_rounded,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          const Icon(Icons.cloud_upload_outlined,
-                                              color: AppColors.grey400, size: 22),
-                                          const SizedBox(width: 8),
                                           Text(
-                                            l10n.tapToUploadLogo,
+                                            'Telegram Bot Notifications',
                                             style: const TextStyle(
-                                              fontSize: 14,
-                                              color: AppColors.grey500,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF0C4A6E),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'Configure bot for attendance & alerts',
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Color(0xFF0EA5E9),
                                             ),
                                           ),
                                         ],
                                       ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Switch(
+                                value: _telegramEnabled,
+                                onChanged: (val) =>
+                                    setState(() => _telegramEnabled = val),
+                                activeThumbColor: const Color(0xFF0EA5E9),
+                              ),
+                            ],
+                          ),
+                          if (_telegramEnabled) ...[
+                            const SizedBox(height: 12),
+                            const Divider(height: 1, color: Color(0x330EA5E9)),
+                            const SizedBox(height: 12),
+                            _buildField('Bot Token', _telegramBotTokenCtrl),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Obtain from @BotFather on Telegram',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppColors.grey500,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            _buildField('Chat ID', _telegramChatIdCtrl),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Target group or channel ID where bot is an Admin',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppColors.grey500,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            // Test Telegram Connection button
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: ElevatedButton.icon(
+                                    onPressed:
+                                        (_isTestingTelegram ||
+                                            _telegramBotTokenCtrl.text
+                                                .trim()
+                                                .isEmpty ||
+                                            _telegramChatIdCtrl.text
+                                                .trim()
+                                                .isEmpty)
+                                        ? null
+                                        : _testTelegram,
+                                    icon: _isTestingTelegram
+                                        ? const SizedBox(
+                                            width: 14,
+                                            height: 14,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Icon(
+                                            Icons.send_rounded,
+                                            size: 14,
+                                            color: Colors.white,
+                                          ),
+                                    label: Text(
+                                      _isTestingTelegram
+                                          ? 'Testing...'
+                                          : 'Test Connection',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF0EA5E9),
+                                      disabledBackgroundColor: const Color(
+                                        0xFF0EA5E9,
+                                      ).withAlpha(80),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    'Will send a test message to the Chat ID',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontStyle: FontStyle.italic,
+                                      color: AppColors.grey500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (_telegramTestStatus != null) ...[
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: _telegramTestStatus!['success']
+                                      ? const Color(0x1A10B981)
+                                      : const Color(0x1AF43F5E),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: _telegramTestStatus!['success']
+                                        ? const Color(0x3310B981)
+                                        : const Color(0x33F43F5E),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      _telegramTestStatus!['success']
+                                          ? Icons.check_circle_rounded
+                                          : Icons.error_outline_rounded,
+                                      size: 16,
+                                      color: _telegramTestStatus!['success']
+                                          ? const Color(0xFF10B981)
+                                          : const Color(0xFFF43F5E),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        _telegramTestStatus!['message'],
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: _telegramTestStatus!['success']
+                                              ? const Color(0xFF065F46)
+                                              : const Color(0xFF9F1239),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    // Status dropdown (after Telegram — matches web)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.statusLabel,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.grey600,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.grey200),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _status,
+                              isExpanded: true,
+                              items: [
+                                DropdownMenuItem(
+                                  value: 'active',
+                                  child: Text(l10n.statusActive),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'suspended',
+                                  child: Text(l10n.statusSuspended),
+                                ),
+                              ],
+                              onChanged: (v) {
+                                if (v != null) setState(() => _status = v);
+                              },
+                            ),
                           ),
                         ),
                       ],
@@ -1186,7 +2127,8 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                           elevation: 0,
                         ),
                         child: _isSaving
@@ -1199,7 +2141,9 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                 ),
                               )
                             : Text(
-                                _isEditing ? l10n.btnUpdateCompany : l10n.btnCreateCompany,
+                                _isEditing
+                                    ? l10n.btnUpdateCompany
+                                    : l10n.btnCreateCompany,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
@@ -1243,7 +2187,9 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
           validator: validator,
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14, vertical: 12),
+              horizontal: 14,
+              vertical: 12,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: AppColors.grey200),
@@ -1262,6 +2208,112 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
             ),
             filled: true,
             fillColor: AppColors.backgroundLight,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownField(
+    String label,
+    TextEditingController ctrl,
+    List<String> suggestions,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.grey600,
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: ctrl,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.grey200),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.grey200),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.primary),
+            ),
+            filled: true,
+            fillColor: AppColors.backgroundLight,
+            suffixIcon: GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
+                  ),
+                  builder: (ctx) => SafeArea(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            label,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.grey800,
+                            ),
+                          ),
+                        ),
+                        const Divider(height: 1),
+                        Flexible(
+                          child: ListView(
+                            shrinkWrap: true,
+                            children: suggestions
+                                .map(
+                                  (s) => ListTile(
+                                    title: Text(
+                                      s,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    trailing: ctrl.text == s
+                                        ? const Icon(
+                                            Icons.check_rounded,
+                                            color: AppColors.primary,
+                                            size: 20,
+                                          )
+                                        : null,
+                                    onTap: () {
+                                      ctrl.text = s;
+                                      Navigator.pop(ctx);
+                                    },
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              child: const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: AppColors.grey400,
+                size: 20,
+              ),
+            ),
           ),
         ),
       ],
@@ -1290,10 +2342,18 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
 
   Future<void> _loadStats() async {
     try {
-      final stats = await AdminCompaniesRepository().getCompanyStats(widget.company.id);
-      setState(() { _stats = stats; _isLoading = false; });
+      final stats = await AdminCompaniesRepository().getCompanyStats(
+        widget.company.id,
+      );
+      setState(() {
+        _stats = stats;
+        _isLoading = false;
+      });
     } catch (e) {
-      setState(() { _error = e.toString(); _isLoading = false; });
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
     }
   }
 
@@ -1308,55 +2368,139 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
       ),
       child: Column(
         children: [
-          Container(margin: const EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2))),
+          Container(
+            margin: const EdgeInsets.only(top: 12),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppColors.grey300,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(l10n.companyStatsTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.grey900)),
-                  Text(widget.company.name, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
-                ]),
-                IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.companyStatsTitle,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.grey900,
+                      ),
+                    ),
+                    Text(
+                      widget.company.name,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 16),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                ? const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  )
                 : _error != null
-                    ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        Icon(Icons.error_outline, size: 48, color: AppColors.grey400),
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: AppColors.grey400,
+                        ),
                         const SizedBox(height: 12),
-                        Text(_error!, style: TextStyle(color: AppColors.grey500, fontSize: 12)),
-                        const SizedBox(height: 12),
-                        OutlinedButton.icon(onPressed: () { setState(() { _isLoading = true; _error = null; }); _loadStats(); }, icon: const Icon(Icons.refresh), label: Text(l10n.retry)),
-                      ]))
-                    : _stats.isEmpty
-                        ? Center(child: Text(l10n.noStatsAvailable, style: const TextStyle(color: AppColors.grey400)))
-                        : SingleChildScrollView(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
-                              children: _stats.entries.map((e) {
-                                final value = e.value.toString();
-                                final label = e.key.replaceAll('_', ' ').split(' ').map((w) => w[0].toUpperCase() + w.substring(1)).join(' ');
-                                return Container(
-                                  width: (MediaQuery.of(context).size.width - 52) / 2,
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.grey200)),
-                                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                    Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.grey900)),
-                                    const SizedBox(height: 4),
-                                    Text(label, style: TextStyle(fontSize: 12, color: AppColors.grey500, fontWeight: FontWeight.w500)),
-                                  ]),
-                                );
-                              }).toList(),
-                            ),
+                        Text(
+                          _error!,
+                          style: TextStyle(
+                            color: AppColors.grey500,
+                            fontSize: 12,
                           ),
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _isLoading = true;
+                              _error = null;
+                            });
+                            _loadStats();
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: Text(l10n.retry),
+                        ),
+                      ],
+                    ),
+                  )
+                : _stats.isEmpty
+                ? Center(
+                    child: Text(
+                      l10n.noStatsAvailable,
+                      style: const TextStyle(color: AppColors.grey400),
+                    ),
+                  )
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: _stats.entries.map((e) {
+                        final value = e.value.toString();
+                        final label = e.key
+                            .replaceAll('_', ' ')
+                            .split(' ')
+                            .map((w) => w[0].toUpperCase() + w.substring(1))
+                            .join(' ');
+                        return Container(
+                          width: (MediaQuery.of(context).size.width - 52) / 2,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.grey50,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.grey200),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                value,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.grey900,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                label,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.grey500,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
           ),
         ],
       ),
@@ -1497,7 +2641,9 @@ class _CompanyCreatedSuccessDialogState
                         borderRadius: BorderRadius.circular(6),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           child: Row(
                             children: [
                               Icon(
@@ -1507,7 +2653,7 @@ class _CompanyCreatedSuccessDialogState
                                     ? AppColors.success
                                     : AppColors.primary,
                               ),
-                               const SizedBox(width: 4),
+                              const SizedBox(width: 4),
                               Text(
                                 _copiedEmail ? l10n.copied : l10n.copy,
                                 style: TextStyle(
@@ -1553,11 +2699,15 @@ class _CompanyCreatedSuccessDialogState
                         borderRadius: BorderRadius.circular(6),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           child: Row(
                             children: [
                               Icon(
-                                _copiedPassword ? Icons.check : Icons.copy_rounded,
+                                _copiedPassword
+                                    ? Icons.check
+                                    : Icons.copy_rounded,
                                 size: 13,
                                 color: _copiedPassword
                                     ? AppColors.success
@@ -1600,16 +2750,19 @@ class _CompanyCreatedSuccessDialogState
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () => _copy(
-                        'Email: ${widget.email}\nPassword: ${widget.password}',
-                        'Credentials'),
+                      'Email: ${widget.email}\nPassword: ${widget.password}',
+                      'Credentials',
+                    ),
                     icon: Icon(
-                        _copiedAll ? Icons.check : Icons.share_rounded,
-                        size: 16),
+                      _copiedAll ? Icons.check : Icons.share_rounded,
+                      size: 16,
+                    ),
                     label: Text(_copiedAll ? l10n.copiedAll : l10n.copyAll),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       side: const BorderSide(color: AppColors.grey300),
                       foregroundColor: AppColors.grey800,
                     ),
@@ -1624,12 +2777,17 @@ class _CompanyCreatedSuccessDialogState
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       elevation: 0,
                     ),
-                    child: const Text('Done',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14)),
+                    child: const Text(
+                      'Done',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -3,8 +3,9 @@ import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 class AdminSupportTicket {
   final int id;
   final String subject;
-  final String? description;
+  final String? message;
   final String status;
+  final String? priority;
   final String? userName;
   final String? companyName;
   final String? createdAt;
@@ -13,8 +14,9 @@ class AdminSupportTicket {
   const AdminSupportTicket({
     required this.id,
     required this.subject,
-    this.description,
+    this.message,
     required this.status,
+    this.priority,
     this.userName,
     this.companyName,
     this.createdAt,
@@ -27,8 +29,9 @@ class AdminSupportTicket {
     return AdminSupportTicket(
       id: json['id'] as int? ?? 0,
       subject: json['subject'] as String? ?? '',
-      description: json['message'] as String?,
+      message: json['message'] as String?,
       status: json['status'] as String? ?? 'open',
+      priority: json['priority'] as String?,
       userName: user?['name'] as String?,
       companyName: company?['name'] as String?,
       createdAt: json['created_at'] as String?,
@@ -37,22 +40,35 @@ class AdminSupportTicket {
   }
 
   Map<String, dynamic> toJson() => {
-        'status': status,
-      };
+    'status': status,
+    'priority': priority ?? 'medium',
+  };
 }
 
 class AdminSupportTicketsRepository {
   final ApiRepository _api;
 
   AdminSupportTicketsRepository({ApiRepository? api})
-      : _api = api ?? ApiRepository();
+    : _api = api ?? ApiRepository();
 
   /// GET /api/v1/admin/support-tickets
-  Future<List<AdminSupportTicket>> getTickets() async {
-    final response = await _api.get('/admin/support-tickets');
+  Future<List<AdminSupportTicket>> getTickets({
+    String? search,
+    String? status,
+  }) async {
+    final queryParams = <String, dynamic>{};
+    if (search != null && search.isNotEmpty) queryParams['search'] = search;
+    if (status != null && status.isNotEmpty) queryParams['status'] = status;
+
+    final response = await _api.get(
+      '/admin/support-tickets',
+      queryParameters: queryParams,
+    );
+
+    // response.data is unwrapped by ApiResponse.fromJson
+    // Paginated: { data: [...], current_page, ... } or direct list
     if (response.data is List) {
-      final list = response.data as List<dynamic>;
-      return list
+      return (response.data as List<dynamic>)
           .map((e) => AdminSupportTicket.fromJson(e as Map<String, dynamic>))
           .toList();
     }
@@ -68,11 +84,14 @@ class AdminSupportTicketsRepository {
 
   /// PUT /api/v1/admin/support-tickets/{id}
   Future<AdminSupportTicket> updateTicket(
-      int id, Map<String, dynamic> data) async {
+    int id,
+    Map<String, dynamic> data,
+  ) async {
     final response = await _api.put('/admin/support-tickets/$id', data: data);
     if (response.data is Map<String, dynamic>) {
       final respData = response.data as Map<String, dynamic>;
-      final ticketData = respData['data'] as Map<String, dynamic>? ??
+      final ticketData =
+          respData['data'] as Map<String, dynamic>? ??
           respData['ticket'] as Map<String, dynamic>? ??
           respData;
       return AdminSupportTicket.fromJson(ticketData);

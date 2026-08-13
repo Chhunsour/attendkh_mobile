@@ -19,9 +19,6 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
   bool _isLoading = false;
 
   late TextEditingController _nameCtrl;
-  late TextEditingController _codeCtrl;
-  late TextEditingController _graceCtrl;
-  late TextEditingController _overtimeCtrl;
 
   bool _isOvernight = false;
   bool _isActive = true;
@@ -38,9 +35,6 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
     super.initState();
     final s = widget.shift;
     _nameCtrl = TextEditingController(text: s?.name ?? '');
-    _codeCtrl = TextEditingController(text: s?.code ?? '');
-    _graceCtrl = TextEditingController(text: s?.gracePeriod.toString() ?? '15');
-    _overtimeCtrl = TextEditingController(text: s?.overtimeThreshold.toString() ?? '30');
     _isOvernight = s?.isOvernight ?? false;
     _isActive = s?.isActive ?? true;
 
@@ -84,9 +78,6 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _codeCtrl.dispose();
-    _graceCtrl.dispose();
-    _overtimeCtrl.dispose();
     super.dispose();
   }
 
@@ -141,9 +132,9 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
           name: _nameCtrl.text.trim(),
           startTime: _fmt(_startTimes['monday']!),
           endTime: _fmt(_endTimes['monday']!),
-          code: _codeCtrl.text.trim().isEmpty ? null : _codeCtrl.text.trim(),
-          gracePeriod: int.tryParse(_graceCtrl.text) ?? 15,
-          overtimeThreshold: int.tryParse(_overtimeCtrl.text) ?? 30,
+          code: null,
+          gracePeriod: 15,
+          overtimeThreshold: 30,
           isOvernight: _isOvernight,
           isActive: _isActive,
           schedule: schedule,
@@ -154,9 +145,9 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
           name: _nameCtrl.text.trim(),
           startTime: _fmt(_startTimes['monday']!),
           endTime: _fmt(_endTimes['monday']!),
-          code: _codeCtrl.text.trim().isEmpty ? null : _codeCtrl.text.trim(),
-          gracePeriod: int.tryParse(_graceCtrl.text) ?? 15,
-          overtimeThreshold: int.tryParse(_overtimeCtrl.text) ?? 30,
+          code: null,
+          gracePeriod: 15,
+          overtimeThreshold: 30,
           isOvernight: _isOvernight,
           isActive: _isActive,
           schedule: schedule,
@@ -256,15 +247,6 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                             ),
                             validator: (v) => v!.trim().isEmpty ? l10n.nameRequiredError : null,
                           ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: _codeCtrl,
-                            decoration: _inputDec(
-                              l10n.shortCodeLabel,
-                              l10n.shortCodeHint,
-                              Icons.tag_rounded,
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -341,65 +323,6 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                             ],
                           );
                         }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Section 3: Rules
-                    _SectionCard(
-                      icon: Icons.rule_rounded,
-                      title: l10n.rulesAllowancesTitle,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _graceCtrl,
-                              decoration:
-                                  _inputDec(l10n.gracePeriodLabel, '15', Icons.timer_outlined),
-                              keyboardType: TextInputType.number,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _overtimeCtrl,
-                              decoration:
-                                  _inputDec(l10n.otThresholdLabel, '30', Icons.more_time_rounded),
-                              keyboardType: TextInputType.number,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Section 4: Settings
-                    _SectionCard(
-                      icon: Icons.tune_rounded,
-                      title: l10n.settingsTitle,
-                      childPadding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Column(
-                        children: [
-                          _ToggleRow(
-                            icon: Icons.nights_stay_rounded,
-                            iconColor: const Color(0xFF4F46E5),
-                            iconBg: const Color(0xFFEEF2FF),
-                            title: l10n.overnightShiftTitle,
-                            subtitle: l10n.overnightShiftSubtitle,
-                            value: _isOvernight,
-                            onChanged: (v) => setState(() => _isOvernight = v),
-                          ),
-                          const Divider(height: 1, indent: 56, endIndent: 12),
-                          _ToggleRow(
-                            icon: Icons.check_circle_outline_rounded,
-                            iconColor: AppColors.success,
-                            iconBg: AppColors.successLight,
-                            title: l10n.activeScheduleTitle,
-                            subtitle: l10n.activeScheduleSubtitle,
-                            value: _isActive,
-                            onChanged: (v) => setState(() => _isActive = v),
-                          ),
-                        ],
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -744,65 +667,6 @@ class _TimeChip extends StatelessWidget {
             color: placeholder ? AppColors.grey400 : color,
           ),
         ),
-      ),
-    );
-  }
-}
-
-// ─── Toggle Row ───────────────────────────────────────────────────────────────
-class _ToggleRow extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final Color iconBg;
-  final String title;
-  final String subtitle;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  const _ToggleRow({
-    required this.icon,
-    required this.iconColor,
-    required this.iconBg,
-    required this.title,
-    required this.subtitle,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(10)),
-            child: Icon(icon, size: 19, color: iconColor),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey800)),
-                Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
-              ],
-            ),
-          ),
-          Transform.scale(
-            scale: 0.85,
-            child: Switch(
-              value: value,
-              onChanged: onChanged,
-              activeThumbColor: iconColor,
-              trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
-            ),
-          ),
-        ],
       ),
     );
   }

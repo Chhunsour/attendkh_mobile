@@ -57,20 +57,48 @@ class BranchPayrollSettingsData {
     return BranchPayrollSettingsData(
       id: json['id'] as int,
       branchId: json['branch_id'] as int,
-      isCustom: json['is_custom'] is bool ? json['is_custom'] as bool : (json['is_custom'] == 1 || json['is_custom'] == '1'),
+      isCustom: json['is_custom'] is bool
+          ? json['is_custom'] as bool
+          : (json['is_custom'] == 1 || json['is_custom'] == '1'),
       lateGracePeriodMinutes: json['late_grace_period_minutes'] as int? ?? 0,
       lateDeductionType: json['late_deduction_type'] as String? ?? 'per_minute',
-      lateDeductionRate: double.tryParse(json['late_deduction_rate']?.toString() ?? '1.0') ?? 1.0,
-      regularOtMultiplier: double.tryParse(json['regular_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
-      restDayOtMultiplier: double.tryParse(json['rest_day_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
-      publicHolidayOtMultiplier: double.tryParse(json['public_holiday_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
-      companyHolidayOtMultiplier: double.tryParse(json['company_holiday_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
+      lateDeductionRate:
+          double.tryParse(json['late_deduction_rate']?.toString() ?? '1.0') ??
+          1.0,
+      regularOtMultiplier:
+          double.tryParse(json['regular_ot_multiplier']?.toString() ?? '1.0') ??
+          1.0,
+      restDayOtMultiplier:
+          double.tryParse(
+            json['rest_day_ot_multiplier']?.toString() ?? '1.0',
+          ) ??
+          1.0,
+      publicHolidayOtMultiplier:
+          double.tryParse(
+            json['public_holiday_ot_multiplier']?.toString() ?? '1.0',
+          ) ??
+          1.0,
+      companyHolidayOtMultiplier:
+          double.tryParse(
+            json['company_holiday_ot_multiplier']?.toString() ?? '1.0',
+          ) ??
+          1.0,
       earlyClockInPolicy: json['early_clock_in_policy'] as String? ?? 'ignore',
-      preShiftOtMultiplier: double.tryParse(json['pre_shift_ot_multiplier']?.toString() ?? '1.0') ?? 1.0,
+      preShiftOtMultiplier:
+          double.tryParse(
+            json['pre_shift_ot_multiplier']?.toString() ?? '1.0',
+          ) ??
+          1.0,
       maxPreShiftOtMinutes: json['max_pre_shift_ot_minutes'] as int? ?? 0,
-      earlyLeaveDeductionType: json['early_leave_deduction_type'] as String? ?? 'per_minute',
-      earlyLeaveDeductionRate: double.tryParse(json['early_leave_deduction_rate']?.toString() ?? '1.0') ?? 1.0,
-      earlyLeaveGracePeriodMinutes: json['early_leave_grace_period_minutes'] as int? ?? 0,
+      earlyLeaveDeductionType:
+          json['early_leave_deduction_type'] as String? ?? 'per_minute',
+      earlyLeaveDeductionRate:
+          double.tryParse(
+            json['early_leave_deduction_rate']?.toString() ?? '1.0',
+          ) ??
+          1.0,
+      earlyLeaveGracePeriodMinutes:
+          json['early_leave_grace_period_minutes'] as int? ?? 0,
       workingDaysType: json['working_days_type'] as String? ?? 'calendar_days',
       fixedWorkingDays: json['fixed_working_days'] as int? ?? 22,
     );
@@ -123,13 +151,23 @@ class BranchData {
       email: json['email'] as String?,
       managerName: json['manager']?['name'] as String?,
       managerId: json['manager_id'] as int?,
-      isActive: json['is_active'] is bool ? json['is_active'] as bool : (json['is_active'] == 1 || json['is_active'] == '1'),
+      isActive: json['is_active'] is bool
+          ? json['is_active'] as bool
+          : (json['is_active'] == 1 || json['is_active'] == '1'),
       employeesCount: json['employees_count'] as int?,
-      latitude: json['latitude'] != null ? double.tryParse(json['latitude'].toString()) : null,
-      longitude: json['longitude'] != null ? double.tryParse(json['longitude'].toString()) : null,
+      latitude: json['latitude'] != null
+          ? double.tryParse(json['latitude'].toString())
+          : null,
+      longitude: json['longitude'] != null
+          ? double.tryParse(json['longitude'].toString())
+          : null,
       allowedRadiusMeters: json['allowed_radius_meters'] as int?,
       gracePeriod: json['grace_period'] as int?,
-      payrollSettings: json['payroll_settings'] != null ? BranchPayrollSettingsData.fromJson(json['payroll_settings'] as Map<String, dynamic>) : null,
+      payrollSettings: json['payroll_settings'] != null
+          ? BranchPayrollSettingsData.fromJson(
+              json['payroll_settings'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 }
@@ -173,7 +211,9 @@ class DepartmentData {
       parentName: json['parent']?['name'] as String?,
       managerId: json['manager_id'] as int?,
       managerName: json['manager']?['name'] as String?,
-      isActive: json['is_active'] is bool ? json['is_active'] as bool : (json['is_active'] == 1 || json['is_active'] == '1'),
+      isActive: json['is_active'] is bool
+          ? json['is_active'] as bool
+          : (json['is_active'] == 1 || json['is_active'] == '1'),
       employeesCount: json['employees_count'] as int?,
     );
   }
@@ -209,7 +249,9 @@ class PositionData {
       level: json['level'] as String?,
       departmentId: json['department_id'] as int?,
       departmentName: json['department']?['name'] as String?,
-      isActive: json['is_active'] is bool ? json['is_active'] as bool : (json['is_active'] == 1 || json['is_active'] == '1'),
+      isActive: json['is_active'] is bool
+          ? json['is_active'] as bool
+          : (json['is_active'] == 1 || json['is_active'] == '1'),
       employeesCount: json['employees_count'] as int?,
     );
   }
@@ -248,10 +290,14 @@ class TeamData {
       departmentName: json['department']?['name'] as String?,
       leaderId: json['leader_id'] as int?,
       leaderName: (json['leader'] != null)
-          ? '${json['leader']['first_name'] ?? ''} ${json['leader']['last_name'] ?? ''}'.trim()
+          ? '${json['leader']['first_name'] ?? ''} ${json['leader']['last_name'] ?? ''}'
+                .trim()
           : null,
-      isActive: json['is_active'] is bool ? json['is_active'] as bool : (json['is_active'] == 1 || json['is_active'] == '1'),
-      employeesCount: json['employees_count'] as int? ?? json['members_count'] as int?,
+      isActive: json['is_active'] is bool
+          ? json['is_active'] as bool
+          : (json['is_active'] == 1 || json['is_active'] == '1'),
+      employeesCount:
+          json['employees_count'] as int? ?? json['members_count'] as int?,
     );
   }
 }
@@ -262,13 +308,17 @@ class EmployeeData {
   final int? userId;
   final String? firstName;
   final String? lastName;
+  final String? fullName;
+  final String? khmerName;
   final String name;
   final String? email;
   final String? employeeId;
   final String? department;
   final String? position;
+  final String? positionLevel;
   final String? branch;
   final String? phone;
+  final List<String>? phoneNumbers;
   final String? status;
   final String? employmentType;
   final String? employmentStatus;
@@ -276,6 +326,8 @@ class EmployeeData {
   final String? probationEndDate;
   final String? terminationDate;
   final String? team;
+  final int? teamId;
+  final int? managerId;
   final String? manager;
   final String? avatar;
   final double? salary;
@@ -286,10 +338,12 @@ class EmployeeData {
   final String? dateOfBirth;
   final String? maritalStatus;
   final String? nationalId;
+  final List<String>? nationalIdImages;
   final String? address;
   final String? bankName;
   final String? bankAccount;
   final String? notes;
+  final List<String>? documents;
   final Map<String, dynamic>? emergencyContact;
   final List<LeaveBalanceData>? leaveBalances;
   final List<AdminLeaveRequestData>? recentLeaveRequests;
@@ -302,12 +356,16 @@ class EmployeeData {
     required this.name,
     this.firstName,
     this.lastName,
+    this.fullName,
+    this.khmerName,
     this.email,
     this.employeeId,
     this.department,
     this.position,
+    this.positionLevel,
     this.branch,
     this.phone,
+    this.phoneNumbers,
     this.status,
     this.employmentType,
     this.employmentStatus,
@@ -315,6 +373,8 @@ class EmployeeData {
     this.probationEndDate,
     this.terminationDate,
     this.team,
+    this.teamId,
+    this.managerId,
     this.manager,
     this.avatar,
     this.salary,
@@ -325,10 +385,12 @@ class EmployeeData {
     this.dateOfBirth,
     this.maritalStatus,
     this.nationalId,
+    this.nationalIdImages,
     this.address,
     this.bankName,
     this.bankAccount,
     this.notes,
+    this.documents,
     this.emergencyContact,
     this.leaveBalances,
     this.recentLeaveRequests,
@@ -337,18 +399,36 @@ class EmployeeData {
   });
 
   factory EmployeeData.fromJson(Map<String, dynamic> json) {
+    final fullName = json['full_name'] as String?;
+    final khmerName = json['khmer_name'] as String?;
+    final firstName = json['first_name'] as String?;
+    final lastName = json['last_name'] as String?;
     return EmployeeData(
       id: _safeInt(json['id']) ?? 0,
       userId: _safeInt(json['user_id']),
-      firstName: json['first_name'] as String?,
-      lastName: json['last_name'] as String?,
-      name: json['name'] as String? ?? '${json['first_name'] ?? ''} ${json['last_name'] ?? ''}'.trim(),
+      firstName: firstName,
+      lastName: lastName,
+      fullName: fullName,
+      khmerName: khmerName,
+      name:
+          fullName ??
+          json['name'] as String? ??
+          (firstName != null || lastName != null
+              ? '${firstName ?? ''} ${lastName ?? ''}'.trim()
+              : ''),
       email: json['email'] as String?,
       employeeId: json['employee_id']?.toString(),
-      department: json['department']?['name'] as String? ?? json['department'] as String?,
-      position: json['position']?['name'] as String? ?? json['position'] as String?,
+      department:
+          json['department']?['name'] as String? ??
+          json['department'] as String?,
+      position:
+          json['position']?['name'] as String? ?? json['position'] as String?,
+      positionLevel: json['position']?['level'] as String?,
       branch: json['branch']?['name'] as String? ?? json['branch'] as String?,
       phone: json['phone'] as String?,
+      phoneNumbers: (json['phone_numbers'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
       status: json['status'] as String? ?? 'active',
       employmentType: json['employment_type'] as String?,
       employmentStatus: json['employment_status'] as String?,
@@ -356,9 +436,18 @@ class EmployeeData {
       probationEndDate: json['probation_end_date'] as String?,
       terminationDate: json['termination_date'] as String?,
       team: json['team']?['name'] as String? ?? json['team'] as String?,
-      manager: json['manager']?['name'] as String? ?? (json['manager'] != null && json['manager'] is Map ? '${json['manager']['first_name']} ${json['manager']['last_name']}' : json['manager'] as String?),
+      teamId: _safeInt(json['team']?['id'] ?? json['team_id']),
+      managerId: _safeInt(json['manager']?['id'] ?? json['manager_id']),
+      manager:
+          json['manager']?['full_name'] as String? ??
+          json['manager']?['name'] as String? ??
+          (json['manager'] != null && json['manager'] is Map
+              ? '${json['manager']['first_name']} ${json['manager']['last_name']}'
+              : json['manager'] as String?),
       avatar: json['avatar'] as String? ?? json['photo'] as String?,
-      salary: json['salary'] != null ? double.tryParse(json['salary'].toString()) : null,
+      salary: json['salary'] != null
+          ? double.tryParse(json['salary'].toString())
+          : null,
       departmentId: _safeInt(json['department_id']),
       positionId: _safeInt(json['position_id']),
       branchId: _safeInt(json['branch_id']),
@@ -366,29 +455,46 @@ class EmployeeData {
       dateOfBirth: json['date_of_birth'] as String?,
       maritalStatus: json['marital_status'] as String?,
       nationalId: json['national_id'] as String?,
+      nationalIdImages: (json['national_id_images'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
       address: json['address'] as String?,
       bankName: json['bank_name'] as String?,
       bankAccount: json['bank_account'] as String?,
       notes: json['notes'] as String?,
+      documents: (json['documents'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
       emergencyContact: json['emergency_contact'] is Map
           ? Map<String, dynamic>.from(json['emergency_contact'] as Map)
           : null,
       leaveBalances: json['leave_balances'] == null
           ? null
           : (json['leave_balances'] as List)
-              .map((e) => LeaveBalanceData.fromJson(e as Map<String, dynamic>))
-              .toList(),
+                .map(
+                  (e) => LeaveBalanceData.fromJson(e as Map<String, dynamic>),
+                )
+                .toList(),
       recentLeaveRequests: json['recent_leave_requests'] == null
           ? null
           : (json['recent_leave_requests'] as List)
-              .map((e) => AdminLeaveRequestData.fromJson(e as Map<String, dynamic>))
-              .toList(),
+                .map(
+                  (e) =>
+                      AdminLeaveRequestData.fromJson(e as Map<String, dynamic>),
+                )
+                .toList(),
       recentAttendances: json['recent_attendances'] == null
           ? null
           : (json['recent_attendances'] as List)
-              .map((e) => AdminAttendanceRecord.fromJson(e as Map<String, dynamic>))
-              .toList(),
-      role: json['user'] != null && json['user']['roles'] != null && (json['user']['roles'] as List).isNotEmpty
+                .map(
+                  (e) =>
+                      AdminAttendanceRecord.fromJson(e as Map<String, dynamic>),
+                )
+                .toList(),
+      role:
+          json['user'] != null &&
+              json['user']['roles'] != null &&
+              (json['user']['roles'] as List).isNotEmpty
           ? json['user']['roles'][0]['name'] as String
           : null,
     );
@@ -403,7 +509,13 @@ class RoleData {
   final int? permissionsCount;
   final List<String>? permissions;
 
-  const RoleData({required this.id, required this.name, this.guardName, this.permissionsCount, this.permissions});
+  const RoleData({
+    required this.id,
+    required this.name,
+    this.guardName,
+    this.permissionsCount,
+    this.permissions,
+  });
 
   factory RoleData.fromJson(Map<String, dynamic> json) {
     return RoleData(
@@ -443,7 +555,9 @@ class OrgNode {
   });
 
   String get name => '$firstName $lastName';
-  String get initials => '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'.toUpperCase();
+  String get initials =>
+      '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'
+          .toUpperCase();
   int get subordinatesCount => subordinates?.length ?? 0;
   bool get hasSubordinates => subordinates != null && subordinates!.isNotEmpty;
 
@@ -460,8 +574,8 @@ class OrgNode {
       departmentName: json['department']?['name'] as String?,
       subordinates: (json['all_subordinates'] ?? json['subordinates']) != null
           ? ((json['all_subordinates'] ?? json['subordinates']) as List)
-              .map((e) => OrgNode.fromJson(e as Map<String, dynamic>))
-              .toList()
+                .map((e) => OrgNode.fromJson(e as Map<String, dynamic>))
+                .toList()
           : null,
     );
   }
@@ -480,7 +594,6 @@ class HrRepository {
 
   Future<BranchData> createBranch({
     required String name,
-    String? code,
     String? address,
     String? phone,
     String? email,
@@ -492,26 +605,28 @@ class HrRepository {
     bool? isActive,
     Map<String, dynamic>? payrollSettings,
   }) async {
-    final response = await _api.post('/company/branches', data: {
-      'name': name,
-      'code': code,
-      'address': address,
-      'phone': phone,
-      'email': email,
-      'latitude': latitude,
-      'longitude': longitude,
-      'allowed_radius_meters': allowedRadiusMeters,
-      'grace_period': gracePeriod,
-      'manager_id': managerId,
-      'is_active': isActive ?? true,
-      'payroll_settings': ?payrollSettings,
-    });
+    final response = await _api.post(
+      '/company/branches',
+      data: {
+        'name': name,
+        'address': address,
+        'phone': phone,
+        'email': email,
+        'latitude': latitude,
+        'longitude': longitude,
+        'allowed_radius_meters': allowedRadiusMeters,
+        'grace_period': gracePeriod,
+        'manager_id': managerId,
+        'is_active': isActive ?? true,
+        'payroll_settings': ?payrollSettings,
+      },
+    );
     return BranchData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<void> updateBranch(int id, {
+  Future<void> updateBranch(
+    int id, {
     String? name,
-    String? code,
     String? address,
     String? phone,
     String? email,
@@ -523,23 +638,26 @@ class HrRepository {
     bool? isActive,
     Map<String, dynamic>? payrollSettings,
   }) async {
-    await _api.put('/company/branches/$id', data: {
-      'name': name,
-      'code': code,
-      'address': address,
-      'phone': phone,
-      'email': email,
-      'latitude': latitude,
-      'longitude': longitude,
-      'allowed_radius_meters': allowedRadiusMeters,
-      'grace_period': gracePeriod,
-      'manager_id': managerId,
-      'is_active': isActive,
-      'payroll_settings': ?payrollSettings,
-    });
+    await _api.put(
+      '/company/branches/$id',
+      data: {
+        'name': name,
+        'address': address,
+        'phone': phone,
+        'email': email,
+        'latitude': latitude,
+        'longitude': longitude,
+        'allowed_radius_meters': allowedRadiusMeters,
+        'grace_period': gracePeriod,
+        'manager_id': managerId,
+        'is_active': isActive,
+        'payroll_settings': ?payrollSettings,
+      },
+    );
   }
 
-  Future<void> deleteBranch(int id) async => _api.delete('/company/branches/$id');
+  Future<void> deleteBranch(int id) async =>
+      _api.delete('/company/branches/$id');
 
   // ── Departments ─────────────────────────────────────────────────────────
   Future<List<DepartmentData>> getDepartments() async {
@@ -549,42 +667,46 @@ class HrRepository {
 
   Future<DepartmentData> createDepartment({
     required String name,
-    String? code,
     int? branchId,
     int? parentId,
     int? managerId,
     bool? isActive,
   }) async {
-    final response = await _api.post('/company/departments', data: {
-      'name': name,
-      'code': code,
-      'branch_id': branchId,
-      'parent_id': parentId,
-      'manager_id': managerId,
-      'is_active': isActive ?? true,
-    });
+    final response = await _api.post(
+      '/company/departments',
+      data: {
+        'name': name,
+        'branch_id': branchId,
+        'parent_id': parentId,
+        'manager_id': managerId,
+        'is_active': isActive ?? true,
+      },
+    );
     return DepartmentData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<void> updateDepartment(int id, {
+  Future<void> updateDepartment(
+    int id, {
     required String name,
-    String? code,
     int? branchId,
     int? parentId,
     int? managerId,
     bool? isActive,
   }) async {
-    await _api.put('/company/departments/$id', data: {
-      'name': name,
-      'code': code,
-      'branch_id': branchId,
-      'parent_id': parentId,
-      'manager_id': managerId,
-      'is_active': isActive,
-    });
+    await _api.put(
+      '/company/departments/$id',
+      data: {
+        'name': name,
+        'branch_id': branchId,
+        'parent_id': parentId,
+        'manager_id': managerId,
+        'is_active': isActive,
+      },
+    );
   }
 
-  Future<void> deleteDepartment(int id) async => _api.delete('/company/departments/$id');
+  Future<void> deleteDepartment(int id) async =>
+      _api.delete('/company/departments/$id');
 
   // ── Positions ───────────────────────────────────────────────────────────
   Future<List<PositionData>> getPositions() async {
@@ -594,38 +716,42 @@ class HrRepository {
 
   Future<PositionData> createPosition({
     required String name,
-    String? code,
     int? departmentId,
     String? level,
     bool? isActive,
   }) async {
-    final response = await _api.post('/company/positions', data: {
-      'name': name,
-      'code': code,
-      'department_id': departmentId,
-      'level': level,
-      'is_active': isActive ?? true,
-    });
+    final response = await _api.post(
+      '/company/positions',
+      data: {
+        'name': name,
+        'department_id': departmentId,
+        'level': level,
+        'is_active': isActive ?? true,
+      },
+    );
     return PositionData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<void> updatePosition(int id, {
+  Future<void> updatePosition(
+    int id, {
     required String name,
-    String? code,
     int? departmentId,
     String? level,
     bool? isActive,
   }) async {
-    await _api.put('/company/positions/$id', data: {
-      'name': name,
-      'code': code,
-      'department_id': departmentId,
-      'level': level,
-      'is_active': isActive,
-    });
+    await _api.put(
+      '/company/positions/$id',
+      data: {
+        'name': name,
+        'department_id': departmentId,
+        'level': level,
+        'is_active': isActive,
+      },
+    );
   }
 
-  Future<void> deletePosition(int id) async => _api.delete('/company/positions/$id');
+  Future<void> deletePosition(int id) async =>
+      _api.delete('/company/positions/$id');
 
   // ── Teams ───────────────────────────────────────────────────────────────
   Future<List<TeamData>> getTeams() async {
@@ -640,30 +766,37 @@ class HrRepository {
     int? leaderId,
     bool? isActive,
   }) async {
-    final response = await _api.post('/company/teams', data: {
-      'name': name,
-      'description': description,
-      'department_id': departmentId,
-      'leader_id': leaderId,
-      'is_active': isActive ?? true,
-    });
+    final response = await _api.post(
+      '/company/teams',
+      data: {
+        'name': name,
+        'description': description,
+        'department_id': departmentId,
+        'leader_id': leaderId,
+        'is_active': isActive ?? true,
+      },
+    );
     return TeamData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<void> updateTeam(int id, {
+  Future<void> updateTeam(
+    int id, {
     required String name,
     String? description,
     int? departmentId,
     int? leaderId,
     bool? isActive,
   }) async {
-    await _api.put('/company/teams/$id', data: {
-      'name': name,
-      'description': description,
-      'department_id': departmentId,
-      'leader_id': leaderId,
-      'is_active': isActive,
-    });
+    await _api.put(
+      '/company/teams/$id',
+      data: {
+        'name': name,
+        'description': description,
+        'department_id': departmentId,
+        'leader_id': leaderId,
+        'is_active': isActive,
+      },
+    );
   }
 
   Future<void> deleteTeam(int id) async => _api.delete('/company/teams/$id');
@@ -677,33 +810,40 @@ class HrRepository {
     String? employmentType,
     int? perPage,
   }) async {
-    final response = await _api.get('/company/employees', queryParameters: {
-      'per_page': ?perPage,
-      if (search != null && search.isNotEmpty) 'search': search,
-      'department_id': ?departmentId,
-      'branch_id': ?branchId,
-      if (employmentStatus != null && employmentStatus.isNotEmpty) 'employment_status': employmentStatus,
-      if (employmentType != null && employmentType.isNotEmpty) 'employment_type': employmentType,
-    });
+    final response = await _api.get(
+      '/company/employees',
+      queryParameters: {
+        'per_page': ?perPage,
+        if (search != null && search.isNotEmpty) 'search': search,
+        'department_id': ?departmentId,
+        'branch_id': ?branchId,
+        if (employmentStatus != null && employmentStatus.isNotEmpty)
+          'employment_status': employmentStatus,
+        if (employmentType != null && employmentType.isNotEmpty)
+          'employment_type': employmentType,
+      },
+    );
     return _parseList(response.data, EmployeeData.fromJson);
   }
 
-
   Future<EmployeeData> getEmployee(int id) async {
     final response = await _api.get('/company/employees/$id');
-    final dataMap = response.data['data'] as Map<String, dynamic>? ?? response.data as Map<String, dynamic>;
+    final dataMap =
+        response.data['data'] as Map<String, dynamic>? ??
+        response.data as Map<String, dynamic>;
     return EmployeeData.fromJson(dataMap);
   }
 
   Future<EmployeeData> createEmployee({
-    required String firstName,
-    required String lastName,
+    required String fullName,
+    String? khmerName,
     required String employmentType,
     required String employmentStatus,
     required String hireDate,
     String? employeeId,
     String? email,
     String? phone,
+    List<String>? phoneNumbers,
     double? salary,
     int? departmentId,
     int? positionId,
@@ -714,6 +854,7 @@ class HrRepository {
     String? dateOfBirth,
     String? maritalStatus,
     String? nationalId,
+    List<File>? nationalIdImages,
     String? address,
     String? bankName,
     String? bankAccount,
@@ -729,8 +870,8 @@ class HrRepository {
     String? password,
   }) async {
     final Map<String, dynamic> dataMap = {
-      'first_name': firstName,
-      'last_name': lastName,
+      'full_name': fullName,
+      'khmer_name': ?khmerName,
       'employment_type': employmentType,
       'employment_status': employmentStatus,
       'hire_date': hireDate,
@@ -761,8 +902,22 @@ class HrRepository {
       'password': ?password,
     };
 
+    // Add phone numbers as array
+    if (phoneNumbers != null && phoneNumbers.isNotEmpty) {
+      dataMap['phone_numbers'] = phoneNumbers;
+    }
+
     if (photo != null) {
       dataMap['photo'] = await MultipartFile.fromFile(photo.path);
+    }
+
+    // Add national ID images
+    if (nationalIdImages != null && nationalIdImages.isNotEmpty) {
+      for (int i = 0; i < nationalIdImages.length; i++) {
+        dataMap['national_id_images[$i]'] = await MultipartFile.fromFile(
+          nationalIdImages[i].path,
+        );
+      }
     }
 
     final formData = FormData.fromMap(dataMap);
@@ -773,15 +928,17 @@ class HrRepository {
     return EmployeeData.fromJson(payload);
   }
 
-  Future<EmployeeData> updateEmployee(int id, {
-    String? firstName,
-    String? lastName,
+  Future<EmployeeData> updateEmployee(
+    int id, {
+    String? fullName,
+    String? khmerName,
     String? employmentType,
     String? employmentStatus,
     String? hireDate,
     String? employeeId,
     String? email,
     String? phone,
+    List<String>? phoneNumbers,
     double? salary,
     int? departmentId,
     int? positionId,
@@ -792,6 +949,7 @@ class HrRepository {
     String? dateOfBirth,
     String? maritalStatus,
     String? nationalId,
+    List<File>? nationalIdImages,
     String? address,
     String? bankName,
     String? bankAccount,
@@ -808,8 +966,8 @@ class HrRepository {
   }) async {
     final Map<String, dynamic> dataMap = {
       '_method': 'PUT', // Spoofing PUT for Laravel when sending FormData
-      'first_name': ?firstName,
-      'last_name': ?lastName,
+      'full_name': ?fullName,
+      'khmer_name': ?khmerName,
       'employment_type': ?employmentType,
       'employment_status': ?employmentStatus,
       'employee_id': ?employeeId,
@@ -840,8 +998,22 @@ class HrRepository {
       'password': ?password,
     };
 
+    // Add phone numbers as array
+    if (phoneNumbers != null) {
+      dataMap['phone_numbers'] = phoneNumbers;
+    }
+
     if (photo != null) {
       dataMap['photo'] = await MultipartFile.fromFile(photo.path);
+    }
+
+    // Add national ID images
+    if (nationalIdImages != null && nationalIdImages.isNotEmpty) {
+      for (int i = 0; i < nationalIdImages.length; i++) {
+        dataMap['national_id_images[$i]'] = await MultipartFile.fromFile(
+          nationalIdImages[i].path,
+        );
+      }
     }
 
     final formData = FormData.fromMap(dataMap);
@@ -851,7 +1023,8 @@ class HrRepository {
     return getEmployee(id);
   }
 
-  Future<void> deleteEmployee(int id) async => _api.delete('/company/employees/$id');
+  Future<void> deleteEmployee(int id) async =>
+      _api.delete('/company/employees/$id');
 
   // ── Roles ───────────────────────────────────────────────────────────────
   Future<List<RoleData>> getRoles() async {
@@ -859,11 +1032,14 @@ class HrRepository {
     return _parseList(response.data, RoleData.fromJson);
   }
 
-  Future<RoleData> createRole({required String name, List<String>? permissions}) async {
-    final response = await _api.post('/company/roles', data: {
-      'name': name,
-      'permissions': ?permissions,
-    });
+  Future<RoleData> createRole({
+    required String name,
+    List<String>? permissions,
+  }) async {
+    final response = await _api.post(
+      '/company/roles',
+      data: {'name': name, 'permissions': ?permissions},
+    );
     return RoleData.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -872,7 +1048,9 @@ class HrRepository {
     final response = await _api.get('/company/org-chart');
     final data = response.data;
     if (data is List) {
-      return data.map((e) => OrgNode.fromJson(e as Map<String, dynamic>)).toList();
+      return data
+          .map((e) => OrgNode.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
     if (data is Map && data['data'] != null) {
       return (data['data'] as List)
@@ -883,9 +1061,18 @@ class HrRepository {
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────
-  List<T> _parseList<T>(dynamic data, T Function(Map<String, dynamic>) fromJson) {
-    if (data is List) return data.map((e) => fromJson(e as Map<String, dynamic>)).toList();
-    if (data is Map && data['data'] != null) return (data['data'] as List).map((e) => fromJson(e as Map<String, dynamic>)).toList();
+  List<T> _parseList<T>(
+    dynamic data,
+    T Function(Map<String, dynamic>) fromJson,
+  ) {
+    if (data is List) {
+      return data.map((e) => fromJson(e as Map<String, dynamic>)).toList();
+    }
+    if (data is Map && data['data'] != null) {
+      return (data['data'] as List)
+          .map((e) => fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
     return [];
   }
 

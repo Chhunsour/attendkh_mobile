@@ -1,7 +1,7 @@
-// ignore_for_file: use_build_context_synchronously
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -19,7 +19,15 @@ class AdminExpensesScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
+  final _searchCtrl = TextEditingController();
+  String _searchQuery = '';
   String _statusFilter = 'all';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,103 +56,227 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Status filter chips
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Row(
-              children: [
-                const Icon(Icons.filter_list, size: 18, color: AppColors.grey500),
-                const SizedBox(width: 8),
-                ...['all', 'pending', 'approved', 'rejected', 'paid'].map((status) {
-                  final isActive = _statusFilter == status;
-                  String label;
-                  switch (status) {
-                    case 'all': label = l10n.filterAll; break;
-                    case 'pending': label = l10n.filterPending; break;
-                    case 'approved': label = l10n.filterApproved; break;
-                    case 'rejected': label = l10n.filterRejected; break;
-                    case 'paid': label = l10n.filterPaid; break;
-                    default: label = status;
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: GestureDetector(
-                      onTap: () => setState(() => _statusFilter = status),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: isActive ? AppColors.primary : AppColors.grey100,
-                          borderRadius: BorderRadius.circular(20),
+      body: expensesAsync.when(
+        data: (items) {
+          final pendingCount = items.where((e) => e.status == 'pending').length;
+          final approvedTotal = items.where((e) => e.status == 'approved' || e.status == 'paid').fold<double>(0, (sum, e) => sum + e.amount);
+          final rejectedCount = items.where((e) => e.status == 'rejected').length;
+
+          final q = _searchQuery.trim().toLowerCase();
+          final filtered = items.where((e) {
+            final matchesStatus = _statusFilter == 'all' || e.status == _statusFilter;
+            final matchesQuery = q.isEmpty ||
+                e.title.toLowerCase().contains(q) ||
+                (e.description != null && e.description!.toLowerCase().contains(q)) ||
+                e.category.toLowerCase().contains(q) ||
+                (e.employeeName != null && e.employeeName!.toLowerCase().contains(q)) ||
+                (e.employeeCode != null && e.employeeCode!.toLowerCase().contains(q));
+            return matchesStatus && matchesQuery;
+          }).toList();
+
+          return Column(
+            children: [
+              // ── Top KPI Summary Cards ──────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _kpiCard(
+                        icon: Icons.pending_actions_rounded,
+                        color: AppColors.warning,
+                        value: pendingCount.toString(),
+                        label: 'Pending',
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _kpiCard(
+                        icon: Icons.check_circle_outline_rounded,
+                        color: AppColors.success,
+                        value: '\$${approvedTotal.toStringAsFixed(approvedTotal == approvedTotal.roundToDouble() ? 0 : 2)}',
+                        label: 'Approved/Paid',
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _kpiCard(
+                        icon: Icons.cancel_outlined,
+                        color: AppColors.danger,
+                        value: rejectedCount.toString(),
+                        label: 'Rejected',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Search & Filter Controls ──────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _searchCtrl,
+                      onChanged: (val) => setState(() => _searchQuery = val),
+                      decoration: InputDecoration(
+                        hintText: 'Search title, employee, code...',
+                        hintStyle: const TextStyle(fontSize: 13, color: AppColors.grey400),
+                        prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.grey400),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, size: 18),
+                                onPressed: () {
+                                  _searchCtrl.clear();
+                                  setState(() => _searchQuery = '');
+                                },
+                              )
+                            : null,
+                        filled: true,
+                        fillColor: AppColors.surfaceLight,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppColors.grey200),
                         ),
-                        child: Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isActive ? Colors.white : AppColors.grey500,
-                          ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppColors.grey200),
                         ),
                       ),
                     ),
-                  );
-                }),
-              ],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: expensesAsync.when(
-              data: (items) {
-                final filtered = _statusFilter == 'all' ? items : items.where((e) => e.status == _statusFilter).toList();
-                if (filtered.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.receipt_outlined, size: 64, color: AppColors.grey300.withAlpha(128)),
-                        const SizedBox(height: 12),
-                        Text(l10n.noExpenseClaims, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.grey500)),
-                      ],
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: ['all', 'pending', 'approved', 'rejected', 'paid'].map((status) {
+                          final isActive = _statusFilter == status;
+                          String label;
+                          switch (status) {
+                            case 'all': label = l10n.filterAll; break;
+                            case 'pending': label = l10n.filterPending; break;
+                            case 'approved': label = l10n.filterApproved; break;
+                            case 'rejected': label = l10n.filterRejected; break;
+                            case 'paid': label = l10n.filterPaid; break;
+                            default: label = status;
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: ChoiceChip(
+                              label: Text(label),
+                              selected: isActive,
+                              onSelected: (_) => setState(() => _statusFilter = status),
+                              selectedColor: AppColors.primary,
+                              labelStyle: TextStyle(
+                                color: isActive ? Colors.white : AppColors.grey700,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                              ),
+                              backgroundColor: AppColors.surfaceLight,
+                              side: BorderSide(color: isActive ? AppColors.primary : AppColors.grey200),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                  );
-                }
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: filtered.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (context, i) {
-                    final e = filtered[i];
-                    final statusColor = e.status == 'approved'
-                        ? AppColors.success
-                        : e.status == 'rejected'
-                            ? AppColors.danger
-                            : e.status == 'paid'
-                                ? AppColors.info
-                                : AppColors.warning;
-                    return _AdminExpenseCard(
-                      expense: e,
-                      statusColor: statusColor,
-                      onTap: () => _showDetailModal(context, e, statusColor),
-                      onApprove: e.status == 'pending' ? () => _approveExpense(e.id) : null,
-                      onReject: e.status == 'pending' ? () => _showRejectDialog(context, e.id) : null,
-                      onPay: e.status == 'approved' ? () => _markAsPaid(e.id) : null,
-                      onEdit: e.status == 'pending' ? () => _showEditExpenseSheet(context, e) : null,
-                      onDelete: _canDelete(e.status) ? () => _deleteExpense(e.id) : null,
-                    );
-                  },
-                );
-              },
-              loading: () => LoadingIndicator(message: l10n.loadingExpenses),
-              error: (e, _) => Center(
-                child: OutlinedButton.icon(
-                  onPressed: () => ref.invalidate(expensesProvider),
-                  icon: const Icon(Icons.refresh),
-                  label: Text(l10n.retry),
+                  ],
                 ),
               ),
-            ),
+
+              const SizedBox(height: 4),
+
+              // ── Claims List ──────────────────────────────────────────
+              Expanded(
+                child: filtered.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.receipt_outlined, size: 64, color: AppColors.grey300.withAlpha(128)),
+                            const SizedBox(height: 12),
+                            Text(l10n.noExpenseClaims, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.grey500)),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(14),
+                        itemCount: filtered.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 10),
+                        itemBuilder: (context, i) {
+                          final e = filtered[i];
+                          final statusColor = e.status == 'approved'
+                              ? AppColors.success
+                              : e.status == 'rejected'
+                                  ? AppColors.danger
+                                  : e.status == 'paid'
+                                      ? AppColors.info
+                                      : AppColors.warning;
+                          return _AdminExpenseCard(
+                            expense: e,
+                            statusColor: statusColor,
+                            onTap: () => _showDetailModal(context, e, statusColor),
+                            onApprove: e.status == 'pending' ? () => _approveExpense(e.id) : null,
+                            onReject: e.status == 'pending' ? () => _showRejectDialog(context, e.id) : null,
+                            onPay: e.status == 'approved' ? () => _markAsPaid(e.id) : null,
+                            onEdit: e.status == 'pending' ? () => _showEditExpenseSheet(context, e) : null,
+                            onDelete: _canDelete(e.status) ? () => _deleteExpense(e.id) : null,
+                          );
+                        },
+                      ),
+              ),
+            ],
+          );
+        },
+        loading: () => LoadingIndicator(message: l10n.loadingExpenses),
+        error: (e, _) => Center(
+          child: OutlinedButton.icon(
+            onPressed: () => ref.invalidate(expensesProvider),
+            icon: const Icon(Icons.refresh),
+            label: Text(l10n.retry),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _kpiCard({required IconData icon, required Color color, required String value, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.grey200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: color.withAlpha(26),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(icon, size: 13, color: color),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.grey500),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.grey900),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -372,13 +504,42 @@ class _AdminExpenseCard extends StatelessWidget {
                         Text(expense.description!, style: const TextStyle(fontSize: 11, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
                       ],
                       if (expense.employeeName != null) ...[
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
-                            Text(expense.employeeName!, style: const TextStyle(fontSize: 11, color: AppColors.grey400)),
-                            if (expense.employeeId != null && expense.employeeId!.isNotEmpty) ...[
-                              const Text(' · ', style: TextStyle(fontSize: 10, color: AppColors.grey400)),
-                              Text(expense.employeeId!, style: const TextStyle(fontSize: 10, color: AppColors.grey400)),
+                            CircleAvatar(
+                              radius: 10,
+                              backgroundColor: AppColors.primary.withAlpha(26),
+                              backgroundImage: expense.employeePhoto != null && expense.employeePhoto!.isNotEmpty
+                                  ? NetworkImage(expense.employeePhoto!)
+                                  : null,
+                              child: expense.employeePhoto == null || expense.employeePhoto!.isEmpty
+                                  ? Text(
+                                      expense.employeeName![0].toUpperCase(),
+                                      style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.primary),
+                                    )
+                                  : null,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              expense.employeeName!,
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (expense.employeeCode != null && expense.employeeCode!.isNotEmpty) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.grey100,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(color: AppColors.grey300),
+                                ),
+                                child: Text(
+                                  expense.employeeCode!,
+                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.grey700),
+                                ),
+                              ),
                             ],
                           ],
                         ),
@@ -683,6 +844,7 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
   String _category = 'Travel';
   String _currency = 'USD';
   DateTime _expenseDate = DateTime.now();
+  File? _receiptFile;
   bool _isSubmitting = false;
 
   bool get _isEditing => widget.initial != null;
@@ -701,6 +863,14 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
         final parsed = DateTime.tryParse(e.date);
         if (parsed != null) _expenseDate = parsed;
       }
+    }
+  }
+
+  Future<void> _pickReceipt() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    if (image != null) {
+      setState(() => _receiptFile = File(image.path));
     }
   }
 
@@ -750,10 +920,12 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
           if (_descCtrl.text.trim().isNotEmpty) 'description': _descCtrl.text.trim(),
         });
         widget.onSubmitted();
-        if (mounted) Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.expenseClaimUpdatedSuccess), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
-        );
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.expenseClaimUpdatedSuccess), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+          );
+        }
       } else {
         final repo = ref.read(expenseRepositoryProvider);
         await repo.submitClaim(
@@ -763,12 +935,15 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
           currency: _currency,
           expenseDate: formattedDate,
           description: _descCtrl.text.trim().isNotEmpty ? _descCtrl.text.trim() : null,
+          receipt: _receiptFile,
         );
         widget.onSubmitted();
-        if (mounted) Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.expenseClaimSubmittedSuccess), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
-        );
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.expenseClaimSubmittedSuccess), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -908,6 +1083,52 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
                 controller: _descCtrl,
                 decoration: InputDecoration(labelText: l10n.descriptionOptionalLabel, border: const OutlineInputBorder()),
                 maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Receipt (optional)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                  const SizedBox(height: 6),
+                  InkWell(
+                    onTap: _pickReceipt,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceLight,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: _receiptFile != null ? AppColors.primary : AppColors.grey300),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _receiptFile != null ? Icons.check_circle_rounded : Icons.attach_file_rounded,
+                            color: _receiptFile != null ? AppColors.success : AppColors.grey500,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              _receiptFile != null ? _receiptFile!.path.split('/').last : 'Upload receipt image...',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: _receiptFile != null ? FontWeight.w600 : FontWeight.w400,
+                                color: _receiptFile != null ? AppColors.grey900 : AppColors.grey400,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (_receiptFile != null)
+                            GestureDetector(
+                              onTap: () => setState(() => _receiptFile = null),
+                              child: const Icon(Icons.close_rounded, size: 18, color: AppColors.danger),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               ElevatedButton(

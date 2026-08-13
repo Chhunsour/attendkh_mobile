@@ -1562,6 +1562,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get genderOther => 'Other';
 
   @override
+  String get maritalStatusLabel => 'Marital Status';
+
+  @override
+  String get maritalSingle => 'Single';
+
+  @override
+  String get maritalMarried => 'Married';
+
+  @override
+  String get maritalDivorced => 'Divorced';
+
+  @override
+  String get maritalWidowed => 'Widowed';
+
+  @override
   String get dateOfBirthLabel => 'Date of Birth';
 
   @override
@@ -2136,6 +2151,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lastName => 'Last Name';
+
+  @override
+  String get fullName => 'Full Name';
+
+  @override
+  String get khmerName => 'Khmer Name';
+
+  @override
+  String get addPhoneNumber => 'Add Phone Number';
+
+  @override
+  String get uploadIdImages => 'Upload ID Images';
 
   @override
   String get employeeIdHint => 'Employee ID (Leave blank to auto-generate)';

@@ -7,12 +7,12 @@ import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
 /// - Android Emulator : 10.0.2.2 maps to the host machine's localhost.
 /// - Real device (WiFi): Use the Mac's LAN IP so the device can reach the server.
 /// Change [_devServerIp] to match your machine's current IP when on a real device.
-const String _devServerIp = 'attendkh.com';
+const String _devServerIp = '10.0.2.2:8000';
 const String _r2StorageUrl =
     'https://pub-ccd9b4a59b6e4eddb12ef2a2c45e75c7.r2.dev';
 
 String get _baseUrl {
-  return 'https://$_devServerIp/api';
+  return 'http://$_devServerIp/api';
 }
 
 class DioClient {
@@ -73,10 +73,7 @@ class DioClient {
 
 class _AuthInterceptor extends Interceptor {
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final token = SecureStorageService.instance.cachedAccessToken;
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
@@ -96,10 +93,7 @@ class _AuthInterceptor extends Interceptor {
 
 class _TenantInterceptor extends Interceptor {
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final companyId = SecureStorageService.instance.cachedCompanyId;
     if (companyId != null && companyId.isNotEmpty) {
       options.headers['X-Company-Id'] = companyId;
@@ -110,10 +104,7 @@ class _TenantInterceptor extends Interceptor {
 
 class _ConnectivityInterceptor extends Interceptor {
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     // Pass straight to network execution; Dio connectionTimeout handles offline errors without pre-flight platform IPC delay
     handler.next(options);
   }

@@ -80,137 +80,491 @@ class _PayrollRunsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final runsAsync = ref.watch(payrollRunsProvider);
-    return Column(
-      children: [
-        Padding(
+    final l10n = AppLocalizations.of(context)!;
+
+    return runsAsync.when(
+      data: (items) {
+        final latestRun = items.isNotEmpty ? items.first : null;
+        final ytdGross = items.fold<double>(0, (sum, item) => sum + item.totalGross);
+        final avgNet = items.isNotEmpty
+            ? items.fold<double>(0, (sum, item) => sum + item.totalNet) / items.length
+            : 0.0;
+
+        return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: ElevatedButton.icon(
-            onPressed: () => _showGenerateDialog(context, ref),
-            icon: const Icon(Icons.play_arrow),
-            label: Text(AppLocalizations.of(context)!.generatePayrollBtn),
-          ),
-        ),
-        Expanded(
-          child: runsAsync.when(
-            data: (items) => items.isEmpty
-                ? Center(child: Text(AppLocalizations.of(context)!.noPayrollRuns, style: const TextStyle(color: AppColors.grey400)))
-                : ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: items.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
-                    itemBuilder: (context, i) {
-                      final r = items[i];
-                      final statusColor = r.status == 'completed'
-                          ? AppColors.success
-                          : r.status == 'processing'
-                              ? AppColors.info
-                              : AppColors.warning;
-                      return GestureDetector(
-                        onTap: () {
-                          if (r.status == 'draft') {
-                            _showStatusDialog(context, ref, r);
-                          } else {
-                            context.push('/company-admin/payroll/${r.period}');
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceLight,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.grey200),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: statusColor.withAlpha(26),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(Icons.receipt_long, color: statusColor, size: 22),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(r.period, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                                    Text(AppLocalizations.of(context)!.employeeCount(r.employeesCount, r.employeesCount == 1 ? '' : 's'), style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text('\$${r.totalAmount.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                                  Container(
-                                    margin: const EdgeInsets.only(top: 2),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(color: statusColor.withAlpha(26), borderRadius: BorderRadius.circular(6)),
-                                    child: Text(
-                                      r.status.substring(0, 1).toUpperCase() + r.status.substring(1),
-                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.chevron_right, color: AppColors.grey400),
-                            ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header & Generate Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Payroll Processing',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.grey800,
                           ),
                         ),
-                      );
-                    },
+                        const Text(
+                          'Manage payroll runs & payslips',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.grey400,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-            loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingPayrollRuns),
-            error: (e, _) => Center(
-              child: OutlinedButton.icon(
-                onPressed: () => ref.invalidate(payrollRunsProvider),
-                icon: const Icon(Icons.refresh),
-                label: Text(AppLocalizations.of(context)!.tryAgain),
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => _showGenerateDialog(context, ref),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withAlpha(40),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.add_rounded, size: 18, color: Colors.white),
+                          const SizedBox(width: 4),
+                          Text(
+                            l10n.generatePayrollBtn,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
+              const SizedBox(height: 16),
+
+              // ── 3 Summary KPI Cards (Matching Web) ──────────────────────────
+              if (items.isNotEmpty) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: _KpiMiniCard(
+                        title: 'Latest Net',
+                        value: '\$${(latestRun?.totalNet ?? 0).toStringAsFixed(2)}',
+                        icon: Icons.attach_money_rounded,
+                        iconColor: AppColors.primary,
+                        bgColor: AppColors.primaryLight,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _KpiMiniCard(
+                        title: 'YTD Gross',
+                        value: '\$${ytdGross.toStringAsFixed(2)}',
+                        icon: Icons.trending_up_rounded,
+                        iconColor: AppColors.success,
+                        bgColor: const Color(0xFFECFDF5),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _KpiMiniCard(
+                        title: 'Avg Net',
+                        value: '\$${avgNet.toStringAsFixed(2)}',
+                        icon: Icons.people_alt_rounded,
+                        iconColor: const Color(0xFF8B5CF6),
+                        bgColor: const Color(0xFFF5F3FF),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // ── Payroll Runs List ──────────────────────────────────────────
+              if (items.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.receipt_long_outlined, size: 48, color: AppColors.grey300),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.noPayrollRuns,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: items.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (context, i) {
+                    final r = items[i];
+                    final statusColor = r.status == 'completed'
+                        ? AppColors.success
+                        : r.status == 'processing'
+                            ? AppColors.info
+                            : r.status == 'cancelled'
+                                ? AppColors.danger
+                                : AppColors.warning;
+
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceLight,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.grey200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(6),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header: Period Name, ID & Status Badge
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      r.period,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 16,
+                                        color: AppColors.grey800,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.grey100,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        '#${r.id}',
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.grey500,
+                                          fontFamily: 'monospace',
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: statusColor.withAlpha(22),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: statusColor.withAlpha(60), width: 1),
+                                  ),
+                                  child: Text(
+                                    r.status.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                      color: statusColor,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Subheader: Date Range & Employee Count
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              children: [
+                                if (r.periodStart.isNotEmpty) ...[
+                                  const Icon(Icons.calendar_today_rounded, size: 13, color: AppColors.grey400),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    '${r.periodStart} to ${r.periodEnd}',
+                                    style: const TextStyle(fontSize: 12, color: AppColors.grey500, fontWeight: FontWeight.w500),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Text('•', style: TextStyle(color: AppColors.grey300)),
+                                  const SizedBox(width: 10),
+                                ],
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.grey100,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.people_alt_rounded, size: 12, color: AppColors.grey500),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '${r.employeesCount}',
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.grey700),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+                          const Divider(height: 1, color: AppColors.grey100),
+
+                          // Financial Grid (Gross, Deductions, Net)
+                          Container(
+                            color: const Color(0xFFFAFAFA),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('GROSS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.grey400)),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '\$${r.totalGross.toStringAsFixed(2)}',
+                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.grey700),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('DEDUCTIONS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.grey400)),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '-\$${r.totalDeductions.toStringAsFixed(2)}',
+                                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.danger),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('NET TOTAL', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '\$${r.totalNet.toStringAsFixed(2)}',
+                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.grey900),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const Divider(height: 1, color: AppColors.grey100),
+
+                          // Action Buttons Bar
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                if (r.status == 'draft') ...[
+                                  OutlinedButton.icon(
+                                    onPressed: () async {
+                                      await ref.read(adminOpsRepositoryProvider).updatePayrollRunStatus(r.id, 'completed');
+                                      ref.invalidate(payrollRunsProvider);
+                                    },
+                                    icon: const Icon(Icons.check_circle_outline_rounded, size: 15),
+                                    label: const Text('Complete'),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.success,
+                                      side: const BorderSide(color: AppColors.success, width: 1.2),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                                FilledButton.icon(
+                                  onPressed: () => context.push('/company-admin/payroll/${r.period}'),
+                                  icon: const Icon(Icons.description_outlined, size: 15),
+                                  label: const Text('Payslips'),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  onPressed: () => _confirmDeleteRun(context, ref, r),
+                                  icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.danger),
+                                  style: IconButton.styleFrom(
+                                    backgroundColor: const Color(0xFFFEF2F2),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    padding: const EdgeInsets.all(8),
+                                  ),
+                                  tooltip: 'Delete Payroll Run',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+            ],
           ),
+        );
+      },
+      loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingPayrollRuns),
+      error: (e, _) => Center(
+        child: OutlinedButton.icon(
+          onPressed: () => ref.invalidate(payrollRunsProvider),
+          icon: const Icon(Icons.refresh),
+          label: Text(AppLocalizations.of(context)!.tryAgain),
         ),
-      ],
+      ),
     );
   }
 
-  void _showStatusDialog(BuildContext context, WidgetRef ref, PayrollRunData run) {
+  void _confirmDeleteRun(BuildContext context, WidgetRef ref, PayrollRunData run) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.payrollRunTitle(run.period)),
-        content: Text(AppLocalizations.of(context)!.payrollRunPrompt),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Delete Payroll Run?'),
+        content: Text(
+          'Are you sure you want to delete the payroll run for ${run.period}? This will also remove all generated payslips for this period.',
+        ),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              context.push('/company-admin/payroll/${run.period}');
-            },
-            child: Text(AppLocalizations.of(context)!.viewPayslipsBtn),
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
           ),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.check),
-            label: Text(AppLocalizations.of(context)!.markCompletedBtn),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () async {
               Navigator.pop(ctx);
-              await ref.read(adminOpsRepositoryProvider).updatePayrollRunStatus(run.id, 'completed');
-              ref.invalidate(payrollRunsProvider);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(AppLocalizations.of(context)!.payrollRunMarkedCompleted), backgroundColor: AppColors.success),
-                );
+              try {
+                await ref.read(adminOpsRepositoryProvider).deletePayrollRun(run.id);
+                ref.invalidate(payrollRunsProvider);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Payroll run ${run.period} deleted.')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to delete payroll run: $e')),
+                  );
+                }
               }
             },
+            child: const Text('Yes, Delete'),
           ),
         ],
       ),
     );
   }
+}
+
+class _KpiMiniCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color iconColor;
+  final Color bgColor;
+
+  const _KpiMiniCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.iconColor,
+    required this.bgColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.grey200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: Icon(icon, size: 15, color: iconColor),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.grey500),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.grey900),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
 
   void _showGenerateDialog(BuildContext context, WidgetRef ref) {
   final now = DateTime.now();
@@ -448,7 +802,6 @@ class _PayrollRunsTab extends ConsumerWidget {
       );
     },
   );
-}
 }
 
 class _PayrollSettingsTab extends ConsumerStatefulWidget {

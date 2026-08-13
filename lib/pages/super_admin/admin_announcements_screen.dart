@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -6,14 +8,31 @@ import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 final adminAnnouncementsProvider =
     FutureProvider.autoDispose<List<AdminAnnouncement>>((ref) {
-  return AdminAnnouncementsRepository().getAnnouncements();
-});
+      return AdminAnnouncementsRepository().getAnnouncements();
+    });
 
-class AdminAnnouncementsScreen extends ConsumerWidget {
+class AdminAnnouncementsScreen extends ConsumerStatefulWidget {
   const AdminAnnouncementsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminAnnouncementsScreen> createState() =>
+      _AdminAnnouncementsScreenState();
+}
+
+class _AdminAnnouncementsScreenState
+    extends ConsumerState<AdminAnnouncementsScreen> {
+  final _searchCtrl = TextEditingController();
+  String _searchTerm = '';
+  String _statusFilter = 'all';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final announcementsAsync = ref.watch(adminAnnouncementsProvider);
     final l10n = AppLocalizations.of(context)!;
 
@@ -34,42 +53,146 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_rounded, color: AppColors.grey800),
-            onPressed: () => _showCreateEditDialog(context, ref),
+            onPressed: () => _showCreateEditDialog(),
           ),
         ],
       ),
-      body: RefreshIndicator(
-        color: AppColors.primary,
-        onRefresh: () async => ref.invalidate(adminAnnouncementsProvider),
-        child: announcementsAsync.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+      body: Column(
+        children: [
+          // Search + Status filter bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (val) =>
+                        setState(() => _searchTerm = val.toLowerCase()),
+                    decoration: InputDecoration(
+                      hintText: 'Search announcements...',
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: AppColors.grey400,
+                        size: 20,
+                      ),
+                      suffixIcon: _searchTerm.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(
+                                Icons.clear,
+                                color: AppColors.grey400,
+                                size: 18,
+                              ),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                setState(() => _searchTerm = '');
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: AppColors.surfaceLight,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.grey200),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.grey200),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.primary),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.grey200),
+                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.surfaceLight,
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _statusFilter,
+                      items: [
+                        DropdownMenuItem(
+                          value: 'all',
+                          child: Text('All', style: TextStyle(fontSize: 13)),
+                        ),
+                        DropdownMenuItem(
+                          value: 'published',
+                          child: Text(
+                            'Published',
+                            style: TextStyle(fontSize: 13),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'draft',
+                          child: Text('Draft', style: TextStyle(fontSize: 13)),
+                        ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) setState(() => _statusFilter = v);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          error: (err, _) => _buildError(context, err, ref, l10n),
-          data: (list) => _buildList(context, ref, list, l10n),
-        ),
+          // List
+          Expanded(
+            child: RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: () async => ref.invalidate(adminAnnouncementsProvider),
+              child: announcementsAsync.when(
+                loading: () => const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+                error: (err, _) => _buildError(err, l10n),
+                data: (list) => _buildList(list, l10n),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildError(BuildContext context, Object err, WidgetRef ref, AppLocalizations l10n) {
+  Widget _buildError(Object err, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
+            const Icon(
+              Icons.wifi_off_rounded,
+              color: AppColors.danger,
+              size: 48,
+            ),
             const SizedBox(height: 16),
-            Text(l10n.failedToLoadAnnouncements,
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey800)),
+            Text(
+              l10n.failedToLoadAnnouncements,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grey800,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text(err.toString(),
-                style: TextStyle(fontSize: 12, color: AppColors.grey500),
-                textAlign: TextAlign.center),
+            Text(
+              err.toString(),
+              style: TextStyle(fontSize: 12, color: AppColors.grey500),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(adminAnnouncementsProvider),
@@ -79,7 +202,8 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -88,20 +212,41 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, WidgetRef ref,
-      List<AdminAnnouncement> announcements, AppLocalizations l10n) {
-    if (announcements.isEmpty) {
+  Widget _buildList(
+    List<AdminAnnouncement> announcements,
+    AppLocalizations l10n,
+  ) {
+    // Apply search filter
+    var filtered = announcements.where((a) {
+      final matchesSearch =
+          a.title.toLowerCase().contains(_searchTerm) ||
+          a.body.toLowerCase().contains(_searchTerm);
+      final matchesStatus =
+          _statusFilter == 'all' ||
+          (_statusFilter == 'published' && a.isPublished) ||
+          (_statusFilter == 'draft' && !a.isPublished);
+      return matchesSearch && matchesStatus;
+    }).toList();
+
+    if (filtered.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.campaign_rounded, size: 64, color: AppColors.grey300),
+            const Icon(
+              Icons.campaign_rounded,
+              size: 64,
+              color: AppColors.grey300,
+            ),
             const SizedBox(height: 16),
-            Text(l10n.noAnnouncementsYet,
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey500)),
+            Text(
+              l10n.noAnnouncementsYet,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grey500,
+              ),
+            ),
           ],
         ),
       );
@@ -109,9 +254,9 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: announcements.length,
+      itemCount: filtered.length,
       itemBuilder: (context, index) {
-        final a = announcements[index];
+        final a = filtered[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Container(
@@ -134,7 +279,9 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: a.isPublished
                             ? AppColors.successLight
@@ -155,34 +302,45 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
                     const Spacer(),
                     PopupMenuButton<String>(
                       padding: EdgeInsets.zero,
-                      icon: Icon(Icons.more_vert_rounded,
-                          color: AppColors.grey400, size: 20),
+                      icon: Icon(
+                        Icons.more_vert_rounded,
+                        color: AppColors.grey400,
+                        size: 20,
+                      ),
                       onSelected: (action) {
                         if (action == 'edit') {
-                          _showCreateEditDialog(context, ref,
-                              announcement: a);
+                          _showCreateEditDialog(announcement: a);
                         } else if (action == 'delete') {
-                          _confirmDelete(context, ref, a);
+                          _confirmDelete(a);
                         }
                       },
                       itemBuilder: (_) => [
                         PopupMenuItem(
                           value: 'edit',
-                          child: Row(children: [
-                            const Icon(Icons.edit_rounded, size: 18),
-                            const SizedBox(width: 8),
-                            Text(l10n.actionEdit)
-                          ]),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.edit_rounded, size: 18),
+                              const SizedBox(width: 8),
+                              Text(l10n.actionEdit),
+                            ],
+                          ),
                         ),
                         PopupMenuItem(
                           value: 'delete',
-                          child: Row(children: [
-                            const Icon(Icons.delete_outline_rounded,
-                                size: 18, color: AppColors.danger),
-                            const SizedBox(width: 8),
-                            Text(l10n.btnDelete,
-                                style: const TextStyle(color: AppColors.danger))
-                          ]),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.delete_outline_rounded,
+                                size: 18,
+                                color: AppColors.danger,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                l10n.btnDelete,
+                                style: const TextStyle(color: AppColors.danger),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -216,11 +374,7 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmDelete(
-    BuildContext context,
-    WidgetRef ref,
-    AdminAnnouncement announcement,
-  ) async {
+  Future<void> _confirmDelete(AdminAnnouncement announcement) async {
     final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
@@ -239,7 +393,8 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
               backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             child: Text(l10n.btnDelete),
           ),
@@ -249,8 +404,9 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
 
     if (confirm == true) {
       try {
-        await AdminAnnouncementsRepository()
-            .deleteAnnouncement(announcement.id);
+        await AdminAnnouncementsRepository().deleteAnnouncement(
+          announcement.id,
+        );
         ref.invalidate(adminAnnouncementsProvider);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -264,7 +420,9 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${l10n.failedToLoadAnnouncements}: ${e.toString()}'),
+              content: Text(
+                '${l10n.failedToLoadAnnouncements}: ${e.toString()}',
+              ),
               backgroundColor: AppColors.danger,
             ),
           );
@@ -273,11 +431,7 @@ class AdminAnnouncementsScreen extends ConsumerWidget {
     }
   }
 
-  void _showCreateEditDialog(
-    BuildContext context,
-    WidgetRef ref, {
-    AdminAnnouncement? announcement,
-  }) {
+  void _showCreateEditDialog({AdminAnnouncement? announcement}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -304,7 +458,6 @@ class _AnnouncementFormSheetState
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleCtrl;
   late final TextEditingController _bodyCtrl;
-  String _audience = 'all';
   bool _isPublished = false;
   bool _isSaving = false;
 
@@ -335,7 +488,6 @@ class _AnnouncementFormSheetState
       final data = {
         'title': _titleCtrl.text.trim(),
         'content': _bodyCtrl.text.trim(),
-        'audience': _audience,
         'is_published': _isPublished,
       };
 
@@ -353,9 +505,11 @@ class _AnnouncementFormSheetState
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEditing
-                ? l10n.announcementUpdatedSuccess
-                : l10n.announcementCreatedSuccess),
+            content: Text(
+              _isEditing
+                  ? l10n.announcementUpdatedSuccess
+                  : l10n.announcementCreatedSuccess,
+            ),
             backgroundColor: AppColors.success,
           ),
         );
@@ -400,7 +554,9 @@ class _AnnouncementFormSheetState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _isEditing ? l10n.editAnnouncementTitle : l10n.createAnnouncementTitle,
+                  _isEditing
+                      ? l10n.editAnnouncementTitle
+                      : l10n.createAnnouncementTitle,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -423,74 +579,86 @@ class _AnnouncementFormSheetState
                   children: [
                     TextFormField(
                       controller: _titleCtrl,
-                      validator: (v) =>
-                          v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? l10n.fieldRequired
+                          : null,
                       decoration: _inputDecoration(l10n.titleLabel),
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _bodyCtrl,
-                      maxLines: 4,
-                      validator: (v) =>
-                          v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
+                      maxLines: 6,
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? l10n.fieldRequired
+                          : null,
                       decoration: _inputDecoration(l10n.bodyLabel),
-                    ),
-                    const SizedBox(height: 14),
-                    DropdownButtonFormField<String>(
-                      initialValue: _audience,
-                      decoration: _inputDecoration(l10n.targetAudienceLabel),
-                      items: [
-                        DropdownMenuItem(value: 'all', child: Text(l10n.audienceAllEmployees)),
-                        DropdownMenuItem(value: 'managers', child: Text(l10n.audienceManagers)),
-                        DropdownMenuItem(value: 'hr', child: Text(l10n.audienceHRTeam)),
-                      ],
-                      onChanged: (v) {
-                        if (v != null) setState(() => _audience = v);
-                      },
                     ),
                     const SizedBox(height: 14),
                     Material(
                       color: Colors.transparent,
                       child: SwitchListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.publishImmediatelyLabel,
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600)),
+                        title: Text(
+                          l10n.publishImmediatelyLabel,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         value: _isPublished,
                         activeThumbColor: AppColors.primary,
                         onChanged: (v) => setState(() => _isPublished = v),
                       ),
                     ),
                     const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _isSaving ? null : _save,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
-                          elevation: 0,
-                        ),
-                        child: _isSaving
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Text(
-                                _isEditing
-                                    ? l10n.btnUpdateAnnouncement
-                                    : l10n.btnCreateAnnouncement,
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w700),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 50,
+                            child: OutlinedButton(
+                              onPressed: _isSaving ? null : () => Navigator.pop(context),
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: AppColors.grey300),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                               ),
-                      ),
+                              child: Text(l10n.cancel, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: SizedBox(
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: _isSaving ? null : _save,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14)),
+                                elevation: 0,
+                              ),
+                              child: _isSaving
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      _isEditing
+                                          ? l10n.btnUpdateAnnouncement
+                                          : l10n.btnCreateAnnouncement,
+                                      style: const TextStyle(
+                                          fontSize: 16, fontWeight: FontWeight.w700),
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -506,8 +674,7 @@ class _AnnouncementFormSheetState
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(color: AppColors.grey500, fontSize: 14),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: AppColors.grey200),

@@ -37,7 +37,11 @@ class AuthState {
   });
 
   bool get isSuperAdmin => roles.contains('super_admin');
-  bool get isCompanyAdmin => roles.contains('company_admin') || roles.contains('admin') || roles.contains('company_owner');
+  bool get isCompanyOwner => roles.contains('company_owner');
+  bool get isCompanyAdmin =>
+      roles.contains('company_admin') ||
+      roles.contains('admin') ||
+      roles.contains('company_owner');
   bool get isBranchManager => roles.contains('branch_manager');
 
   /// True when the auth state has enough data to consider the user logged in
@@ -81,8 +85,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepo;
 
   AuthNotifier({AuthRepository? authRepo})
-      : _authRepo = authRepo ?? AuthRepository(),
-        super(const AuthState(isLoading: true));
+    : _authRepo = authRepo ?? AuthRepository(),
+      super(const AuthState(isLoading: true));
 
   /// Check if user is already logged in from stored token.
   ///
@@ -190,10 +194,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   /// Login — calls POST /login, stores token and all user data
-  Future<void> login({
-    required String login,
-    required String password,
-  }) async {
+  Future<void> login({required String login, required String password}) async {
     state = state.copyWith(isLoading: true, clearError: true);
 
     try {
@@ -259,11 +260,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
       storage.setUserId(result.userId.toString()),
       storage.setUserName(result.userName),
       if (result.userEmail != null) storage.setUserEmail(result.userEmail!),
-      if (result.emailVerifiedAt != null) storage.setUserEmailVerifiedAt(result.emailVerifiedAt!),
+      if (result.emailVerifiedAt != null)
+        storage.setUserEmailVerifiedAt(result.emailVerifiedAt!),
       storage.setCompanyId(result.companyId.toString()),
-      if (result.companyName != null) storage.setCompanyName(result.companyName!),
+      if (result.companyName != null)
+        storage.setCompanyName(result.companyName!),
       storage.setRoles(result.roles),
-      if (result.employeeId != null) storage.setEmployeeId(result.employeeId!.toString()),
+      if (result.employeeId != null)
+        storage.setEmployeeId(result.employeeId!.toString()),
     ]);
   }
 
@@ -274,11 +278,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       storage.setUserId(user.id.toString()),
       storage.setUserName(user.name),
       if (user.email != null) storage.setUserEmail(user.email!),
-      if (user.emailVerifiedAt != null) storage.setUserEmailVerifiedAt(user.emailVerifiedAt!),
+      if (user.emailVerifiedAt != null)
+        storage.setUserEmailVerifiedAt(user.emailVerifiedAt!),
       storage.setCompanyId(user.companyId.toString()),
       if (user.companyName != null) storage.setCompanyName(user.companyName!),
       storage.setRoles(user.roles),
-      if (user.employeeId != null) storage.setEmployeeId(user.employeeId!.toString()),
+      if (user.employeeId != null)
+        storage.setEmployeeId(user.employeeId!.toString()),
     ]);
   }
 }

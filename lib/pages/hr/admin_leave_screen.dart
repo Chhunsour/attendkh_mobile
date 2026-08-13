@@ -724,26 +724,34 @@ class _RequestCard extends ConsumerWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Avatar
+                        // Avatar / Photo
                         Container(
-                          width: 40,
-                          height: 40,
+                          width: 42,
+                          height: 42,
                           decoration: BoxDecoration(
-                            color: tc.withAlpha(18),
-                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.primaryLight,
+                            borderRadius: BorderRadius.circular(21),
+                            image: (request.employeePhoto != null && request.employeePhoto!.isNotEmpty)
+                                ? DecorationImage(
+                                    image: NetworkImage(request.employeePhoto!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
                           ),
-                          child: Center(
-                            child: Text(
-                              request.employeeName.isNotEmpty
-                                  ? request.employeeName[0].toUpperCase()
-                                  : '?',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: tc,
-                              ),
-                            ),
-                          ),
+                          child: (request.employeePhoto == null || request.employeePhoto!.isEmpty)
+                              ? Center(
+                                  child: Text(
+                                    request.employeeName.isNotEmpty
+                                        ? request.employeeName[0].toUpperCase()
+                                        : '?',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16,
+                                      color: tc,
+                                    ),
+                                  ),
+                                )
+                              : null,
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -758,7 +766,28 @@ class _RequestCard extends ConsumerWidget {
                                   color: AppColors.grey800,
                                 ),
                               ),
-                              const SizedBox(height: 3),
+                              Row(
+                                children: [
+                                  if (request.employeeCode != null && request.employeeCode!.isNotEmpty)
+                                    Text(
+                                      request.employeeCode!,
+                                      style: const TextStyle(fontSize: 11, color: AppColors.grey400, fontFamily: 'monospace'),
+                                    ),
+                                  if (request.employeePosition != null && request.employeePosition!.isNotEmpty) ...[
+                                    const SizedBox(width: 6),
+                                    const Text('•', style: TextStyle(fontSize: 11, color: AppColors.grey400)),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        request.employeePosition!,
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              const SizedBox(height: 4),
                               Row(
                                 children: [
                                   Container(
@@ -775,7 +804,7 @@ class _RequestCard extends ConsumerWidget {
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: AppColors.grey600,
-                                      fontWeight: FontWeight.w500,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   if (request.halfDay) ...[
@@ -1158,6 +1187,27 @@ class _BalanceCard extends ConsumerWidget {
                         fontSize: 14,
                         color: AppColors.grey800,
                       ),
+                    ),
+                    Row(
+                      children: [
+                        if (balance.employeeCode != null && balance.employeeCode!.isNotEmpty)
+                          Text(
+                            balance.employeeCode!,
+                            style: const TextStyle(fontSize: 11, color: AppColors.grey400, fontFamily: 'monospace'),
+                          ),
+                        if (balance.employeePosition != null && balance.employeePosition!.isNotEmpty) ...[
+                          const SizedBox(width: 6),
+                          const Text('•', style: TextStyle(fontSize: 11, color: AppColors.grey400)),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              balance.employeePosition!,
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 2),
                     Text(

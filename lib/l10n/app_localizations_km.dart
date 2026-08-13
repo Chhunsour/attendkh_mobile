@@ -1564,6 +1564,21 @@ class AppLocalizationsKm extends AppLocalizations {
   String get genderOther => 'ផ្សេងៗ';
 
   @override
+  String get maritalStatusLabel => 'ស្ថានភាពអាពាហ៍មិត្ត';
+
+  @override
+  String get maritalSingle => 'នៅលីវ';
+
+  @override
+  String get maritalMarried => 'រៀបការហើយ';
+
+  @override
+  String get maritalDivorced => 'លែងលះ';
+
+  @override
+  String get maritalWidowed => 'មេម៉ាយ';
+
+  @override
   String get dateOfBirthLabel => 'ថ្ងៃខែឆ្នាំកំណើត';
 
   @override
@@ -2143,6 +2158,18 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get lastName => 'នាមត្រកូល';
+
+  @override
+  String get fullName => 'ឈ្មោះពេញ';
+
+  @override
+  String get khmerName => 'ឈ្មោះភាសាខ្មែរ';
+
+  @override
+  String get addPhoneNumber => 'បន្ថែមលេខទូរស័ព្ទ';
+
+  @override
+  String get uploadIdImages => 'បង្ហោះរូបភាពអត្តសញ្ញាណ';
 
   @override
   String get employeeIdHint =>

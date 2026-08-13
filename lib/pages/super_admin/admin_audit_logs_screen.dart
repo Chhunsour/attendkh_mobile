@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -6,12 +5,28 @@ import 'package:mpg_hr_mobile_app/services/admin_audit_logs_repository.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 final adminAuditLogsProvider =
-    FutureProvider.autoDispose<List<AdminAuditLog>>((ref) {
-  return AdminAuditLogsRepository().getAuditLogs();
-});
+    FutureProvider.autoDispose<AdminAuditLogsPayload>((ref) {
+      return AdminAuditLogsRepository().getAuditLogs();
+    });
 
-class AdminAuditLogsScreen extends ConsumerWidget {
+class AdminAuditLogsScreen extends ConsumerStatefulWidget {
   const AdminAuditLogsScreen({super.key});
+
+  @override
+  ConsumerState<AdminAuditLogsScreen> createState() =>
+      _AdminAuditLogsScreenState();
+}
+
+class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
+  final _searchCtrl = TextEditingController();
+  String _searchTerm = '';
+  String _eventFilter = 'all';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   static const _actionIcons = <String, IconData>{
     'login': Icons.login_rounded,
@@ -38,8 +53,34 @@ class AdminAuditLogsScreen extends ConsumerWidget {
     'deleted',
   };
 
+  Color _eventColor(String? event) {
+    switch (event) {
+      case 'created':
+        return const Color(0xFF16A34A);
+      case 'updated':
+        return AppColors.primary;
+      case 'deleted':
+        return AppColors.danger;
+      default:
+        return AppColors.grey600;
+    }
+  }
+
+  Color _eventBgColor(String? event) {
+    switch (event) {
+      case 'created':
+        return const Color(0x1A16A34A);
+      case 'updated':
+        return AppColors.primary.withAlpha(25);
+      case 'deleted':
+        return AppColors.danger.withAlpha(25);
+      default:
+        return AppColors.grey100;
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final logsAsync = ref.watch(adminAuditLogsProvider);
     final l10n = AppLocalizations.of(context)!;
 
@@ -58,38 +99,146 @@ class AdminAuditLogsScreen extends ConsumerWidget {
           ),
         ),
       ),
-      body: RefreshIndicator(
-        color: AppColors.primary,
-        onRefresh: () async => ref.invalidate(adminAuditLogsProvider),
-        child: logsAsync.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+      body: Column(
+        children: [
+          // Search + Event filter bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (val) =>
+                        setState(() => _searchTerm = val.toLowerCase()),
+                    decoration: InputDecoration(
+                      hintText: 'Search description or user...',
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: AppColors.grey400,
+                        size: 20,
+                      ),
+                      suffixIcon: _searchTerm.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(
+                                Icons.clear,
+                                color: AppColors.grey400,
+                                size: 18,
+                              ),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                setState(() => _searchTerm = '');
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: AppColors.surfaceLight,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.grey200),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.grey200),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.primary),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.grey200),
+                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.surfaceLight,
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _eventFilter,
+                      items: [
+                        DropdownMenuItem(
+                          value: 'all',
+                          child: Text(
+                            'All Events',
+                            style: TextStyle(fontSize: 13),
+                          ),
+                        ),
+                        ...logsAsync.maybeWhen(
+                          data: (payload) => payload.events.map(
+                            (e) => DropdownMenuItem(
+                              value: e,
+                              child: Text(
+                                e[0].toUpperCase() + e.substring(1),
+                                style: TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ),
+                          orElse: () => <DropdownMenuItem<String>>[],
+                        ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) setState(() => _eventFilter = v);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          error: (err, _) => _buildError(context, err, ref, l10n),
-          data: (logs) => _buildList(context, logs, l10n),
-        ),
+          // List
+          Expanded(
+            child: RefreshIndicator(
+              color: AppColors.primary,
+              onRefresh: () async => ref.invalidate(adminAuditLogsProvider),
+              child: logsAsync.when(
+                loading: () => const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+                error: (err, _) => _buildError(err, l10n),
+                data: (payload) => _buildList(payload, l10n),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildError(BuildContext context, Object err, WidgetRef ref, AppLocalizations l10n) {
+  Widget _buildError(Object err, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
+            const Icon(
+              Icons.wifi_off_rounded,
+              color: AppColors.danger,
+              size: 48,
+            ),
             const SizedBox(height: 16),
-            Text(l10n.failedToLoadAuditLogs,
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey800)),
+            Text(
+              l10n.failedToLoadAuditLogs,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grey800,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text(err.toString(),
-                style: TextStyle(fontSize: 12, color: AppColors.grey500),
-                textAlign: TextAlign.center),
+            Text(
+              err.toString(),
+              style: TextStyle(fontSize: 12, color: AppColors.grey500),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(adminAuditLogsProvider),
@@ -99,7 +248,8 @@ class AdminAuditLogsScreen extends ConsumerWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -108,19 +258,38 @@ class AdminAuditLogsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildList(BuildContext context, List<AdminAuditLog> logs, AppLocalizations l10n) {
-    if (logs.isEmpty) {
+  Widget _buildList(AdminAuditLogsPayload payload, AppLocalizations l10n) {
+    // Apply client-side search + event filter
+    var filtered = payload.logs.where((log) {
+      final matchesSearch =
+          _searchTerm.isEmpty ||
+          log.action.toLowerCase().contains(_searchTerm) ||
+          (log.performedBy?.toLowerCase().contains(_searchTerm) ?? false) ||
+          (log.subjectType?.toLowerCase().contains(_searchTerm) ?? false) ||
+          (log.event?.toLowerCase().contains(_searchTerm) ?? false);
+      final matchesEvent = _eventFilter == 'all' || log.event == _eventFilter;
+      return matchesSearch && matchesEvent;
+    }).toList();
+
+    if (filtered.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.history_rounded, size: 64, color: AppColors.grey300),
+            const Icon(
+              Icons.history_rounded,
+              size: 64,
+              color: AppColors.grey300,
+            ),
             const SizedBox(height: 16),
-            Text(l10n.noAuditLogsYet,
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey500)),
+            Text(
+              l10n.noAuditLogsYet,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grey500,
+              ),
+            ),
           ],
         ),
       );
@@ -128,23 +297,24 @@ class AdminAuditLogsScreen extends ConsumerWidget {
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: logs.length,
+      itemCount: filtered.length,
       itemBuilder: (context, index) {
-        final log = logs[index];
+        final log = filtered[index];
         final actionLower = log.action.toLowerCase();
-        final isDanger = _dangerActions.contains(actionLower);
+        final isDanger =
+            _dangerActions.contains(actionLower) || log.event == 'deleted';
         final icon = _actionIcons.entries
             .firstWhere(
               (e) => actionLower.contains(e.key),
-              orElse: () => const MapEntry(
-                  'default', Icons.info_outline_rounded),
+              orElse: () =>
+                  const MapEntry('default', Icons.info_outline_rounded),
             )
             .value;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 4),
           child: InkWell(
-            onTap: () => _showDetails(context, log, l10n),
+            onTap: () => _showDetails(log, l10n),
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.all(14),
@@ -159,87 +329,139 @@ class AdminAuditLogsScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-            child: Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: isDanger
-                        ? AppColors.dangerLight
-                        : AppColors.secondaryLight,
-                    borderRadius: BorderRadius.circular(10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: isDanger
+                          ? AppColors.dangerLight
+                          : AppColors.secondaryLight,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 18,
+                      color: isDanger ? AppColors.danger : AppColors.secondary,
+                    ),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 18,
-                    color:
-                        isDanger ? AppColors.danger : AppColors.secondary,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _formatAction(log.action),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: AppColors.grey800,
-                        ),
-                      ),
-                      if (log.performedBy != null || log.createdAt != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 3),
-                          child: Text(
-                            [
-                              if (log.performedBy != null)
-                                l10n.byUser(log.performedBy!),
-                              if (log.createdAt != null) '• ${_formatDate(log.createdAt)}',
-                            ].join(' '),
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppColors.grey400,
-                            ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _formatAction(log.action),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: AppColors.grey800,
                           ),
                         ),
-                    ],
+                        const SizedBox(height: 4),
+                        // Event badge + Subject type
+                        Row(
+                          children: [
+                            if (log.event != null && log.event!.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _eventBgColor(log.event),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  log.event!.toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    color: _eventColor(log.event),
+                                  ),
+                                ),
+                              ),
+                            if (log.subjectType != null &&
+                                log.subjectType!.isNotEmpty) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                log.subjectType!,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.grey500,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        if (log.performedBy != null || log.createdAt != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3),
+                            child: Text(
+                              [
+                                if (log.performedBy != null)
+                                  l10n.byUser(log.performedBy!),
+                                if (log.createdAt != null)
+                                  '• ${_formatDate(log.createdAt)}',
+                              ].join(' '),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: AppColors.grey400,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                if (log.description != null && log.description!.isNotEmpty)
-                  Icon(Icons.chevron_right_rounded,
-                      size: 18, color: AppColors.grey300),
-              ],
+                  if (log.description != null && log.description!.isNotEmpty)
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: AppColors.grey300,
+                    ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   String _formatAction(String action) {
     return action
         .replaceAll('_', ' ')
-        .replaceAllMapped(
-          RegExp(r'\b\w'),
-          (m) => m.group(0)!.toUpperCase(),
-        );
+        .replaceAllMapped(RegExp(r'\b\w'), (m) => m.group(0)!.toUpperCase());
   }
 
   String _formatDate(String? rawDate) {
     if (rawDate == null) return '';
     try {
       final dt = DateTime.parse(rawDate).toLocal();
-      return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+      final amPm = dt.hour >= 12 ? 'PM' : 'AM';
+      return '${months[dt.month - 1]} ${dt.day.toString().padLeft(2, '0')}, ${dt.year} $hour:${dt.minute.toString().padLeft(2, '0')} $amPm';
     } catch (_) {
       return rawDate;
     }
   }
 
-  void _showDetails(BuildContext context, AdminAuditLog log, AppLocalizations l10n) {
+  void _showDetails(AdminAuditLog log, AppLocalizations l10n) {
     if (log.changes == null || log.changes!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -257,7 +479,9 @@ class AdminAuditLogsScreen extends ConsumerWidget {
 
     final hasStandardStructure = attributes.isNotEmpty || old.isNotEmpty;
     final dataToShow = hasStandardStructure ? attributes : changes;
-    final keys = dataToShow.keys.where((k) => k != 'created_at' && k != 'updated_at').toList();
+    final keys = dataToShow.keys
+        .where((k) => k != 'created_at' && k != 'updated_at')
+        .toList();
 
     showModalBottomSheet(
       context: context,
@@ -308,10 +532,16 @@ class AdminAuditLogsScreen extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     final key = keys[index];
                     final newValue = dataToShow[key]?.toString() ?? 'null';
-                    final oldValue = hasStandardStructure ? (old[key]?.toString() ?? 'null') : null;
-                    
-                    final displayKey = key.replaceAll('_', ' ').replaceAllMapped(
-                        RegExp(r'\b\w'), (m) => m.group(0)!.toUpperCase());
+                    final oldValue = hasStandardStructure
+                        ? (old[key]?.toString() ?? 'null')
+                        : null;
+
+                    final displayKey = key
+                        .replaceAll('_', ' ')
+                        .replaceAllMapped(
+                          RegExp(r'\b\w'),
+                          (m) => m.group(0)!.toUpperCase(),
+                        );
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,7 +571,11 @@ class AdminAuditLogsScreen extends ConsumerWidget {
                               ),
                               const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 8),
-                                child: Icon(Icons.arrow_forward_rounded, size: 16, color: AppColors.grey400),
+                                child: Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 16,
+                                  color: AppColors.grey400,
+                                ),
                               ),
                               Expanded(
                                 child: Text(

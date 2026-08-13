@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -55,9 +56,16 @@ class AdminAttendanceRecord {
   final String? clockOut;
   final String status;
   final double? workHours;
+  final int? lateMinutes;
   final int? earlyClockInMinutes;
   final int? approvedPreShiftOtMinutes;
   final bool canApprovePreShiftOt;
+  final String? notes;
+  final String? clockInPhoto;
+  final String? clockOutPhoto;
+  final String? clockInMethod;
+  final String? clockOutMethod;
+  final bool? isGeoValid;
 
   const AdminAttendanceRecord({
     required this.id,
@@ -68,19 +76,36 @@ class AdminAttendanceRecord {
     this.clockOut,
     required this.status,
     this.workHours,
+    this.lateMinutes,
     this.earlyClockInMinutes,
     this.approvedPreShiftOtMinutes,
     this.canApprovePreShiftOt = false,
+    this.notes,
+    this.clockInPhoto,
+    this.clockOutPhoto,
+    this.clockInMethod,
+    this.clockOutMethod,
+    this.isGeoValid,
   });
 
   factory AdminAttendanceRecord.fromJson(Map<String, dynamic> json) {
+    final emp = json['employee'];
+    String name = 'Unknown';
+    if (emp != null) {
+      if (emp['full_name'] != null && emp['full_name'].toString().isNotEmpty) {
+        name = emp['full_name'].toString();
+      } else if (emp['khmer_name'] != null && emp['khmer_name'].toString().isNotEmpty) {
+        name = emp['khmer_name'].toString();
+      } else if (emp['user'] != null && emp['user']['name'] != null) {
+        name = emp['user']['name'].toString();
+      } else if (emp['first_name'] != null) {
+        name = '${emp['first_name']} ${emp['last_name'] ?? ''}'.trim();
+      }
+    }
     return AdminAttendanceRecord(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      employeeId: json['employee_id'] as int,
-      employeeName:
-          json['employee']?['user']?['name'] ??
-          json['employee']?['first_name'] ??
-          'Unknown',
+      employeeId: int.tryParse(json['employee_id']?.toString() ?? '') ?? 0,
+      employeeName: name,
       date: json['date'] as String? ?? '',
       clockIn: json['clock_in'] as String?,
       clockOut: json['clock_out'] as String?,
@@ -88,9 +113,18 @@ class AdminAttendanceRecord {
       workHours: json['work_hours'] != null
           ? double.tryParse(json['work_hours'].toString())
           : null,
+      lateMinutes: json['late_minutes'] != null
+          ? int.tryParse(json['late_minutes'].toString())
+          : null,
       earlyClockInMinutes: json['early_clock_in_minutes'] as int?,
       approvedPreShiftOtMinutes: json['approved_pre_shift_ot_minutes'] as int?,
       canApprovePreShiftOt: json['can_approve_pre_shift_ot'] == true,
+      notes: json['notes'] as String?,
+      clockInPhoto: json['clock_in_photo'] as String?,
+      clockOutPhoto: json['clock_out_photo'] as String?,
+      clockInMethod: json['clock_in_method'] as String?,
+      clockOutMethod: json['clock_out_method'] as String?,
+      isGeoValid: json['is_geo_valid'] as bool?,
     );
   }
 }
@@ -99,6 +133,9 @@ class AdminAttendanceRecord {
 class AdminLeaveRequestData {
   final int id;
   final String employeeName;
+  final String? employeeCode;
+  final String? employeePosition;
+  final String? employeePhoto;
   final String leaveType;
   final String leaveTypeName;
   final String? leaveTypeColor;
@@ -113,6 +150,9 @@ class AdminLeaveRequestData {
   const AdminLeaveRequestData({
     required this.id,
     required this.employeeName,
+    this.employeeCode,
+    this.employeePosition,
+    this.employeePhoto,
     required this.leaveType,
     this.leaveTypeName = '',
     this.leaveTypeColor,
@@ -126,31 +166,52 @@ class AdminLeaveRequestData {
   });
 
   factory AdminLeaveRequestData.fromJson(Map<String, dynamic> json) {
+    final emp = json['employee'];
+    String empName = '';
+    String? empCode;
+    String? empPos;
+    String? empPhoto;
+
+    if (emp != null) {
+      if (emp['full_name'] != null && emp['full_name'].toString().isNotEmpty) {
+        empName = emp['full_name'].toString();
+      } else if (emp['khmer_name'] != null && emp['khmer_name'].toString().isNotEmpty) {
+        empName = emp['khmer_name'].toString();
+      } else if (emp['user'] != null && emp['user']['name'] != null) {
+        empName = emp['user']['name'].toString();
+      } else if (emp['first_name'] != null) {
+        empName = '${emp['first_name']} ${emp['last_name'] ?? ''}'.trim();
+      }
+      empCode = emp['employee_id']?.toString() ?? emp['code']?.toString();
+
+      if (emp['position'] != null && emp['position'] is Map) {
+        empPos = emp['position']['name']?.toString();
+      } else if (emp['designation'] != null && emp['designation'] is Map) {
+        empPos = emp['designation']['name']?.toString();
+      } else if (emp['position'] != null && emp['position'] is String) {
+        empPos = emp['position'].toString();
+      } else if (emp['job_title'] != null) {
+        empPos = emp['job_title'].toString();
+      }
+
+      empPhoto = emp['profile_photo_url']?.toString() ?? emp['photo']?.toString();
+    }
+
     return AdminLeaveRequestData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      employeeName:
-          json['employee']?['name'] as String? ??
-          (json['employee'] != null && json['employee']['first_name'] != null
-              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
-                    .trim()
-              : null) ??
-          (json['employee'] != null && json['employee']['first_name'] != null
-              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
-                    .trim()
-              : null) ??
-          json['user']?['name'] as String? ??
-          '',
+      employeeName: empName.isNotEmpty
+          ? empName
+          : json['user']?['name'] as String? ?? 'Employee',
+      employeeCode: empCode,
+      employeePosition: empPos,
+      employeePhoto: empPhoto,
       leaveType: json['leave_type']?['name'] as String? ?? '',
       leaveTypeName: json['leave_type']?['name'] as String? ?? '',
       leaveTypeColor: json['leave_type']?['color'] as String?,
       halfDay: json['half_day'] as bool? ?? false,
       startDate: json['start_date'] as String? ?? '',
       endDate: json['end_date'] as String? ?? '',
-      days:
-          double.tryParse(
-            json['days']?.toString() ?? json['total_days']?.toString() ?? '0',
-          ) ??
-          0,
+      days: (json['total_days'] as num?)?.toDouble() ?? 1.0,
       reason: json['reason'] as String?,
       status: json['status'] as String? ?? 'pending',
       createdAt: json['created_at'] as String? ?? '',
@@ -235,6 +296,8 @@ class LeaveTypeData {
 class LeaveBalanceData {
   final int id;
   final String employeeName;
+  final String? employeeCode;
+  final String? employeePosition;
   final String? employeeAvatar;
   final String leaveTypeName;
   final int year;
@@ -245,6 +308,8 @@ class LeaveBalanceData {
   const LeaveBalanceData({
     required this.id,
     required this.employeeName,
+    this.employeeCode,
+    this.employeePosition,
     this.employeeAvatar,
     required this.leaveTypeName,
     required this.year,
@@ -254,16 +319,45 @@ class LeaveBalanceData {
   });
 
   factory LeaveBalanceData.fromJson(Map<String, dynamic> json) {
+    final emp = json['employee'];
+    String empName = '';
+    String? empCode;
+    String? empPos;
+    String? empPhoto;
+
+    if (emp != null) {
+      if (emp['full_name'] != null && emp['full_name'].toString().isNotEmpty) {
+        empName = emp['full_name'].toString();
+      } else if (emp['khmer_name'] != null && emp['khmer_name'].toString().isNotEmpty) {
+        empName = emp['khmer_name'].toString();
+      } else if (emp['user'] != null && emp['user']['name'] != null) {
+        empName = emp['user']['name'].toString();
+      } else if (emp['first_name'] != null) {
+        empName = '${emp['first_name']} ${emp['last_name'] ?? ''}'.trim();
+      }
+      empCode = emp['employee_id']?.toString() ?? emp['code']?.toString();
+
+      if (emp['position'] != null && emp['position'] is Map) {
+        empPos = emp['position']['name']?.toString();
+      } else if (emp['designation'] != null && emp['designation'] is Map) {
+        empPos = emp['designation']['name']?.toString();
+      } else if (emp['position'] != null && emp['position'] is String) {
+        empPos = emp['position'].toString();
+      } else if (emp['job_title'] != null) {
+        empPos = emp['job_title'].toString();
+      }
+
+      empPhoto = emp['profile_photo_url']?.toString() ?? emp['photo']?.toString() ?? emp['avatar']?.toString();
+    }
+
     return LeaveBalanceData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      employeeName:
-          json['employee']?['name'] as String? ??
-          (json['employee'] != null && json['employee']['first_name'] != null
-              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
-                    .trim()
-              : null) ??
-          '',
-      employeeAvatar: json['employee']?['avatar'] as String? ?? json['employee']?['photo'] as String?,
+      employeeName: empName.isNotEmpty
+          ? empName
+          : json['user']?['name'] as String? ?? 'Employee',
+      employeeCode: empCode,
+      employeePosition: empPos,
+      employeeAvatar: empPhoto,
       leaveTypeName: json['leave_type']?['name'] as String? ?? '',
       year: int.tryParse(json['year']?.toString() ?? '') ?? DateTime.now().year,
       allocatedDays:
@@ -426,6 +520,10 @@ class ShiftAssignmentData {
   final String? endDate;
   final String? shiftName;
   final String? employeeName;
+  final String? employeeCode;
+  final String? employeePosition;
+  final String? employeePhoto;
+  final Map<String, dynamic>? shiftSchedule;
 
   const ShiftAssignmentData({
     required this.id,
@@ -435,20 +533,71 @@ class ShiftAssignmentData {
     this.endDate,
     this.shiftName,
     this.employeeName,
+    this.employeeCode,
+    this.employeePosition,
+    this.employeePhoto,
+    this.shiftSchedule,
   });
 
   factory ShiftAssignmentData.fromJson(Map<String, dynamic> json) {
+    final emp = json['employee'];
+    String? empName;
+    String? empCode;
+    String? empPos;
+    String? empPhoto;
+
+    if (emp != null) {
+      if (emp['full_name'] != null && emp['full_name'].toString().isNotEmpty) {
+        empName = emp['full_name'].toString();
+      } else if (emp['khmer_name'] != null && emp['khmer_name'].toString().isNotEmpty) {
+        empName = emp['khmer_name'].toString();
+      } else if (emp['user'] != null && emp['user']['name'] != null) {
+        empName = emp['user']['name'].toString();
+      } else if (emp['first_name'] != null) {
+        empName = '${emp['first_name']} ${emp['last_name'] ?? ''}'.trim();
+      }
+      empCode = emp['employee_id']?.toString() ?? emp['code']?.toString();
+
+      if (emp['position'] != null && emp['position'] is Map) {
+        empPos = emp['position']['name']?.toString();
+      } else if (emp['designation'] != null && emp['designation'] is Map) {
+        empPos = emp['designation']['name']?.toString();
+      } else if (emp['position'] != null && emp['position'] is String) {
+        empPos = emp['position'].toString();
+      } else if (emp['job_title'] != null) {
+        empPos = emp['job_title'].toString();
+      }
+
+      empPhoto = emp['profile_photo_url']?.toString() ?? emp['photo']?.toString();
+    }
+
+    final shiftObj = json['shift'];
+    Map<String, dynamic>? sched;
+    if (shiftObj != null && shiftObj['schedule'] != null) {
+      if (shiftObj['schedule'] is Map) {
+        sched = Map<String, dynamic>.from(shiftObj['schedule']);
+      } else if (shiftObj['schedule'] is String) {
+        try {
+          final decoded = jsonDecode(shiftObj['schedule']);
+          if (decoded is Map) {
+            sched = Map<String, dynamic>.from(decoded);
+          }
+        } catch (_) {}
+      }
+    }
+
     return ShiftAssignmentData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
       employeeId: int.tryParse(json['employee_id']?.toString() ?? '') ?? 0,
       shiftId: int.tryParse(json['shift_id']?.toString() ?? '') ?? 0,
       effectiveDate: json['effective_date']?.toString(),
       endDate: json['end_date']?.toString(),
-      shiftName: json['shift']?['name']?.toString(),
-      employeeName: json['employee'] != null
-          ? '${json['employee']['first_name'] ?? ''} ${json['employee']['last_name'] ?? ''}'
-                .trim()
-          : null,
+      shiftName: shiftObj?['name']?.toString(),
+      employeeName: empName,
+      employeeCode: empCode,
+      employeePosition: empPos,
+      employeePhoto: empPhoto,
+      shiftSchedule: sched,
     );
   }
 }
@@ -550,6 +699,11 @@ class TrainingCourseData {
 class PayrollRunData {
   final int id;
   final String period;
+  final String periodStart;
+  final String periodEnd;
+  final double totalGross;
+  final double totalDeductions;
+  final double totalNet;
   final double totalAmount;
   final int employeesCount;
   final String status;
@@ -557,22 +711,30 @@ class PayrollRunData {
   const PayrollRunData({
     required this.id,
     required this.period,
+    this.periodStart = '',
+    this.periodEnd = '',
+    this.totalGross = 0.0,
+    this.totalDeductions = 0.0,
+    this.totalNet = 0.0,
     required this.totalAmount,
     required this.employeesCount,
     required this.status,
   });
 
   factory PayrollRunData.fromJson(Map<String, dynamic> json) {
+    final net = double.tryParse(json['total_net']?.toString() ?? '') ??
+        double.tryParse(json['total_amount']?.toString() ?? '') ??
+        double.tryParse(json['net_salary']?.toString() ?? '') ?? 0.0;
     return PayrollRunData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      period:
-          json['period'] as String? ?? json['payroll_period'] as String? ?? '',
-      totalAmount:
-          double.tryParse(json['total_amount']?.toString() ?? '') ??
-          double.tryParse(json['net_salary']?.toString() ?? '') ??
-          0,
-      employeesCount:
-          int.tryParse(json['employees_count']?.toString() ?? '') ?? 0,
+      period: json['period'] as String? ?? json['payroll_period'] as String? ?? '',
+      periodStart: json['period_start'] as String? ?? '',
+      periodEnd: json['period_end'] as String? ?? '',
+      totalGross: double.tryParse(json['total_gross']?.toString() ?? '') ?? 0.0,
+      totalDeductions: double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0.0,
+      totalNet: net,
+      totalAmount: net,
+      employeesCount: int.tryParse(json['total_employees']?.toString() ?? json['employees_count']?.toString() ?? '') ?? 0,
       status: json['status'] as String? ?? 'draft',
     );
   }
@@ -908,6 +1070,10 @@ class AdminOperationsRepository {
       _api.delete('/company/attendance/$id');
   Future<void> approveOvertime(int id) async =>
       _api.post('/company/attendance/$id/approve-overtime');
+  Future<void> addManualAttendance(Map<String, dynamic> data) async =>
+      _api.post('/company/attendance/manual', data: data);
+  Future<void> updateAttendance(int id, Map<String, dynamic> data) async =>
+      _api.put('/company/attendance/$id', data: data);
 
   // ── Leave Requests (Admin) ──────────────────────────────────────────────
   /// Fetch all leave requests. When [branchId] is provided, scoped to that branch.
@@ -1082,12 +1248,14 @@ class AdminOperationsRepository {
     int shiftId,
     int employeeId, {
     String? effectiveDate,
+    String? endDate,
   }) async => _api.post(
     '/company/shifts/$shiftId/assign',
     data: {
       'employee_id': employeeId,
       'effective_date':
           effectiveDate ?? DateTime.now().toIso8601String().substring(0, 10),
+      if (endDate != null && endDate.trim().isNotEmpty) 'end_date': endDate.trim(),
     },
   );
 
@@ -1095,6 +1263,12 @@ class AdminOperationsRepository {
     final response = await _api.get('/company/shifts/assignments');
     return _parseList(response.data, ShiftAssignmentData.fromJson);
   }
+
+  Future<void> updateShiftAssignment(int id, Map<String, dynamic> data) async =>
+      _api.put('/company/shifts/assignments/$id', data: data);
+
+  Future<void> deleteShiftAssignment(int id) async =>
+      _api.delete('/company/shifts/assignments/$id');
 
   // ── Holidays ────────────────────────────────────────────────────────────
   Future<List<HolidayData>> getHolidays() async {
@@ -1156,12 +1330,12 @@ class AdminOperationsRepository {
   // ── Leave Balances (Admin) ──────────────────────────────────────────────
   Future<List<LeaveBalanceData>> getLeaveBalances() async {
     final response = await _api.get('/company/leave/balances');
-    
+
     dynamic data = response.data;
     if (data is Map<String, dynamic> && data['balances'] != null) {
       data = data['balances'];
     }
-    
+
     return _parseList(data, LeaveBalanceData.fromJson);
   }
 
@@ -1255,6 +1429,10 @@ class AdminOperationsRepository {
       '/company/payroll/runs/$id/status',
       data: {'status': status},
     );
+  }
+
+  Future<void> deletePayrollRun(int id) async {
+    await _api.delete('/company/payroll/runs/$id');
   }
 
   Future<PayrollSettingsData> getPayrollSettings() async {

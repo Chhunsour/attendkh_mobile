@@ -15,7 +15,8 @@ import 'package:mpg_hr_mobile_app/pages/employee/payslip_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/expense_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/training_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/kpi_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/employee/holiday_calendar_screen.dart' as mpg_holiday;
+import 'package:mpg_hr_mobile_app/pages/employee/holiday_calendar_screen.dart'
+    as mpg_holiday;
 import 'package:mpg_hr_mobile_app/pages/employee/policies_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/documents_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
@@ -54,7 +55,10 @@ import 'package:mpg_hr_mobile_app/pages/hr/admin_send_notification_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_payroll_detail_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_documents_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_policies_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/company_owner_profile_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/notifications_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/notification_detail_screen.dart';
+import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/branch_manager_view_screen.dart';
 
 /// Route paths
@@ -88,8 +92,9 @@ class AppRoutes {
   static const adminProfile = '/admin/profile';
   static const superAdminRoles = '/admin/roles';
 
-  // Company Admin
+  // Company Admin / Owner
   static const companyAdmin = '/company-admin';
+  static const companyOwnerProfile = '/company-admin/owner-profile';
   static const hrStructure = '/company-admin/hr-structure';
   static const adminHolidays = '/company-admin/holidays';
   static const adminEmployees = '/company-admin/employees';
@@ -111,6 +116,7 @@ class AppRoutes {
   static const adminDocuments = '/company-admin/documents';
   static const adminPolicies = '/company-admin/policies';
   static const notifications = '/notifications';
+  static const notificationDetail = '/notifications/:id';
   static const adminCompanies = '/admin/companies';
   static const adminAnnouncements = '/admin/announcements';
   static const adminAuditLogs = '/admin/audit-logs';
@@ -148,7 +154,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final location = state.matchedLocation;
 
       final isOnSplash = location == AppRoutes.splash;
-      final isOnAuthPage = location == AppRoutes.login ||
+      final isOnAuthPage =
+          location == AppRoutes.login ||
           location == AppRoutes.register ||
           location == AppRoutes.companySelect;
 
@@ -182,7 +189,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           } else {
             target = AppRoutes.main;
           }
-          debugPrint('🔀 GoRouter redirect: isSuperAdmin=${authState.isSuperAdmin}, roles=${authState.roles}, → $target');
+          debugPrint(
+            '🔀 GoRouter redirect: isSuperAdmin=${authState.isSuperAdmin}, roles=${authState.roles}, → $target',
+          );
           return target;
         }
 
@@ -192,22 +201,36 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         final isVisitingEmployee = location.startsWith('/main');
 
         if (isVisitingAdmin && !authState.isSuperAdmin) {
-          final target = authState.isCompanyAdmin ? AppRoutes.companyAdmin : AppRoutes.main;
-          debugPrint('🚫 Security Alert: unauthorized access to admin route → redirect to $target');
+          final target = authState.isCompanyAdmin
+              ? AppRoutes.companyAdmin
+              : AppRoutes.main;
+          debugPrint(
+            '🚫 Security Alert: unauthorized access to admin route → redirect to $target',
+          );
           return target;
         }
-        if (isVisitingCompanyAdmin && !(authState.isCompanyAdmin || authState.isBranchManager)) {
-          final target = authState.isSuperAdmin ? AppRoutes.adminDashboard : AppRoutes.main;
-          debugPrint('🚫 Security Alert: unauthorized access to company-admin route → redirect to $target');
+        if (isVisitingCompanyAdmin &&
+            !(authState.isCompanyAdmin || authState.isBranchManager)) {
+          final target = authState.isSuperAdmin
+              ? AppRoutes.adminDashboard
+              : AppRoutes.main;
+          debugPrint(
+            '🚫 Security Alert: unauthorized access to company-admin route → redirect to $target',
+          );
           return target;
         }
-        if (isVisitingEmployee && 
-            location != AppRoutes.kpi && 
-            location != AppRoutes.profile && 
-            location != AppRoutes.editProfile && 
-            (authState.isSuperAdmin || (authState.isCompanyAdmin && !authState.isBranchManager))) {
-          final target = authState.isSuperAdmin ? AppRoutes.adminDashboard : AppRoutes.companyAdmin;
-          debugPrint('🚫 Security Alert: unauthorized access to employee route → redirect to $target');
+        if (isVisitingEmployee &&
+            location != AppRoutes.kpi &&
+            location != AppRoutes.profile &&
+            location != AppRoutes.editProfile &&
+            (authState.isSuperAdmin ||
+                (authState.isCompanyAdmin && !authState.isBranchManager))) {
+          final target = authState.isSuperAdmin
+              ? AppRoutes.adminDashboard
+              : AppRoutes.companyAdmin;
+          debugPrint(
+            '🚫 Security Alert: unauthorized access to employee route → redirect to $target',
+          );
           return target;
         }
       }
@@ -244,7 +267,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.clockIn,
         builder: (context, state) {
-          final args = state.extra as ClockInArgs;
+          final args = (state.extra is ClockInArgs)
+              ? (state.extra as ClockInArgs)
+              : ClockInArgs(
+                  isClockIn: true,
+                  branchName: 'Main Office',
+                  latitude: 0.0,
+                  longitude: 0.0,
+                  distance: 0.0,
+                );
           return ClockInScreen(args: args);
         },
       ),
@@ -345,6 +376,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const CompanyAdminDashboardScreen(),
       ),
       GoRoute(
+        path: AppRoutes.companyOwnerProfile,
+        builder: (context, state) => const CompanyOwnerProfileScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.adminHolidays,
         builder: (context, state) => const AdminHolidaysScreen(),
       ),
@@ -402,15 +437,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.adminEmployeeForm,
-        builder: (context, state) => AdminEmployeeFormScreen(
-          employee: state.extra as dynamic,
-        ),
+        builder: (context, state) =>
+            AdminEmployeeFormScreen(employee: state.extra as dynamic),
       ),
       GoRoute(
         path: AppRoutes.adminShiftForm,
-        builder: (context, state) => AdminShiftFormScreen(
-          shift: state.extra as dynamic,
-        ),
+        builder: (context, state) =>
+            AdminShiftFormScreen(shift: state.extra as dynamic),
       ),
       GoRoute(
         path: AppRoutes.adminSendNotification,
@@ -418,9 +451,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.adminPayrollDetail,
-        builder: (context, state) => AdminPayrollDetailScreen(
-          period: state.pathParameters['period']!,
-        ),
+        builder: (context, state) =>
+            AdminPayrollDetailScreen(period: state.pathParameters['period']!),
       ),
       GoRoute(
         path: AppRoutes.adminDocuments,
@@ -433,6 +465,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.notifications,
         builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.notificationDetail,
+        builder: (context, state) {
+          final notification = state.extra as NotificationItem;
+          return NotificationDetailScreen(notification: notification);
+        },
       ),
       // Branch impersonation view
       GoRoute(

@@ -3122,6 +3122,36 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get genderOther;
 
+  /// No description provided for @maritalStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Marital Status'**
+  String get maritalStatusLabel;
+
+  /// No description provided for @maritalSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Single'**
+  String get maritalSingle;
+
+  /// No description provided for @maritalMarried.
+  ///
+  /// In en, this message translates to:
+  /// **'Married'**
+  String get maritalMarried;
+
+  /// No description provided for @maritalDivorced.
+  ///
+  /// In en, this message translates to:
+  /// **'Divorced'**
+  String get maritalDivorced;
+
+  /// No description provided for @maritalWidowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Widowed'**
+  String get maritalWidowed;
+
   /// No description provided for @dateOfBirthLabel.
   ///
   /// In en, this message translates to:
@@ -4195,6 +4225,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last Name'**
   String get lastName;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @khmerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Khmer Name'**
+  String get khmerName;
+
+  /// No description provided for @addPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Phone Number'**
+  String get addPhoneNumber;
+
+  /// No description provided for @uploadIdImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload ID Images'**
+  String get uploadIdImages;
 
   /// No description provided for @employeeIdHint.
   ///
