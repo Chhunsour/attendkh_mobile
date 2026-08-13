@@ -32,7 +32,8 @@ class DashboardScreen extends ConsumerStatefulWidget {
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsBindingObserver {
+class _DashboardScreenState extends ConsumerState<DashboardScreen>
+    with WidgetsBindingObserver {
   bool _isClocking = false;
   Position? _currentPosition;
   bool? _locationPermissionGranted;
@@ -42,7 +43,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _startLocationTracking();
-    
+
     // Check if notifications are disabled and prompt if necessary
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -67,10 +68,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
   }
 
   Future<void> _startLocationTracking() async {
-    
     try {
-
-
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         if (mounted) setState(() => _locationPermissionGranted = false);
@@ -93,19 +91,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
 
       if (mounted) setState(() => _locationPermissionGranted = true);
 
-
       // Use medium accuracy for initial background dashboard location check to avoid blocking GPS satellite lock
-      final pos = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium));
-      if (mounted) setState(() => _currentPosition = pos);
-
-      _positionStreamSubscription = Geolocator.getPositionStream(
+      final pos = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.medium,
-          distanceFilter: 15,
         ),
-      ).listen((Position position) {
-        if (mounted) setState(() => _currentPosition = position);
-      });
+      );
+      if (mounted) setState(() => _currentPosition = pos);
+
+      _positionStreamSubscription =
+          Geolocator.getPositionStream(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.medium,
+              distanceFilter: 15,
+            ),
+          ).listen((Position position) {
+            if (mounted) setState(() => _currentPosition = position);
+          });
     } catch (e) {
       if (mounted) setState(() => _locationPermissionGranted = false);
       AppLogger.e('Location tracking error', e);
@@ -113,7 +115,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
   }
 
   double? _calculateDistance(ProfileData profile) {
-    if (_currentPosition == null || profile.branchLat == null || profile.branchLng == null) {
+    if (_currentPosition == null ||
+        profile.branchLat == null ||
+        profile.branchLng == null) {
       return null;
     }
     return Geolocator.distanceBetween(
@@ -124,7 +128,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     );
   }
 
-  Future<void> _handleSimpleClockOut({required AppLocalizations l10n, bool isOvertime = false}) async {
+  Future<void> _handleSimpleClockOut({
+    required AppLocalizations l10n,
+    bool isOvertime = false,
+  }) async {
     bool proceed = false;
     await showDialog(
       context: context,
@@ -140,18 +147,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isOvertime ? Colors.deepPurple.withValues(alpha: 0.1) : AppColors.primary.withValues(alpha: 0.1),
+                  color: isOvertime
+                      ? Colors.deepPurple.withValues(alpha: 0.1)
+                      : AppColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.logout_rounded, size: 40, color: isOvertime ? Colors.deepPurple : AppColors.primary),
+                child: Icon(
+                  Icons.logout_rounded,
+                  size: 40,
+                  color: isOvertime ? Colors.deepPurple : AppColors.primary,
+                ),
               ),
               const SizedBox(height: 20),
-              Text(isOvertime ? l10n.confirmOvertimeClockOut : l10n.confirmClockOut, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+              Text(
+                isOvertime
+                    ? l10n.confirmOvertimeClockOut
+                    : l10n.confirmClockOut,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.grey900,
+                ),
+              ),
               const SizedBox(height: 12),
               Text(
-                isOvertime ? l10n.endOvertimeConfirm : l10n.clockOutConfirm, 
-                textAlign: TextAlign.center, 
-                style: const TextStyle(color: AppColors.grey600, fontSize: 14, height: 1.4),
+                isOvertime ? l10n.endOvertimeConfirm : l10n.clockOutConfirm,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.grey600,
+                  fontSize: 14,
+                  height: 1.4,
+                ),
               ),
               const SizedBox(height: 28),
               Row(
@@ -164,10 +190,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                       },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         side: const BorderSide(color: AppColors.grey300),
                       ),
-                      child: Text(l10n.cancel, style: const TextStyle(color: AppColors.grey700, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        l10n.cancel,
+                        style: const TextStyle(
+                          color: AppColors.grey700,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -178,12 +212,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                         Navigator.pop(ctx);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isOvertime ? Colors.deepPurple : AppColors.primary,
+                        backgroundColor: isOvertime
+                            ? Colors.deepPurple
+                            : AppColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         elevation: 0,
                       ),
-                      child: Text(l10n.clockOutBtn, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        l10n.clockOutBtn,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -216,7 +260,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
       if (mounted) setState(() => _isClocking = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isOvertime ? l10n.overtimeEnded : l10n.clockedOutSuccess), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+          SnackBar(
+            content: Text(
+              isOvertime ? l10n.overtimeEnded : l10n.clockedOutSuccess,
+            ),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     } catch (e) {
@@ -227,16 +277,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ $msg'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+          SnackBar(
+            content: Text('❌ $msg'),
+            backgroundColor: AppColors.danger,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     }
   }
 
-  Widget _buildClockButton(BuildContext context, WidgetRef ref, AppLocalizations l10n, bool isClockedIn, ProfileData? profile, TodayAttendance? today) {
-    final bool isRegularCompleted = today?.clockIn != null && today?.clockOut != null;
-    final bool isOvertimeIn = today?.overtimeIn != null && today?.overtimeOut == null;
-    final bool isOvertimeCompleted = today?.overtimeIn != null && today?.overtimeOut != null;
+  Widget _buildClockButton(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    bool isClockedIn,
+    ProfileData? profile,
+    TodayAttendance? today,
+  ) {
+    final bool isRegularCompleted =
+        today?.clockIn != null && today?.clockOut != null;
+    final bool isOvertimeIn =
+        today?.overtimeIn != null && today?.overtimeOut == null;
+    final bool isOvertimeCompleted =
+        today?.overtimeIn != null && today?.overtimeOut != null;
     final bool isEarlyLeave = (today?.earlyLeaveMinutes ?? 0) > 0;
 
     if (isOvertimeCompleted || (isRegularCompleted && isEarlyLeave)) {
@@ -262,7 +326,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
 
         // If clocking in, enforce location and new selfie screen
         if (_currentPosition == null) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.waitingForLocation)));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.waitingForLocation)));
           return;
         }
 
@@ -300,11 +366,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           children: [
             Text(
               l10n.helloPrefix + (authState.userName ?? 'User'),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.grey900,
+              ),
             ),
             Text(
               authState.companyName ?? l10n.myCompany,
-              style: const TextStyle(fontSize: 13, color: AppColors.grey500, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.grey500,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -314,7 +388,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications_outlined, color: AppColors.grey700),
+                icon: const Icon(
+                  Icons.notifications_outlined,
+                  color: AppColors.grey700,
+                ),
                 onPressed: () async {
                   await context.push(AppRoutes.notifications);
                   ref.invalidate(unreadCountProvider);
@@ -325,12 +402,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                   top: 8,
                   right: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.danger,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
                     child: Text(
                       unreadCount > 99 ? '99+' : '$unreadCount',
                       style: const TextStyle(
@@ -364,12 +447,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                         )
                       : null,
                   child: profileAsync.value?.photoUrl == null
-                      ? const Icon(Icons.person, color: AppColors.primary, size: 20)
+                      ? const Icon(
+                          Icons.person,
+                          color: AppColors.primary,
+                          size: 20,
+                        )
                       : null,
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
       body: todayAsync.when(
@@ -382,32 +469,54 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                 data: (summary) => Column(
                   children: [
                     _buildAnnouncements(summary, l10n: l10n, isUrgent: true),
-                    _buildClockCard(context, ref, l10n, today, profileAsync: profileAsync),
+                    _buildClockCard(
+                      context,
+                      ref,
+                      l10n,
+                      today,
+                      profileAsync: profileAsync,
+                    ),
                     _buildLateWarningBanner(summary, l10n: l10n),
                   ],
                 ),
-                orElse: () => _buildClockCard(context, ref, l10n, today, profileAsync: profileAsync),
+                orElse: () => _buildClockCard(
+                  context,
+                  ref,
+                  l10n,
+                  today,
+                  profileAsync: profileAsync,
+                ),
               ),
-              
+
               const SizedBox(height: 28),
 
               summaryAsync.maybeWhen(
-                data: (summary) => _buildAnnouncements(summary, l10n: l10n, isUrgent: false),
+                data: (summary) =>
+                    _buildAnnouncements(summary, l10n: l10n, isUrgent: false),
                 orElse: () => const SizedBox(),
               ),
 
               Text(
                 l10n.quickFeatures,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.grey800,
+                ),
               ),
               const SizedBox(height: 16),
               _buildQuickActionsGrid(context, l10n, authState.isBranchManager),
 
               const SizedBox(height: 28),
-              
+
               summaryAsync.when(
                 data: (summary) => _buildSummarySection(context, summary, l10n),
-                loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator())),
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
                 error: (e, _) => const SizedBox(),
               ),
             ],
@@ -419,9 +528,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     );
   }
 
-  Widget _buildLateWarningBanner(Map<String, dynamic> summary, {required AppLocalizations l10n}) {
+  Widget _buildLateWarningBanner(
+    Map<String, dynamic> summary, {
+    required AppLocalizations l10n,
+  }) {
     final int lateCount = summary['late_count'] ?? 0;
-    
+
     if (lateCount < 3) return const SizedBox();
 
     return Container(
@@ -435,17 +547,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.warning_amber_rounded, color: AppColors.warning, size: 28),
+          const Icon(
+            Icons.warning_amber_rounded,
+            color: AppColors.warning,
+            size: 28,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.lateWarningTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.warning, fontSize: 16)),
+                Text(
+                  l10n.lateWarningTitle,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.warning,
+                    fontSize: 16,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
-                  l10n.lateWarningDesc1 + lateCount.toString() + l10n.lateWarningDesc2,
-                  style: const TextStyle(color: AppColors.grey800, fontSize: 13, height: 1.4),
+                  l10n.lateWarningDesc1 +
+                      lateCount.toString() +
+                      l10n.lateWarningDesc2,
+                  style: const TextStyle(
+                    color: AppColors.grey800,
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
@@ -455,59 +584,566 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
     );
   }
 
-  Widget _buildSummarySection(BuildContext context, Map<String, dynamic> summary, AppLocalizations l10n) {
+  Widget _buildSummarySection(
+    BuildContext context,
+    Map<String, dynamic> summary,
+    AppLocalizations l10n,
+  ) {
+    final leaveBalance = summary['leave_balance']?.toString() ?? '0';
+    final nextShift = summary['next_shift']?.toString() ?? 'No shift today';
+    final recentPayslip =
+        summary['recent_payslip']?.toString() ?? 'No payslips';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.overview,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800),
-        ),
-        const SizedBox(height: 16),
-        
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 1.15,
+        // ── Stat Cards (matching web: Leave Balance, Next Shift, Recent Payslip) ──
+        Row(
           children: [
-            _buildSummaryCard(
-              title: l10n.upcomingLeaves,
-              count: (summary['upcoming_leaves'] as List?)?.length.toString() ?? '0',
-              icon: Icons.event_available,
-              color: AppColors.secondary,
-              onTap: () => context.push(AppRoutes.leaveList),
+            Expanded(
+              child: _buildStatCard(
+                title: l10n.upcomingLeaves,
+                value: leaveBalance,
+                subtitle: l10n.days,
+                icon: Icons.event_available,
+                color: AppColors.secondary,
+                badge: l10n.available,
+                onTap: () => context.push(AppRoutes.leaveList),
+              ),
             ),
-            _buildSummaryCard(
-              title: l10n.recentActivity,
-              count: (summary['recent_attendance'] as List?)?.length.toString() ?? '0',
-              icon: Icons.how_to_reg,
-              color: AppColors.success,
-              onTap: () => context.push(AppRoutes.attendance),
-            ),
-            _buildSummaryCard(
-              title: l10n.activeTrainings,
-              count: (summary['active_trainings'] as List?)?.length.toString() ?? '0',
-              icon: Icons.school,
-              color: AppColors.primary,
-              onTap: () => context.push(AppRoutes.training),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                title: l10n.myShift,
+                value: nextShift,
+                subtitle: '',
+                icon: Icons.access_time_rounded,
+                color: AppColors.primary,
+                badge: l10n.today,
+                onTap: () => context.push(AppRoutes.attendance),
+              ),
             ),
           ],
         ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                title: l10n.recentPayslip,
+                value: recentPayslip,
+                subtitle: '',
+                icon: Icons.monetization_on_outlined,
+                color: AppColors.success,
+                badge: l10n.latest,
+                onTap: () => context.push(AppRoutes.payslip),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                title: l10n.pendingExpenses,
+                value: '${summary['pending_expenses_count'] ?? 0}',
+                subtitle: '',
+                icon: Icons.receipt_long_outlined,
+                color: AppColors.warning,
+                badge: l10n.pending,
+                onTap: () => context.push(AppRoutes.expense),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 28),
+
+        // ── Upcoming Leaves (detailed list) ──
+        _buildUpcomingLeavesSection(context, summary, l10n),
+        const SizedBox(height: 20),
+
+        // ── Recent Attendance (detailed list) ──
+        _buildRecentAttendanceSection(context, summary, l10n),
+        const SizedBox(height: 20),
+
+        // ── Active Trainings (with progress bars) ──
+        _buildActiveTrainingsSection(context, summary, l10n),
         const SizedBox(height: 20),
       ],
     );
   }
 
-  Widget _buildAnnouncements(Map<String, dynamic> summary, {required AppLocalizations l10n, required bool isUrgent}) {
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required String badge,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.grey200),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withAlpha(26),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: color, size: 18),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: color.withAlpha(15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    badge,
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.grey500,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Flexible(
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.grey900,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (subtitle.isNotEmpty) ...[
+                  const SizedBox(width: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.grey500,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpcomingLeavesSection(
+    BuildContext context,
+    Map<String, dynamic> summary,
+    AppLocalizations l10n,
+  ) {
+    final leaves = (summary['upcoming_leaves'] as List?) ?? [];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.grey200),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.upcomingLeaves,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey800,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => context.push(AppRoutes.leaveList),
+                  child: Text(
+                    l10n.viewAll,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.grey100),
+          if (leaves.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                l10n.noUpcomingLeaves,
+                style: const TextStyle(fontSize: 13, color: AppColors.grey400),
+                textAlign: TextAlign.center,
+              ),
+            )
+          else
+            ...leaves.map((leave) {
+              final l = leave as Map<String, dynamic>;
+              final leaveType = l['leave_type'];
+              final typeName = leaveType != null
+                  ? leaveType['name'] ?? 'Leave'
+                  : 'Leave';
+              final startDate = l['start_date']?.toString() ?? '';
+              final endDate = l['end_date']?.toString() ?? '';
+              final status = l['status']?.toString() ?? 'approved';
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            typeName,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.grey900,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$startDate - $endDate',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.grey500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        status.toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.success,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentAttendanceSection(
+    BuildContext context,
+    Map<String, dynamic> summary,
+    AppLocalizations l10n,
+  ) {
+    final attendances = (summary['recent_attendance'] as List?) ?? [];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.grey200),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.recentActivity,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey800,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => context.push(AppRoutes.attendance),
+                  child: Text(
+                    l10n.history,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.grey100),
+          if (attendances.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                l10n.noRecentAttendance,
+                style: const TextStyle(fontSize: 13, color: AppColors.grey400),
+                textAlign: TextAlign.center,
+              ),
+            )
+          else
+            ...attendances.map((att) {
+              final a = att as Map<String, dynamic>;
+              final date = a['date']?.toString() ?? '';
+              final clockIn = a['clock_in']?.toString();
+              final clockOut = a['clock_out']?.toString();
+              final status = a['status']?.toString() ?? 'absent';
+
+              String formatTime(String? timeStr) {
+                if (timeStr == null || timeStr.isEmpty) return '--';
+                try {
+                  return DateFormat(
+                    'hh:mm a',
+                  ).format(DateTime.parse(timeStr).toLocal());
+                } catch (_) {
+                  return '--';
+                }
+              }
+
+              final statusColor = status == 'present'
+                  ? AppColors.success
+                  : status == 'late'
+                  ? AppColors.warning
+                  : AppColors.danger;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            date,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.grey900,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'In: ${formatTime(clockIn)} | Out: ${formatTime(clockOut)}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.grey500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withAlpha(20),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        status[0].toUpperCase() + status.substring(1),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: statusColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActiveTrainingsSection(
+    BuildContext context,
+    Map<String, dynamic> summary,
+    AppLocalizations l10n,
+  ) {
+    final trainings = (summary['active_trainings'] as List?) ?? [];
+    if (trainings.isEmpty) return const SizedBox();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surfaceLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.grey200),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.activeTrainings,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey800,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => context.push(AppRoutes.training),
+                  child: Text(
+                    l10n.myLearning,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.grey100),
+          ...trainings.map((enrollment) {
+            final e = enrollment as Map<String, dynamic>;
+            final training = e['training'] as Map<String, dynamic>?;
+            final title = training?['title']?.toString() ?? 'Training';
+            final progress = (e['progress_percentage'] ?? 0).toDouble();
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.grey900,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.progress,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.grey500,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        '${progress.toInt()}%',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progress / 100,
+                      minHeight: 5,
+                      backgroundColor: AppColors.grey100,
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnnouncements(
+    Map<String, dynamic> summary, {
+    required AppLocalizations l10n,
+    required bool isUrgent,
+  }) {
     if (summary['announcements'] == null) return const SizedBox();
-    
+
     final allAnnouncements = (summary['announcements'] as List)
         .map((e) => AnnouncementData.fromJson(e as Map<String, dynamic>))
         .toList();
-        
+
     final targetAnnouncements = allAnnouncements.where((a) {
       if (isUrgent) {
         return a.priority == 'urgent' || a.priority == 'high';
@@ -519,32 +1155,64 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
 
     if (isUrgent) {
       return Column(
-        children: targetAnnouncements.map((a) => Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: a.priority == 'urgent' ? AppColors.dangerLight : AppColors.warningLight,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: a.priority == 'urgent' ? AppColors.danger : AppColors.warning),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.campaign, color: a.priority == 'urgent' ? AppColors.danger : AppColors.warning, size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
+        children: targetAnnouncements
+            .map(
+              (a) => Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: a.priority == 'urgent'
+                      ? AppColors.dangerLight
+                      : AppColors.warningLight,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: a.priority == 'urgent'
+                        ? AppColors.danger
+                        : AppColors.warning,
+                  ),
+                ),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(a.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: a.priority == 'urgent' ? AppColors.danger : AppColors.warning)),
-                    const SizedBox(height: 4),
-                    Text(a.content, style: TextStyle(color: a.priority == 'urgent' ? AppColors.danger : AppColors.warning)),
+                    Icon(
+                      Icons.campaign,
+                      color: a.priority == 'urgent'
+                          ? AppColors.danger
+                          : AppColors.warning,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            a.title,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: a.priority == 'urgent'
+                                  ? AppColors.danger
+                                  : AppColors.warning,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            a.content,
+                            style: TextStyle(
+                              color: a.priority == 'urgent'
+                                  ? AppColors.danger
+                                  : AppColors.warning,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
-        )).toList(),
+            )
+            .toList(),
       );
     }
 
@@ -553,88 +1221,87 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
       children: [
         Text(
           l10n.companyAnnouncements,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.grey900,
+          ),
         ),
         const SizedBox(height: 12),
-        ...targetAnnouncements.map((a) => Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceLight,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.grey200),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.grey900.withValues(alpha: 0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              )
-            ],
+        ...targetAnnouncements.map(
+          (a) => Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.grey200),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.grey900.withValues(alpha: 0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  a.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: AppColors.grey900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  a.content,
+                  style: const TextStyle(color: AppColors.grey700),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  a.publishedAt != null
+                      ? DateFormat(
+                          'MMM dd, yyyy',
+                        ).format(DateTime.parse(a.publishedAt!).toLocal())
+                      : '',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.grey500,
+                  ),
+                ),
+              ],
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(a.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.grey900)),
-              const SizedBox(height: 4),
-              Text(a.content, style: const TextStyle(color: AppColors.grey700)),
-              const SizedBox(height: 8),
-              Text(
-                a.publishedAt != null ? DateFormat('MMM dd, yyyy').format(DateTime.parse(a.publishedAt!).toLocal()) : '',
-                style: const TextStyle(fontSize: 12, color: AppColors.grey500),
-              ),
-            ],
-          ),
-        )),
+        ),
         const SizedBox(height: 20),
       ],
     );
   }
 
-  Widget _buildSummaryCard({required String title, required String count, required IconData icon, required Color color, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.grey200),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: color.withAlpha(26), borderRadius: BorderRadius.circular(8)),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(count, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.grey900)),
-                Text(title, style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildClockCard(BuildContext context, WidgetRef ref, AppLocalizations l10n, TodayAttendance? today, {required AsyncValue<ProfileData> profileAsync}) {
+  Widget _buildClockCard(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    TodayAttendance? today, {
+    required AsyncValue<ProfileData> profileAsync,
+  }) {
     final isClockedIn = today?.clockIn != null && today?.clockOut == null;
     final isCompleted = today?.clockIn != null && today?.clockOut != null;
-    final isOvertimeIn = today?.overtimeIn != null && today?.overtimeOut == null;
-    final isOvertimeCompleted = today?.overtimeIn != null && today?.overtimeOut != null;
+    final isOvertimeIn =
+        today?.overtimeIn != null && today?.overtimeOut == null;
+    final isOvertimeCompleted =
+        today?.overtimeIn != null && today?.overtimeOut != null;
 
     final Color cardColor = isOvertimeIn
         ? Colors.deepPurple
-        : isOvertimeCompleted 
-            ? AppColors.grey800
-            : isClockedIn
-                ? AppColors.success
-                : (isCompleted ? Colors.deepOrange : AppColors.primary);
+        : isOvertimeCompleted
+        ? AppColors.grey800
+        : isClockedIn
+        ? AppColors.success
+        : (isCompleted ? Colors.deepOrange : AppColors.primary);
 
     return Container(
       width: double.infinity,
@@ -647,18 +1314,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
             color: cardColor.withAlpha(60),
             blurRadius: 16,
             offset: const Offset(0, 8),
-          )
+          ),
         ],
       ),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.white.withAlpha(40), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(40),
+              shape: BoxShape.circle,
+            ),
             child: Icon(
               isOvertimeIn || isClockedIn
                   ? Icons.timer_outlined
-                  : (isOvertimeCompleted || isCompleted ? Icons.check_circle : Icons.access_time_rounded),
+                  : (isOvertimeCompleted || isCompleted
+                        ? Icons.check_circle
+                        : Icons.access_time_rounded),
               size: 40,
               color: Colors.white,
             ),
@@ -666,20 +1338,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           const SizedBox(height: 14),
           Text(
             today?.date != null
-                ? DateFormat('EEEE, dd MMM yyyy').format(DateTime.parse(today!.date!).toLocal())
+                ? DateFormat(
+                    'EEEE, dd MMM yyyy',
+                  ).format(DateTime.parse(today!.date!).toLocal())
                 : DateFormat('EEEE, dd MMM yyyy').format(DateTime.now()),
-            style: const TextStyle(fontSize: 13, color: Colors.white70, letterSpacing: 0.5),
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.white70,
+              letterSpacing: 0.5,
+            ),
           ),
           profileAsync.maybeWhen(
-            data: (profile) => profile.branchName != null 
+            data: (profile) => profile.branchName != null
                 ? Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.location_on, size: 12, color: Colors.white70),
+                        const Icon(
+                          Icons.location_on,
+                          size: 12,
+                          color: Colors.white70,
+                        ),
                         const SizedBox(width: 4),
-                        Text(profile.branchName!, style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w500)),
+                        Text(
+                          profile.branchName!,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ],
                     ),
                   )
@@ -687,53 +1376,140 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
             orElse: () => const SizedBox(height: 6),
           ),
           if (isOvertimeIn) ...[
-            Text(l10n.overtimeStartedAt + _formatTime(today!.overtimeIn!), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white), textAlign: TextAlign.center),
+            Text(
+              l10n.overtimeStartedAt + _formatTime(today!.overtimeIn!),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ] else if (isOvertimeCompleted) ...[
-            Text(l10n.overtimeCompleted, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(
+              l10n.overtimeCompleted,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ] else if (isClockedIn) ...[
-            Text(l10n.clockedInAt + _formatTime(today!.clockIn!), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(
+              l10n.clockedInAt + _formatTime(today!.clockIn!),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             const SizedBox(height: 4),
             if (today.workHours != null)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                decoration: BoxDecoration(color: Colors.white.withAlpha(40), borderRadius: BorderRadius.circular(10)),
-                child: Text(l10n.activeDuration + formatDurationHours(today.workHours), style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(40),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  l10n.activeDuration + formatDurationHours(today.workHours),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
           ] else if (isCompleted) ...[
-            Text(l10n.shiftCompleted, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(
+              l10n.shiftCompleted,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             const SizedBox(height: 4),
             if (today!.workHours != null)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                decoration: BoxDecoration(color: Colors.white.withAlpha(40), borderRadius: BorderRadius.circular(10)),
-                child: Text(l10n.worked + formatDurationHours(today.workHours), style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(40),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  l10n.worked + formatDurationHours(today.workHours),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
           ] else ...[
-            Text(l10n.readyToWork, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            Text(
+              l10n.readyToWork,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ],
           const SizedBox(height: 24),
 
           if (!isOvertimeCompleted)
             profileAsync.maybeWhen(
               data: (profile) {
-                if (_locationPermissionGranted == false && !isClockedIn && !isOvertimeIn && !isCompleted) {
+                if (_locationPermissionGranted == false &&
+                    !isClockedIn &&
+                    !isOvertimeIn &&
+                    !isCompleted) {
                   return Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.white.withAlpha(20), borderRadius: BorderRadius.circular(16)),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(20),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Column(
                       children: [
-                        const Icon(Icons.location_disabled, color: Colors.white70, size: 32),
+                        const Icon(
+                          Icons.location_disabled,
+                          color: Colors.white70,
+                          size: 32,
+                        ),
                         const SizedBox(height: 8),
-                        Text(l10n.locationAccessRequired, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        Text(l10n.locationAccessDesc, style: const TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center),
+                        Text(
+                          l10n.locationAccessRequired,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          l10n.locationAccessDesc,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                         const SizedBox(height: 12),
                         ElevatedButton(
                           onPressed: () async {
-                            LocationPermission permission = await Geolocator.checkPermission();
+                            LocationPermission permission =
+                                await Geolocator.checkPermission();
                             if (permission == LocationPermission.denied) {
                               permission = await Geolocator.requestPermission();
                             }
-                            if (permission == LocationPermission.deniedForever) {
+                            if (permission ==
+                                LocationPermission.deniedForever) {
                               // Only open settings if permanently denied
                               await Geolocator.openAppSettings();
                             }
@@ -742,61 +1518,134 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.surfaceLight,
                             foregroundColor: AppColors.primary,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
-                          child: Text(l10n.enableLocation, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          child: Text(
+                            l10n.enableLocation,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ],
                     ),
                   );
                 }
 
-                if (profile.branchLat == null || profile.branchLng == null || profile.branchRadius == null) {
-                  return _buildClockButton(context, ref, l10n, isClockedIn, profile, today);
-                }
-                
-                final distance = _calculateDistance(profile);
-                if (distance == null && !isClockedIn && !isOvertimeIn && !isCompleted) {
-                   return Padding(
-                     padding: const EdgeInsets.only(top: 8),
-                     child: Text(l10n.calculatingLocation, style: const TextStyle(color: Colors.white70)),
-                   );
+                if (profile.branchLat == null ||
+                    profile.branchLng == null ||
+                    profile.branchRadius == null) {
+                  return _buildClockButton(
+                    context,
+                    ref,
+                    l10n,
+                    isClockedIn,
+                    profile,
+                    today,
+                  );
                 }
 
-                if (isClockedIn || isOvertimeIn || isCompleted || (distance != null && distance <= profile.branchRadius!)) {
+                final distance = _calculateDistance(profile);
+                if (distance == null &&
+                    !isClockedIn &&
+                    !isOvertimeIn &&
+                    !isCompleted) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      l10n.calculatingLocation,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  );
+                }
+
+                if (isClockedIn ||
+                    isOvertimeIn ||
+                    isCompleted ||
+                    (distance != null && distance <= profile.branchRadius!)) {
                   return Column(
                     children: [
                       if (!isClockedIn && !isOvertimeIn && !isCompleted)
-                        Text('${l10n.withinRadiusPrefix}${distance?.toStringAsFixed(0) ?? '0'}m / ${profile.branchRadius}m)', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        Text(
+                          '${l10n.withinRadiusPrefix}${distance?.toStringAsFixed(0) ?? '0'}m / ${profile.branchRadius}m)',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        ),
                       if (isClockedIn || isOvertimeIn)
-                        Text(l10n.clockOutAnywhere, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        Text(
+                          l10n.clockOutAnywhere,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        ),
                       const SizedBox(height: 8),
-                      _buildClockButton(context, ref, l10n, isClockedIn, profile, today),
+                      _buildClockButton(
+                        context,
+                        ref,
+                        l10n,
+                        isClockedIn,
+                        profile,
+                        today,
+                      ),
                     ],
                   );
                 } else {
                   return Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.white.withAlpha(20), borderRadius: BorderRadius.circular(16)),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(20),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Column(
                       children: [
                         const Icon(Icons.location_off, color: Colors.white70),
                         const SizedBox(height: 8),
-                        Text(l10n.youAreAwayPrefix + (distance?.toStringAsFixed(0) ?? '0') + l10n.youAreAwaySuffix, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        Text(l10n.mustBeWithinPrefix + profile.branchRadius.toString() + l10n.mustBeWithinSuffix, style: const TextStyle(color: Colors.white70, fontSize: 12), textAlign: TextAlign.center),
+                        Text(
+                          l10n.youAreAwayPrefix +
+                              (distance?.toStringAsFixed(0) ?? '0') +
+                              l10n.youAreAwaySuffix,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          l10n.mustBeWithinPrefix +
+                              profile.branchRadius.toString() +
+                              l10n.mustBeWithinSuffix,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ],
                     ),
                   );
                 }
               },
-              orElse: () => _buildClockButton(context, ref, l10n, isClockedIn, null, today),
+              orElse: () => _buildClockButton(
+                context,
+                ref,
+                l10n,
+                isClockedIn,
+                null,
+                today,
+              ),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickActionsGrid(BuildContext context, AppLocalizations l10n, bool isBranchManager) {
+  Widget _buildQuickActionsGrid(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isBranchManager,
+  ) {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -862,12 +1711,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           color: const Color(0xFFEAB308), // Yellow/Gold
           onTap: () => context.push(AppRoutes.employeeHolidays),
         ),
-
+        _GridItem(
+          title: l10n.companyRules,
+          description: l10n.payrollAttendanceRules,
+          icon: Icons.gavel_outlined,
+          color: const Color(0xFF6366F1), // Indigo
+          onTap: () => context.push(AppRoutes.companyRules),
+        ),
+        _GridItem(
+          title: l10n.companyPolicies,
+          description: l10n.readAndAcknowledge,
+          icon: Icons.policy_outlined,
+          color: const Color(0xFFEC4899), // Pink
+          onTap: () => context.push(AppRoutes.companyPolicies),
+        ),
+        _GridItem(
+          title: l10n.companyDocuments,
+          description: l10n.viewCompanyDocuments,
+          icon: Icons.folder_outlined,
+          color: const Color(0xFF14B8A6), // Teal
+          onTap: () => context.push(AppRoutes.companyDocuments),
+        ),
       ],
     );
   }
 
-  Widget _buildError(BuildContext context, WidgetRef ref, AppLocalizations l10n, String error) {
+  Widget _buildError(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    String error,
+  ) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -876,7 +1750,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with WidgetsB
           children: [
             const Icon(Icons.cloud_off, size: 48, color: AppColors.grey400),
             const SizedBox(height: 12),
-            Text(l10n.failedToLoadDashboard, style: const TextStyle(color: AppColors.grey600)),
+            Text(
+              l10n.failedToLoadDashboard,
+              style: const TextStyle(color: AppColors.grey600),
+            ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: () => ref.invalidate(todayAttendanceProvider),
@@ -933,11 +1810,21 @@ class _GridItem extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: color.withAlpha(26), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: color.withAlpha(26),
+                shape: BoxShape.circle,
+              ),
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(height: 10),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.grey900)),
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: AppColors.grey900,
+              ),
+            ),
             const SizedBox(height: 2),
             Text(
               description,
@@ -959,7 +1846,13 @@ class _SwipeToClockButton extends StatefulWidget {
   final bool isLoading;
   final VoidCallback onSwipe;
 
-  const _SwipeToClockButton({required this.l10n, required this.isClockedIn, required this.onSwipe, this.isOvertime = false, this.isLoading = false});
+  const _SwipeToClockButton({
+    required this.l10n,
+    required this.isClockedIn,
+    required this.onSwipe,
+    this.isOvertime = false,
+    this.isLoading = false,
+  });
 
   @override
   State<_SwipeToClockButton> createState() => _SwipeToClockButtonState();
@@ -972,17 +1865,21 @@ class _SwipeToClockButtonState extends State<_SwipeToClockButton> {
   @override
   Widget build(BuildContext context) {
     const double height = 56.0;
-    final color = widget.isOvertime 
+    final color = widget.isOvertime
         ? (widget.isClockedIn ? Colors.deepPurpleAccent : Colors.white)
         : (widget.isClockedIn ? AppColors.warning : Colors.white);
-    
-    final iconColor = widget.isOvertime 
+
+    final iconColor = widget.isOvertime
         ? (widget.isClockedIn ? Colors.white : Colors.deepPurple)
         : (widget.isClockedIn ? Colors.white : AppColors.primary);
-        
+
     final text = widget.isOvertime
-        ? (widget.isClockedIn ? widget.l10n.swipeToClockOutOT : widget.l10n.swipeToClockInOT)
-        : (widget.isClockedIn ? widget.l10n.swipeToClockOut : widget.l10n.swipeToClockIn);
+        ? (widget.isClockedIn
+              ? widget.l10n.swipeToClockOutOT
+              : widget.l10n.swipeToClockInOT)
+        : (widget.isClockedIn
+              ? widget.l10n.swipeToClockOut
+              : widget.l10n.swipeToClockIn);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -996,9 +1893,24 @@ class _SwipeToClockButtonState extends State<_SwipeToClockButton> {
           child: Stack(
             children: [
               Center(
-                child: widget.isLoading 
-                  ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : Text(text, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                child: widget.isLoading
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        text,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
               ),
               Positioned(
                 left: _dragValue,
@@ -1034,17 +1946,27 @@ class _SwipeToClockButtonState extends State<_SwipeToClockButton> {
                     }
                   },
                   child: AnimatedContainer(
-                    duration: _dragValue == 0.0 ? const Duration(milliseconds: 200) : Duration.zero,
+                    duration: _dragValue == 0.0
+                        ? const Duration(milliseconds: 200)
+                        : Duration.zero,
                     width: height,
                     height: height,
                     decoration: BoxDecoration(
                       color: color,
                       shape: BoxShape.circle,
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 6, offset: const Offset(0, 3)),
+                        BoxShadow(
+                          color: Colors.black.withAlpha(20),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
                       ],
                     ),
-                    child: Icon(Icons.arrow_forward_rounded, color: iconColor, size: 24),
+                    child: Icon(
+                      Icons.arrow_forward_rounded,
+                      color: iconColor,
+                      size: 24,
+                    ),
                   ),
                 ),
               ),

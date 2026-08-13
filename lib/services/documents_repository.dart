@@ -52,11 +52,19 @@ class DocumentData {
       title: json['title'] as String? ?? json['name'] as String? ?? 'Document',
       description: json['description'] as String?,
       departmentId: json['department_id'] as int?,
-      department: json['department'] != null ? DepartmentData.fromJson(json['department']) : null,
+      department: json['department'] != null
+          ? DepartmentData.fromJson(json['department'])
+          : null,
       fileName: json['file_name'] as String?,
-      fileSize: json['file_size'] is int ? json['file_size'] as int : int.tryParse(json['file_size']?.toString() ?? ''),
+      fileSize: json['file_size'] is int
+          ? json['file_size'] as int
+          : int.tryParse(json['file_size']?.toString() ?? ''),
       mimeType: json['mime_type'] as String?,
-      isPublic: json['is_public'] == true || json['is_public'] == 1 || json['is_public'] == '1' || json['is_public'] == 'true',
+      isPublic:
+          json['is_public'] == true ||
+          json['is_public'] == 1 ||
+          json['is_public'] == '1' ||
+          json['is_public'] == 'true',
       expiresAt: json['expires_at'] as String?,
       createdAt: json['created_at'] as String?,
       uploaderName: json['uploader']?['name'] as String?,
@@ -68,40 +76,89 @@ class DocumentData {
 class DocumentsResponse {
   final List<DocumentData> documents;
   final List<DepartmentData> departments;
+  final int currentPage;
+  final int lastPage;
+  final int total;
+  final int from;
+  final int to;
 
-  const DocumentsResponse({required this.documents, required this.departments});
+  const DocumentsResponse({
+    required this.documents,
+    required this.departments,
+    this.currentPage = 1,
+    this.lastPage = 1,
+    this.total = 0,
+    this.from = 0,
+    this.to = 0,
+  });
 }
 
 class DocumentsRepository {
   final ApiRepository _api;
   DocumentsRepository({ApiRepository? api}) : _api = api ?? ApiRepository();
 
-  Future<DocumentsResponse> getDocuments({String? departmentId, String? search, int page = 1}) async {
+  Future<DocumentsResponse> getDocuments({
+    String? departmentId,
+    String? search,
+    int page = 1,
+  }) async {
     final Map<String, dynamic> query = {'page': page};
-    if (departmentId != null && departmentId != 'all') query['department_id'] = departmentId;
+    if (departmentId != null && departmentId != 'all') {
+      query['department_id'] = departmentId;
+    }
     if (search != null && search.isNotEmpty) query['search'] = search;
 
-    final response = await _api.get('/company/documents', queryParameters: query);
+    final response = await _api.get(
+      '/company/documents',
+      queryParameters: query,
+    );
     final data = response.data;
-    
+
     List<DocumentData> docs = [];
     List<DepartmentData> depts = [];
+    int currentPage = 1;
+    int lastPage = 1;
+    int total = 0;
+    int from = 0;
+    int to = 0;
 
     if (data is Map) {
       if (data['documents']?['data'] != null) {
-        docs = (data['documents']['data'] as List).map((e) => DocumentData.fromJson(e as Map<String, dynamic>)).toList();
+        final docsMap = data['documents'] as Map;
+        docs = (docsMap['data'] as List)
+            .map((e) => DocumentData.fromJson(e as Map<String, dynamic>))
+            .toList();
+        currentPage = (docsMap['current_page'] as num?)?.toInt() ?? 1;
+        lastPage = (docsMap['last_page'] as num?)?.toInt() ?? 1;
+        total = (docsMap['total'] as num?)?.toInt() ?? 0;
+        from = (docsMap['from'] as num?)?.toInt() ?? 0;
+        to = (docsMap['to'] as num?)?.toInt() ?? 0;
       } else if (data['data'] != null) {
-        docs = (data['data'] as List).map((e) => DocumentData.fromJson(e as Map<String, dynamic>)).toList();
+        docs = (data['data'] as List)
+            .map((e) => DocumentData.fromJson(e as Map<String, dynamic>))
+            .toList();
       }
-      
+
       if (data['departments'] != null) {
-        depts = (data['departments'] as List).map((e) => DepartmentData.fromJson(e as Map<String, dynamic>)).toList();
+        depts = (data['departments'] as List)
+            .map((e) => DepartmentData.fromJson(e as Map<String, dynamic>))
+            .toList();
       }
     } else if (data is List) {
-      docs = data.map((e) => DocumentData.fromJson(e as Map<String, dynamic>)).toList();
+      docs = data
+          .map((e) => DocumentData.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
 
-    return DocumentsResponse(documents: docs, departments: depts);
+    return DocumentsResponse(
+      documents: docs,
+      departments: depts,
+      currentPage: currentPage,
+      lastPage: lastPage,
+      total: total,
+      from: from,
+      to: to,
+    );
   }
 
   Future<DocumentData> uploadDocument({
@@ -116,8 +173,12 @@ class DocumentsRepository {
     final formData = FormData.fromMap({
       'file': file,
       'title': title,
-      if (description != null && description.isNotEmpty) 'description': description,
-      if (departmentId != null && departmentId.isNotEmpty && departmentId != 'all') 'department_id': departmentId,
+      if (description != null && description.isNotEmpty)
+        'description': description,
+      if (departmentId != null &&
+          departmentId.isNotEmpty &&
+          departmentId != 'all')
+        'department_id': departmentId,
       'is_public': isPublic ? 1 : 0,
       if (expiresAt != null && expiresAt.isNotEmpty) 'expires_at': expiresAt,
     });
@@ -126,7 +187,8 @@ class DocumentsRepository {
     return DocumentData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<void> updateDocument(int id, {
+  Future<void> updateDocument(
+    int id, {
     required String title,
     String? description,
     String? departmentId,
@@ -140,8 +202,12 @@ class DocumentsRepository {
         '_method': 'PUT',
         'file': file,
         'title': title,
-        if (description != null && description.isNotEmpty) 'description': description,
-        if (departmentId != null && departmentId.isNotEmpty && departmentId != 'all') 'department_id': departmentId,
+        if (description != null && description.isNotEmpty)
+          'description': description,
+        if (departmentId != null &&
+            departmentId.isNotEmpty &&
+            departmentId != 'all')
+          'department_id': departmentId,
         'is_public': isPublic ? 1 : 0,
         if (expiresAt != null && expiresAt.isNotEmpty) 'expires_at': expiresAt,
       });
@@ -149,8 +215,12 @@ class DocumentsRepository {
     } else {
       final data = {
         'title': title,
-        if (description != null && description.isNotEmpty) 'description': description,
-        if (departmentId != null && departmentId.isNotEmpty && departmentId != 'all') 'department_id': departmentId,
+        if (description != null && description.isNotEmpty)
+          'description': description,
+        if (departmentId != null &&
+            departmentId.isNotEmpty &&
+            departmentId != 'all')
+          'department_id': departmentId,
         'is_public': isPublic ? 1 : 0,
         if (expiresAt != null && expiresAt.isNotEmpty) 'expires_at': expiresAt,
       };
@@ -159,20 +229,29 @@ class DocumentsRepository {
   }
 
   Future<void> downloadDocument(int id, String savePath) async {
-    await _api.download('/company/documents/$id/download', savePath, method: 'GET');
+    await _api.download(
+      '/company/documents/$id/download',
+      savePath,
+      method: 'GET',
+    );
   }
 
-  Future<void> deleteDocument(int id) async => _api.delete('/company/documents/$id');
+  Future<void> deleteDocument(int id) async =>
+      _api.delete('/company/documents/$id');
 
   // Employee endpoint
   Future<List<DocumentData>> getEmployeeDocuments() async {
-    final response = await _api.get('/documents');
+    final response = await _api.get('/company/my-documents');
     final data = response.data;
     if (data is List) {
-      return data.map((e) => DocumentData.fromJson(e as Map<String, dynamic>)).toList();
+      return data
+          .map((e) => DocumentData.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
     if (data is Map && data['data'] != null) {
-      return (data['data'] as List).map((e) => DocumentData.fromJson(e as Map<String, dynamic>)).toList();
+      return (data['data'] as List)
+          .map((e) => DocumentData.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
     return [];
   }

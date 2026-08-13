@@ -532,7 +532,7 @@ class _AdminEmployeeDetailScreenState
             _buildDetailRow(
               Icons.monetization_on_outlined,
               l10n.monthlySalary,
-              emp.salary != null ? '\\${emp.salary!.toStringAsFixed(2)}' : null,
+              emp.salary != null ? '\$${emp.salary!.toStringAsFixed(2)}' : null,
             ),
             _buildDetailRow(
               Icons.account_balance_outlined,
@@ -919,6 +919,42 @@ class _AdminEmployeeDetailScreenState
                                 ),
                               ],
                             ),
+                            if (log.lateMinutes != null &&
+                                log.lateMinutes! > 0) ...[
+                              const SizedBox(height: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.danger.withAlpha(15),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: AppColors.danger.withAlpha(40),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.warning_amber_rounded,
+                                      size: 12,
+                                      color: AppColors.danger,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${log.lateMinutes} min late',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.danger,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),

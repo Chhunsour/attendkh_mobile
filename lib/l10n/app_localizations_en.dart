@@ -4820,4 +4820,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get operationSuccess => '✅ Operation successful';
+
+  @override
+  String get myShift => 'My Shift';
+
+  @override
+  String get recentPayslip => 'Recent Payslip';
+
+  @override
+  String get pendingExpenses => 'Pending Expenses';
+
+  @override
+  String get noUpcomingLeaves => 'No upcoming leaves approved.';
+
+  @override
+  String get noRecentAttendance => 'No recent attendance records.';
+
+  @override
+  String get myLearning => 'My Learning';
+
+  @override
+  String get viewAll => 'View All';
+
+  @override
+  String get available => 'Available';
+
+  @override
+  String get latest => 'Latest';
+
+  @override
+  String get progress => 'Progress';
+
+  @override
+  String get days => 'Days';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get companyRules => 'Company Rules';
+
+  @override
+  String get companyRulesDesc =>
+      'A transparent guide to your branch\'s configured payroll, attendance, and overtime rules.';
+
+  @override
+  String get viewingRulesFor => 'Viewing rules for';
+
+  @override
+  String get noCompanyRules => 'No company rules configured.';
+
+  @override
+  String get viewCompanyDocuments => 'Access company guidelines and forms';
+
+  @override
+  String get readAndAcknowledge => 'Read and acknowledge policies';
+
+  @override
+  String get payrollAttendanceRules => 'Payroll, attendance & OT rules';
 }

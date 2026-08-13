@@ -636,7 +636,7 @@ class _CompanyAdminDashboardScreenState
                     description: l10n.broadcastAlerts,
                     icon: Icons.campaign_rounded,
                     color: const Color(0xFF8B5CF6),
-                    routePath: AppRoutes.adminSendNotification,
+                    routePath: AppRoutes.adminCompanyAnnouncements,
                   ),
                 if (authState.isCompanyAdmin)
                   _buildGridItem(

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
+import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
@@ -40,24 +41,43 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     'document.uploaded': AppColors.primaryLight,
   };
 
+  bool _isAdmin = false;
+
   @override
   void initState() {
     super.initState();
-    _notifFuture = NotificationsRepository().getAdminAll();
+    _isAdmin = ref.read(authProvider).isSuperAdmin;
+    _notifFuture = _fetchNotifications();
+  }
+
+  Future<List<NotificationItem>> _fetchNotifications() {
+    final repo = NotificationsRepository();
+    if (_isAdmin) {
+      return repo.getAdminAll(
+        search: _searchTerm.isNotEmpty ? _searchTerm : null,
+        status: _statusFilter,
+      );
+    }
+    return repo.getAll(
+      search: _searchTerm.isNotEmpty ? _searchTerm : null,
+      status: _statusFilter,
+    );
   }
 
   void _refresh() {
     setState(() {
-      _notifFuture = NotificationsRepository().getAdminAll(
-        search: _searchTerm.isNotEmpty ? _searchTerm : null,
-        status: _statusFilter,
-      );
+      _notifFuture = _fetchNotifications();
     });
   }
 
   Future<void> _markRead(int id) async {
     try {
-      await NotificationsRepository().adminMarkRead(id);
+      final repo = NotificationsRepository();
+      if (_isAdmin) {
+        await repo.adminMarkRead(id);
+      } else {
+        await repo.markRead(id);
+      }
       _refresh();
     } catch (e) {
       if (mounted) {
@@ -70,7 +90,12 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
   Future<void> _markAllRead() async {
     try {
-      await NotificationsRepository().adminMarkAllRead();
+      final repo = NotificationsRepository();
+      if (_isAdmin) {
+        await repo.adminMarkAllRead();
+      } else {
+        await repo.markAllRead();
+      }
       _refresh();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

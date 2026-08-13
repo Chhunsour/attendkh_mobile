@@ -9172,6 +9172,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'✅ Operation successful'**
   String get operationSuccess;
+
+  /// No description provided for @myShift.
+  ///
+  /// In en, this message translates to:
+  /// **'My Shift'**
+  String get myShift;
+
+  /// No description provided for @recentPayslip.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Payslip'**
+  String get recentPayslip;
+
+  /// No description provided for @pendingExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Expenses'**
+  String get pendingExpenses;
+
+  /// No description provided for @noUpcomingLeaves.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming leaves approved.'**
+  String get noUpcomingLeaves;
+
+  /// No description provided for @noRecentAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent attendance records.'**
+  String get noRecentAttendance;
+
+  /// No description provided for @myLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'My Learning'**
+  String get myLearning;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get viewAll;
+
+  /// No description provided for @available.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get available;
+
+  /// No description provided for @latest.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest'**
+  String get latest;
+
+  /// No description provided for @progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get progress;
+
+  /// No description provided for @days.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get days;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @companyRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Rules'**
+  String get companyRules;
+
+  /// No description provided for @companyRulesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A transparent guide to your branch\'s configured payroll, attendance, and overtime rules.'**
+  String get companyRulesDesc;
+
+  /// No description provided for @viewingRulesFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewing rules for'**
+  String get viewingRulesFor;
+
+  /// No description provided for @noCompanyRules.
+  ///
+  /// In en, this message translates to:
+  /// **'No company rules configured.'**
+  String get noCompanyRules;
+
+  /// No description provided for @viewCompanyDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Access company guidelines and forms'**
+  String get viewCompanyDocuments;
+
+  /// No description provided for @readAndAcknowledge.
+  ///
+  /// In en, this message translates to:
+  /// **'Read and acknowledge policies'**
+  String get readAndAcknowledge;
+
+  /// No description provided for @payrollAttendanceRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Payroll, attendance & OT rules'**
+  String get payrollAttendanceRules;
 }
 
 class _AppLocalizationsDelegate

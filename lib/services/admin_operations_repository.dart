@@ -94,7 +94,8 @@ class AdminAttendanceRecord {
     if (emp != null) {
       if (emp['full_name'] != null && emp['full_name'].toString().isNotEmpty) {
         name = emp['full_name'].toString();
-      } else if (emp['khmer_name'] != null && emp['khmer_name'].toString().isNotEmpty) {
+      } else if (emp['khmer_name'] != null &&
+          emp['khmer_name'].toString().isNotEmpty) {
         name = emp['khmer_name'].toString();
       } else if (emp['user'] != null && emp['user']['name'] != null) {
         name = emp['user']['name'].toString();
@@ -175,7 +176,8 @@ class AdminLeaveRequestData {
     if (emp != null) {
       if (emp['full_name'] != null && emp['full_name'].toString().isNotEmpty) {
         empName = emp['full_name'].toString();
-      } else if (emp['khmer_name'] != null && emp['khmer_name'].toString().isNotEmpty) {
+      } else if (emp['khmer_name'] != null &&
+          emp['khmer_name'].toString().isNotEmpty) {
         empName = emp['khmer_name'].toString();
       } else if (emp['user'] != null && emp['user']['name'] != null) {
         empName = emp['user']['name'].toString();
@@ -194,7 +196,8 @@ class AdminLeaveRequestData {
         empPos = emp['job_title'].toString();
       }
 
-      empPhoto = emp['profile_photo_url']?.toString() ?? emp['photo']?.toString();
+      empPhoto =
+          emp['profile_photo_url']?.toString() ?? emp['photo']?.toString();
     }
 
     return AdminLeaveRequestData(
@@ -328,7 +331,8 @@ class LeaveBalanceData {
     if (emp != null) {
       if (emp['full_name'] != null && emp['full_name'].toString().isNotEmpty) {
         empName = emp['full_name'].toString();
-      } else if (emp['khmer_name'] != null && emp['khmer_name'].toString().isNotEmpty) {
+      } else if (emp['khmer_name'] != null &&
+          emp['khmer_name'].toString().isNotEmpty) {
         empName = emp['khmer_name'].toString();
       } else if (emp['user'] != null && emp['user']['name'] != null) {
         empName = emp['user']['name'].toString();
@@ -347,7 +351,10 @@ class LeaveBalanceData {
         empPos = emp['job_title'].toString();
       }
 
-      empPhoto = emp['profile_photo_url']?.toString() ?? emp['photo']?.toString() ?? emp['avatar']?.toString();
+      empPhoto =
+          emp['profile_photo_url']?.toString() ??
+          emp['photo']?.toString() ??
+          emp['avatar']?.toString();
     }
 
     return LeaveBalanceData(
@@ -549,7 +556,8 @@ class ShiftAssignmentData {
     if (emp != null) {
       if (emp['full_name'] != null && emp['full_name'].toString().isNotEmpty) {
         empName = emp['full_name'].toString();
-      } else if (emp['khmer_name'] != null && emp['khmer_name'].toString().isNotEmpty) {
+      } else if (emp['khmer_name'] != null &&
+          emp['khmer_name'].toString().isNotEmpty) {
         empName = emp['khmer_name'].toString();
       } else if (emp['user'] != null && emp['user']['name'] != null) {
         empName = emp['user']['name'].toString();
@@ -568,7 +576,8 @@ class ShiftAssignmentData {
         empPos = emp['job_title'].toString();
       }
 
-      empPhoto = emp['profile_photo_url']?.toString() ?? emp['photo']?.toString();
+      empPhoto =
+          emp['profile_photo_url']?.toString() ?? emp['photo']?.toString();
     }
 
     final shiftObj = json['shift'];
@@ -722,19 +731,29 @@ class PayrollRunData {
   });
 
   factory PayrollRunData.fromJson(Map<String, dynamic> json) {
-    final net = double.tryParse(json['total_net']?.toString() ?? '') ??
+    final net =
+        double.tryParse(json['total_net']?.toString() ?? '') ??
         double.tryParse(json['total_amount']?.toString() ?? '') ??
-        double.tryParse(json['net_salary']?.toString() ?? '') ?? 0.0;
+        double.tryParse(json['net_salary']?.toString() ?? '') ??
+        0.0;
     return PayrollRunData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      period: json['period'] as String? ?? json['payroll_period'] as String? ?? '',
+      period:
+          json['period'] as String? ?? json['payroll_period'] as String? ?? '',
       periodStart: json['period_start'] as String? ?? '',
       periodEnd: json['period_end'] as String? ?? '',
       totalGross: double.tryParse(json['total_gross']?.toString() ?? '') ?? 0.0,
-      totalDeductions: double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0.0,
+      totalDeductions:
+          double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0.0,
       totalNet: net,
       totalAmount: net,
-      employeesCount: int.tryParse(json['total_employees']?.toString() ?? json['employees_count']?.toString() ?? '') ?? 0,
+      employeesCount:
+          int.tryParse(
+            json['total_employees']?.toString() ??
+                json['employees_count']?.toString() ??
+                '',
+          ) ??
+          0,
       status: json['status'] as String? ?? 'draft',
     );
   }
@@ -1255,7 +1274,8 @@ class AdminOperationsRepository {
       'employee_id': employeeId,
       'effective_date':
           effectiveDate ?? DateTime.now().toIso8601String().substring(0, 10),
-      if (endDate != null && endDate.trim().isNotEmpty) 'end_date': endDate.trim(),
+      if (endDate != null && endDate.trim().isNotEmpty)
+        'end_date': endDate.trim(),
     },
   );
 
@@ -1523,17 +1543,31 @@ class AdminOperationsRepository {
       '/company/reports/generate',
       data: {'type': type, ...?params},
     );
-    return response.data as Map<String, dynamic>? ?? {};
+    final data = response.data as Map<String, dynamic>? ?? {};
+    // API returns { data: { type, total, records }, columns, summary } from web controller
+    // or { data: { type, total, records } } from API controller
+    // Normalize the structure
+    final inner = data['data'] is Map
+        ? data['data'] as Map<String, dynamic>
+        : data;
+    return {
+      'type': inner['type'] ?? type,
+      'total': inner['total'] ?? data['total'] ?? 0,
+      'records': inner['records'] ?? data['records'] ?? data['data'] ?? [],
+      'columns': data['columns'] ?? inner['columns'] ?? [],
+      'summary': data['summary'] ?? inner['summary'] ?? [],
+    };
   }
 
   Future<String> exportReport({
     required String type,
+    String format = 'excel',
     Map<String, dynamic>? params,
   }) async {
-    final format = 'excel';
     final dir = await getApplicationDocumentsDirectory();
+    final ext = format == 'pdf' ? 'pdf' : (format == 'csv' ? 'csv' : 'xlsx');
     final filename =
-        '${type}_report_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+        '${type}_report_${DateTime.now().millisecondsSinceEpoch}.$ext';
     final savePath = '${dir.path}/$filename';
 
     await _api.download(
@@ -1542,6 +1576,32 @@ class AdminOperationsRepository {
       data: {'type': type, 'format': format, ...?params},
     );
     return savePath;
+  }
+
+  // ── Report filter data ──────────────────────────────────────────────────
+  Future<Map<String, List<Map<String, dynamic>>>> getReportFilters() async {
+    final response = await _api.get('/company/reports/filters');
+    final data = response.data as Map<String, dynamic>? ?? {};
+    final inner = data['data'] is Map
+        ? data['data'] as Map<String, dynamic>
+        : data;
+    return {
+      'departments':
+          (inner['departments'] as List<dynamic>?)
+              ?.map((e) => e as Map<String, dynamic>)
+              .toList() ??
+          [],
+      'branches':
+          (inner['branches'] as List<dynamic>?)
+              ?.map((e) => e as Map<String, dynamic>)
+              .toList() ??
+          [],
+      'employees':
+          (inner['employees'] as List<dynamic>?)
+              ?.map((e) => e as Map<String, dynamic>)
+              .toList() ??
+          [],
+    };
   }
 
   // ── Notifications ─────────────────────────────────────────────────────────

@@ -4837,4 +4837,63 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get operationSuccess => '✅ ប្រតិបត្តិការជោគជ័យ';
+
+  @override
+  String get myShift => 'វេនការងារ';
+
+  @override
+  String get recentPayslip => 'ប្រកាសប្រាក់ខែថ្មីៗ';
+
+  @override
+  String get pendingExpenses => 'ការចំណាយរង់ចាំ';
+
+  @override
+  String get noUpcomingLeaves => 'មិនមានការសុំច្បាប់ល្អហើយ។';
+
+  @override
+  String get noRecentAttendance => 'មិនមានកំណត់ត្រាចូលធ្វើការថ្មីៗ។';
+
+  @override
+  String get myLearning => 'ការសិក្សារបស់ខ្ញុំ';
+
+  @override
+  String get viewAll => 'មើលទាំងអស់';
+
+  @override
+  String get available => 'អាចប្រើបាន';
+
+  @override
+  String get latest => 'ថ្មីបំផុត';
+
+  @override
+  String get progress => 'វឌ្ឍនភាព';
+
+  @override
+  String get days => 'ថ្ងៃ';
+
+  @override
+  String get today => 'ថ្ងៃនេះ';
+
+  @override
+  String get companyRules => 'ច្បាប់របស់ក្រុមហ៊ុន';
+
+  @override
+  String get companyRulesDesc =>
+      'មគ្គុទ្ទេសក៍ច្បាស់លាស់អំពីច្បាប់ប្រាក់ខែ ការចូលធ្វើការ និងអំឡើងការងាររបស់សាខារបស់អ្នក។';
+
+  @override
+  String get viewingRulesFor => 'មើលច្បាប់សម្រាប់';
+
+  @override
+  String get noCompanyRules => 'មិនមានច្បាប់ក្រុមហ៊ុនកំណត់ទេ។';
+
+  @override
+  String get viewCompanyDocuments =>
+      'ចូលប្រើប្រាស់គ្រឿងសម្គាល់និងទម្រង់របស់ក្រុមហ៊ុន';
+
+  @override
+  String get readAndAcknowledge => 'អាននិងទទួលស្គាល់គោលការណ៍';
+
+  @override
+  String get payrollAttendanceRules => 'ច្បាប់ប្រាក់ខែ ការចូលធ្វើការ និង OT';
 }

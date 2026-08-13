@@ -18,6 +18,7 @@ import 'package:mpg_hr_mobile_app/pages/employee/kpi_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/holiday_calendar_screen.dart'
     as mpg_holiday;
 import 'package:mpg_hr_mobile_app/pages/employee/policies_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/employee/company_rules_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/documents_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/clock_in_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/profile/profile_screen.dart';
@@ -55,6 +56,7 @@ import 'package:mpg_hr_mobile_app/pages/hr/admin_send_notification_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_payroll_detail_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_documents_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_policies_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_company_announcements_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/company_owner_profile_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/notifications_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/notification_detail_screen.dart';
@@ -115,6 +117,7 @@ class AppRoutes {
   static const adminPayrollDetail = '/company-admin/payroll/:period';
   static const adminDocuments = '/company-admin/documents';
   static const adminPolicies = '/company-admin/policies';
+  static const adminCompanyAnnouncements = '/company-admin/announcements';
   static const notifications = '/notifications';
   static const notificationDetail = '/notifications/:id';
   static const adminCompanies = '/admin/companies';
@@ -313,7 +316,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.companyRules,
-        builder: (context, state) => const PoliciesScreen(),
+        builder: (context, state) => const CompanyRulesScreen(),
       ),
       GoRoute(
         path: AppRoutes.companyPolicies,
@@ -461,6 +464,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminPolicies,
         builder: (context, state) => const AdminPoliciesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminCompanyAnnouncements,
+        builder: (context, state) => const AdminCompanyAnnouncementsScreen(),
       ),
       GoRoute(
         path: AppRoutes.notifications,
