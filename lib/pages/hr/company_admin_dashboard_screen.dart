@@ -602,6 +602,32 @@ class _CompanyAdminDashboardScreenState
                       }
                     },
                   ),
+                if (authState.isBranchManager && !authState.isCompanyAdmin)
+                  _buildGridItem(
+                    context,
+                    title: 'Formulas Handbook',
+                    description: 'Payroll formulas guide',
+                    icon: Icons.menu_book_rounded,
+                    color: const Color(0xFF6366F1),
+                    onTap: () {
+                      final profile = ref.read(profileProvider).value;
+                      if (profile != null && profile.branchId != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BranchPayrollSettingsScreen(
+                              branchId: profile.branchId!,
+                              branchName: profile.branchName ?? 'Branch',
+                            ),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.branchInfoMissing)),
+                        );
+                      }
+                    },
+                  ),
                 if (authState.isCompanyAdmin)
                   _buildGridItem(
                     context,
@@ -647,7 +673,7 @@ class _CompanyAdminDashboardScreenState
                     color: const Color(0xFF0052FF),
                     routePath: AppRoutes.adminRecruitment,
                   ),
-                if (authState.isCompanyAdmin)
+                if (authState.isCompanyAdmin || authState.isBranchManager)
                   _buildGridItem(
                     context,
                     title: l10n.performance,
@@ -683,7 +709,7 @@ class _CompanyAdminDashboardScreenState
                     color: const Color(0xFF3B82F6),
                     routePath: AppRoutes.adminPolicies,
                   ),
-                if (authState.isCompanyAdmin)
+                if (authState.isCompanyAdmin || authState.isBranchManager)
                   _buildGridItem(
                     context,
                     title: l10n.notifications,
