@@ -13,7 +13,8 @@ import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key});
+  final bool showBackButton;
+  const ProfileScreen({super.key, this.showBackButton = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,14 +27,16 @@ class ProfileScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.surfaceLight,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: AppColors.grey900,
-            size: 20,
-          ),
-          onPressed: () => context.pop(),
-        ),
+        leading: showBackButton
+            ? IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: AppColors.grey900,
+                  size: 20,
+                ),
+                onPressed: () => context.pop(),
+              )
+            : null,
         title: Text(
           l10n.myProfile,
           style: const TextStyle(
@@ -372,15 +375,15 @@ class ProfileScreen extends ConsumerWidget {
             iconColor: AppColors.grey600,
             title: 'Access & Settings',
             children: [
-              _buildSettingsRow(
-                Icons.shield_outlined,
-                l10n.accessRoles,
-                data.roles
-                    .map((r) => r.replaceAll('_', ' '))
-                    .join(', ')
-                    .toUpperCase(),
-              ),
-              if (authState.isSuperAdmin || authState.isCompanyAdmin)
+              if (authState.isSuperAdmin || authState.isCompanyAdmin) ...[
+                _buildSettingsRow(
+                  Icons.shield_outlined,
+                  l10n.accessRoles,
+                  data.roles
+                      .map((r) => r.replaceAll('_', ' '))
+                      .join(', ')
+                      .toUpperCase(),
+                ),
                 _buildTapRow(
                   Icons.admin_panel_settings_outlined,
                   l10n.returnToAdminConsole,
@@ -392,6 +395,7 @@ class ProfileScreen extends ConsumerWidget {
                     }
                   },
                 ),
+              ],
               _buildLanguageRow(context, ref, l10n),
               _buildTapRow(
                 Icons.logout,

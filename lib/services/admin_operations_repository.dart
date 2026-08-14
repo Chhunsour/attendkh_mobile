@@ -1010,6 +1010,7 @@ class DashboardKpiData {
   final int totalAssets;
   final int assignedAssets;
   final double monthlyPayroll;
+  final List<RecentActivity> recentActivity;
 
   const DashboardKpiData({
     required this.totalEmployees,
@@ -1020,9 +1021,11 @@ class DashboardKpiData {
     required this.totalAssets,
     required this.assignedAssets,
     required this.monthlyPayroll,
+    this.recentActivity = const [],
   });
 
   factory DashboardKpiData.fromJson(Map<String, dynamic> json) {
+    final activityList = json['recent_activity'] as List? ?? [];
     return DashboardKpiData(
       totalEmployees: json['total_employees'] as int? ?? 0,
       todayAttendance: json['today_attendance'] as int? ?? 0,
@@ -1033,6 +1036,29 @@ class DashboardKpiData {
       assignedAssets: json['assigned_assets'] as int? ?? 0,
       monthlyPayroll:
           double.tryParse(json['monthly_payroll']?.toString() ?? '0') ?? 0.0,
+      recentActivity: activityList
+          .map((e) => RecentActivity.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class RecentActivity {
+  final String type;
+  final String message;
+  final String time;
+
+  const RecentActivity({
+    required this.type,
+    required this.message,
+    required this.time,
+  });
+
+  factory RecentActivity.fromJson(Map<String, dynamic> json) {
+    return RecentActivity(
+      type: json['type'] as String? ?? '',
+      message: json['message'] as String? ?? '',
+      time: json['time'] as String? ?? '',
     );
   }
 }

@@ -14,7 +14,8 @@ import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
 
 class CompanyOwnerProfileScreen extends ConsumerStatefulWidget {
-  const CompanyOwnerProfileScreen({super.key});
+  final bool showBackButton;
+  const CompanyOwnerProfileScreen({super.key, this.showBackButton = true});
 
   @override
   ConsumerState<CompanyOwnerProfileScreen> createState() =>
@@ -212,10 +213,15 @@ class _CompanyOwnerProfileScreenState
             stretch: true,
             backgroundColor: AppColors.secondary,
             surfaceTintColor: Colors.transparent,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-              onPressed: () => context.pop(),
-            ),
+            leading: widget.showBackButton
+                ? IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => context.pop(),
+                  )
+                : null,
             title: Text(
               l10n.profileSettingsTitle,
               style: const TextStyle(

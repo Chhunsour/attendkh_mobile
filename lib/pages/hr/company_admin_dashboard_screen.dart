@@ -7,10 +7,10 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
-import 'branch_payroll_settings_screen.dart';
 import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
@@ -45,7 +45,14 @@ class _CompanyAdminDashboardScreenState
 
     return Stack(
       children: [
-        _buildMainScaffold(context, ref, authState, branchSwitchState, profileAsync, l10n),
+        _buildMainScaffold(
+          context,
+          ref,
+          authState,
+          branchSwitchState,
+          profileAsync,
+          l10n,
+        ),
         // Blur overlay when switching branches
         if (branchSwitchState.isSwitching) _buildBlurOverlay(l10n),
       ],
@@ -206,7 +213,9 @@ class _CompanyAdminDashboardScreenState
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
-                                            branchSwitchState.activeBranchName ?? l10n.selectBranch,
+                                            branchSwitchState
+                                                    .activeBranchName ??
+                                                l10n.selectBranch,
                                             style: const TextStyle(
                                               color: AppColors.primary,
                                               fontSize: 12,
@@ -225,7 +234,9 @@ class _CompanyAdminDashboardScreenState
                                   ),
                                   onSelected: (branch) async {
                                     if (branch == null) {
-                                      ref.read(branchSwitchProvider.notifier).exitBranchView();
+                                      ref
+                                          .read(branchSwitchProvider.notifier)
+                                          .exitBranchView();
                                     } else {
                                       await ref
                                           .read(branchSwitchProvider.notifier)
@@ -252,7 +263,11 @@ class _CompanyAdminDashboardScreenState
                                           value: null,
                                           child: Row(
                                             children: [
-                                              Icon(Icons.clear, size: 16, color: AppColors.danger),
+                                              Icon(
+                                                Icons.clear,
+                                                size: 16,
+                                                color: AppColors.danger,
+                                              ),
                                               SizedBox(width: 12),
                                               Text(
                                                 'Clear Filter',
@@ -463,10 +478,32 @@ class _CompanyAdminDashboardScreenState
                           const SizedBox(width: 12),
                           Expanded(
                             child: _buildKpiCard(
-                              l10n.onLeave,
+                              l10n.attendanceMenu,
+                              kpi.todayAttendance.toString(),
+                              Icons.fingerprint,
+                              const Color(0xFF14B8A6),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildKpiCard(
+                              l10n.leaveRequests,
                               kpi.pendingLeaves.toString(),
                               Icons.event_busy,
                               const Color(0xFFEF4444),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildKpiCard(
+                              l10n.expenseClaims,
+                              kpi.pendingExpenses.toString(),
+                              Icons.receipt_long,
+                              const Color(0xFFEC4899),
                             ),
                           ),
                         ],
@@ -493,7 +530,40 @@ class _CompanyAdminDashboardScreenState
                           ),
                         ],
                       ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildKpiCard(
+                              l10n.payroll,
+                              '\$${kpi.monthlyPayroll.toStringAsFixed(0)}',
+                              Icons.payments,
+                              const Color(0xFFF59E0B),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(child: SizedBox()),
+                        ],
+                      ),
                       const SizedBox(height: 24),
+
+                      // ── Pending Actions
+                      ..._buildPendingActions(context, kpi, l10n),
+
+                      // ── Recent Activity
+                      if (kpi.recentActivity.isNotEmpty) ...[
+                        Text(
+                          'Recent Activity',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.grey800,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...kpi.recentActivity.map((a) => _buildActivityItem(a)),
+                        const SizedBox(height: 24),
+                      ],
                     ],
                   ),
                   loading: () => const Center(
@@ -515,251 +585,6 @@ class _CompanyAdminDashboardScreenState
                     ),
                   ),
                 ),
-            // ── Quick Operations Grid Menu
-            Text(
-              l10n.quickOperations,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.grey800,
-              ),
-            ),
-            const SizedBox(height: 12),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.45,
-              children: [
-                if (authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.hrStructure,
-                    description: l10n.deptsAndBranches,
-                    icon: Icons.corporate_fare_rounded,
-                    color: const Color(0xFF6366F1),
-                    routePath: AppRoutes.hrStructure,
-                  ),
-                if (authState.isCompanyAdmin || authState.isBranchManager)
-                  _buildGridItem(
-                    context,
-                    title: l10n.kpis,
-                    description: l10n.performanceGoals,
-                    icon: Icons.track_changes_outlined,
-                    color: AppColors.primary,
-                    routePath: AppRoutes.kpi,
-                  ),
-                if (authState.isCompanyAdmin || authState.isBranchManager)
-                  _buildGridItem(
-                    context,
-                    title: l10n.employees,
-                    description: l10n.manageStaff,
-                    icon: Icons.people_rounded,
-                    color: const Color(0xFF0EA5E9),
-                    routePath: AppRoutes.adminEmployees,
-                  ),
-                if (authState.isCompanyAdmin || authState.isBranchManager)
-                  _buildGridItem(
-                    context,
-                    title: l10n.attendanceMenu,
-                    description: l10n.viewLogs,
-                    icon: Icons.fingerprint_rounded,
-                    color: const Color(0xFF14B8A6), // Teal
-                    routePath: AppRoutes.adminAttendance,
-                  ),
-                if (authState.isCompanyAdmin || authState.isBranchManager)
-                  _buildGridItem(
-                    context,
-                    title: l10n.shiftRules,
-                    description: l10n.workSchedules,
-                    icon: Icons.schedule_rounded,
-                    color: const Color(0xFF10B981),
-                    routePath: AppRoutes.adminShifts,
-                  ),
-                if (authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.holidays,
-                    description: l10n.manageCompanyHolidays,
-                    icon: Icons.celebration_rounded,
-                    color: const Color(0xFFEAB308), // Yellow
-                    routePath: AppRoutes.adminHolidays,
-                  ),
-                if (authState.isCompanyAdmin || authState.isBranchManager)
-                  _buildGridItem(
-                    context,
-                    title: l10n.leaveRequests,
-                    description: l10n.reviewSubmissions,
-                    icon: Icons.event_busy_rounded,
-                    color: const Color(0xFFEF4444),
-                    routePath: AppRoutes.adminLeave,
-                  ),
-                if (authState.isCompanyAdmin || authState.isBranchManager)
-                  _buildGridItem(
-                    context,
-                    title: 'Overtime',
-                    description: 'Review OT requests',
-                    icon: Icons.more_time_rounded,
-                    color: const Color(0xFFF97316), // Orange
-                    routePath: AppRoutes.adminOvertime,
-                  ),
-                if (authState.isBranchManager && !authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.branchSettings,
-                    description: l10n.payrollAndRules,
-                    icon: Icons.settings_applications_rounded,
-                    color: const Color(0xFF0052FF),
-                    onTap: () {
-                      final profile = ref.read(profileProvider).value;
-                      if (profile != null && profile.branchId != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BranchPayrollSettingsScreen(
-                              branchId: profile.branchId!,
-                              branchName: profile.branchName ?? 'Branch',
-                            ),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.branchInfoMissing)),
-                        );
-                      }
-                    },
-                  ),
-                if (authState.isBranchManager && !authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: 'Formulas Handbook',
-                    description: 'Payroll formulas guide',
-                    icon: Icons.menu_book_rounded,
-                    color: const Color(0xFF6366F1),
-                    onTap: () {
-                      final profile = ref.read(profileProvider).value;
-                      if (profile != null && profile.branchId != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BranchPayrollSettingsScreen(
-                              branchId: profile.branchId!,
-                              branchName: profile.branchName ?? 'Branch',
-                            ),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.branchInfoMissing)),
-                        );
-                      }
-                    },
-                  ),
-                if (authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.payroll,
-                    description: l10n.processRuns,
-                    icon: Icons.payments_rounded,
-                    color: const Color(0xFFF59E0B),
-                    routePath: AppRoutes.adminPayroll,
-                  ),
-                if (authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.expenseClaims,
-                    description: l10n.reviewClaims,
-                    icon: Icons.receipt_long_rounded,
-                    color: const Color(0xFFEC4899),
-                    routePath: AppRoutes.adminExpenses,
-                  ),
-                if (authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.assets,
-                    description: l10n.devicesAndStock,
-                    icon: Icons.devices_rounded,
-                    color: const Color(0xFF6B7280),
-                    routePath: AppRoutes.adminAssets,
-                  ),
-                if (authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.announcements,
-                    description: l10n.broadcastAlerts,
-                    icon: Icons.campaign_rounded,
-                    color: const Color(0xFF8B5CF6),
-                    routePath: AppRoutes.adminCompanyAnnouncements,
-                  ),
-                if (authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.recruitment,
-                    description: l10n.jobsAndCandidates,
-                    icon: Icons.work_outline_rounded,
-                    color: const Color(0xFF0052FF),
-                    routePath: AppRoutes.adminRecruitment,
-                  ),
-                if (authState.isCompanyAdmin || authState.isBranchManager)
-                  _buildGridItem(
-                    context,
-                    title: l10n.performance,
-                    description: l10n.reviewsAndTraining,
-                    icon: Icons.trending_up_rounded,
-                    color: const Color(0xFFA855F7),
-                    routePath: AppRoutes.adminPerformance,
-                  ),
-                if (authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.reports,
-                    description: l10n.analyticsAndExports,
-                    icon: Icons.assessment_rounded,
-                    color: const Color(0xFF14B8A6),
-                    routePath: AppRoutes.adminReports,
-                  ),
-                if (authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.documents,
-                    description: l10n.companyFiles,
-                    icon: Icons.folder_open_rounded,
-                    color: const Color(0xFFF59E0B),
-                    routePath: AppRoutes.adminDocuments,
-                  ),
-                if (authState.isCompanyAdmin)
-                  _buildGridItem(
-                    context,
-                    title: l10n.policies,
-                    description: l10n.rulesAndGuidelines,
-                    icon: Icons.book_rounded,
-                    color: const Color(0xFF3B82F6),
-                    routePath: AppRoutes.adminPolicies,
-                  ),
-                if (authState.isCompanyAdmin || authState.isBranchManager)
-                  _buildGridItem(
-                    context,
-                    title: l10n.notifications,
-                    description: l10n.viewInbox,
-                    icon: Icons.notifications_rounded,
-                    color: const Color(0xFFEF4444),
-                    routePath: AppRoutes.notifications,
-                  ),
-                if (authState.isCompanyAdmin || authState.isBranchManager)
-                  _buildGridItem(
-                    context,
-                    title: 'Top Employees',
-                    description: 'View Leaderboard',
-                    icon: Icons.emoji_events_rounded,
-                    color: const Color(0xFFF59E0B),
-                    routePath: AppRoutes.adminTopEmployees,
-                  ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
             // ── HR Manager Note
             Container(
               padding: const EdgeInsets.all(16),
@@ -818,6 +643,200 @@ class _CompanyAdminDashboardScreenState
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActivityItem(RecentActivity activity) {
+    final (icon, color) = switch (activity.type) {
+      'hire' => (Icons.person_add_rounded, const Color(0xFF10B981)),
+      'leave' => (Icons.event_busy_rounded, const Color(0xFFF59E0B)),
+      'expense' => (Icons.receipt_long_rounded, const Color(0xFFEC4899)),
+      _ => (Icons.history_rounded, AppColors.grey400),
+    };
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.grey200),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withAlpha(20),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    activity.message,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.grey700,
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (activity.time.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        _formatActivityTime(activity.time),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: AppColors.grey400,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatActivityTime(String time) {
+    try {
+      final dt = DateTime.parse(time);
+      final now = DateTime.now();
+      final diff = now.difference(dt);
+      if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+      if (diff.inHours < 24) return '${diff.inHours}h ago';
+      if (diff.inDays < 7) return '${diff.inDays}d ago';
+      return '${dt.day}/${dt.month}/${dt.year}';
+    } catch (_) {
+      return time;
+    }
+  }
+
+  List<Widget> _buildPendingActions(
+    BuildContext context,
+    DashboardKpiData kpi,
+    AppLocalizations l10n,
+  ) {
+    final actions = <Widget>[];
+
+    if (kpi.pendingLeaves > 0) {
+      actions.add(
+        _buildPendingActionItem(
+          context,
+          icon: Icons.event_busy_rounded,
+          message: '${kpi.pendingLeaves} ${l10n.leaveRequests.toLowerCase()}',
+          color: const Color(0xFFF59E0B),
+          bgColor: const Color(0xFFFEF3C7),
+          routePath: AppRoutes.adminLeave,
+        ),
+      );
+    }
+
+    if (kpi.pendingExpenses > 0) {
+      actions.add(
+        _buildPendingActionItem(
+          context,
+          icon: Icons.receipt_long_rounded,
+          message: '${kpi.pendingExpenses} ${l10n.expenseClaims.toLowerCase()}',
+          color: const Color(0xFFEF4444),
+          bgColor: const Color(0xFFFEE2E2),
+          routePath: AppRoutes.adminExpenses,
+        ),
+      );
+    }
+
+    if (kpi.openJobs > 0) {
+      actions.add(
+        _buildPendingActionItem(
+          context,
+          icon: Icons.work_outline_rounded,
+          message: '${kpi.openJobs} ${l10n.openJobs.toLowerCase()}',
+          color: const Color(0xFF3B82F6),
+          bgColor: const Color(0xFFDBEAFE),
+          routePath: AppRoutes.adminRecruitment,
+        ),
+      );
+    }
+
+    final unassignedAssets = kpi.totalAssets - kpi.assignedAssets;
+    if (unassignedAssets > 0) {
+      actions.add(
+        _buildPendingActionItem(
+          context,
+          icon: Icons.devices_rounded,
+          message: '$unassignedAssets unassigned ${l10n.assets.toLowerCase()}',
+          color: const Color(0xFF8B5CF6),
+          bgColor: const Color(0xFFEDE9FE),
+          routePath: AppRoutes.adminAssets,
+        ),
+      );
+    }
+
+    if (actions.isEmpty) return [];
+
+    return [
+      Text(
+        'Pending Actions',
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: AppColors.grey800,
+        ),
+      ),
+      const SizedBox(height: 12),
+      ...actions,
+      const SizedBox(height: 24),
+    ];
+  }
+
+  Widget _buildPendingActionItem(
+    BuildContext context, {
+    required IconData icon,
+    required String message,
+    required Color color,
+    required Color bgColor,
+    required String routePath,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: () => context.push(routePath),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: color, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: color, size: 20),
+            ],
+          ),
         ),
       ),
     );
@@ -951,75 +970,6 @@ class _CompanyAdminDashboardScreenState
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildGridItem(
-    BuildContext context, {
-    required String title,
-    required String description,
-    required IconData icon,
-    required Color color,
-    String? routePath,
-    VoidCallback? onTap,
-  }) {
-    return InkWell(
-      onTap:
-          onTap ??
-          () {
-            if (routePath != null) context.push(routePath);
-          },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.grey200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(5),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: color.withAlpha(20),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 18),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey800,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: AppColors.grey500,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }

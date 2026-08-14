@@ -14,7 +14,8 @@ import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
 
 class AdminProfileScreen extends ConsumerStatefulWidget {
-  const AdminProfileScreen({super.key});
+  final bool showBackButton;
+  const AdminProfileScreen({super.key, this.showBackButton = true});
 
   @override
   ConsumerState<AdminProfileScreen> createState() => _AdminProfileScreenState();
@@ -207,10 +208,15 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
             stretch: true,
             backgroundColor: AppColors.primary,
             surfaceTintColor: Colors.transparent,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-              onPressed: () => context.pop(),
-            ),
+            leading: widget.showBackButton
+                ? IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => context.pop(),
+                  )
+                : null,
             title: Text(
               l10n.profileSettingsTitle,
               style: const TextStyle(

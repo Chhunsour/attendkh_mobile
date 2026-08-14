@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
+import 'package:mpg_hr_mobile_app/layouts/employee_shell.dart';
+import 'package:mpg_hr_mobile_app/layouts/company_admin_shell.dart';
+import 'package:mpg_hr_mobile_app/layouts/super_admin_shell.dart';
 import 'package:mpg_hr_mobile_app/pages/auth/splash_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/auth/login_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/auth/register_company_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/auth/company_select_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/auth/verify_email_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/employee/dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/attendance_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/request_overtime_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/leave_list_screen.dart';
@@ -26,7 +28,6 @@ import 'package:mpg_hr_mobile_app/pages/profile/profile_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/profile/edit_profile_screen.dart';
 
 // Super Admin imports
-import 'package:mpg_hr_mobile_app/pages/super_admin/admin_dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_profile_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_companies_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_announcements_screen.dart';
@@ -36,7 +37,6 @@ import 'package:mpg_hr_mobile_app/pages/super_admin/admin_settings_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/super_admin_roles_screen.dart';
 
 // Company Admin imports
-import 'package:mpg_hr_mobile_app/pages/hr/company_admin_dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_holidays_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/hr_structure_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employees_screen.dart';
@@ -50,6 +50,7 @@ import 'package:mpg_hr_mobile_app/pages/hr/admin_expenses_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_recruitment_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_performance_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_reports_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_summary_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_top_employees_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_roles_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_resources_screen.dart';
@@ -116,6 +117,7 @@ class AppRoutes {
   static const adminRecruitment = '/company-admin/recruitment';
   static const adminPerformance = '/company-admin/performance';
   static const adminReports = '/company-admin/reports';
+  static const adminSummary = '/company-admin/summary';
   static const adminTopEmployees = '/company-admin/top-employees';
   static const adminRoles = '/company-admin/roles';
   static const adminResources = '/company-admin/resources';
@@ -270,10 +272,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const VerifyEmailScreen(),
       ),
 
-      // ---- Company-side (Dashboard Centric Navigation) ----
+      // ---- Company-side (Bottom Nav Shell) ----
       GoRoute(
         path: AppRoutes.main,
-        builder: (context, state) => const DashboardScreen(),
+        builder: (context, state) => const EmployeeShell(),
       ),
       GoRoute(
         path: AppRoutes.clockIn,
@@ -347,14 +349,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const EditProfileScreen(),
       ),
 
-      // ---- Super Admin (drawer navigation) ----
+      // ---- Super Admin (Bottom Nav Shell) ----
       // Uses a single GoRoute (NOT ShellRoute) to avoid the Flutter
       // semantics bug (!semantics.parentDataDirty) caused by ShellRoute's
       // child-swap tearing down and rebuilding widget trees.
-      // AdminShell manages tab switching internally with IndexedStack.
+      // SuperAdminShell manages tab switching internally with IndexedStack.
       GoRoute(
         path: AppRoutes.adminDashboard,
-        builder: (context, state) => const AdminDashboardScreen(),
+        builder: (context, state) => const SuperAdminShell(),
       ),
       GoRoute(
         path: AppRoutes.adminProfile,
@@ -385,10 +387,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SuperAdminRolesScreen(),
       ),
 
-      // ---- Company Admin (dashboard centric) ----
+      // ---- Company Admin (Bottom Nav Shell) ----
       GoRoute(
         path: AppRoutes.companyAdmin,
-        builder: (context, state) => const CompanyAdminDashboardScreen(),
+        builder: (context, state) => const CompanyAdminShell(),
       ),
       GoRoute(
         path: AppRoutes.companyOwnerProfile,
@@ -445,6 +447,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminReports,
         builder: (context, state) => const AdminReportsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminSummary,
+        builder: (context, state) => const AdminSummaryScreen(),
       ),
       GoRoute(
         path: AppRoutes.adminTopEmployees,

@@ -1476,8 +1476,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                           if (permission == LocationPermission.denied) {
                             permission = await Geolocator.requestPermission();
                           }
-                          if (permission ==
-                              LocationPermission.deniedForever) {
+                          if (permission == LocationPermission.deniedForever) {
                             // Only open settings if permanently denied
                             await Geolocator.openAppSettings();
                           }
@@ -1515,9 +1514,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               }
 
               final distance = _calculateDistance(profile);
-              if (distance == null &&
-                  !isClockedIn &&
-                  !isCompleted) {
+              if (distance == null && !isClockedIn && !isCompleted) {
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
@@ -1558,54 +1555,53 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                       today,
                       summaryAsync.valueOrNull?['is_late_now'] == true,
                     ),
-
+                  ],
+                );
+              } else {
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(20),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.location_off, color: Colors.white70),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.youAreAwayPrefix +
+                            (distance?.toStringAsFixed(0) ?? '0') +
+                            l10n.youAreAwaySuffix,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        l10n.mustBeWithinPrefix +
+                            profile.branchRadius.toString() +
+                            l10n.mustBeWithinSuffix,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ],
-                  );
-                } else {
-                  return Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(20),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(Icons.location_off, color: Colors.white70),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.youAreAwayPrefix +
-                              (distance?.toStringAsFixed(0) ?? '0') +
-                              l10n.youAreAwaySuffix,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          l10n.mustBeWithinPrefix +
-                              profile.branchRadius.toString() +
-                              l10n.mustBeWithinSuffix,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
-              orElse: () => _buildClockButton(
-                context,
-                ref,
-                l10n,
-                isClockedIn,
-                null,
-                today,
-                summaryAsync.valueOrNull?['is_late_now'] == true,
-              ),
+                  ),
+                );
+              }
+            },
+            orElse: () => _buildClockButton(
+              context,
+              ref,
+              l10n,
+              isClockedIn,
+              null,
+              today,
+              summaryAsync.valueOrNull?['is_late_now'] == true,
             ),
+          ),
         ],
       ),
     );
