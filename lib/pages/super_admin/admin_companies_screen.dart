@@ -122,34 +122,62 @@ class CompanyLogoImage extends StatelessWidget {
   }
 }
 
-class AdminCompaniesScreen extends ConsumerWidget {
+class AdminCompaniesScreen extends ConsumerStatefulWidget {
   const AdminCompaniesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminCompaniesScreen> createState() => _AdminCompaniesScreenState();
+}
+
+class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _searchQuery = '';
+  String _statusFilter = 'all';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final companiesAsync = ref.watch(adminCompaniesProvider);
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: false,
         title: Text(
           l10n.adminCompaniesTitle,
           style: const TextStyle(
-            color: AppColors.grey800,
+            color: AppColors.grey900,
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_rounded, color: AppColors.grey800),
-            onPressed: () => _showCreateEditDialog(context, ref),
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            tooltip: 'Refresh',
+            onPressed: () => ref.invalidate(adminCompaniesProvider),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showCreateEditDialog(context, ref),
+        backgroundColor: const Color(0xFF6366F1),
+        foregroundColor: Colors.white,
+        elevation: 4,
+        shape: const StadiumBorder(),
+        icon: const Icon(Icons.add_business_rounded, size: 20),
+        label: const Text(
+          'Add Company',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+        ),
       ),
       body: RefreshIndicator(
         color: AppColors.primary,
@@ -159,7 +187,7 @@ class AdminCompaniesScreen extends ConsumerWidget {
             child: CircularProgressIndicator(color: AppColors.primary),
           ),
           error: (err, _) => _buildError(context, err, ref, l10n),
-          data: (companies) => _buildList(context, ref, companies, l10n),
+          data: (companies) => _buildContent(context, ref, companies, l10n),
         ),
       ),
     );
@@ -187,14 +215,14 @@ class AdminCompaniesScreen extends ConsumerWidget {
               l10n.failedToLoadCompanies,
               style: const TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.grey800,
+                fontWeight: FontWeight.bold,
+                color: AppColors.grey900,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               err.toString(),
-              style: TextStyle(fontSize: 12, color: AppColors.grey500),
+              style: const TextStyle(fontSize: 12, color: AppColors.grey500),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -216,285 +244,442 @@ class AdminCompaniesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildList(
+  Widget _buildContent(
     BuildContext context,
     WidgetRef ref,
     List<AdminCompany> companies,
     AppLocalizations l10n,
   ) {
-    if (companies.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    final activeCount = companies.where((c) => c.status == 'active').length;
+    final suspendedCount = companies.where((c) => c.status != 'active').length;
+
+    final filtered = companies.where((c) {
+      if (_statusFilter == 'active' && c.status != 'active') return false;
+      if (_statusFilter == 'suspended' && c.status == 'active') return false;
+
+      if (_searchQuery.isNotEmpty) {
+        final q = _searchQuery.toLowerCase();
+        final nameMatch = c.name.toLowerCase().contains(q);
+        final emailMatch = c.email?.toLowerCase().contains(q) ?? false;
+        final phoneMatch = c.phone?.toLowerCase().contains(q) ?? false;
+        return nameMatch || emailMatch || phoneMatch;
+      }
+      return true;
+    }).toList();
+
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+      children: [
+        // ── Overview Summary Cards ──
+        Row(
           children: [
-            const Icon(
-              Icons.business_rounded,
-              size: 64,
-              color: AppColors.grey300,
+            Expanded(
+              child: _buildMetricCard(
+                title: 'Total Tenants',
+                value: '${companies.length}',
+                icon: Icons.business_rounded,
+                color: const Color(0xFF6366F1),
+              ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.noCompaniesYet,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.grey500,
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildMetricCard(
+                title: 'Active',
+                value: '$activeCount',
+                icon: Icons.check_circle_rounded,
+                color: AppColors.success,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildMetricCard(
+                title: 'Suspended',
+                value: '$suspendedCount',
+                icon: Icons.pause_circle_filled_rounded,
+                color: AppColors.danger,
               ),
             ),
           ],
         ),
-      );
-    }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: companies.length,
-      itemBuilder: (context, index) {
-        final company = companies[index];
-        final isActive = company.status == 'active';
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Container(
-            padding: const EdgeInsets.all(16),
+        const SizedBox(height: 16),
+
+        // ── Search Field ──
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.grey200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: TextField(
+            controller: _searchCtrl,
+            onChanged: (val) => setState(() => _searchQuery = val.trim()),
+            style: const TextStyle(fontSize: 13.5, color: AppColors.grey900),
+            decoration: InputDecoration(
+              hintText: 'Search companies by name or email...',
+              hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
+              prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 18),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear_rounded, color: AppColors.grey400, size: 16),
+                      onPressed: () {
+                        _searchCtrl.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                    )
+                  : null,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // ── Status Filter Chips ──
+        Row(
+          children: [
+            _buildFilterChip('All (${companies.length})', 'all'),
+            const SizedBox(width: 8),
+            _buildFilterChip('Active ($activeCount)', 'active'),
+            const SizedBox(width: 8),
+            _buildFilterChip('Suspended ($suspendedCount)', 'suspended'),
+          ],
+        ),
+
+        const SizedBox(height: 16),
+
+        // ── Company List ──
+        if (filtered.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(32),
+            alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.grey900.withAlpha(10),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.business_center_outlined, size: 48, color: AppColors.grey300),
+                const SizedBox(height: 12),
+                Text(
+                  _searchQuery.isNotEmpty ? 'No companies matching "$_searchQuery"' : l10n.noCompaniesYet,
+                  style: const TextStyle(color: AppColors.grey600, fontSize: 14, fontWeight: FontWeight.w500),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  clipBehavior: Clip.hardEdge,
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? AppColors.infoLight
-                        : AppColors.dangerLight,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.grey200),
-                  ),
-                  child: (company.logo != null && company.logo!.isNotEmpty)
-                      ? CompanyLogoImage(
-                          logo: company.logo!,
-                          fit: BoxFit.cover,
-                          fallbackIcon: Icon(
-                            Icons.business_rounded,
-                            color: isActive ? AppColors.info : AppColors.danger,
-                          ),
-                        )
-                      : Icon(
-                          Icons.business_rounded,
-                          color: isActive ? AppColors.info : AppColors.danger,
-                        ),
+          )
+        else
+          ...filtered.map((company) => _buildCompanyCard(context, ref, company, l10n)),
+      ],
+    );
+  }
+
+  Widget _buildMetricCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.grey500,
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        company.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                          color: AppColors.grey800,
+              ),
+              Icon(icon, size: 16, color: color),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label, String value) {
+    final isSelected = _statusFilter == value;
+    return InkWell(
+      onTap: () => setState(() => _statusFilter = value),
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF6366F1) : Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: isSelected ? const Color(0xFF6366F1) : AppColors.grey200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected ? Colors.white : AppColors.grey700,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompanyCard(
+    BuildContext context,
+    WidgetRef ref,
+    AdminCompany company,
+    AppLocalizations l10n,
+  ) {
+    final isActive = company.status == 'active';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  color: isActive ? const Color(0xFFEEF2FF) : AppColors.danger.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.grey200),
+                ),
+                child: (company.logo != null && company.logo!.isNotEmpty)
+                    ? CompanyLogoImage(
+                        logo: company.logo!,
+                        fit: BoxFit.cover,
+                        fallbackIcon: Icon(
+                          Icons.business_rounded,
+                          color: isActive ? const Color(0xFF6366F1) : AppColors.danger,
+                          size: 22,
                         ),
+                      )
+                    : Icon(
+                        Icons.business_rounded,
+                        color: isActive ? const Color(0xFF6366F1) : AppColors.danger,
+                        size: 22,
                       ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      company.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.5,
+                        color: AppColors.grey900,
+                      ),
+                    ),
+                    if (company.email != null && company.email!.isNotEmpty) ...[
                       const SizedBox(height: 2),
                       Text(
-                        company.email ?? '',
-                        style: TextStyle(
+                        company.email!,
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.grey500,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                  ),
+                  ],
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? AppColors.successLight
-                        : AppColors.dangerLight,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    isActive ? l10n.statusActive : l10n.statusSuspended,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: (isActive ? AppColors.success : AppColors.danger).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.circle,
+                      size: 6,
                       color: isActive ? AppColors.success : AppColors.danger,
                     ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                PopupMenuButton<String>(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  color: AppColors.surfaceLight,
-                  surfaceTintColor: Colors.transparent,
-                  elevation: 8,
-                  position: PopupMenuPosition.under,
-                  offset: const Offset(0, 4),
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColors.grey50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.grey200),
-                    ),
-                    child: const Icon(
-                      Icons.more_horiz_rounded,
-                      color: AppColors.grey700,
-                      size: 20,
-                    ),
-                  ),
-                  onSelected: (action) {
-                    if (action == 'edit') {
-                      _showCreateEditDialog(context, ref, company: company);
-                    } else if (action == 'suspend') {
-                      _confirmSuspend(context, ref, company);
-                    } else if (action == 'activate') {
-                      _confirmActivate(context, ref, company);
-                    } else if (action == 'stats') {
-                      _showStats(context, company);
-                    } else if (action == 'delete') {
-                      _confirmDelete(context, ref, company);
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    PopupMenuItem(
-                      value: 'edit',
-                      height: 44,
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.edit_rounded,
-                            size: 20,
-                            color: AppColors.grey600,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            l10n.actionEdit,
-                            style: const TextStyle(
-                              color: AppColors.grey800,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'stats',
-                      height: 44,
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.bar_chart_rounded,
-                            size: 20,
-                            color: AppColors.info,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            l10n.actionStats,
-                            style: const TextStyle(
-                              color: AppColors.grey800,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (isActive)
-                      PopupMenuItem(
-                        value: 'suspend',
-                        height: 44,
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.block_rounded,
-                              size: 20,
-                              color: AppColors.danger,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              l10n.actionSuspend,
-                              style: const TextStyle(
-                                color: AppColors.danger,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (!isActive)
-                      PopupMenuItem(
-                        value: 'activate',
-                        height: 44,
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.check_circle_rounded,
-                              size: 20,
-                              color: AppColors.success,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              l10n.actionActivate,
-                              style: const TextStyle(
-                                color: AppColors.success,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    const PopupMenuDivider(),
-                    PopupMenuItem(
-                      value: 'delete',
-                      height: 44,
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.delete_outline_rounded,
-                            size: 20,
-                            color: AppColors.danger,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            l10n.actionDelete,
-                            style: const TextStyle(
-                              color: AppColors.danger,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                    const SizedBox(width: 4),
+                    Text(
+                      isActive ? l10n.statusActive : l10n.statusSuspended,
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.bold,
+                        color: isActive ? AppColors.success : AppColors.danger,
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 4),
+              PopupMenuButton<String>(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                color: Colors.white,
+                surfaceTintColor: Colors.transparent,
+                elevation: 8,
+                position: PopupMenuPosition.under,
+                offset: const Offset(0, 4),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.grey200),
+                  ),
+                  child: const Icon(
+                    Icons.more_horiz_rounded,
+                    color: AppColors.grey700,
+                    size: 18,
+                  ),
+                ),
+                onSelected: (action) {
+                  if (action == 'edit') {
+                    _showCreateEditDialog(context, ref, company: company);
+                  } else if (action == 'suspend') {
+                    _confirmSuspend(context, ref, company);
+                  } else if (action == 'activate') {
+                    _confirmActivate(context, ref, company);
+                  } else if (action == 'stats') {
+                    _showStats(context, company);
+                  } else if (action == 'delete') {
+                    _confirmDelete(context, ref, company);
+                  }
+                },
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    height: 42,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit_rounded, size: 18, color: Color(0xFF6366F1)),
+                        const SizedBox(width: 10),
+                        Text(l10n.actionEdit, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'stats',
+                    height: 42,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.bar_chart_rounded, size: 18, color: Color(0xFF0EA5E9)),
+                        const SizedBox(width: 10),
+                        Text(l10n.actionStats, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                  if (isActive)
+                    PopupMenuItem(
+                      value: 'suspend',
+                      height: 42,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.block_rounded, size: 18, color: AppColors.danger),
+                          const SizedBox(width: 10),
+                          Text(l10n.actionSuspend, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.danger)),
+                        ],
+                      ),
+                    ),
+                  if (!isActive)
+                    PopupMenuItem(
+                      value: 'activate',
+                      height: 42,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle_rounded, size: 18, color: AppColors.success),
+                          const SizedBox(width: 10),
+                          Text(l10n.actionActivate, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.success)),
+                        ],
+                      ),
+                    ),
+                  const PopupMenuDivider(),
+                  PopupMenuItem(
+                    value: 'delete',
+                    height: 42,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.danger),
+                        const SizedBox(width: 10),
+                        Text(l10n.actionDelete, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.danger)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 

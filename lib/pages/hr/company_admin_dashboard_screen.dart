@@ -53,7 +53,6 @@ class _CompanyAdminDashboardScreenState
           profileAsync,
           l10n,
         ),
-        // Blur overlay when switching branches
         if (branchSwitchState.isSwitching) _buildBlurOverlay(l10n),
       ],
     );
@@ -65,7 +64,7 @@ class _CompanyAdminDashboardScreenState
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
           child: Container(
-            color: Colors.black.withAlpha(100),
+            color: Colors.black.withValues(alpha: 0.4),
             child: Center(
               child: Material(
                 type: MaterialType.transparency,
@@ -83,7 +82,7 @@ class _CompanyAdminDashboardScreenState
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withAlpha(30),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 30,
                         offset: const Offset(0, 10),
                       ),
@@ -93,22 +92,20 @@ class _CompanyAdminDashboardScreenState
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(
-                        width: 56,
-                        height: 56,
+                        width: 50,
+                        height: 50,
                         child: CircularProgressIndicator(
-                          color: Color(0xFF0052FF),
-                          backgroundColor: Color(0xFFFED7AA),
-                          strokeWidth: 4.0,
+                          color: Color(0xFF6366F1),
+                          strokeWidth: 3.5,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 18),
                       Text(
                         l10n.switchingBranchView,
                         style: const TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.grey800,
-
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.grey900,
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -118,7 +115,6 @@ class _CompanyAdminDashboardScreenState
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.grey500,
-
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -142,24 +138,24 @@ class _CompanyAdminDashboardScreenState
     AppLocalizations l10n,
   ) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: false,
         title: Row(
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withAlpha(20),
+                borderRadius: BorderRadius.circular(10),
+                color: const Color(0xFF6366F1).withValues(alpha: 0.12),
               ),
               child: const Icon(
-                Icons.business_center_rounded,
-                color: AppColors.primary,
-                size: 18,
+                Icons.corporate_fare_rounded,
+                color: Color(0xFF6366F1),
+                size: 20,
               ),
             ),
             const SizedBox(width: 10),
@@ -168,9 +164,9 @@ class _CompanyAdminDashboardScreenState
                   ? Text(
                       l10n.hrDashboard,
                       style: const TextStyle(
-                        color: AppColors.grey800,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                        color: AppColors.grey900,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                       overflow: TextOverflow.ellipsis,
                     )
@@ -181,9 +177,9 @@ class _CompanyAdminDashboardScreenState
                               ? Text(
                                   l10n.hrDashboard,
                                   style: const TextStyle(
-                                    color: AppColors.grey800,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.grey900,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 )
@@ -194,18 +190,17 @@ class _CompanyAdminDashboardScreenState
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   color: Colors.white,
-                                  elevation: 4,
+                                  elevation: 6,
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
                                         l10n.hrDashboard,
                                         style: const TextStyle(
-                                          color: AppColors.grey800,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.grey900,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -213,19 +208,17 @@ class _CompanyAdminDashboardScreenState
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
-                                            branchSwitchState
-                                                    .activeBranchName ??
-                                                l10n.selectBranch,
+                                            branchSwitchState.activeBranchName ?? l10n.selectBranch,
                                             style: const TextStyle(
-                                              color: AppColors.primary,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF6366F1),
+                                              fontSize: 11.5,
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                           const SizedBox(width: 2),
                                           const Icon(
                                             Icons.keyboard_arrow_down_rounded,
-                                            color: AppColors.primary,
+                                            color: Color(0xFF6366F1),
                                             size: 14,
                                           ),
                                         ],
@@ -234,13 +227,9 @@ class _CompanyAdminDashboardScreenState
                                   ),
                                   onSelected: (branch) async {
                                     if (branch == null) {
-                                      ref
-                                          .read(branchSwitchProvider.notifier)
-                                          .exitBranchView();
+                                      ref.read(branchSwitchProvider.notifier).exitBranchView();
                                     } else {
-                                      await ref
-                                          .read(branchSwitchProvider.notifier)
-                                          .switchToBranch(branch);
+                                      await ref.read(branchSwitchProvider.notifier).switchToBranch(branch);
                                     }
                                     ref.invalidate(dashboardStatsProvider);
                                   },
@@ -263,19 +252,9 @@ class _CompanyAdminDashboardScreenState
                                           value: null,
                                           child: Row(
                                             children: [
-                                              Icon(
-                                                Icons.clear,
-                                                size: 16,
-                                                color: AppColors.danger,
-                                              ),
-                                              SizedBox(width: 12),
-                                              Text(
-                                                'Clear Filter',
-                                                style: TextStyle(
-                                                  color: AppColors.danger,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
+                                              Icon(Icons.clear, size: 16, color: AppColors.danger),
+                                              SizedBox(width: 10),
+                                              Text('Clear Filter', style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold)),
                                             ],
                                           ),
                                         ),
@@ -288,47 +267,20 @@ class _CompanyAdminDashboardScreenState
                                                 width: 32,
                                                 height: 32,
                                                 decoration: BoxDecoration(
-                                                  color: const Color(
-                                                    0xFF0052FF,
-                                                  ).withAlpha(15),
-                                                  shape: BoxShape.circle,
+                                                  color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                                                  borderRadius: BorderRadius.circular(8),
                                                 ),
-                                                child: const Icon(
-                                                  Icons.business_rounded,
-                                                  color: Color(0xFF0052FF),
-                                                  size: 16,
-                                                ),
+                                                child: const Icon(Icons.business_rounded, color: Color(0xFF6366F1), size: 16),
                                               ),
-                                              const SizedBox(width: 12),
+                                              const SizedBox(width: 10),
                                               Expanded(
                                                 child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
-                                                    Text(
-                                                      b.name,
-                                                      style: const TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        color:
-                                                            AppColors.grey800,
-                                                      ),
-                                                    ),
+                                                    Text(b.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey900)),
                                                     if (b.address != null)
-                                                      Text(
-                                                        b.address!,
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: const TextStyle(
-                                                          fontSize: 11,
-                                                          color:
-                                                              AppColors.grey500,
-                                                        ),
-                                                      ),
+                                                      Text(b.address!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
                                                   ],
                                                 ),
                                               ),
@@ -355,10 +307,7 @@ class _CompanyAdminDashboardScreenState
                 alignment: Alignment.center,
                 children: [
                   IconButton(
-                    icon: const Icon(
-                      Icons.notifications_outlined,
-                      color: Colors.black87,
-                    ),
+                    icon: const Icon(Icons.notifications_outlined, color: AppColors.grey700),
                     onPressed: () async {
                       await context.push(AppRoutes.notifications);
                       ref.invalidate(unreadCountProvider);
@@ -369,25 +318,15 @@ class _CompanyAdminDashboardScreenState
                       top: 8,
                       right: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 1,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                         decoration: BoxDecoration(
                           color: AppColors.danger,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
+                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                         child: Text(
                           unreadCount > 99 ? '99+' : '$unreadCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -397,21 +336,19 @@ class _CompanyAdminDashboardScreenState
             },
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 20, left: 8),
+            padding: const EdgeInsets.only(right: 16, left: 4),
             child: GestureDetector(
               onTap: () => context.push(
-                authState.isCompanyOwner
-                    ? AppRoutes.companyOwnerProfile
-                    : AppRoutes.profile,
+                authState.isCompanyOwner ? AppRoutes.companyOwnerProfile : AppRoutes.profile,
               ),
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.grey200, width: 1.5),
+                  border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.3), width: 1.5),
                 ),
                 child: CircleAvatar(
-                  radius: 18,
-                  backgroundColor: AppColors.primaryLight,
+                  radius: 17,
+                  backgroundColor: AppColors.grey100,
                   backgroundImage: profileAsync.value?.photoUrl != null
                       ? CachedNetworkImageProvider(
                           profileAsync.value!.photoUrl!,
@@ -420,11 +357,7 @@ class _CompanyAdminDashboardScreenState
                         )
                       : null,
                   child: profileAsync.value?.photoUrl == null
-                      ? const Icon(
-                          Icons.person,
-                          color: AppColors.primary,
-                          size: 20,
-                        )
+                      ? const Icon(Icons.person, color: AppColors.grey600, size: 18)
                       : null,
                 ),
               ),
@@ -433,170 +366,219 @@ class _CompanyAdminDashboardScreenState
         ],
       ),
       body: RefreshIndicator(
+        color: AppColors.primary,
         onRefresh: () async {
           ref.invalidate(dashboardStatsProvider);
           ref.invalidate(branchesProvider);
           return await ref.read(dashboardStatsProvider.future);
         },
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
           children: [
-            // ── Welcome Banner
+            // ── Executive Dark Hero Welcome Banner ──
             _buildWelcomeBanner(
               name: authState.userName ?? 'Manager',
               companyName: authState.companyName ?? 'My Company',
               l10n: l10n,
             ),
-            const SizedBox(height: 24),
 
-            // ── Dashboard KPIs
-            ref
-                .watch(dashboardStatsProvider)
-                .when(
+            const SizedBox(height: 18),
+
+            // ── Dashboard Overview Metrics ──
+            ref.watch(dashboardStatsProvider).when(
                   data: (kpi) => Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        l10n.companyOverview,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.grey800,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              l10n.companyOverview,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.grey900,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(Icons.circle, color: Color(0xFF10B981), size: 6.5),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Live',
+                                    style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF047857)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
+
+                      // ── Row 1 ──
                       Row(
                         children: [
                           Expanded(
                             child: _buildKpiCard(
                               l10n.totalStaff,
                               kpi.totalEmployees.toString(),
-                              Icons.people,
-                              const Color(0xFF3B82F6),
+                              Icons.people_alt_rounded,
+                              const Color(0xFF6366F1),
+                              const Color(0xFFEEF2FF),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: _buildKpiCard(
                               l10n.attendanceMenu,
                               kpi.todayAttendance.toString(),
-                              Icons.fingerprint,
-                              const Color(0xFF14B8A6),
+                              Icons.fingerprint_rounded,
+                              const Color(0xFF10B981),
+                              const Color(0xFFECFDF5),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
+
+                      // ── Row 2 ──
                       Row(
                         children: [
                           Expanded(
                             child: _buildKpiCard(
                               l10n.leaveRequests,
                               kpi.pendingLeaves.toString(),
-                              Icons.event_busy,
-                              const Color(0xFFEF4444),
+                              Icons.event_busy_rounded,
+                              const Color(0xFFF59E0B),
+                              const Color(0xFFFFFBEB),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: _buildKpiCard(
                               l10n.expenseClaims,
                               kpi.pendingExpenses.toString(),
-                              Icons.receipt_long,
+                              Icons.receipt_long_rounded,
                               const Color(0xFFEC4899),
+                              const Color(0xFFFDF2F8),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
+
+                      // ── Row 3 ──
                       Row(
                         children: [
                           Expanded(
                             child: _buildKpiCard(
                               l10n.openJobs,
                               kpi.openJobs.toString(),
-                              Icons.work,
-                              const Color(0xFF10B981),
+                              Icons.work_outline_rounded,
+                              const Color(0xFF0EA5E9),
+                              const Color(0xFFF0F9FF),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: _buildKpiCard(
                               l10n.assets,
                               '${kpi.assignedAssets}/${kpi.totalAssets}',
-                              Icons.devices,
-                              const Color(0xFFF59E0B),
+                              Icons.devices_rounded,
+                              const Color(0xFF8B5CF6),
+                              const Color(0xFFF5F3FF),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
+
+                      // ── Row 4 ──
                       Row(
                         children: [
                           Expanded(
                             child: _buildKpiCard(
                               l10n.payroll,
                               '\$${kpi.monthlyPayroll.toStringAsFixed(0)}',
-                              Icons.payments,
-                              const Color(0xFFF59E0B),
+                              Icons.payments_rounded,
+                              const Color(0xFF059669),
+                              const Color(0xFFECFDF5),
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          const Expanded(child: SizedBox()),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 22),
 
-                      // ── Pending Actions
+                      // ── Pending Actions ──
                       ..._buildPendingActions(context, kpi, l10n),
 
-                      // ── Recent Activity
+                      // ── Recent Activity ──
                       if (kpi.recentActivity.isNotEmpty) ...[
-                        Text(
-                          'Recent Activity',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.grey800,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.history_rounded, size: 16, color: Color(0xFF6366F1)),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Recent Activity',
+                                style: const TextStyle(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.grey900,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
                         ...kpi.recentActivity.map((a) => _buildActivityItem(a)),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
                       ],
                     ],
                   ),
                   loading: () => const Center(
                     child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: CircularProgressIndicator(),
+                      padding: EdgeInsets.all(32),
+                      child: CircularProgressIndicator(color: AppColors.primary),
                     ),
                   ),
                   error: (e, _) => Container(
                     padding: const EdgeInsets.all(16),
                     margin: const EdgeInsets.only(bottom: 24),
                     decoration: BoxDecoration(
-                      color: AppColors.dangerLight,
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.danger.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
                       '${l10n.errorLoadingKpis}$e',
-                      style: const TextStyle(color: AppColors.danger),
+                      style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-            // ── HR Manager Note
+
+            // ── HR Manager Note ──
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.grey200),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withAlpha(5),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -604,14 +586,14 @@ class _CompanyAdminDashboardScreenState
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEFF6FF),
-                      shape: BoxShape.circle,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
-                      Icons.info_outline_rounded,
-                      color: Color(0xFF2563EB),
-                      size: 24,
+                      Icons.shield_outlined,
+                      color: Color(0xFF6366F1),
+                      size: 22,
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -622,18 +604,18 @@ class _CompanyAdminDashboardScreenState
                         Text(
                           l10n.hrPortalActive,
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 13.5,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.grey800,
+                            color: AppColors.grey900,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 3),
                         Text(
                           l10n.hrPortalDesc,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 11.5,
                             color: AppColors.grey500,
-                            height: 1.4,
+                            height: 1.3,
                           ),
                         ),
                       ],
@@ -649,63 +631,65 @@ class _CompanyAdminDashboardScreenState
   }
 
   Widget _buildActivityItem(RecentActivity activity) {
-    final (icon, color) = switch (activity.type) {
-      'hire' => (Icons.person_add_rounded, const Color(0xFF10B981)),
-      'leave' => (Icons.event_busy_rounded, const Color(0xFFF59E0B)),
-      'expense' => (Icons.receipt_long_rounded, const Color(0xFFEC4899)),
-      _ => (Icons.history_rounded, AppColors.grey400),
+    final (icon, color, bg) = switch (activity.type) {
+      'hire' => (Icons.person_add_rounded, const Color(0xFF10B981), const Color(0xFFECFDF5)),
+      'leave' => (Icons.event_busy_rounded, const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
+      'expense' => (Icons.receipt_long_rounded, const Color(0xFFEC4899), const Color(0xFFFDF2F8)),
+      _ => (Icons.history_rounded, const Color(0xFF64748B), const Color(0xFFF1F5F9)),
     };
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.grey200),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withAlpha(20),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 18),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(10),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    activity.message,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.grey700,
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  activity.message,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey900,
                   ),
-                  if (activity.time.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        _formatActivityTime(activity.time),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: AppColors.grey400,
-                        ),
-                      ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (activity.time.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      _formatActivityTime(activity.time),
+                      style: const TextStyle(fontSize: 10.5, color: AppColors.grey400),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -736,9 +720,9 @@ class _CompanyAdminDashboardScreenState
         _buildPendingActionItem(
           context,
           icon: Icons.event_busy_rounded,
-          message: '${kpi.pendingLeaves} ${l10n.leaveRequests.toLowerCase()}',
+          message: '${kpi.pendingLeaves} ${l10n.leaveRequests.toLowerCase()} awaiting approval',
           color: const Color(0xFFF59E0B),
-          bgColor: const Color(0xFFFEF3C7),
+          bgColor: const Color(0xFFFFFBEB),
           routePath: AppRoutes.adminLeave,
         ),
       );
@@ -749,9 +733,9 @@ class _CompanyAdminDashboardScreenState
         _buildPendingActionItem(
           context,
           icon: Icons.receipt_long_rounded,
-          message: '${kpi.pendingExpenses} ${l10n.expenseClaims.toLowerCase()}',
+          message: '${kpi.pendingExpenses} ${l10n.expenseClaims.toLowerCase()} to review',
           color: const Color(0xFFEF4444),
-          bgColor: const Color(0xFFFEE2E2),
+          bgColor: const Color(0xFFFEF2F2),
           routePath: AppRoutes.adminExpenses,
         ),
       );
@@ -762,9 +746,9 @@ class _CompanyAdminDashboardScreenState
         _buildPendingActionItem(
           context,
           icon: Icons.work_outline_rounded,
-          message: '${kpi.openJobs} ${l10n.openJobs.toLowerCase()}',
-          color: const Color(0xFF3B82F6),
-          bgColor: const Color(0xFFDBEAFE),
+          message: '${kpi.openJobs} active ${l10n.openJobs.toLowerCase()}',
+          color: const Color(0xFF0EA5E9),
+          bgColor: const Color(0xFFF0F9FF),
           routePath: AppRoutes.adminRecruitment,
         ),
       );
@@ -778,7 +762,7 @@ class _CompanyAdminDashboardScreenState
           icon: Icons.devices_rounded,
           message: '$unassignedAssets unassigned ${l10n.assets.toLowerCase()}',
           color: const Color(0xFF8B5CF6),
-          bgColor: const Color(0xFFEDE9FE),
+          bgColor: const Color(0xFFF5F3FF),
           routePath: AppRoutes.adminAssets,
         ),
       );
@@ -787,17 +771,26 @@ class _CompanyAdminDashboardScreenState
     if (actions.isEmpty) return [];
 
     return [
-      Text(
-        'Pending Actions',
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: AppColors.grey800,
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Row(
+          children: [
+            const Icon(Icons.notifications_active_rounded, size: 16, color: Color(0xFFF59E0B)),
+            const SizedBox(width: 6),
+            Text(
+              'Pending Actions',
+              style: const TextStyle(
+                fontSize: 14.5,
+                fontWeight: FontWeight.bold,
+                color: AppColors.grey900,
+              ),
+            ),
+          ],
         ),
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: 10),
       ...actions,
-      const SizedBox(height: 24),
+      const SizedBox(height: 20),
     ];
   }
 
@@ -813,28 +806,29 @@ class _CompanyAdminDashboardScreenState
       padding: const EdgeInsets.only(bottom: 8),
       child: InkWell(
         onTap: () => context.push(routePath),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
           ),
           child: Row(
             children: [
-              Icon(icon, color: color, size: 20),
+              Icon(icon, color: color, size: 18),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   message,
                   style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
                     color: color,
                   ),
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: color, size: 20),
+              Icon(Icons.chevron_right_rounded, color: color, size: 18),
             ],
           ),
         ),
@@ -842,18 +836,18 @@ class _CompanyAdminDashboardScreenState
     );
   }
 
-  Widget _buildKpiCard(String title, String value, IconData icon, Color color) {
+  Widget _buildKpiCard(String title, String value, IconData icon, Color color, Color bgColor) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(5),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: color.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -862,10 +856,10 @@ class _CompanyAdminDashboardScreenState
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withAlpha(20),
-              shape: BoxShape.circle,
+              color: bgColor,
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -875,17 +869,21 @@ class _CompanyAdminDashboardScreenState
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
                     color: AppColors.grey500,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 20,
+                  style: TextStyle(
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey800,
+                    color: color,
+                    letterSpacing: -0.5,
                   ),
                 ),
               ],
@@ -904,8 +902,22 @@ class _CompanyAdminDashboardScreenState
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF0F172A),
+            Color(0xFF1E293B),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -913,60 +925,64 @@ class _CompanyAdminDashboardScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  companyName,
-                  style: TextStyle(
-                    color: Colors.white.withAlpha(180),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.25),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
+                      ),
+                      child: Text(
+                        l10n.companyAdministrator.toUpperCase(),
+                        style: const TextStyle(
+                          color: Color(0xFFA5B4FC),
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Text(
                   name,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.bold,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+                const SizedBox(height: 2),
+                Text(
+                  companyName,
+                  style: const TextStyle(
+                    color: Color(0xFF94A3B8),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(50),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '💼  ${l10n.companyAdministrator}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
           Container(
-            width: 60,
-            height: 60,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(15),
-              shape: BoxShape.circle,
+              color: const Color(0xFF6366F1).withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.3)),
             ),
             child: const Icon(
               Icons.business_center_rounded,
-              color: Colors.white,
-              size: 32,
+              color: Color(0xFFA5B4FC),
+              size: 26,
             ),
           ),
         ],

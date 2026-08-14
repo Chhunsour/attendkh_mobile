@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/layouts/bottom_nav_shell.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_companies_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_profile_screen.dart';
@@ -45,39 +44,45 @@ class SuperAdminShell extends ConsumerWidget {
             showLogout: true,
             items: [
               MoreItem(
-                title: 'Roles',
-                icon: Icons.shield_rounded,
+                title: 'Roles & Permissions',
+                subtitle: 'Access controls',
+                icon: Icons.shield_outlined,
                 color: const Color(0xFF8B5CF6),
                 routePath: AppRoutes.superAdminRoles,
               ),
               MoreItem(
-                title: 'Support',
-                icon: Icons.support_agent_rounded,
+                title: 'Support Tickets',
+                subtitle: 'Client helpdesk',
+                icon: Icons.support_agent_outlined,
                 color: const Color(0xFFF59E0B),
                 routePath: AppRoutes.adminSupportTickets,
               ),
               MoreItem(
-                title: 'KPIs',
+                title: 'Platform Health',
+                subtitle: 'KPIs & uptime',
                 icon: Icons.track_changes_outlined,
-                color: AppColors.primary,
+                color: const Color(0xFF10B981),
                 routePath: AppRoutes.kpi,
               ),
               MoreItem(
                 title: 'Announcements',
-                icon: Icons.campaign_rounded,
-                color: const Color(0xFF10B981),
+                subtitle: 'Global broadcasts',
+                icon: Icons.campaign_outlined,
+                color: const Color(0xFF0EA5E9),
                 routePath: AppRoutes.adminAnnouncements,
               ),
               MoreItem(
                 title: 'Audit Logs',
-                icon: Icons.description_rounded,
-                color: const Color(0xFF6B7280),
+                subtitle: 'System activity',
+                icon: Icons.receipt_long_outlined,
+                color: const Color(0xFF6366F1),
                 routePath: AppRoutes.adminAuditLogs,
               ),
               MoreItem(
-                title: 'Settings',
-                icon: Icons.settings_rounded,
-                color: const Color(0xFF0F172A),
+                title: 'Platform Settings',
+                subtitle: 'App configuration',
+                icon: Icons.settings_outlined,
+                color: const Color(0xFF64748B),
                 routePath: AppRoutes.adminSettings,
               ),
             ],

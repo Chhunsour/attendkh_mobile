@@ -12,9 +12,7 @@ import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 // ── Riverpod provider ──────────────────────────────────────────────────────
-final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((
-  ref,
-) {
+final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((ref) {
   return AdminDashboardRepository().getDashboard();
 });
 
@@ -25,8 +23,7 @@ class AdminDashboardScreen extends ConsumerStatefulWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  ConsumerState<AdminDashboardScreen> createState() =>
-      _AdminDashboardScreenState();
+  ConsumerState<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
 
 class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
@@ -49,37 +46,47 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: false,
         title: Row(
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withAlpha(20),
+                borderRadius: BorderRadius.circular(10),
+                color: const Color(0xFF6366F1).withValues(alpha: 0.12),
               ),
               child: const Icon(
-                Icons.shield_rounded,
-                color: AppColors.primary,
-                size: 18,
+                Icons.admin_panel_settings_rounded,
+                color: Color(0xFF6366F1),
+                size: 20,
               ),
             ),
             const SizedBox(width: 10),
-            Flexible(
-              child: Text(
-                l10n.platformAdminTitle,
-                style: const TextStyle(
-                  color: AppColors.grey800,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.platformAdminTitle,
+                  style: const TextStyle(
+                    color: AppColors.grey900,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
+                const Text(
+                  'Super Admin Platform Control',
+                  style: TextStyle(
+                    color: AppColors.grey500,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -88,15 +95,11 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(
-                  Icons.notifications_outlined,
-                  color: AppColors.grey800,
-                ),
-                if (unreadCountAsync.valueOrNull != null &&
-                    unreadCountAsync.valueOrNull! > 0)
+                const Icon(Icons.notifications_outlined, color: AppColors.grey700),
+                if (unreadCountAsync.valueOrNull != null && unreadCountAsync.valueOrNull! > 0)
                   Positioned(
-                    right: -4,
-                    top: -4,
+                    right: -2,
+                    top: -2,
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
@@ -106,8 +109,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                       child: Text(
                         '${unreadCountAsync.valueOrNull}',
                         style: const TextStyle(
-                          color: AppColors.surfaceLight,
-                          fontSize: 10,
+                          color: Colors.white,
+                          fontSize: 9,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -122,17 +125,17 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             },
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 20, left: 8),
+            padding: const EdgeInsets.only(right: 16, left: 4),
             child: GestureDetector(
               onTap: () => context.push(AppRoutes.adminProfile),
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.grey200, width: 1.5),
+                  border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.3), width: 1.5),
                 ),
                 child: CircleAvatar(
-                  radius: 18,
-                  backgroundColor: AppColors.primaryLight,
+                  radius: 17,
+                  backgroundColor: AppColors.grey100,
                   backgroundImage: profileAsync.value?.photoUrl != null
                       ? CachedNetworkImageProvider(
                           profileAsync.value!.photoUrl!,
@@ -141,11 +144,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                         )
                       : null,
                   child: profileAsync.value?.photoUrl == null
-                      ? const Icon(
-                          Icons.person,
-                          color: AppColors.primary,
-                          size: 20,
-                        )
+                      ? const Icon(Icons.person, color: AppColors.grey600, size: 18)
                       : null,
                 ),
               ),
@@ -171,19 +170,28 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   // ── Loading ────────────────────────────────────────────────────────────────
   Widget _buildLoading() {
     return ListView(
-      padding: const EdgeInsets.all(20),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(16),
       children: [
-        _shimmerBox(height: 120, radius: 20),
-        const SizedBox(height: 20),
-        _shimmerBox(height: 240, radius: 16),
-        const SizedBox(height: 20),
+        _shimmerBox(height: 120, radius: 22),
+        const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _shimmerBox(height: 110, radius: 16)),
+            Expanded(child: _shimmerBox(height: 110, radius: 18)),
             const SizedBox(width: 12),
-            Expanded(child: _shimmerBox(height: 110, radius: 16)),
+            Expanded(child: _shimmerBox(height: 110, radius: 18)),
           ],
         ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(child: _shimmerBox(height: 110, radius: 18)),
+            const SizedBox(width: 12),
+            Expanded(child: _shimmerBox(height: 110, radius: 18)),
+          ],
+        ),
+        const SizedBox(height: 20),
+        _shimmerBox(height: 180, radius: 18),
       ],
     );
   }
@@ -192,7 +200,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(radius),
       ),
       child: const _ShimmerEffect(),
@@ -208,48 +216,34 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: 64,
+              height: 64,
               decoration: BoxDecoration(
-                color: AppColors.danger.withAlpha(15),
+                color: AppColors.danger.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.wifi_off_rounded,
-                color: AppColors.danger,
-                size: 36,
-              ),
+              child: const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 32),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Text(
               l10n.failedToLoadDashboard,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.grey800,
-              ),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.grey900),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               err.toString(),
-              style: const TextStyle(fontSize: 13, color: AppColors.grey500),
+              style: const TextStyle(fontSize: 12, color: AppColors.grey500),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(adminDashboardProvider),
-              icon: const Icon(Icons.refresh_rounded, size: 18),
+              icon: const Icon(Icons.refresh_rounded, size: 16),
               label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],
@@ -267,24 +261,53 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   ) {
     final stats = data.stats;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
       children: [
-        // ── Welcome banner
+        // ── Executive Dark Hero Welcome Banner ──
         _buildWelcomeBanner(auth.userName ?? 'Super Admin', l10n),
-        const SizedBox(height: 24),
 
-        // ── Statistics Section Header
-        Text(
-          l10n.platformStatistics,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: AppColors.grey800,
+        const SizedBox(height: 18),
+
+        // ── Quick Platform Shortcuts ──
+        _buildQuickActionsBar(context),
+
+        const SizedBox(height: 20),
+
+        // ── Statistics Section Header ──
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                l10n.platformStatistics,
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.grey900),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.circle, color: Color(0xFF10B981), size: 7),
+                    SizedBox(width: 5),
+                    Text(
+                      'Live Metrics',
+                      style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF047857)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
+
         const SizedBox(height: 12),
 
-        // ── KPI row 1
+        // ── KPI row 1 ──
         Row(
           children: [
             Expanded(
@@ -310,9 +333,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             ),
           ],
         ),
+
         const SizedBox(height: 12),
 
-        // ── KPI row 2
+        // ── KPI row 2 ──
         Row(
           children: [
             Expanded(
@@ -332,21 +356,19 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                 value: stats.publishedAnnouncements.toString(),
                 sub: l10n.statAnnouncementsDesc,
                 icon: Icons.campaign_rounded,
-                color: const Color(0xFF6B7280),
-                bgColor: const Color(0xFFF3F4F6),
+                color: const Color(0xFF0EA5E9),
+                bgColor: const Color(0xFFF0F9FF),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 28),
 
-        // ── Recent Company Signups
+        const SizedBox(height: 24),
+
+        // ── Recent Company Signups ──
         if (data.recentSignups.isNotEmpty) ...[
-          _buildSectionHeader(
-            l10n.recentCompanySignups,
-            Icons.business_center_rounded,
-          ),
-          const SizedBox(height: 12),
+          _buildSectionHeader(l10n.recentCompanySignups, Icons.business_center_rounded, const Color(0xFF6366F1)),
+          const SizedBox(height: 10),
           ...data.recentSignups.map(
             (item) => _ActivityTile(
               item: item,
@@ -355,16 +377,13 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               iconColor: const Color(0xFF6366F1),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
         ],
 
-        // ── Recent Support Tickets
+        // ── Recent Support Tickets ──
         if (data.recentTickets.isNotEmpty) ...[
-          _buildSectionHeader(
-            l10n.recentSupportTickets,
-            Icons.support_agent_rounded,
-          ),
-          const SizedBox(height: 12),
+          _buildSectionHeader(l10n.recentSupportTickets, Icons.support_agent_rounded, const Color(0xFFF59E0B)),
+          const SizedBox(height: 10),
           ...data.recentTickets.map(
             (item) => _ActivityTile(
               item: item,
@@ -382,8 +401,22 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF0F172A),
+            Color(0xFF1E293B),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -391,55 +424,61 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.25),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
+                      ),
+                      child: Text(
+                        l10n.platformAdministratorBadge.toUpperCase(),
+                        style: const TextStyle(
+                          color: Color(0xFFA5B4FC),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
                 Text(
-                  l10n.welcomeBack,
-                  style: TextStyle(
-                    color: Colors.white.withAlpha(180),
-                    fontSize: 13,
+                  name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  name,
-                  style: const TextStyle(
-                    color: AppColors.surfaceLight,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(50),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    l10n.platformAdministratorBadge,
-                    style: const TextStyle(
-                      color: AppColors.surfaceLight,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  'Multi-Company HR Tenant & Global System Administration',
+                  style: TextStyle(
+                    color: const Color(0xFF94A3B8),
+                    fontSize: 11.5,
+                    height: 1.3,
                   ),
                 ),
               ],
             ),
           ),
           Container(
-            width: 60,
-            height: 60,
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(15),
-              shape: BoxShape.circle,
+              color: const Color(0xFF6366F1).withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.3)),
             ),
             child: const Icon(
               Icons.shield_rounded,
-              color: AppColors.surfaceLight,
-              size: 32,
+              color: Color(0xFFA5B4FC),
+              size: 28,
             ),
           ),
         ],
@@ -447,20 +486,115 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title, IconData icon) {
+  Widget _buildQuickActionsBar(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: AppColors.grey600),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.grey800,
+        Expanded(
+          child: _buildActionTile(
+            title: 'Companies',
+            icon: Icons.business_rounded,
+            color: const Color(0xFF6366F1),
+            onTap: () => context.push(AppRoutes.adminCompanies),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildActionTile(
+            title: 'Health KPIs',
+            icon: Icons.track_changes_rounded,
+            color: const Color(0xFF10B981),
+            onTap: () => context.push(AppRoutes.kpi),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildActionTile(
+            title: 'Announce',
+            icon: Icons.campaign_rounded,
+            color: const Color(0xFF0EA5E9),
+            onTap: () => context.push(AppRoutes.adminCompanyAnnouncements),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildActionTile(
+            title: 'Support',
+            icon: Icons.support_agent_rounded,
+            color: const Color(0xFFF59E0B),
+            onTap: () => context.push(AppRoutes.adminSupportTickets),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActionTile({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: AppColors.grey800,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 6),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14.5,
+              fontWeight: FontWeight.bold,
+              color: AppColors.grey900,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -497,51 +631,58 @@ class _KpiCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(5),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: color.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 22),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 20),
+              ),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 12),
           Text(
             title,
             style: const TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.grey700,
+              fontWeight: FontWeight.bold,
+              color: AppColors.grey900,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             sub,
-            style: const TextStyle(fontSize: 11, color: AppColors.grey400),
+            style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontWeight: FontWeight.w500),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -569,29 +710,29 @@ class _ActivityTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.grey200),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(4),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
               color: iconBg,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: iconColor, size: 20),
+            child: Icon(icon, color: iconColor, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -601,16 +742,16 @@ class _ActivityTile extends StatelessWidget {
                 Text(
                   item.name,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey800,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey900,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   item.action,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11.5,
                     color: AppColors.grey500,
                   ),
                   maxLines: 1,
@@ -619,9 +760,16 @@ class _ActivityTile extends StatelessWidget {
               ],
             ),
           ),
-          Text(
-            item.date,
-            style: const TextStyle(fontSize: 11, color: AppColors.grey400),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.grey100,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              item.date,
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.grey600),
+            ),
           ),
         ],
       ),
@@ -639,8 +787,7 @@ class _ShimmerEffect extends StatefulWidget {
   State<_ShimmerEffect> createState() => _ShimmerEffectState();
 }
 
-class _ShimmerEffectState extends State<_ShimmerEffect>
-    with SingleTickerProviderStateMixin {
+class _ShimmerEffectState extends State<_ShimmerEffect> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _anim;
 
@@ -678,12 +825,12 @@ class _ShimmerEffectState extends State<_ShimmerEffect>
               (_anim.value + 0.3).clamp(0.0, 1.0),
             ],
             colors: const [
-              Color(0xFFF1F5F9),
+              Color(0xFFF8FAFC),
               Color(0xFFE2E8F0),
-              Color(0xFFF1F5F9),
+              Color(0xFFF8FAFC),
             ],
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );

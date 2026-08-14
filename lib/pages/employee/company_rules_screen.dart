@@ -5,45 +5,171 @@ import 'package:mpg_hr_mobile_app/providers/company_rules_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
-class CompanyRulesScreen extends ConsumerWidget {
+class CompanyRulesScreen extends ConsumerStatefulWidget {
   const CompanyRulesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CompanyRulesScreen> createState() => _CompanyRulesScreenState();
+}
+
+class _CompanyRulesScreenState extends ConsumerState<CompanyRulesScreen> {
+  String _searchQuery = '';
+  final TextEditingController _searchCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final rulesAsync = ref.watch(companyRulesProvider);
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        title: Text(l10n.companyRules),
+        backgroundColor: Colors.white,
         elevation: 0,
-        backgroundColor: AppColors.backgroundLight,
-        centerTitle: true,
+        centerTitle: false,
+        title: Text(
+          l10n.companyRules,
+          style: const TextStyle(
+            color: AppColors.grey900,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            tooltip: 'Refresh',
+            onPressed: () => ref.invalidate(companyRulesProvider),
+          ),
+        ],
       ),
       body: rulesAsync.when(
         data: (rules) {
-          if (rules.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.book_outlined, size: 48, color: AppColors.grey400),
-                  const SizedBox(height: 12),
-                  Text(l10n.noCompanyRules, style: const TextStyle(color: AppColors.grey400)),
-                ],
+          final filtered = rules.where((r) {
+            if (_searchQuery.isEmpty) return true;
+            final q = _searchQuery.toLowerCase();
+            return r.title.toLowerCase().contains(q) || r.description.toLowerCase().contains(q);
+          }).toList();
+
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(companyRulesProvider),
+            color: AppColors.primary,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
-            );
-          }
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
               children: [
-                _buildHeaderCard(l10n),
-                const SizedBox(height: 20),
-                ...rules.map((rule) => _buildRuleCard(rule.title, rule.description)),
-                const SizedBox(height: 20),
+                // ── Hero Handbook Banner ──
+                _buildHeaderCard(rules.length),
+
+                const SizedBox(height: 16),
+
+                // ── Search Bar ──
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.grey200),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (val) => setState(() => _searchQuery = val.trim()),
+                    style: const TextStyle(fontSize: 14, color: AppColors.grey900),
+                    decoration: InputDecoration(
+                      hintText: 'Search rules, conduct, guidelines...',
+                      hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
+                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 20),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear_rounded, color: AppColors.grey400, size: 18),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // ── Section Header ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Regulations & Policies',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.grey900,
+                        ),
+                      ),
+                      Text(
+                        '${filtered.length} Guidelines',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.grey500,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // ── Rules List ──
+                if (filtered.isEmpty)
+                  Container(
+                    padding: const EdgeInsets.all(32),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.search_off_rounded, size: 44, color: AppColors.grey300),
+                        const SizedBox(height: 10),
+                        Text(
+                          _searchQuery.isNotEmpty ? 'No rules matching "$_searchQuery"' : l10n.noCompanyRules,
+                          style: const TextStyle(color: AppColors.grey600, fontSize: 13.5, fontWeight: FontWeight.w500),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  ...filtered.asMap().entries.map((entry) {
+                    final index = entry.key + 1;
+                    final rule = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildRuleCard(index, rule.title, rule.description),
+                    );
+                  }),
               ],
             ),
           );
@@ -67,21 +193,21 @@ class CompanyRulesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeaderCard(AppLocalizations l10n) {
+  Widget _buildHeaderCard(int totalRules) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.primary, AppColors.primaryDark],
+          colors: [Color(0xFF4338CA), Color(0xFF6366F1)],
         ),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withAlpha(60),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: const Color(0xFF6366F1).withValues(alpha: 0.25),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -89,27 +215,49 @@ class CompanyRulesScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.book_outlined, color: Colors.white, size: 28),
-              const SizedBox(width: 12),
-              Expanded(
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.gavel_rounded, color: Colors.white, size: 22),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: Text(
-                  l10n.companyRules,
+                  '$totalRules Active Rules',
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 11,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            l10n.companyRulesDesc,
+          const SizedBox(height: 14),
+          const Text(
+            'Employee Code of Conduct',
             style: TextStyle(
-              fontSize: 13,
-              color: Colors.white.withAlpha(200),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Standard guidelines, office ethics, compliance requirements, and operational workplace rules.',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.white.withValues(alpha: 0.85),
               height: 1.4,
             ),
           ),
@@ -118,19 +266,20 @@ class CompanyRulesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRuleCard(String title, String description) {
+  Widget _buildRuleCard(int index, String title, String description) {
+    final indexStr = index.toString().padLeft(2, '0');
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.grey100),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.grey900.withAlpha(8),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -138,21 +287,29 @@ class CompanyRulesScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.shield_outlined, color: AppColors.primary, size: 20),
+                child: Text(
+                  '#$indexStr',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF6366F1),
+                  ),
+                ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: AppColors.grey900,
                   ),
@@ -160,13 +317,16 @@ class CompanyRulesScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            description,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.grey600,
-              height: 1.6,
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.only(left: 2),
+            child: Text(
+              description,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.grey700,
+                height: 1.5,
+              ),
             ),
           ),
         ],

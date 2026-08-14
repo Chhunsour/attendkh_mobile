@@ -6,6 +6,8 @@ import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 class ProfileData {
   final int id;
   final String name;
+  final String? fullName;
+  final String? khmerName;
   final String? email;
   final int companyId;
   final List<String> roles;
@@ -41,6 +43,8 @@ class ProfileData {
   const ProfileData({
     required this.id,
     required this.name,
+    this.fullName,
+    this.khmerName,
     this.email,
     required this.companyId,
     this.companyName,
@@ -83,6 +87,8 @@ class ProfileData {
     return ProfileData(
       id: user['id'] as int? ?? 0,
       name: user['name'] as String? ?? '',
+      fullName: user['full_name'] as String? ?? user['name'] as String?,
+      khmerName: user['khmer_name'] as String?,
       email: user['email'] as String?,
       companyId: companyIdRaw is int ? companyIdRaw : 0,
       companyName: company?['name'] as String?,
@@ -121,7 +127,7 @@ class ProfileData {
           ? Map<String, dynamic>.from(user['emergency_contact'])
           : (user['emergency_contact'] is String
                 ? (const {})
-                : null), // simplified string parsing if any
+                : null),
     );
   }
 }
@@ -148,6 +154,8 @@ class ProfileRepository {
 
   Future<ProfileData> updateProfile({
     String? name,
+    String? fullName,
+    String? khmerName,
     String? email,
     String? phone,
     String? gender,
@@ -164,6 +172,8 @@ class ProfileRepository {
     try {
       final Map<String, dynamic> data = {
         'name': name,
+        'full_name': fullName,
+        'khmer_name': khmerName,
         'email': email,
         'phone': phone,
         'gender': gender,

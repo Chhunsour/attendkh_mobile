@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
@@ -16,7 +15,8 @@ class AdminAttendanceScreen extends ConsumerStatefulWidget {
   ConsumerState<AdminAttendanceScreen> createState() => _AdminAttendanceScreenState();
 }
 
-class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen> with SingleTickerProviderStateMixin {
+class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -45,69 +45,95 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen> w
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final correctionsAsync = ref.watch(attendanceCorrectionsProvider);
+    final pendingCorrections = correctionsAsync.maybeWhen(
+      data: (items) => items.where((i) => i.status == 'pending').length,
+      orElse: () => 0,
+    );
+
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.fingerprint_rounded, color: AppColors.primary, size: 20),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.attendanceLogsTitle,
-                  style: const TextStyle(
-                    color: AppColors.grey800,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    height: 1.2,
-                  ),
-                ),
-                Text(
-                  l10n.attendanceLogsSubtitle,
-                  style: const TextStyle(
-                    color: AppColors.grey400,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-          ],
+        centerTitle: false,
+        title: Text(
+          l10n.attendanceLogsTitle,
+          style: const TextStyle(
+            color: AppColors.grey900,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
           IconButton(
             tooltip: 'Add Manual Attendance',
-            icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.grey800),
+            icon: const Icon(Icons.add_circle_outline_rounded, color: Color(0xFF10B981)),
             onPressed: () => _openAddManualModal(context),
           ),
-          const SizedBox(width: 8),
+          IconButton(
+            tooltip: 'Refresh',
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            onPressed: () {
+              ref.invalidate(allAttendanceLogsProvider);
+              ref.invalidate(attendanceCorrectionsProvider);
+            },
+          ),
         ],
-        centerTitle: false,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.grey500,
-          indicatorColor: AppColors.primary,
-          indicatorWeight: 2.5,
-          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          tabs: [
-            Tab(text: l10n.tabDailyLogs),
-            Tab(text: l10n.tabCorrections),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            alignment: Alignment.centerLeft,
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              labelColor: const Color(0xFF10B981),
+              unselectedLabelColor: AppColors.grey500,
+              indicatorColor: const Color(0xFF10B981),
+              indicatorWeight: 3,
+              labelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500),
+              tabs: [
+                Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.history_rounded, size: 16),
+                      const SizedBox(width: 6),
+                      Text(l10n.tabDailyLogs),
+                    ],
+                  ),
+                ),
+                Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.edit_calendar_rounded, size: 16),
+                      const SizedBox(width: 6),
+                      Text(l10n.tabCorrections),
+                      if (pendingCorrections > 0) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEF4444),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '$pendingCorrections',
+                            style: const TextStyle(fontSize: 9.5, color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
       body: TabBarView(
@@ -129,8 +155,15 @@ class _DailyLogsTab extends ConsumerStatefulWidget {
 }
 
 class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
+  final _searchCtrl = TextEditingController();
   String _searchQuery = '';
   String _selectedStatus = 'all';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,135 +172,230 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
 
     return logsAsync.when(
       data: (items) {
-        // Calculate statistics
         int total = items.length;
         int present = items.where((i) => i.status == 'present').length;
         int lateCount = items.where((i) => i.status == 'late').length;
         int absent = items.where((i) => i.status == 'absent').length;
         int onLeave = items.where((i) => i.status == 'on_leave' || i.status == 'leave').length;
 
-        // Filter items
         final filteredItems = items.where((item) {
           final matchesSearch = item.employeeName.toLowerCase().contains(_searchQuery.toLowerCase());
           final matchesStatus = _selectedStatus == 'all' || item.status == _selectedStatus;
           return matchesSearch && matchesStatus;
         }).toList();
 
-        return Column(
-          children: [
-            // Stats Row
-            Container(
-              color: AppColors.surfaceLight,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildStatChip('Total', '$total', AppColors.primary),
-                    const SizedBox(width: 8),
-                    _buildStatChip('Present', '$present', AppColors.success),
-                    const SizedBox(width: 8),
-                    _buildStatChip('Late', '$lateCount', AppColors.warning),
-                    const SizedBox(width: 8),
-                    _buildStatChip('Absent', '$absent', AppColors.danger),
-                    const SizedBox(width: 8),
-                    _buildStatChip('On Leave', '$onLeave', Colors.purple),
-                  ],
-                ),
-              ),
-            ),
-
-            // Search & Filter Chips Bar
-            Container(
-              padding: const EdgeInsets.all(12),
-              color: AppColors.surfaceLight,
-              child: Column(
+        return RefreshIndicator(
+          color: const Color(0xFF10B981),
+          onRefresh: () async => ref.invalidate(allAttendanceLogsProvider),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+            children: [
+              // ── Overview Metric Cards ──
+              Row(
                 children: [
-                  TextField(
-                    onChanged: (val) => setState(() => _searchQuery = val),
-                    decoration: InputDecoration(
-                      hintText: 'Search employee name…',
-                      prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.grey500),
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      filled: true,
-                      fillColor: AppColors.backgroundLight,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: AppColors.grey200),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: AppColors.grey200),
-                      ),
+                  Expanded(
+                    child: _buildMetricCard(
+                      title: 'Total',
+                      value: '$total',
+                      icon: Icons.list_alt_rounded,
+                      color: const Color(0xFF6366F1),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildFilterChip('all', 'All Statuses'),
-                        _buildFilterChip('present', 'Present'),
-                        _buildFilterChip('late', 'Late'),
-                        _buildFilterChip('absent', 'Absent'),
-                        _buildFilterChip('on_leave', 'On Leave'),
-                      ],
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildMetricCard(
+                      title: 'Present',
+                      value: '$present',
+                      icon: Icons.check_circle_rounded,
+                      color: const Color(0xFF10B981),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildMetricCard(
+                      title: 'Late',
+                      value: '$lateCount',
+                      icon: Icons.timer_outlined,
+                      color: const Color(0xFFF59E0B),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildMetricCard(
+                      title: 'Absent',
+                      value: '$absent',
+                      icon: Icons.cancel_outlined,
+                      color: const Color(0xFFEF4444),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildMetricCard(
+                      title: 'On Leave',
+                      value: '$onLeave',
+                      icon: Icons.beach_access_rounded,
+                      color: const Color(0xFF8B5CF6),
                     ),
                   ),
                 ],
               ),
-            ),
 
-            const Divider(height: 1, color: AppColors.grey200),
+              const SizedBox(height: 14),
 
-            // List View
-            Expanded(
-              child: filteredItems.isEmpty
-                  ? Center(
-                      child: Text(l10n.noAttendanceRecords, style: const TextStyle(color: AppColors.grey400)),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: () async => ref.invalidate(allAttendanceLogsProvider),
-                      child: ListView.separated(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: filteredItems.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 8),
-                        itemBuilder: (context, i) {
-                          final c = filteredItems[i];
-                          return _buildAttendanceCard(context, ref, c, l10n);
-                        },
-                      ),
+              // ── Search Field ──
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.grey200),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
-            ),
-          ],
+                  ],
+                ),
+                child: TextField(
+                  controller: _searchCtrl,
+                  onChanged: (val) => setState(() => _searchQuery = val.trim().toLowerCase()),
+                  style: const TextStyle(fontSize: 13.5, color: AppColors.grey900),
+                  decoration: InputDecoration(
+                    hintText: 'Search employee name...',
+                    hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
+                    prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 18),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear_rounded, color: AppColors.grey400, size: 16),
+                            onPressed: () {
+                              _searchCtrl.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          )
+                        : null,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // ── Status Filter Chips ──
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildFilterChip('all', 'All ($total)'),
+                    _buildFilterChip('present', 'Present ($present)'),
+                    _buildFilterChip('late', 'Late ($lateCount)'),
+                    _buildFilterChip('absent', 'Absent ($absent)'),
+                    _buildFilterChip('on_leave', 'On Leave ($onLeave)'),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // ── List of Records ──
+              if (filteredItems.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(32),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.fingerprint_rounded, size: 48, color: AppColors.grey300),
+                      const SizedBox(height: 12),
+                      Text(
+                        _searchQuery.isNotEmpty ? 'No logs matching "$_searchQuery"' : l10n.noAttendanceRecords,
+                        style: const TextStyle(color: AppColors.grey600, fontSize: 14, fontWeight: FontWeight.w500),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                )
+              else
+                ...filteredItems.map((c) => Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _buildAttendanceCard(context, ref, c, l10n),
+                    )),
+            ],
+          ),
         );
       },
-      loading: () => LoadingIndicator(message: l10n.loadingLogs),
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: Color(0xFF10B981)),
+      ),
       error: (e, _) => Center(
-        child: OutlinedButton.icon(
-          onPressed: () => ref.invalidate(allAttendanceLogsProvider),
-          icon: const Icon(Icons.refresh),
-          label: Text(l10n.retry),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 40),
+            const SizedBox(height: 12),
+            Text(l10n.failedToLoadEmployees, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: () => ref.invalidate(allAttendanceLogsProvider),
+              icon: const Icon(Icons.refresh, size: 16),
+              label: Text(l10n.retry),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981), foregroundColor: Colors.white),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildStatChip(String label, String value, Color color) {
+  Widget _buildMetricCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
-        color: color.withAlpha(20),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withAlpha(50)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
         children: [
-          Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: color)),
-          const SizedBox(width: 6),
-          Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color)),
+          Icon(icon, size: 14, color: color),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 9.5,
+              color: AppColors.grey500,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -277,129 +405,214 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
     final isSelected = _selectedStatus == key;
     return Padding(
       padding: const EdgeInsets.only(right: 6),
-      child: ChoiceChip(
-        label: Text(label, style: TextStyle(fontSize: 11, color: isSelected ? Colors.white : AppColors.grey700)),
-        selected: isSelected,
-        selectedColor: AppColors.primary,
-        backgroundColor: AppColors.backgroundLight,
-        onSelected: (_) => setState(() => _selectedStatus = key),
+      child: InkWell(
+        onTap: () => setState(() => _selectedStatus = key),
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF10B981) : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: isSelected ? const Color(0xFF10B981) : AppColors.grey200),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? Colors.white : AppColors.grey700,
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildAttendanceCard(BuildContext context, WidgetRef ref, AdminAttendanceRecord c, AppLocalizations l10n) {
-    final statusColor = c.status == 'present'
-        ? AppColors.success
-        : c.status == 'late' || c.status == 'early_leave'
-            ? AppColors.warning
-            : AppColors.danger;
+  Widget _buildAttendanceCard(
+    BuildContext context,
+    WidgetRef ref,
+    AdminAttendanceRecord c,
+    AppLocalizations l10n,
+  ) {
+    final (statusColor, statusBg) = switch (c.status) {
+      'present' => (const Color(0xFF10B981), const Color(0xFFECFDF5)),
+      'late' => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
+      'early_leave' => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
+      'on_leave' || 'leave' => (const Color(0xFF8B5CF6), const Color(0xFFF5F3FF)),
+      _ => (const Color(0xFFEF4444), const Color(0xFFFEF2F2)),
+    };
 
     final hasUnapprovedEarlyIn =
         (c.earlyClockInMinutes ?? 0) > 0 && (c.approvedPreShiftOtMinutes ?? 0) == 0 && c.canApprovePreShiftOt;
 
-    return InkWell(
-      onTap: () => _showRecordDetailsSheet(context, ref, c),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.grey200),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showRecordDetailsSheet(context, ref, c),
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: statusBg,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(Icons.fingerprint_rounded, color: statusColor, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            c.employeeName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14.5,
+                              color: AppColors.grey900,
+                            ),
+                          ),
+                          const SizedBox(height: 1),
+                          Text(
+                            formatDate(c.date),
+                            style: const TextStyle(fontSize: 11.5, color: AppColors.grey500),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: statusBg,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        c.status.isEmpty ? 'Unknown' : (c.status[0].toUpperCase() + c.status.substring(1).replaceAll('_', ' ')),
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                          color: statusColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                // Timestamps Row
                 Container(
-                  width: 40,
-                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   decoration: BoxDecoration(
-                    color: statusColor.withAlpha(26),
+                    color: AppColors.grey50,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.access_time, color: statusColor, size: 20),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Text(c.employeeName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                      Text(formatDate(c.date), style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(Icons.login_rounded, size: 14, color: Color(0xFF10B981)),
+                            const SizedBox(width: 6),
+                            Text(
+                              c.clockIn != null ? formatTime(c.clockIn) : '--:--',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(width: 1, height: 14, color: AppColors.grey300),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(Icons.logout_rounded, size: 14, color: Color(0xFFEF4444)),
+                            const SizedBox(width: 6),
+                            Text(
+                              c.clockOut != null ? formatTime(c.clockOut) : '--:--',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: statusColor.withAlpha(26),
-                    borderRadius: BorderRadius.circular(6),
+
+                if ((c.lateMinutes ?? 0) > 0) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    '⚠️ Late arrival: ${c.lateMinutes} mins',
+                    style: const TextStyle(fontSize: 11, color: Color(0xFFD97706), fontWeight: FontWeight.bold),
                   ),
-                  child: Text(
-                    c.status.isEmpty ? 'Unknown' : (c.status[0].toUpperCase() + c.status.substring(1).replaceAll('_', ' ')),
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor),
+                ],
+
+                if ((c.earlyClockInMinutes ?? 0) > 0) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0EA5E9).withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '${l10n.earlyIn}: ${c.earlyClockInMinutes! ~/ 60}h ${c.earlyClockInMinutes! % 60}m',
+                          style: const TextStyle(fontSize: 10.5, color: Color(0xFF0284C7), fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      if ((c.approvedPreShiftOtMinutes ?? 0) > 0)
+                        Text(
+                          '${l10n.approved}: ${c.approvedPreShiftOtMinutes! ~/ 60}h ${c.approvedPreShiftOtMinutes! % 60}m',
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF059669), fontWeight: FontWeight.bold),
+                        ),
+                    ],
                   ),
-                ),
+                ],
+
+                if (hasUnapprovedEarlyIn) ...[
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 36,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _handleApproveOt(context, ref, c.id),
+                      icon: const Icon(Icons.check_rounded, size: 14),
+                      label: Text(l10n.approvePreShiftOT, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF10B981),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
-
-            if (c.clockIn != null || c.clockOut != null) ...[
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  if (c.clockIn != null)
-                    Text('${l10n.inTime}: ${formatTime(c.clockIn)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
-                  if (c.clockIn != null && c.clockOut != null) const SizedBox(width: 16),
-                  if (c.clockOut != null)
-                    Text('${l10n.outTime}: ${formatTime(c.clockOut)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
-                ],
-              ),
-            ],
-
-            if ((c.lateMinutes ?? 0) > 0) ...[
-              const SizedBox(height: 4),
-              Text('Late: ${c.lateMinutes} mins', style: const TextStyle(fontSize: 11, color: AppColors.warning, fontWeight: FontWeight.w600)),
-            ],
-
-            if ((c.earlyClockInMinutes ?? 0) > 0) ...[
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(4)),
-                    child: Text(
-                      '${l10n.earlyIn}: ${c.earlyClockInMinutes! ~/ 60}h ${c.earlyClockInMinutes! % 60}m',
-                      style: const TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  if ((c.approvedPreShiftOtMinutes ?? 0) > 0)
-                    Text(
-                      '${l10n.approved}: ${c.approvedPreShiftOtMinutes! ~/ 60}h ${c.approvedPreShiftOtMinutes! % 60}m',
-                      style: const TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w600),
-                    ),
-                ],
-              ),
-            ],
-
-            if (hasUnapprovedEarlyIn) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _handleApproveOt(context, ref, c.id),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                  ),
-                  child: Text(l10n.approvePreShiftOT, style: const TextStyle(fontSize: 12)),
-                ),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );
@@ -409,10 +622,15 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceLight,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.only(
+          top: 18,
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).padding.bottom + 20,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -420,44 +638,58 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(c.employeeName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                Text(c.employeeName, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                IconButton(icon: const Icon(Icons.close_rounded, color: AppColors.grey500), onPressed: () => Navigator.pop(ctx)),
               ],
             ),
-            Text('Date: ${c.date}', style: const TextStyle(color: AppColors.grey600)),
-            const SizedBox(height: 16),
+            Text('Date: ${c.date}', style: const TextStyle(color: AppColors.grey500, fontSize: 12)),
+            const SizedBox(height: 14),
             if (c.clockInPhoto != null) ...[
-              const Text('Clock-In Photo:', style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text('Clock-In Photo Verification', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.grey800)),
               const SizedBox(height: 8),
               ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(14),
                 child: CachedNetworkImage(
                   imageUrl: '${DioClient.storageUrl}/${c.clockInPhoto!.startsWith('/') ? c.clockInPhoto!.substring(1) : c.clockInPhoto!}',
-                  height: 140,
+                  height: 160,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorWidget: (_, _, _) => const Icon(Icons.broken_image, size: 40, color: AppColors.grey400),
+                  errorWidget: (_, _, _) => Container(
+                    height: 100,
+                    color: AppColors.grey100,
+                    child: const Icon(Icons.broken_image_rounded, size: 40, color: AppColors.grey400),
+                  ),
                 ),
+              ),
+              const SizedBox(height: 14),
+            ],
+            if (c.notes != null && c.notes!.isNotEmpty) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.grey50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text('Notes: ${c.notes}', style: const TextStyle(color: AppColors.grey700, fontSize: 12.5)),
               ),
               const SizedBox(height: 16),
             ],
-            if (c.notes != null && c.notes!.isNotEmpty) ...[
-              Text('Notes: ${c.notes}', style: const TextStyle(color: AppColors.grey700)),
-              const SizedBox(height: 16),
-            ],
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      _deleteRecord(context, ref, c.id);
-                    },
-                    icon: const Icon(Icons.delete_outline, color: AppColors.danger),
-                    label: const Text('Delete', style: TextStyle(color: AppColors.danger)),
-                  ),
+            SizedBox(
+              width: double.infinity,
+              height: 46,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _deleteRecord(context, ref, c.id);
+                },
+                icon: const Icon(Icons.delete_outline_rounded, color: AppColors.danger, size: 18),
+                label: const Text('Delete Attendance Log', style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold)),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: AppColors.danger.withValues(alpha: 0.5)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -470,11 +702,15 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
       await ref.read(adminOpsRepositoryProvider).deleteAttendance(id);
       ref.invalidate(allAttendanceLogsProvider);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Attendance record deleted.'), backgroundColor: AppColors.success));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Attendance record deleted.'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+        );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: ${e.toString()}'), backgroundColor: AppColors.danger));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed: ${e.toString()}'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+        );
       }
     }
   }
@@ -485,11 +721,15 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
       await ref.read(adminOpsRepositoryProvider).approveOvertime(id);
       ref.invalidate(allAttendanceLogsProvider);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.preShiftOtApprovedSuccess), backgroundColor: AppColors.success));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.preShiftOtApprovedSuccess), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+        );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.failedMessage(e.toString())), backgroundColor: AppColors.danger));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.failedMessage(e.toString())), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+        );
       }
     }
   }
@@ -505,109 +745,170 @@ class _CorrectionsTab extends ConsumerWidget {
 
     return correctionsAsync.when(
       data: (items) => items.isEmpty
-          ? Center(child: Text(l10n.noPendingCorrections, style: const TextStyle(color: AppColors.grey400)))
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: items.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
-              itemBuilder: (context, i) {
-                final c = items[i];
-                final statusColor = c.status == 'approved'
-                    ? AppColors.success
-                    : c.status == 'rejected'
-                        ? AppColors.danger
-                        : AppColors.warning;
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check_circle_outline_rounded, size: 48, color: Color(0xFF10B981)),
+                  const SizedBox(height: 12),
+                  Text(l10n.noPendingCorrections, style: const TextStyle(color: AppColors.grey600, fontSize: 14, fontWeight: FontWeight.w500)),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              color: const Color(0xFF10B981),
+              onRefresh: () async => ref.invalidate(attendanceCorrectionsProvider),
+              child: ListView.separated(
+                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                padding: const EdgeInsets.all(16),
+                itemCount: items.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
+                itemBuilder: (context, i) {
+                  final c = items[i];
+                  final (statusColor, statusBg) = switch (c.status) {
+                    'approved' => (const Color(0xFF10B981), const Color(0xFFECFDF5)),
+                    'rejected' => (const Color(0xFFEF4444), const Color(0xFFFEF2F2)),
+                    _ => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
+                  };
 
-                return Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.grey200),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: statusColor.withAlpha(26),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(Icons.access_time, color: statusColor, size: 20),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(c.employeeName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                                Text(formatDate(c.date), style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: statusColor.withAlpha(26),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              c.status.isEmpty ? 'Unknown' : (c.status[0].toUpperCase() + c.status.substring(1)),
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor),
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (c.clockIn != null || c.clockOut != null) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            if (c.clockIn != null) Text('${l10n.inTime}: ${formatTime(c.clockIn)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
-                            if (c.clockIn != null && c.clockOut != null) const SizedBox(width: 16),
-                            if (c.clockOut != null) Text('${l10n.outTime}: ${formatTime(c.clockOut)}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
-                          ],
+                  return Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
                       ],
-                      if (c.reason != null && c.reason!.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(color: AppColors.grey100, borderRadius: BorderRadius.circular(6)),
-                          child: Text('${l10n.reason}: ${c.reason}', style: const TextStyle(fontSize: 12, color: AppColors.grey600)),
-                        ),
-                      ],
-                      if (c.status == 'pending') ...[
-                        const SizedBox(height: 12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Row(
                           children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => _handleAction(context, ref, c.id, false),
-                                style: OutlinedButton.styleFrom(foregroundColor: AppColors.danger),
-                                child: Text(l10n.reject),
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: statusBg,
+                                borderRadius: BorderRadius.circular(12),
                               ),
+                              child: Icon(Icons.edit_calendar_rounded, color: statusColor, size: 18),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: ElevatedButton(
-                                onPressed: () => _handleAction(context, ref, c.id, true),
-                                style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
-                                child: Text(l10n.approve),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(c.employeeName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, color: AppColors.grey900)),
+                                  const SizedBox(height: 1),
+                                  Text(formatDate(c.date), style: const TextStyle(fontSize: 11.5, color: AppColors.grey500)),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: statusBg,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                c.status.isEmpty ? 'Unknown' : (c.status[0].toUpperCase() + c.status.substring(1)),
+                                style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: statusColor),
                               ),
                             ),
                           ],
                         ),
+                        if (c.clockIn != null || c.clockOut != null) ...[
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.grey50,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              children: [
+                                if (c.clockIn != null)
+                                  Expanded(
+                                    child: Text(
+                                      '${l10n.inTime}: ${formatTime(c.clockIn)}',
+                                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                                    ),
+                                  ),
+                                if (c.clockOut != null)
+                                  Expanded(
+                                    child: Text(
+                                      '${l10n.outTime}: ${formatTime(c.clockOut)}',
+                                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        if (c.reason != null && c.reason!.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.grey50,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text('${l10n.reason}: ${c.reason}', style: const TextStyle(fontSize: 12, color: AppColors.grey700)),
+                          ),
+                        ],
+                        if (c.status == 'pending') ...[
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 42,
+                                  child: OutlinedButton(
+                                    onPressed: () => _handleAction(context, ref, c.id, false),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.danger,
+                                      side: BorderSide(color: AppColors.danger.withValues(alpha: 0.5)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    child: Text(l10n.reject, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 42,
+                                  child: ElevatedButton(
+                                    onPressed: () => _handleAction(context, ref, c.id, true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF10B981),
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      elevation: 0,
+                                    ),
+                                    child: Text(l10n.approve, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                );
-              },
+                    ),
+                  );
+                },
+              ),
             ),
-      loading: () => LoadingIndicator(message: l10n.loadingLogs),
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: Color(0xFF10B981)),
+      ),
       error: (e, _) => Center(
         child: OutlinedButton.icon(
           onPressed: () => ref.invalidate(attendanceCorrectionsProvider),
@@ -631,6 +932,7 @@ class _CorrectionsTab extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(approve ? l10n.correctionApprovedSuccess : l10n.correctionRejectedSuccess),
           backgroundColor: approve ? AppColors.success : AppColors.danger,
+          behavior: SnackBarBehavior.floating,
         ));
       }
     } catch (e) {
@@ -638,6 +940,7 @@ class _CorrectionsTab extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(l10n.failedMessage(e.toString())),
           backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
         ));
       }
     }
@@ -688,11 +991,15 @@ class _ManualAttendanceModalState extends ConsumerState<_ManualAttendanceModal> 
       widget.onSaved();
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Manual attendance record added.'), backgroundColor: AppColors.success));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Manual attendance record added.'), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: ${e.toString()}'), backgroundColor: AppColors.danger));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed: ${e.toString()}'), backgroundColor: AppColors.danger, behavior: SnackBarBehavior.floating),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -703,14 +1010,14 @@ class _ManualAttendanceModalState extends ConsumerState<_ManualAttendanceModal> 
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
-        top: 20,
+        top: 16,
         left: 20,
         right: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: MediaQuery.of(context).padding.bottom + MediaQuery.of(context).viewInsets.bottom + 20,
       ),
       child: Form(
         key: _formKey,
@@ -719,40 +1026,55 @@ class _ManualAttendanceModalState extends ConsumerState<_ManualAttendanceModal> 
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 12),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2)),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Add Manual Attendance', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                  const Text('Manual Attendance Entry', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                  IconButton(icon: const Icon(Icons.close_rounded, color: AppColors.grey500), onPressed: () => Navigator.pop(context)),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _employeeIdController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Employee ID', border: OutlineInputBorder()),
+                decoration: _inputDecoration('Employee ID (Number)', Icons.badge_outlined),
                 validator: (val) => val == null || val.isEmpty ? 'Please enter employee ID' : null,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _dateController,
-                decoration: const InputDecoration(labelText: 'Date (YYYY-MM-DD)', border: OutlineInputBorder()),
+                decoration: _inputDecoration('Date (YYYY-MM-DD)', Icons.calendar_today_outlined),
                 validator: (val) => val == null || val.isEmpty ? 'Please enter date' : null,
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _clockInController,
-                decoration: const InputDecoration(labelText: 'Clock In (YYYY-MM-DD HH:MM)', border: OutlineInputBorder()),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _clockInController,
+                      decoration: _inputDecoration('Clock In (HH:MM)', Icons.login_rounded),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _clockOutController,
+                      decoration: _inputDecoration('Clock Out (HH:MM)', Icons.logout_rounded),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _clockOutController,
-                decoration: const InputDecoration(labelText: 'Clock Out (YYYY-MM-DD HH:MM)', border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 initialValue: _status,
-                decoration: const InputDecoration(labelText: 'Status', border: OutlineInputBorder()),
+                decoration: _inputDecoration('Status', Icons.check_circle_outline_rounded),
                 items: const [
                   DropdownMenuItem(value: 'present', child: Text('Present')),
                   DropdownMenuItem(value: 'late', child: Text('Late')),
@@ -763,10 +1085,10 @@ class _ManualAttendanceModalState extends ConsumerState<_ManualAttendanceModal> 
                   if (val != null) setState(() => _status = val);
                 },
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _notesController,
-                decoration: const InputDecoration(labelText: 'Notes', border: OutlineInputBorder()),
+                decoration: _inputDecoration('Notes / Reason', Icons.edit_note_rounded),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -774,14 +1096,35 @@ class _ManualAttendanceModalState extends ConsumerState<_ManualAttendanceModal> 
                 height: 48,
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _submit,
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                  child: _isSaving ? const CircularProgressIndicator(color: Colors.white) : const Text('Save Record', style: TextStyle(fontSize: 16)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 2,
+                  ),
+                  child: _isSaving
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Text('Save Attendance Record', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(fontSize: 12.5, color: AppColors.grey500),
+      prefixIcon: Icon(icon, size: 18, color: AppColors.grey400),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF10B981))),
+      filled: true,
+      fillColor: AppColors.grey50,
     );
   }
 }

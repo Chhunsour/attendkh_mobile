@@ -30,7 +30,7 @@ class _BottomNavShellState extends State<BottomNavShell> {
           );
         }).toList(),
       ),
-      bottomNavigationBar: DecoratedBox(
+      bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           border: Border(top: BorderSide(color: AppColors.grey200, width: 1)),
         ),

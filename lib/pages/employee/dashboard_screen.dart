@@ -594,7 +594,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Stat Cards (matching web: Leave Balance, Next Shift, Recent Payslip) ──
+        Text(
+          'My Overview',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.grey800,
+          ),
+        ),
+        const SizedBox(height: 14),
+        // ── Stat Cards (matching web: Leave Balance, Next Shift, Recent Payslip, Pending Expenses) ──
         Row(
           children: [
             Expanded(
@@ -602,7 +611,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 title: l10n.upcomingLeaves,
                 value: leaveBalance,
                 subtitle: l10n.days,
-                icon: Icons.event_available,
+                icon: Icons.event_available_rounded,
                 color: AppColors.secondary,
                 badge: l10n.available,
                 onTap: () => context.push(AppRoutes.leaveList),
@@ -650,19 +659,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             ),
           ],
         ),
-        const SizedBox(height: 28),
-
-        // ── Upcoming Leaves (detailed list) ──
-        _buildUpcomingLeavesSection(context, summary, l10n),
-        const SizedBox(height: 20),
-
-        // ── Recent Attendance (detailed list) ──
-        _buildRecentAttendanceSection(context, summary, l10n),
-        const SizedBox(height: 20),
-
-        // ── Active Trainings (with progress bars) ──
-        _buildActiveTrainingsSection(context, summary, l10n),
-        const SizedBox(height: 20),
       ],
     );
   }
@@ -761,371 +757,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildUpcomingLeavesSection(
-    BuildContext context,
-    Map<String, dynamic> summary,
-    AppLocalizations l10n,
-  ) {
-    final leaves = (summary['upcoming_leaves'] as List?) ?? [];
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.upcomingLeaves,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey800,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => context.push(AppRoutes.leaveList),
-                  child: Text(
-                    l10n.viewAll,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, color: AppColors.grey100),
-          if (leaves.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text(
-                l10n.noUpcomingLeaves,
-                style: const TextStyle(fontSize: 13, color: AppColors.grey400),
-                textAlign: TextAlign.center,
-              ),
-            )
-          else
-            ...leaves.map((leave) {
-              final l = leave as Map<String, dynamic>;
-              final leaveType = l['leave_type'];
-              final typeName = leaveType != null
-                  ? leaveType['name'] ?? 'Leave'
-                  : 'Leave';
-              final startDate = l['start_date']?.toString() ?? '';
-              final endDate = l['end_date']?.toString() ?? '';
-              final status = l['status']?.toString() ?? 'approved';
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            typeName,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.grey900,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '$startDate - $endDate',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.grey500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.success.withAlpha(20),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        status.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.success,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecentAttendanceSection(
-    BuildContext context,
-    Map<String, dynamic> summary,
-    AppLocalizations l10n,
-  ) {
-    final attendances = (summary['recent_attendance'] as List?) ?? [];
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.recentActivity,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey800,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => context.push(AppRoutes.attendance),
-                  child: Text(
-                    l10n.history,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, color: AppColors.grey100),
-          if (attendances.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text(
-                l10n.noRecentAttendance,
-                style: const TextStyle(fontSize: 13, color: AppColors.grey400),
-                textAlign: TextAlign.center,
-              ),
-            )
-          else
-            ...attendances.map((att) {
-              final a = att as Map<String, dynamic>;
-              final date = a['date']?.toString() ?? '';
-              final clockIn = a['clock_in']?.toString();
-              final clockOut = a['clock_out']?.toString();
-              final status = a['status']?.toString() ?? 'absent';
-
-              String formatTime(String? timeStr) {
-                if (timeStr == null || timeStr.isEmpty) return '--';
-                try {
-                  return DateFormat(
-                    'hh:mm a',
-                  ).format(DateTime.parse(timeStr).toLocal());
-                } catch (_) {
-                  return '--';
-                }
-              }
-
-              final statusColor = status == 'present'
-                  ? AppColors.success
-                  : status == 'late'
-                  ? AppColors.warning
-                  : AppColors.danger;
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            date,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.grey900,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'In: ${formatTime(clockIn)} | Out: ${formatTime(clockOut)}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.grey500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusColor.withAlpha(20),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        status[0].toUpperCase() + status.substring(1),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: statusColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActiveTrainingsSection(
-    BuildContext context,
-    Map<String, dynamic> summary,
-    AppLocalizations l10n,
-  ) {
-    final trainings = (summary['active_trainings'] as List?) ?? [];
-    if (trainings.isEmpty) return const SizedBox();
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.activeTrainings,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey800,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => context.push(AppRoutes.training),
-                  child: Text(
-                    l10n.myLearning,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, color: AppColors.grey100),
-          ...trainings.map((enrollment) {
-            final e = enrollment as Map<String, dynamic>;
-            final training = e['training'] as Map<String, dynamic>?;
-            final title = training?['title']?.toString() ?? 'Training';
-            final progress = (e['progress_percentage'] ?? 0).toDouble();
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.grey900,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        l10n.progress,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.grey500,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        '${progress.toInt()}%',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: progress / 100,
-                      minHeight: 5,
-                      backgroundColor: AppColors.grey100,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppColors.primary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
       ),
     );
   }
@@ -1612,100 +1243,201 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     AppLocalizations l10n,
     bool isBranchManager,
   ) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 1.3,
-      children: [
-        if (isBranchManager)
-          _GridItem(
-            title: l10n.managerPortal,
-            description: l10n.teamApprovals,
-            icon: Icons.admin_panel_settings_outlined,
-            color: Colors.deepPurple,
-            onTap: () => context.push(AppRoutes.companyAdmin),
-          ),
-        _GridItem(
-          title: l10n.leaves,
-          description: l10n.requestOffDays,
-          icon: Icons.event_note_outlined,
-          color: AppColors.secondary,
-          onTap: () => context.push(AppRoutes.leaveList),
-        ),
-        _GridItem(
-          title: 'Overtime',
-          description: 'Request Overtime',
-          icon: Icons.timer_outlined,
+    final List<Widget> items = [
+      if (isBranchManager)
+        _ActionIconBtn(
+          title: l10n.managerPortal,
+          icon: Icons.admin_panel_settings_rounded,
           color: Colors.deepPurple,
-          onTap: () => context.push(AppRoutes.requestOvertime),
+          onTap: () => context.push(AppRoutes.companyAdmin),
         ),
-        _GridItem(
-          title: l10n.expenses,
-          description: l10n.claimReimbursements,
-          icon: Icons.receipt_long_outlined,
-          color: AppColors.warning,
-          onTap: () => context.push(AppRoutes.expense),
+      _ActionIconBtn(
+        title: l10n.leaves,
+        icon: Icons.event_note_rounded,
+        color: AppColors.secondary,
+        onTap: () => context.push(AppRoutes.leaveList),
+      ),
+      _ActionIconBtn(
+        title: 'Overtime',
+        icon: Icons.timer_rounded,
+        color: const Color(0xFF6366F1),
+        onTap: () => context.push(AppRoutes.requestOvertime),
+      ),
+      _ActionIconBtn(
+        title: l10n.payslips,
+        icon: Icons.monetization_on_rounded,
+        color: AppColors.success,
+        onTap: () => context.push(AppRoutes.payslip),
+      ),
+      _ActionIconBtn(
+        title: l10n.expenses,
+        icon: Icons.receipt_long_rounded,
+        color: AppColors.warning,
+        onTap: () => context.push(AppRoutes.expense),
+      ),
+      _ActionIconBtn(
+        title: l10n.holidays,
+        icon: Icons.celebration_rounded,
+        color: const Color(0xFFEAB308),
+        onTap: () => context.push(AppRoutes.employeeHolidays),
+      ),
+      _ActionIconBtn(
+        title: l10n.myKpis,
+        icon: Icons.track_changes_rounded,
+        color: const Color(0xFF0EA5E9),
+        onTap: () => context.push(AppRoutes.kpi),
+      ),
+      _ActionIconBtn(
+        title: l10n.training,
+        icon: Icons.school_rounded,
+        color: const Color(0xFF8B5CF6),
+        onTap: () => context.push(AppRoutes.training),
+      ),
+      _ActionIconBtn(
+        title: 'More',
+        icon: Icons.apps_rounded,
+        color: const Color(0xFF64748B),
+        onTap: () => _showMoreServicesSheet(context, l10n, isBranchManager),
+      ),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 4,
+          childAspectRatio: 0.82,
         ),
-        _GridItem(
-          title: l10n.payslips,
-          description: l10n.viewMonthlyStatements,
-          icon: Icons.monetization_on_outlined,
-          color: AppColors.success,
-          onTap: () => context.push(AppRoutes.payslip),
+        itemCount: items.length,
+        itemBuilder: (ctx, i) => items[i],
+      ),
+    );
+  }
+
+  void _showMoreServicesSheet(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isBranchManager,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Company Services',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.grey900,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: AppColors.grey500),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.gavel_rounded, color: Color(0xFF6366F1)),
+                ),
+                title: Text(l10n.companyRules, style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(l10n.payrollAttendanceRules, style: const TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.chevron_right, color: AppColors.grey400),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push(AppRoutes.companyRules);
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEC4899).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.policy_rounded, color: Color(0xFFEC4899)),
+                ),
+                title: Text(l10n.companyPolicies, style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(l10n.readAndAcknowledge, style: const TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.chevron_right, color: AppColors.grey400),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push(AppRoutes.companyPolicies);
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF14B8A6).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.folder_rounded, color: Color(0xFF14B8A6)),
+                ),
+                title: Text(l10n.companyDocuments, style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(l10n.viewCompanyDocuments, style: const TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.chevron_right, color: AppColors.grey400),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push(AppRoutes.companyDocuments);
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.info.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.history_toggle_off_rounded, color: AppColors.info),
+                ),
+                title: Text(l10n.history, style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(l10n.checkAttendanceLogs, style: const TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.chevron_right, color: AppColors.grey400),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push(AppRoutes.attendance);
+                },
+              ),
+            ],
+          ),
         ),
-        _GridItem(
-          title: l10n.history,
-          description: l10n.checkAttendanceLogs,
-          icon: Icons.history_toggle_off_outlined,
-          color: AppColors.info,
-          onTap: () => context.push(AppRoutes.attendance),
-        ),
-        _GridItem(
-          title: l10n.training,
-          description: l10n.enrollInCourses,
-          icon: Icons.school_outlined,
-          color: AppColors.primary,
-          onTap: () => context.push(AppRoutes.training),
-        ),
-        _GridItem(
-          title: l10n.myKpis,
-          description: l10n.performanceGoals,
-          icon: Icons.track_changes_outlined,
-          color: AppColors.primary,
-          onTap: () => context.push(AppRoutes.kpi),
-        ),
-        _GridItem(
-          title: l10n.holidays,
-          description: l10n.companyCalendar,
-          icon: Icons.celebration_outlined,
-          color: const Color(0xFFEAB308), // Yellow/Gold
-          onTap: () => context.push(AppRoutes.employeeHolidays),
-        ),
-        _GridItem(
-          title: l10n.companyRules,
-          description: l10n.payrollAttendanceRules,
-          icon: Icons.gavel_outlined,
-          color: const Color(0xFF6366F1), // Indigo
-          onTap: () => context.push(AppRoutes.companyRules),
-        ),
-        _GridItem(
-          title: l10n.companyPolicies,
-          description: l10n.readAndAcknowledge,
-          icon: Icons.policy_outlined,
-          color: const Color(0xFFEC4899), // Pink
-          onTap: () => context.push(AppRoutes.companyPolicies),
-        ),
-        _GridItem(
-          title: l10n.companyDocuments,
-          description: l10n.viewCompanyDocuments,
-          icon: Icons.folder_outlined,
-          color: const Color(0xFF14B8A6), // Teal
-          onTap: () => context.push(AppRoutes.companyDocuments),
-        ),
-      ],
+      ),
     );
   }
 
@@ -1750,16 +1482,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   }
 }
 
-class _GridItem extends StatelessWidget {
+class _ActionIconBtn extends StatelessWidget {
   final String title;
-  final String description;
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
 
-  const _GridItem({
+  const _ActionIconBtn({
     required this.title,
-    required this.description,
     required this.icon,
     required this.color,
     required this.onTap,
@@ -1770,40 +1500,31 @@ class _GridItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.grey200),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              width: 50,
+              height: 50,
               decoration: BoxDecoration(
-                color: color.withAlpha(26),
-                shape: BoxShape.circle,
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(icon, color: color, size: 24),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             Text(
               title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: AppColors.grey900,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              description,
-              style: const TextStyle(fontSize: 10, color: AppColors.grey500),
+              textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grey800,
+              ),
             ),
           ],
         ),

@@ -26,19 +26,26 @@ class AdminSettingsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: false,
         title: Text(
           l10n.platformSettingsTitle,
           style: const TextStyle(
-            color: AppColors.grey800,
+            color: AppColors.grey900,
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            tooltip: 'Refresh',
+            onPressed: () => ref.invalidate(adminSettingsProvider),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         color: AppColors.primary,
@@ -64,15 +71,20 @@ class AdminSettingsScreen extends ConsumerWidget {
           children: [
             const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
             const SizedBox(height: 16),
-            Text(l10n.failedToLoadSettings,
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey800)),
+            Text(
+              l10n.failedToLoadSettings,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.grey900,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text(err.toString(),
-                style: const TextStyle(fontSize: 12, color: AppColors.grey500),
-                textAlign: TextAlign.center),
+            Text(
+              err.toString(),
+              style: const TextStyle(fontSize: 12, color: AppColors.grey500),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(adminSettingsProvider),
@@ -82,7 +94,8 @@ class AdminSettingsScreen extends ConsumerWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -93,7 +106,7 @@ class AdminSettingsScreen extends ConsumerWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  Settings Editor (Stateful — manages local edits)
+//  Settings Editor
 // ══════════════════════════════════════════════════════════════════════════════
 class _SettingsEditor extends ConsumerStatefulWidget {
   final Map<String, dynamic> settings;
@@ -107,8 +120,6 @@ class _SettingsEditor extends ConsumerStatefulWidget {
 
 class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
   bool _isSaving = false;
-
-  /// Holds the mutable local values.
   late final Map<String, TextEditingController> _controllers;
 
   @override
@@ -140,7 +151,6 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
     setState(() => _isSaving = true);
 
     try {
-      // Build the payload — all values as strings
       final data = <String, String>{};
       for (final entry in _controllers.entries) {
         data[entry.key] = entry.value.text.trim();
@@ -154,6 +164,7 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
           SnackBar(
             content: Text(l10n.settingsSavedSuccess),
             backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -163,6 +174,7 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
           SnackBar(
             content: Text(l10n.settingsFailed(e.toString())),
             backgroundColor: AppColors.danger,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -171,55 +183,51 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
     }
   }
 
-  // ── Text field for string/numeric settings ─────────────────────────────────
-  Widget _buildTextField(String key, String label, IconData icon,
+  Widget _buildField(String key, String label, IconData icon,
       {TextInputType keyboardType = TextInputType.text}) {
     final ctrl = _getController(key);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(icon, size: 16, color: AppColors.grey500),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.grey700,
-                ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 5, left: 2),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppColors.grey700,
               ),
-            ],
+            ),
           ),
-          const SizedBox(height: 8),
           TextFormField(
             controller: ctrl,
             keyboardType: keyboardType,
             style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.grey800,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              color: AppColors.grey900,
             ),
             decoration: InputDecoration(
               isDense: true,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              prefixIcon: Icon(icon, color: const Color(0xFF64748B), size: 18),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppColors.grey200),
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.grey200),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppColors.grey200),
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.grey200),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: AppColors.primary),
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFF6366F1)),
               ),
               filled: true,
-              fillColor: AppColors.surfaceLight,
+              fillColor: AppColors.grey50,
             ),
           ),
         ],
@@ -231,75 +239,220 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return ListView(
-      padding: const EdgeInsets.all(16),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
       children: [
-        // ── Global Settings ──
-        _SectionTitle(title: l10n.globalSettingsTitle),
-        const SizedBox(height: 16),
-        _buildTextField('app_name', l10n.appNameLabel, Icons.app_shortcut_rounded),
-        _buildTextField('support_email', l10n.supportEmailLabel, Icons.email_rounded, keyboardType: TextInputType.emailAddress),
-        _buildTextField('default_timezone', l10n.defaultTimezoneLabel, Icons.schedule_rounded),
-        _buildTextField('default_currency', l10n.defaultCurrencyLabel, Icons.attach_money_rounded),
+        // ── Executive Dark Hero Banner ──
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF0F172A),
+                Color(0xFF1E293B),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF64748B).withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        'GLOBAL CONFIGURATION',
+                        style: TextStyle(
+                          color: Color(0xFFCBD5E1),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'System Parameters',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    const Text(
+                      'Manage platform defaults and server runtime configurations',
+                      style: TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 11.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF64748B).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(Icons.tune_rounded, color: Color(0xFFCBD5E1), size: 24),
+              ),
+            ],
+          ),
+        ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
+
+        // ── Card 1: Platform Identity ──
+        _buildCard(
+          icon: Icons.business_center_rounded,
+          title: 'Platform Identity',
+          subtitle: 'App branding and default communication address',
+          iconColor: const Color(0xFF6366F1),
+          child: Column(
+            children: [
+              _buildField('app_name', l10n.appNameLabel, Icons.branding_watermark_rounded),
+              _buildField('support_email', l10n.supportEmailLabel, Icons.email_outlined, keyboardType: TextInputType.emailAddress),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 14),
+
+        // ── Card 2: Localization & Regional Defaults ──
+        _buildCard(
+          icon: Icons.language_rounded,
+          title: 'Regional & Financial Defaults',
+          subtitle: 'Timezone and currency formatting defaults',
+          iconColor: const Color(0xFF10B981),
+          child: Column(
+            children: [
+              _buildField('default_timezone', l10n.defaultTimezoneLabel, Icons.schedule_rounded),
+              _buildField('default_currency', l10n.defaultCurrencyLabel, Icons.attach_money_rounded),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
 
         // ── Save Button ──
         SizedBox(
           width: double.infinity,
-          height: 52,
+          height: 48,
           child: ElevatedButton.icon(
             onPressed: _isSaving ? null : _save,
             icon: _isSaving
                 ? const SizedBox(
-                    width: 20,
-                    height: 20,
+                    width: 18,
+                    height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       color: Colors.white,
                     ),
                   )
-                : const Icon(Icons.save_rounded),
+                : const Icon(Icons.check_circle_rounded, size: 18),
             label: Text(
               _isSaving ? l10n.saving : l10n.saveSettings,
               style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+                fontSize: 14.5,
+                fontWeight: FontWeight.bold,
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
+              backgroundColor: const Color(0xFF0F172A),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
-              elevation: 0,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 2,
             ),
           ),
         ),
-        const SizedBox(height: 32),
       ],
     );
   }
-}
 
-// ══════════════════════════════════════════════════════════════════════════════
-//  Section title
-// ══════════════════════════════════════════════════════════════════════════════
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  const _SectionTitle({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: AppColors.grey500,
-          letterSpacing: 0.5,
-        ),
+  Widget _buildCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color iconColor,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: iconColor, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.grey900,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          child,
+        ],
       ),
     );
   }

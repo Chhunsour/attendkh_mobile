@@ -51,7 +51,7 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       body: kpisAsync.when(
         data: (data) {
           _initTabs(data);
@@ -61,51 +61,82 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
           final isManager = data.userRole == 'branch_manager';
 
           return Scaffold(
-            backgroundColor: AppColors.backgroundLight,
+            backgroundColor: AppColors.surfaceLight,
             appBar: AppBar(
-              title: Text(isSuperAdmin ? l10n.platformHealth : l10n.performanceKpis, style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold)),
-              backgroundColor: AppColors.surfaceLight,
+              backgroundColor: Colors.white,
               elevation: 0,
-              iconTheme: const IconThemeData(color: AppColors.grey900),
-              bottom: (isSuperAdmin || isOwner) ? null : TabBar(
-                controller: _tabController,
-                labelColor: AppColors.primary,
-                unselectedLabelColor: AppColors.grey500,
-                indicatorColor: AppColors.primary,
-                tabs: [
-                  if (!isSuperAdmin && !isOwner) Tab(text: l10n.myPerf),
-                  if (!isSuperAdmin && !isOwner && isManager) Tab(text: l10n.team),
-                ],
+              centerTitle: false,
+              title: Text(
+                isSuperAdmin ? l10n.platformHealth : l10n.performanceKpis,
+                style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold, fontSize: 18),
               ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+                  tooltip: 'Refresh',
+                  onPressed: () => ref.invalidate(systemKpisProvider),
+                ),
+              ],
+              bottom: (isSuperAdmin || isOwner)
+                  ? null
+                  : TabBar(
+                      controller: _tabController,
+                      labelColor: AppColors.primary,
+                      unselectedLabelColor: AppColors.grey500,
+                      indicatorColor: AppColors.primary,
+                      indicatorWeight: 3,
+                      labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13.5),
+                      tabs: [
+                        if (!isSuperAdmin && !isOwner) Tab(text: l10n.myPerf),
+                        if (!isSuperAdmin && !isOwner && isManager) Tab(text: l10n.team),
+                      ],
+                    ),
             ),
             body: isSuperAdmin
-              ? KpiSuperAdminView(data: data)
-              : isOwner
-                ? KpiOwnerView(data: data)
-                : TabBarView(
-                    controller: _tabController,
-                    children: [
-                      if (!isSuperAdmin && !isOwner) KpiEmployeeView(data: data),
-                      if (!isSuperAdmin && !isOwner && isManager) KpiManagerView(data: data),
-                    ],
-                  ),
+                ? KpiSuperAdminView(data: data)
+                : isOwner
+                    ? KpiOwnerView(data: data)
+                    : TabBarView(
+                        controller: _tabController,
+                        children: [
+                          if (!isSuperAdmin && !isOwner) KpiEmployeeView(data: data),
+                          if (!isSuperAdmin && !isOwner && isManager) KpiManagerView(data: data),
+                        ],
+                      ),
           );
         },
         loading: () => Scaffold(
+          backgroundColor: AppColors.surfaceLight,
           appBar: AppBar(
-            title: Text(l10n.performanceKpis, style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold)),
-            backgroundColor: AppColors.surfaceLight,
+            backgroundColor: Colors.white,
             elevation: 0,
+            title: Text(l10n.performanceKpis, style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold, fontSize: 18)),
           ),
-          body: const Center(child: LoadingIndicator()),
+          body: const Center(child: LoadingIndicator(message: 'Loading KPIs...')),
         ),
         error: (error, stack) => Scaffold(
+          backgroundColor: AppColors.surfaceLight,
           appBar: AppBar(
-            title: Text(l10n.performanceKpis, style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold)),
-            backgroundColor: AppColors.surfaceLight,
+            backgroundColor: Colors.white,
             elevation: 0,
+            title: Text(l10n.performanceKpis, style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold, fontSize: 18)),
           ),
-          body: Center(child: Text('Error: $error', style: const TextStyle(color: AppColors.danger))),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 40, color: AppColors.grey400),
+                const SizedBox(height: 8),
+                Text('Failed to load KPIs: $error', style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: () => ref.invalidate(systemKpisProvider),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

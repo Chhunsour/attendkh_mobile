@@ -38,44 +38,76 @@ class _HrStructureScreenState extends ConsumerState<HrStructureScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: false,
         title: Text(
           l10n.hrStructureTitle,
           style: const TextStyle(
-            color: AppColors.grey800,
+            color: AppColors.grey900,
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            tooltip: 'Refresh',
+            onPressed: () {
+              ref.invalidate(branchesProvider);
+              ref.invalidate(departmentsProvider);
+              ref.invalidate(positionsProvider);
+              ref.invalidate(teamsProvider);
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
           Container(
-            color: AppColors.surfaceLight,
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: TabBar(
               controller: _tabController,
               isScrollable: true,
-              labelColor: AppColors.primary,
-              unselectedLabelColor: AppColors.grey500,
-              indicatorColor: AppColors.primary,
               tabAlignment: TabAlignment.start,
+              labelColor: const Color(0xFF6366F1),
+              unselectedLabelColor: AppColors.grey500,
+              indicatorColor: const Color(0xFF6366F1),
+              indicatorWeight: 3,
+              labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
               tabs: [
-                Tab(text: l10n.tabBranches),
-                Tab(text: l10n.tabDepts),
-                Tab(text: l10n.tabPositions),
-                Tab(text: l10n.tabTeams),
-                Tab(text: l10n.tabOrgChart),
+                Tab(
+                  icon: const Icon(Icons.corporate_fare_rounded, size: 18),
+                  text: l10n.tabBranches,
+                ),
+                Tab(
+                  icon: const Icon(Icons.apartment_rounded, size: 18),
+                  text: l10n.tabDepts,
+                ),
+                Tab(
+                  icon: const Icon(Icons.badge_rounded, size: 18),
+                  text: l10n.tabPositions,
+                ),
+                Tab(
+                  icon: const Icon(Icons.groups_rounded, size: 18),
+                  text: l10n.tabTeams,
+                ),
+                Tab(
+                  icon: const Icon(Icons.account_tree_rounded, size: 18),
+                  text: l10n.tabOrgChart,
+                ),
               ],
             ),
           ),
+          const Divider(height: 1, color: AppColors.grey200),
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: [
+              children: const [
                 _BranchesTab(),
                 _DepartmentsTab(),
                 _PositionsTab(),

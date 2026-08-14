@@ -25,12 +25,12 @@ class ProfileScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: showBackButton
             ? IconButton(
                 icon: const Icon(
-                  Icons.arrow_back_ios_new,
+                  Icons.arrow_back_ios_new_rounded,
                   color: AppColors.grey900,
                   size: 20,
                 ),
@@ -45,11 +45,22 @@ class ProfileScreen extends ConsumerWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
+            tooltip: l10n.editProfile,
+            onPressed: () => context.push(AppRoutes.editProfile),
+          ),
+        ],
       ),
-      body: profileAsync.when(
-        data: (data) => _buildContent(context, ref, data, authState, l10n),
-        loading: () => LoadingIndicator(message: l10n.loadingProfile),
-        error: (e, _) => _buildFallback(context, ref, authState, l10n),
+      body: RefreshIndicator(
+        onRefresh: () async => ref.invalidate(profileProvider),
+        color: AppColors.primary,
+        child: profileAsync.when(
+          data: (data) => _buildContent(context, ref, data, authState, l10n),
+          loading: () => LoadingIndicator(message: l10n.loadingProfile),
+          error: (e, _) => _buildFallback(context, ref, authState, l10n),
+        ),
       ),
     );
   }
@@ -89,59 +100,204 @@ class ProfileScreen extends ConsumerWidget {
     AppLocalizations l10n,
   ) {
     return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
       child: Column(
         children: [
-          // Profile Header Card
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.grey900.withAlpha(8),
-                  blurRadius: 6,
-                  offset: const Offset(0, 1),
-                ),
+          // ── Header Profile Hero Card ──
+          _buildHeroProfileHeader(context, data, l10n),
+
+          // ── Key Metrics Overview Strip ──
+          _buildQuickOverviewStrip(data),
+
+          const SizedBox(height: 8),
+
+          // ── Employment Details Card ──
+          _buildSectionCard(
+            title: 'Employment Details',
+            icon: Icons.badge_outlined,
+            iconColor: AppColors.primary,
+            children: [
+              if (data.employeeId != null && data.employeeId!.isNotEmpty)
+                _buildInfoTile('Employee ID', data.employeeId!, Icons.fingerprint_rounded),
+              _buildInfoTile(l10n.company, data.companyName ?? data.companyId.toString(), Icons.business_rounded),
+              if (data.branchName != null)
+                _buildInfoTile('Branch', data.branchName!, Icons.storefront_rounded),
+              if (data.department != null)
+                _buildInfoTile(l10n.department, data.department!, Icons.corporate_fare_rounded),
+              if (data.jobTitle != null)
+                _buildInfoTile(l10n.jobTitle, data.jobTitle!, Icons.work_outline_rounded),
+              if (data.team != null)
+                _buildInfoTile('Team', data.team!, Icons.groups_rounded),
+              if (data.manager != null)
+                _buildInfoTile('Reporting Manager', data.manager!, Icons.person_pin_rounded),
+              if (data.hireDate != null)
+                _buildInfoTile('Join Date', data.hireDate!, Icons.calendar_today_rounded),
+              if (data.employmentType != null)
+                _buildInfoTile('Employment Type', _capitalize(data.employmentType!), Icons.assignment_ind_outlined),
+            ],
+          ),
+
+          // ── Personal Information Card ──
+          _buildSectionCard(
+            title: 'Personal Information',
+            icon: Icons.person_outline_rounded,
+            iconColor: const Color(0xFF3B82F6),
+            children: [
+              if (data.phone != null && data.phone!.isNotEmpty)
+                _buildInfoTile('Phone Number', data.phone!, Icons.phone_outlined),
+              if (data.email != null && data.email!.isNotEmpty)
+                _buildInfoTile('Email Address', data.email!, Icons.mail_outline_rounded),
+              if (data.gender != null)
+                _buildInfoTile('Gender', _capitalize(data.gender!), Icons.wc_rounded),
+              if (data.dateOfBirth != null)
+                _buildInfoTile('Date of Birth', data.dateOfBirth!, Icons.cake_outlined),
+              if (data.maritalStatus != null)
+                _buildInfoTile('Marital Status', _capitalize(data.maritalStatus!), Icons.favorite_border_rounded),
+              if (data.nationalId != null && data.nationalId!.isNotEmpty)
+                _buildInfoTile('National ID', data.nationalId!, Icons.credit_card_rounded),
+              if (data.address != null && data.address!.isNotEmpty)
+                _buildInfoTile('Address', data.address!, Icons.location_on_outlined),
+            ],
+          ),
+
+          // ── Banking & Payroll Card ──
+          if (data.bankName != null || data.bankAccount != null)
+            _buildSectionCard(
+              title: 'Banking & Financials',
+              icon: Icons.account_balance_outlined,
+              iconColor: const Color(0xFF10B981),
+              children: [
+                if (data.bankName != null)
+                  _buildInfoTile('Bank Name', data.bankName!, Icons.account_balance_rounded),
+                if (data.bankAccount != null)
+                  _buildInfoTile('Account Number', data.bankAccount!, Icons.numbers_rounded),
               ],
             ),
-            child: Row(
+
+          // ── Emergency Contact Card ──
+          if (data.emergencyContact != null)
+            _buildSectionCard(
+              title: 'Emergency Contact',
+              icon: Icons.emergency_outlined,
+              iconColor: const Color(0xFFEF4444),
               children: [
-                // Avatar
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    color: AppColors.grey200,
-                  ),
-                  child: data.photoUrl != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
-                          child: CachedNetworkImage(
-                            imageUrl: data.photoUrl!,
-                            width: 64,
-                            height: 64,
-                            memCacheWidth: 200,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => const Center(
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
+                if (data.emergencyContact!['name'] != null)
+                  _buildInfoTile('Contact Name', data.emergencyContact!['name'].toString(), Icons.person_outline_rounded),
+                if (data.emergencyContact!['relationship'] != null)
+                  _buildInfoTile('Relationship', data.emergencyContact!['relationship'].toString(), Icons.people_outline_rounded),
+                if (data.emergencyContact!['phone'] != null)
+                  _buildInfoTile('Phone Number', data.emergencyContact!['phone'].toString(), Icons.phone_in_talk_rounded),
+              ],
+            ),
+
+          // ── Account & Preferences Card ──
+          _buildSectionCard(
+            title: 'Preferences & Security',
+            icon: Icons.tune_rounded,
+            iconColor: const Color(0xFF6366F1),
+            children: [
+              if (authState.isSuperAdmin || authState.isCompanyAdmin) ...[
+                _buildActionTile(
+                  icon: Icons.admin_panel_settings_outlined,
+                  title: l10n.returnToAdminConsole,
+                  subtitle: 'Switch to HR Admin dashboard',
+                  onTap: () {
+                    if (authState.isSuperAdmin) {
+                      context.go(AppRoutes.adminDashboard);
+                    } else {
+                      context.go(AppRoutes.companyAdmin);
+                    }
+                  },
+                ),
+                const Divider(height: 1, color: AppColors.grey100),
+              ],
+              _buildLanguageTile(context, ref, l10n),
+              _buildActionTile(
+                icon: Icons.edit_note_rounded,
+                title: 'Edit Profile Information',
+                subtitle: 'Update your personal and contact details',
+                onTap: () => context.push(AppRoutes.editProfile),
+              ),
+              const Divider(height: 1, color: AppColors.grey100),
+              _buildActionTile(
+                icon: Icons.logout_rounded,
+                title: l10n.logOut,
+                subtitle: 'Sign out from this device',
+                iconColor: AppColors.danger,
+                titleColor: AppColors.danger,
+                onTap: () => showLogoutConfirmation(context, ref),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroProfileHeader(BuildContext context, ProfileData data, AppLocalizations l10n) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Avatar with Edit Button Overlay
+          Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              Container(
+                width: 84,
+                height: 84,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  border: Border.all(color: Colors.white, width: 3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: data.photoUrl != null && data.photoUrl!.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: data.photoUrl!,
+                          width: 84,
+                          height: 84,
+                          memCacheWidth: 250,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                            errorWidget: (context, url, error) => Center(
-                              child: Text(
-                                _initials(data.name),
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.grey600,
-                                ),
+                          ),
+                          errorWidget: (context, url, error) => Center(
+                            child: Text(
+                              _initials(data.name),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
@@ -150,296 +306,165 @@ class ProfileScreen extends ConsumerWidget {
                           child: Text(
                             _initials(data.name),
                             style: const TextStyle(
-                              fontSize: 20,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.grey600,
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
                 ),
-                const SizedBox(width: 14),
-                // Name + email + chips
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data.name,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        data.email ?? '',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.grey500,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 6,
-                        children: [
-                          _buildRoleChip(data.roles),
-                          if (data.employmentStatus != null)
-                            _buildStatusChip(data.employmentStatus!),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // Edit button
-                GestureDetector(
-                  onTap: () => context.push(AppRoutes.editProfile),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.edit, size: 14, color: Colors.white),
-                        const SizedBox(width: 4),
-                        Text(
-                          l10n.editProfile,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Employment Details Card
-          _buildInfoCard(
-            context,
-            icon: Icons.work_outline,
-            iconColor: AppColors.primary,
-            title: 'Employment Details',
-            children: [
-              if (data.employeeId != null)
-                _buildInfoRow(
-                  Icons.badge_outlined,
-                  'Employee ID',
-                  data.employeeId!,
-                ),
-              if (data.nationalId != null)
-                _buildInfoRow(
-                  Icons.perm_identity,
-                  'National ID',
-                  data.nationalId!,
-                ),
-              _buildInfoRow(
-                Icons.business_outlined,
-                l10n.company,
-                data.companyName ?? data.companyId.toString(),
               ),
-              if (data.branchName != null)
-                _buildInfoRow(Icons.store_outlined, 'Branch', data.branchName!),
-              if (data.department != null)
-                _buildInfoRow(
-                  Icons.group_work_outlined,
-                  l10n.department,
-                  data.department!,
-                ),
-              if (data.jobTitle != null)
-                _buildInfoRow(
-                  Icons.work_outline,
-                  l10n.jobTitle,
-                  data.jobTitle!,
-                ),
-              if (data.team != null)
-                _buildInfoRow(Icons.group_outlined, 'Team', data.team!),
-              if (data.manager != null)
-                _buildInfoRow(Icons.person_outline, 'Manager', data.manager!),
-              if (data.hireDate != null)
-                _buildInfoRow(
-                  Icons.calendar_today,
-                  'Join Date',
-                  data.hireDate!,
-                ),
-              if (data.salary != null)
-                _buildInfoRow(Icons.attach_money, 'Salary', '\$${data.salary}'),
-            ],
-          ),
-
-          // Personal Info Card
-          _buildInfoCard(
-            context,
-            icon: Icons.person_outline,
-            iconColor: Colors.blue,
-            title: 'Personal Information',
-            children: [
-              if (data.phone != null)
-                _buildInfoRow(Icons.phone_outlined, 'Phone', data.phone!),
-              if (data.gender != null)
-                _buildInfoRow(
-                  Icons.person_outline,
-                  'Gender',
-                  _capitalize(data.gender!),
-                ),
-              if (data.dateOfBirth != null)
-                _buildInfoRow(
-                  Icons.cake_outlined,
-                  'Date of Birth',
-                  data.dateOfBirth!,
-                ),
-              if (data.maritalStatus != null)
-                _buildInfoRow(
-                  Icons.favorite_outline,
-                  'Marital Status',
-                  _capitalize(data.maritalStatus!),
-                ),
-              if (data.address != null && data.address!.isNotEmpty)
-                _buildInfoRow(
-                  Icons.location_on_outlined,
-                  'Address',
-                  data.address!,
-                ),
-            ],
-          ),
-
-          // Banking & Emergency (side by side or stacked)
-          if (data.bankName != null || data.bankAccount != null)
-            _buildInfoCard(
-              context,
-              icon: Icons.account_balance_outlined,
-              iconColor: Colors.green,
-              title: 'Financial & Banking',
-              children: [
-                if (data.bankName != null)
-                  _buildInfoRow(
-                    Icons.account_balance_outlined,
-                    'Bank Name',
-                    data.bankName!,
+              GestureDetector(
+                onTap: () => context.push(AppRoutes.editProfile),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
                   ),
-                if (data.bankAccount != null)
-                  _buildInfoRow(
-                    Icons.numbers,
-                    'Account Number',
-                    data.bankAccount!,
+                  child: const Icon(
+                    Icons.camera_alt_rounded,
+                    size: 14,
+                    color: Colors.white,
                   ),
-              ],
-            ),
-
-          if (data.emergencyContact != null)
-            _buildInfoCard(
-              context,
-              icon: Icons.emergency_outlined,
-              iconColor: Colors.red,
-              title: 'Emergency Contact',
-              children: [
-                if (data.emergencyContact!['name'] != null)
-                  _buildInfoRow(
-                    Icons.person_outline,
-                    'Contact Name',
-                    data.emergencyContact!['name'].toString(),
-                  ),
-                if (data.emergencyContact!['relationship'] != null)
-                  _buildInfoRow(
-                    Icons.people_outline,
-                    'Relationship',
-                    data.emergencyContact!['relationship'].toString(),
-                  ),
-                if (data.emergencyContact!['phone'] != null)
-                  _buildInfoRow(
-                    Icons.phone_outlined,
-                    'Phone',
-                    data.emergencyContact!['phone'].toString(),
-                  ),
-              ],
-            ),
-
-          // Settings Card
-          _buildInfoCard(
-            context,
-            icon: Icons.settings_outlined,
-            iconColor: AppColors.grey600,
-            title: 'Access & Settings',
-            children: [
-              if (authState.isSuperAdmin || authState.isCompanyAdmin) ...[
-                _buildSettingsRow(
-                  Icons.shield_outlined,
-                  l10n.accessRoles,
-                  data.roles
-                      .map((r) => r.replaceAll('_', ' '))
-                      .join(', ')
-                      .toUpperCase(),
                 ),
-                _buildTapRow(
-                  Icons.admin_panel_settings_outlined,
-                  l10n.returnToAdminConsole,
-                  () {
-                    if (authState.isSuperAdmin) {
-                      context.go(AppRoutes.adminDashboard);
-                    } else {
-                      context.go(AppRoutes.companyAdmin);
-                    }
-                  },
-                ),
-              ],
-              _buildLanguageRow(context, ref, l10n),
-              _buildTapRow(
-                Icons.logout,
-                l10n.logOut,
-                () => showLogoutConfirmation(context, ref),
-                isDestructive: true,
               ),
             ],
           ),
-          const SizedBox(height: 32),
+
+          const SizedBox(height: 14),
+
+          // Name
+          Text(
+            data.name,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.grey900,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
+          const SizedBox(height: 4),
+
+          // Job Title & Department
+          Text(
+            [data.jobTitle, data.department].where((s) => s != null && s.isNotEmpty).join(' • '),
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.grey600,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
+          const SizedBox(height: 12),
+
+          // Roles & Status Tags
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildRoleTag(data.roles),
+              const SizedBox(width: 8),
+              _buildStatusTag(data.employmentStatus ?? 'active'),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildRoleChip(List<String> roles) {
-    final roleText = roles.isNotEmpty
-        ? roles.first.replaceAll('_', ' ')
-        : 'Employee';
+  Widget _buildQuickOverviewStrip(ProfileData data) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: _overviewBox(
+              'Branch',
+              data.branchName ?? 'Headquarters',
+              Icons.storefront_rounded,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _overviewBox(
+              'Employee ID',
+              data.employeeId ?? '#${data.id}',
+              Icons.badge_rounded,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: _overviewBox(
+              'Status',
+              _capitalize(data.employmentStatus ?? 'Active'),
+              Icons.verified_rounded,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _overviewBox(String label, String value, IconData icon) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       decoration: BoxDecoration(
-        color: AppColors.primary.withAlpha(20),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withAlpha(40)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 18, color: AppColors.primary),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: AppColors.grey900,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 10, color: AppColors.grey500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoleTag(List<String> roles) {
+    final roleText = roles.isNotEmpty ? roles.first.replaceAll('_', ' ') : 'Employee';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         roleText.toUpperCase(),
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 10,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.bold,
           color: AppColors.primary,
+          letterSpacing: 0.4,
         ),
       ),
     );
   }
 
-  Widget _buildStatusChip(String status) {
+  Widget _buildStatusTag(String status) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.green.withAlpha(20),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.withAlpha(40)),
+        color: const Color(0xFF10B981).withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -448,7 +473,7 @@ class ProfileScreen extends ConsumerWidget {
             width: 6,
             height: 6,
             decoration: const BoxDecoration(
-              color: Colors.green,
+              color: Color(0xFF10B981),
               shape: BoxShape.circle,
             ),
           ),
@@ -457,8 +482,9 @@ class ProfileScreen extends ConsumerWidget {
             status.replaceAll('_', ' ').toUpperCase(),
             style: const TextStyle(
               fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: Colors.green,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF10B981),
+              letterSpacing: 0.4,
             ),
           ),
         ],
@@ -466,128 +492,90 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoCard(
-    BuildContext context, {
+  Widget _buildSectionCard({
+    required String title,
     required IconData icon,
     required Color iconColor,
-    required String title,
     required List<Widget> children,
   }) {
-    if (children.isEmpty) return const SizedBox.shrink();
+    final validChildren = children.where((w) => w is! SizedBox).toList();
+    if (validChildren.isEmpty) return const SizedBox.shrink();
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.grey900.withAlpha(8),
-            blurRadius: 6,
-            offset: const Offset(0, 1),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: iconColor.withAlpha(20),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, size: 16, color: iconColor),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.grey800,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ...children,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: AppColors.grey400),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+            child: Row(
               children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.grey400,
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: iconColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  child: Icon(icon, size: 16, color: iconColor),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey800,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsRow(IconData icon, String title, String subtitle) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          Icon(icon, size: 22, color: AppColors.grey700),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                const SizedBox(width: 10),
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.grey800,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey900,
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.grey400,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
+            ),
+          ),
+          const Divider(height: 1, color: AppColors.grey100),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(children: validChildren),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoTile(String label, String value, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, size: 16, color: AppColors.grey400),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 13, color: AppColors.grey600),
+            ),
+          ),
+          Flexible(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grey900,
+              ),
+              textAlign: TextAlign.end,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -595,71 +583,90 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTapRow(
-    IconData icon,
-    String title,
-    VoidCallback onTap, {
-    bool isDestructive = false,
+  Widget _buildActionTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    Color? iconColor,
+    Color? titleColor,
   }) {
-    final color = isDestructive ? AppColors.danger : AppColors.grey800;
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
-            Icon(icon, size: 22, color: color),
-            const SizedBox(width: 16),
+            Icon(icon, size: 20, color: iconColor ?? AppColors.grey700),
+            const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: color,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: titleColor ?? AppColors.grey900,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 11, color: AppColors.grey500),
+                  ),
+                ],
               ),
             ),
-            const Icon(Icons.chevron_right, size: 20, color: AppColors.grey300),
+            const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.grey400),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLanguageRow(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-  ) {
+  Widget _buildLanguageTile(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    final currentLang = ref.watch(localeProvider).languageCode;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          const Icon(Icons.language, size: 22, color: AppColors.grey700),
-          const SizedBox(width: 16),
+          const Icon(Icons.translate_rounded, size: 20, color: AppColors.grey700),
+          const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              l10n.language,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: AppColors.grey800,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.language,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.grey900,
+                  ),
+                ),
+                Text(
+                  currentLang == 'km' ? l10n.khmer : l10n.english,
+                  style: const TextStyle(fontSize: 11, color: AppColors.grey500),
+                ),
+              ],
             ),
           ),
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: ref.watch(localeProvider).languageCode,
-              icon: const Icon(Icons.arrow_drop_down, color: AppColors.grey500),
-              style: const TextStyle(fontSize: 14, color: AppColors.grey800),
+              value: currentLang,
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.grey500),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary),
               items: [
                 DropdownMenuItem(value: 'en', child: Text(l10n.english)),
                 DropdownMenuItem(value: 'km', child: Text(l10n.khmer)),
               ],
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  ref.read(localeProvider.notifier).setLocale(Locale(newValue));
+              onChanged: (String? val) {
+                if (val != null) {
+                  ref.read(localeProvider.notifier).setLocale(Locale(val));
                 }
               },
             ),
@@ -670,7 +677,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   String _initials(String name) {
-    final parts = name.split(' ');
+    final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     return name.isNotEmpty ? name[0].toUpperCase() : '?';
   }

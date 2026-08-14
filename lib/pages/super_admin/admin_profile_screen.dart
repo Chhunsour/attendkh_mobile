@@ -40,9 +40,11 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
   bool _isSavingProfile = false;
   bool _isSavingPassword = false;
   bool _isEditing = false;
+  bool _obscureCurrentPassword = true;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
 
   File? _photo;
-
   late final ProfileRepository _profileRepo;
 
   @override
@@ -199,146 +201,145 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
     final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
-            expandedHeight: 280,
+            expandedHeight: 270,
             pinned: true,
             stretch: true,
-            backgroundColor: AppColors.primary,
-            surfaceTintColor: Colors.transparent,
+            backgroundColor: const Color(0xFF0F172A),
             leading: widget.showBackButton
                 ? IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_rounded,
-                      color: Colors.white,
-                    ),
+                    icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
                     onPressed: () => context.pop(),
                   )
                 : null,
             title: Text(
               l10n.profileSettingsTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
             ),
             actions: [
               if (!_isEditing)
-                TextButton.icon(
+                IconButton(
                   onPressed: () => setState(() => _isEditing = true),
-                  icon: const Icon(
-                    Icons.edit_rounded,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                  label: Text(
-                    l10n.editProfile,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 20),
+                  tooltip: l10n.editProfile,
                 ),
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                color: AppColors.primary,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF0F172A),
+                      Color(0xFF1E293B),
+                    ],
+                  ),
+                ),
                 child: SafeArea(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       GestureDetector(
                         onTap: _isEditing ? _pickImage : null,
-                        child: Container(
-                          width: 96,
-                          height: 96,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(40),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 90,
+                              height: 90,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: const Color(0xFF6366F1), width: 3),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 14,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white.withAlpha(30),
-                            backgroundImage: _photo != null
-                                ? FileImage(_photo!)
-                                : (profileAsync.value?.photoUrl != null
-                                          ? CachedNetworkImageProvider(
-                                              profileAsync.value!.photoUrl!,
-                                            )
-                                          : null)
-                                      as ImageProvider?,
-                            child:
-                                (_photo == null &&
-                                    profileAsync.value?.photoUrl == null)
-                                ? Text(
-                                    _initials(authState.userName ?? 'A'),
-                                    style: const TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : null,
-                          ),
+                              child: CircleAvatar(
+                                backgroundColor: const Color(0xFF334155),
+                                backgroundImage: _photo != null
+                                    ? FileImage(_photo!)
+                                    : (profileAsync.value?.photoUrl != null
+                                        ? CachedNetworkImageProvider(profileAsync.value!.photoUrl!)
+                                        : null) as ImageProvider?,
+                                child: (_photo == null && profileAsync.value?.photoUrl == null)
+                                    ? Text(
+                                        _initials(authState.userName ?? 'A'),
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : null,
+                              ),
+                            ),
+                            if (_isEditing)
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF6366F1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 14),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       Text(
                         authState.userName ?? 'Super Admin',
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: 19,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Text(
                         authState.userEmail ?? '',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.white.withAlpha(180),
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          color: Color(0xFF94A3B8),
                         ),
                       ),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
                         decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(25),
+                          color: const Color(0xFF6366F1).withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
-                              Icons.shield_rounded,
-                              color: Colors.white,
-                              size: 14,
-                            ),
-                            const SizedBox(width: 6),
+                            Icon(Icons.shield_rounded, color: Color(0xFFA5B4FC), size: 13),
+                            SizedBox(width: 5),
                             Text(
-                              'Super Admin',
+                              'SUPER ADMINISTRATOR',
                               style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withAlpha(220),
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFA5B4FC),
+                                letterSpacing: 0.4,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
@@ -347,13 +348,15 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
               child: Column(
                 children: [
+                  // ── Profile Info Card ──
                   _buildCard(
                     icon: Icons.person_outline_rounded,
                     title: l10n.profileInfoTitle,
                     subtitle: l10n.profileInfoDesc,
+                    iconColor: const Color(0xFF6366F1),
                     child: Form(
                       key: _formKeyProfile,
                       child: Column(
@@ -364,9 +367,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                               l10n.nameLabel,
                               TextFormField(
                                 controller: _nameController,
-                                validator: (v) => v!.trim().isEmpty
-                                    ? l10n.fieldRequired
-                                    : null,
+                                validator: (v) => v!.trim().isEmpty ? l10n.fieldRequired : null,
                                 decoration: _inputDecoration(),
                               ),
                             ),
@@ -375,9 +376,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                               TextFormField(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
-                                validator: (v) => v!.trim().isEmpty
-                                    ? l10n.fieldRequired
-                                    : null,
+                                validator: (v) => v!.trim().isEmpty ? l10n.fieldRequired : null,
                                 decoration: _inputDecoration(),
                               ),
                             ),
@@ -395,21 +394,11 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 initialValue: _gender,
                                 decoration: _inputDecoration(),
                                 items: [
-                                  DropdownMenuItem(
-                                    value: 'male',
-                                    child: Text(l10n.genderMale),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'female',
-                                    child: Text(l10n.genderFemale),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: 'other',
-                                    child: Text(l10n.genderOther),
-                                  ),
+                                  DropdownMenuItem(value: 'male', child: Text(l10n.genderMale)),
+                                  DropdownMenuItem(value: 'female', child: Text(l10n.genderFemale)),
+                                  DropdownMenuItem(value: 'other', child: Text(l10n.genderOther)),
                                 ],
-                                onChanged: (val) =>
-                                    setState(() => _gender = val),
+                                onChanged: (val) => setState(() => _gender = val),
                               ),
                             ),
                             _buildField(
@@ -421,24 +410,6 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                     initialDate: _dateOfBirth ?? DateTime(2000),
                                     firstDate: DateTime(1900),
                                     lastDate: DateTime.now(),
-                                    builder: (context, child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: const ColorScheme.light(
-                                            primary: AppColors.primary,
-                                            onPrimary: Colors.white,
-                                            onSurface: AppColors.grey900,
-                                          ),
-                                          textButtonTheme: TextButtonThemeData(
-                                            style: TextButton.styleFrom(
-                                              foregroundColor:
-                                                  AppColors.primary,
-                                            ),
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
                                   );
                                   if (picked != null) {
                                     setState(() => _dateOfBirth = picked);
@@ -446,21 +417,15 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 },
                                 child: InputDecorator(
                                   decoration: _inputDecoration().copyWith(
-                                    suffixIcon: const Icon(
-                                      Icons.calendar_today_outlined,
-                                      size: 20,
-                                      color: AppColors.grey500,
-                                    ),
+                                    suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.grey500),
                                   ),
                                   child: Text(
                                     _dateOfBirth != null
                                         ? "${_dateOfBirth!.year}-${_dateOfBirth!.month.toString().padLeft(2, '0')}-${_dateOfBirth!.day.toString().padLeft(2, '0')}"
                                         : l10n.selectDate,
                                     style: TextStyle(
-                                      fontSize: 14,
-                                      color: _dateOfBirth != null
-                                          ? AppColors.grey800
-                                          : AppColors.grey500,
+                                      fontSize: 13.5,
+                                      color: _dateOfBirth != null ? AppColors.grey900 : AppColors.grey500,
                                     ),
                                   ),
                                 ),
@@ -470,71 +435,46 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                               l10n.addressLabel,
                               TextFormField(
                                 controller: _addressController,
-                                maxLines: 3,
+                                maxLines: 2,
                                 decoration: _inputDecoration(),
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 16),
                             Row(
                               children: [
                                 Expanded(
                                   child: SizedBox(
-                                    height: 48,
+                                    height: 46,
                                     child: OutlinedButton(
-                                      onPressed: () =>
-                                          setState(() => _isEditing = false),
+                                      onPressed: () => setState(() => _isEditing = false),
                                       style: OutlinedButton.styleFrom(
-                                        side: const BorderSide(
-                                          color: AppColors.grey300,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                       ),
-                                      child: Text(
-                                        l10n.cancel,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.grey700,
-                                        ),
-                                      ),
+                                      child: Text(l10n.cancel, style: const TextStyle(fontWeight: FontWeight.bold)),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: SizedBox(
-                                    height: 48,
+                                    height: 46,
                                     child: ElevatedButton(
-                                      onPressed: _isSavingProfile
-                                          ? null
-                                          : _saveProfile,
+                                      onPressed: _isSavingProfile ? null : _saveProfile,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
+                                        backgroundColor: const Color(0xFF6366F1),
                                         foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        elevation: 0,
+                                        elevation: 2,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                       ),
                                       child: _isSavingProfile
                                           ? const SizedBox(
                                               width: 20,
                                               height: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                color: Colors.white,
-                                              ),
+                                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                                             )
                                           : Text(
                                               l10n.saveProfileBtn,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                              style: const TextStyle(fontWeight: FontWeight.bold),
                                             ),
                                     ),
                                   ),
@@ -542,31 +482,15 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                               ],
                             ),
                           ] else ...[
-                            _buildInfoRow(
-                              Icons.person_rounded,
-                              l10n.nameLabel,
-                              _nameController.text,
-                            ),
-                            _buildInfoRow(
-                              Icons.email_rounded,
-                              l10n.emailLabel,
-                              _emailController.text,
-                            ),
+                            _buildInfoRow(Icons.person_rounded, l10n.nameLabel, _nameController.text),
+                            _buildInfoRow(Icons.email_rounded, l10n.emailLabel, _emailController.text),
                             if (_phoneController.text.isNotEmpty)
-                              _buildInfoRow(
-                                Icons.phone_rounded,
-                                l10n.phoneLabel,
-                                _phoneController.text,
-                              ),
+                              _buildInfoRow(Icons.phone_rounded, l10n.phoneLabel, _phoneController.text),
                             if (_gender != null)
                               _buildInfoRow(
                                 Icons.wc_rounded,
                                 l10n.genderLabel,
-                                _gender == 'male'
-                                    ? l10n.genderMale
-                                    : _gender == 'female'
-                                    ? l10n.genderFemale
-                                    : l10n.genderOther,
+                                _gender == 'male' ? l10n.genderMale : (_gender == 'female' ? l10n.genderFemale : l10n.genderOther),
                               ),
                             if (_dateOfBirth != null)
                               _buildInfoRow(
@@ -575,21 +499,21 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 "${_dateOfBirth!.year}-${_dateOfBirth!.month.toString().padLeft(2, '0')}-${_dateOfBirth!.day.toString().padLeft(2, '0')}",
                               ),
                             if (_addressController.text.isNotEmpty)
-                              _buildInfoRow(
-                                Icons.location_on_rounded,
-                                l10n.addressLabel,
-                                _addressController.text,
-                              ),
+                              _buildInfoRow(Icons.location_on_rounded, l10n.addressLabel, _addressController.text),
                           ],
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 14),
+
+                  // ── Security & Credentials Card ──
                   _buildCard(
                     icon: Icons.lock_outline_rounded,
                     title: l10n.updatePasswordTitle,
                     subtitle: l10n.updatePasswordDesc,
+                    iconColor: const Color(0xFF0EA5E9),
                     child: Form(
                       key: _formKeyPassword,
                       child: Column(
@@ -599,30 +523,47 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                             l10n.currentPasswordLabel,
                             TextFormField(
                               controller: _currentPasswordController,
-                              obscureText: true,
-                              validator: (v) =>
-                                  v!.isEmpty ? l10n.fieldRequired : null,
-                              decoration: _inputDecoration(),
+                              obscureText: _obscureCurrentPassword,
+                              validator: (v) => v!.isEmpty ? l10n.fieldRequired : null,
+                              decoration: _inputDecoration().copyWith(
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscureCurrentPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                    size: 18,
+                                    color: AppColors.grey500,
+                                  ),
+                                  onPressed: () => setState(() => _obscureCurrentPassword = !_obscureCurrentPassword),
+                                ),
+                              ),
                             ),
                           ),
                           _buildField(
                             l10n.newPasswordLabel,
                             TextFormField(
                               controller: _passwordController,
-                              obscureText: true,
+                              obscureText: _obscureNewPassword,
                               validator: (v) {
                                 if (v!.isEmpty) return l10n.fieldRequired;
                                 if (v.length < 8) return l10n.min8Chars;
                                 return null;
                               },
-                              decoration: _inputDecoration(),
+                              decoration: _inputDecoration().copyWith(
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscureNewPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                    size: 18,
+                                    color: AppColors.grey500,
+                                  ),
+                                  onPressed: () => setState(() => _obscureNewPassword = !_obscureNewPassword),
+                                ),
+                              ),
                             ),
                           ),
                           _buildField(
                             l10n.confirmPasswordLabel,
                             TextFormField(
                               controller: _passwordConfirmController,
-                              obscureText: true,
+                              obscureText: _obscureConfirmPassword,
                               validator: (v) {
                                 if (v!.isEmpty) return l10n.fieldRequired;
                                 if (v != _passwordController.text) {
@@ -630,42 +571,40 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 }
                                 return null;
                               },
-                              decoration: _inputDecoration(),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton.icon(
-                              onPressed: _isSavingPassword
-                                  ? null
-                                  : _savePassword,
-                              icon: _isSavingPassword
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Icon(Icons.lock_rounded, size: 20),
-                              label: Text(
-                                _isSavingPassword
-                                    ? l10n.saving
-                                    : l10n.btnUpdatePassword,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
+                              decoration: _inputDecoration().copyWith(
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                    size: 18,
+                                    color: AppColors.grey500,
+                                  ),
+                                  onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                                 ),
                               ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 46,
+                            child: ElevatedButton.icon(
+                              onPressed: _isSavingPassword ? null : _savePassword,
+                              icon: _isSavingPassword
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                    )
+                                  : const Icon(Icons.lock_rounded, size: 18),
+                              label: Text(
+                                _isSavingPassword ? l10n.saving : l10n.btnUpdatePassword,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                              ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.grey800,
+                                backgroundColor: const Color(0xFF0F172A),
                                 foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
                             ),
                           ),
@@ -673,11 +612,15 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 14),
+
+                  // ── App Settings & Preferences ──
                   _buildCard(
                     icon: Icons.tune_rounded,
-                    title: l10n.accessRoles,
-                    subtitle: 'Language & settings',
+                    title: 'App Preferences',
+                    subtitle: 'Language & regional settings',
+                    iconColor: const Color(0xFF10B981),
                     child: Column(
                       children: [
                         _buildSettingsTile(
@@ -686,29 +629,15 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                           trailing: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               value: ref.watch(localeProvider).languageCode,
-                              icon: const Icon(
-                                Icons.arrow_drop_down,
-                                color: AppColors.grey500,
-                              ),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: AppColors.grey800,
-                              ),
+                              icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.grey500),
+                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: AppColors.grey900),
                               items: [
-                                DropdownMenuItem(
-                                  value: 'en',
-                                  child: Text(l10n.english),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'km',
-                                  child: Text(l10n.khmer),
-                                ),
+                                DropdownMenuItem(value: 'en', child: Text(l10n.english)),
+                                DropdownMenuItem(value: 'km', child: Text(l10n.khmer)),
                               ],
                               onChanged: (String? newValue) {
                                 if (newValue != null) {
-                                  ref
-                                      .read(localeProvider.notifier)
-                                      .setLocale(Locale(newValue));
+                                  ref.read(localeProvider.notifier).setLocale(Locale(newValue));
                                 }
                               },
                             ),
@@ -717,61 +646,59 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 14),
+
+                  // ── Sign Out Tile ──
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: AppColors.dangerLight,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.danger.withAlpha(30)),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.danger.withValues(alpha: 0.25)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.danger.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () => showLogoutConfirmation(context, ref),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(18),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 20,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                           child: Row(
                             children: [
                               Container(
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: AppColors.danger.withAlpha(15),
+                                  color: AppColors.danger.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Icon(
-                                  Icons.logout_rounded,
-                                  color: AppColors.danger,
-                                  size: 20,
-                                ),
+                                child: const Icon(Icons.logout_rounded, color: AppColors.danger, size: 20),
                               ),
                               const SizedBox(width: 14),
                               Text(
                                 l10n.logOut,
                                 style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.bold,
                                   color: AppColors.danger,
                                 ),
                               ),
                               const Spacer(),
-                              const Icon(
-                                Icons.chevron_right_rounded,
-                                color: AppColors.danger,
-                                size: 20,
-                              ),
+                              const Icon(Icons.chevron_right_rounded, color: AppColors.danger, size: 20),
                             ],
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 32),
                 ],
               ),
             ),
@@ -785,36 +712,37 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
     required IconData icon,
     required String title,
     required String subtitle,
+    required Color iconColor,
     required Widget child,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(5),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
-                    borderRadius: BorderRadius.circular(10),
+                    color: iconColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: AppColors.primary, size: 20),
+                  child: Icon(icon, color: iconColor, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -824,16 +752,16 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                       Text(
                         title,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey800,
+                          color: AppColors.grey900,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 11.5,
                           color: AppColors.grey500,
                         ),
                       ),
@@ -842,7 +770,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             child,
           ],
         ),
@@ -852,17 +780,17 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
 
   Widget _buildField(String label, Widget field) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 6, left: 4),
+            padding: const EdgeInsets.only(bottom: 5, left: 2),
             child: Text(
               label,
               style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
                 color: AppColors.grey700,
               ),
             ),
@@ -875,17 +803,17 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
               color: AppColors.grey100,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: AppColors.grey500, size: 18),
+            child: Icon(icon, color: AppColors.grey600, size: 16),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -900,13 +828,13 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     color: AppColors.grey500,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 Text(
                   value,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey800,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey900,
                   ),
                 ),
               ],
@@ -925,31 +853,34 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         child: Row(
           children: [
-            Icon(icon, size: 22, color: AppColors.grey600),
-            const SizedBox(width: 14),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 18, color: const Color(0xFF10B981)),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
                 style: const TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.grey800,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.grey900,
                 ),
               ),
             ),
             ?trailing,
             if (onTap != null && trailing == null) ...[
               const SizedBox(width: 8),
-              const Icon(
-                Icons.chevron_right_rounded,
-                size: 20,
-                color: AppColors.grey400,
-              ),
+              const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.grey400),
             ],
           ],
         ),
@@ -960,23 +891,23 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
   InputDecoration _inputDecoration() {
     return InputDecoration(
       isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       filled: true,
-      fillColor: AppColors.backgroundLight,
+      fillColor: AppColors.grey50,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.grey200),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.grey200),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.primary),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF6366F1)),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.danger),
       ),
     );

@@ -59,71 +59,80 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.event_available_rounded,
-                color: AppColors.primary,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.leaveManagementTitle,
-                  style: const TextStyle(
-                    color: AppColors.grey800,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    height: 1.2,
+        centerTitle: false,
+        title: Text(
+          l10n.leaveManagementTitle,
+          style: const TextStyle(
+            color: AppColors.grey900,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            tooltip: 'Refresh',
+            onPressed: () {
+              ref.invalidate(allLeaveRequestsProvider);
+              ref.invalidate(leaveTypesProvider);
+              ref.invalidate(leaveBalancesProvider);
+            },
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            alignment: Alignment.centerLeft,
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              labelColor: const Color(0xFFEF4444),
+              unselectedLabelColor: AppColors.grey500,
+              indicatorColor: const Color(0xFFEF4444),
+              indicatorWeight: 3,
+              labelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500),
+              tabs: [
+                Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.assignment_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Text(l10n.tabRequests),
+                    ],
                   ),
                 ),
-                Text(
-                  l10n.leaveManagementSubtitle,
-                  style: const TextStyle(
-                    color: AppColors.grey400,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
+                Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.account_balance_wallet_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Text(l10n.tabBalances),
+                    ],
+                  ),
+                ),
+                Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.category_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Text(l10n.tabTypes),
+                    ],
                   ),
                 ),
               ],
             ),
-          ],
-        ),
-        centerTitle: false,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.grey500,
-          indicatorColor: AppColors.primary,
-          indicatorWeight: 2.5,
-          labelStyle: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
           ),
-          unselectedLabelStyle: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
-          tabs: [
-            Tab(text: l10n.tabRequests),
-            Tab(text: l10n.tabBalances),
-            Tab(text: l10n.tabTypes),
-          ],
         ),
       ),
       body: TabBarView(

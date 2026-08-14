@@ -63,83 +63,89 @@ class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen> with Sing
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.schedule_rounded, color: AppColors.primary, size: 20),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.shiftsAndCalendars,
+        centerTitle: false,
+        title: Text(
+          l10n.shiftsAndCalendars,
+          style: const TextStyle(
+            color: AppColors.grey900,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            tooltip: 'Refresh',
+            onPressed: () {
+              ref.invalidate(shiftsProvider);
+            },
+          ),
+          shiftsAsync.maybeWhen(
+            data: (shifts) => Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${shifts.length} shifts',
                   style: const TextStyle(
-                    color: AppColors.grey800,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    height: 1.2,
+                    color: Color(0xFF7C3AED),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11.5,
                   ),
                 ),
-                Text(
-                  l10n.manageWorkSchedules,
-                  style: const TextStyle(
-                    color: AppColors.grey400,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
+              ),
+            ),
+            orElse: () => const SizedBox.shrink(),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            alignment: Alignment.centerLeft,
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              labelColor: const Color(0xFF8B5CF6),
+              unselectedLabelColor: AppColors.grey500,
+              indicatorColor: const Color(0xFF8B5CF6),
+              indicatorWeight: 3,
+              labelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500),
+              tabs: const [
+                Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.schedule_rounded, size: 16),
+                      SizedBox(width: 6),
+                      Text('Schedules'),
+                    ],
+                  ),
+                ),
+                Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.badge_outlined, size: 16),
+                      SizedBox(width: 6),
+                      Text('Shift Assignments'),
+                    ],
                   ),
                 ),
               ],
             ),
-          ],
-        ),
-        centerTitle: false,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: shiftsAsync.maybeWhen(
-              data: (shifts) => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  l10n.shiftsCount(shifts.length.toString()),
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-              orElse: () => const SizedBox.shrink(),
-            ),
           ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.grey500,
-          indicatorColor: AppColors.primary,
-          indicatorWeight: 2.5,
-          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          tabs: const [
-            Tab(text: 'Schedules'),
-            Tab(text: 'Shift Assignments'),
-          ],
         ),
       ),
       body: TabBarView(

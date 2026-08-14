@@ -265,6 +265,9 @@ class FcmService {
       case 'upcoming_leave':
         context.push(AppRoutes.leaveList);
         break;
+      case 'overtime_request':
+        context.push(AppRoutes.requestOvertime);
+        break;
       case 'expense_claim':
         context.push(AppRoutes.expense);
         break;

@@ -766,12 +766,28 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     final assetsAsync = ref.watch(assetsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surfaceLight,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(l10n.companyAssetsTitle, style: const TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700)),
+        centerTitle: false,
+        title: Text(
+          l10n.companyAssetsTitle,
+          style: const TextStyle(
+            color: AppColors.grey900,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            tooltip: 'Refresh',
+            onPressed: () {
+              ref.invalidate(assetsProvider);
+            },
+          ),
+        ],
       ),
       body: assetsAsync.when(
         data: (items) {

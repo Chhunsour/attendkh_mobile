@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/models/kpi_model.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'kpi_shared_components.dart';
 
 class KpiEmployeeView extends StatelessWidget {
@@ -12,21 +11,26 @@ class KpiEmployeeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Column(
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
       children: [
         KpiSharedComponents.buildSummaryCard(
           title: l10n.overallSystemScore,
           score: data.metrics.overallScore,
           subtitle: l10n.basedOnDynamicData,
-          color: AppColors.primary,
-          icon: Icons.track_changes,
+          color: const Color(0xFF10B981),
+          icon: Icons.track_changes_rounded,
+          branchAverage: data.metrics.branchAverage,
+          companyAverage: data.metrics.companyAverage,
         ),
-        Expanded(
-          child: KpiSharedComponents.buildKpiList(
-            context: context,
-            kpis: data.employeeKpis,
-            themeColor: AppColors.primary,
-          ),
+        KpiSharedComponents.buildKpiList(
+          context: context,
+          kpis: data.employeeKpis,
+          themeColor: const Color(0xFF10B981),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
         ),
       ],
     );

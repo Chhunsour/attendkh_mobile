@@ -18,14 +18,17 @@ class CustomTimePicker extends StatefulWidget {
 }
 
 class _CustomTimePickerState extends State<CustomTimePicker> {
-  int? _selectedHour;
+  int? _selectedHour; // 1-12
   int? _selectedMinute;
+  bool _isPM = false; // AM/PM toggle
 
   @override
   void initState() {
     super.initState();
     if (widget.initialTime != null) {
-      _selectedHour = widget.initialTime!.hour;
+      final h = widget.initialTime!.hour;
+      _isPM = h >= 12;
+      _selectedHour = h == 0 ? 12 : (h > 12 ? h - 12 : h);
       _selectedMinute = _roundToNearest15(widget.initialTime!.minute);
     }
   }
@@ -35,31 +38,52 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
     if (minute < 23) return 15;
     if (minute < 38) return 30;
     if (minute < 53) return 45;
-    return 0; // Rolls over to 0, ideally we should increment hour, but keeping it simple
+    return 0;
   }
 
-  bool _isHourDisabled(int hour) {
-    if (widget.disabledStart == null || widget.disabledEnd == null) return false;
+  int get _realHour {
+    if (_selectedHour == null) return 0;
+    if (_selectedHour == 12) return _isPM ? 12 : 0;
+    return _isPM ? _selectedHour! + 12 : _selectedHour!;
+  }
 
-    // Shift is within a single day (e.g. 09:00 to 18:00)
-    if (widget.disabledStart!.hour < widget.disabledEnd!.hour) {
-      // If hour is strictly between start and end, it's completely disabled
-      if (hour > widget.disabledStart!.hour && hour < widget.disabledEnd!.hour) return true;
+  bool _isHourDisabled(int hour12, bool pm) {
+    if (widget.disabledStart == null || widget.disabledEnd == null) {
       return false;
-    } 
-    // Shift goes overnight (e.g. 22:00 to 06:00)
-    else {
-      if (hour > widget.disabledStart!.hour || hour < widget.disabledEnd!.hour) return true;
+    }
+
+    int realHour;
+    if (hour12 == 12) {
+      realHour = pm ? 12 : 0;
+    } else {
+      realHour = pm ? hour12 + 12 : hour12;
+    }
+
+    if (widget.disabledStart!.hour < widget.disabledEnd!.hour) {
+      if (realHour > widget.disabledStart!.hour &&
+          realHour < widget.disabledEnd!.hour) {
+        return true;
+      }
+      return false;
+    } else {
+      if (realHour > widget.disabledStart!.hour ||
+          realHour < widget.disabledEnd!.hour) {
+        return true;
+      }
       return false;
     }
   }
 
-  bool _isTimeDisabled(int hour, int minute) {
-    if (widget.disabledStart == null || widget.disabledEnd == null) return false;
+  bool _isTimeDisabled(int realHour, int minute) {
+    if (widget.disabledStart == null || widget.disabledEnd == null) {
+      return false;
+    }
 
-    final timeInMinutes = hour * 60 + minute;
-    final startInMinutes = widget.disabledStart!.hour * 60 + widget.disabledStart!.minute;
-    final endInMinutes = widget.disabledEnd!.hour * 60 + widget.disabledEnd!.minute;
+    final timeInMinutes = realHour * 60 + minute;
+    final startInMinutes =
+        widget.disabledStart!.hour * 60 + widget.disabledStart!.minute;
+    final endInMinutes =
+        widget.disabledEnd!.hour * 60 + widget.disabledEnd!.minute;
 
     if (startInMinutes < endInMinutes) {
       return timeInMinutes >= startInMinutes && timeInMinutes < endInMinutes;
@@ -92,7 +116,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
-                )
+                ),
               ],
             ),
           ),
@@ -107,12 +131,19 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, color: AppColors.warning, size: 20),
+                    const Icon(
+                      Icons.info_outline,
+                      color: AppColors.warning,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Shift hours (${widget.disabledStart!.format(context)} - ${widget.disabledEnd!.format(context)}) are disabled.',
-                        style: const TextStyle(color: AppColors.warning, fontSize: 12),
+                        style: const TextStyle(
+                          color: AppColors.warning,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ],
@@ -120,49 +151,118 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
               ),
             ),
           const SizedBox(height: 16),
+          // AM/PM Toggle
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _isPM = false),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: !_isPM ? AppColors.primary : AppColors.grey100,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'AM',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: !_isPM ? Colors.white : AppColors.grey500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _isPM = true),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _isPM ? AppColors.primary : AppColors.grey100,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'PM',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: _isPM ? Colors.white : AppColors.grey500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
           Expanded(
             child: Row(
               children: [
-                // Hours List
+                // Hours List (1-12)
                 Expanded(
                   child: Column(
                     children: [
-                      const Text('Hour', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                      const Text(
+                        'Hour',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Expanded(
                         child: ListView.builder(
-                          itemCount: 24,
+                          itemCount: 12,
                           itemBuilder: (context, index) {
-                            final hour = index;
-                            final isDisabled = _isHourDisabled(hour);
-                            final isSelected = _selectedHour == hour;
+                            final hour12 = index + 1;
+                            final isDisabled = _isHourDisabled(hour12, _isPM);
+                            final isSelected = _selectedHour == hour12;
 
                             return InkWell(
                               onTap: isDisabled
                                   ? null
                                   : () {
                                       setState(() {
-                                        _selectedHour = hour;
-                                        // Reset minute if invalid combination
-                                        if (_selectedMinute != null && _isTimeDisabled(hour, _selectedMinute!)) {
+                                        _selectedHour = hour12;
+                                        if (_selectedMinute != null &&
+                                            _isTimeDisabled(
+                                              _realHour,
+                                              _selectedMinute!,
+                                            )) {
                                           _selectedMinute = null;
                                         }
                                       });
                                     },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                color: isSelected ? AppColors.primary.withAlpha(30) : null,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                color: isSelected
+                                    ? AppColors.primary.withAlpha(30)
+                                    : null,
                                 child: Center(
                                   child: Text(
-                                    hour.toString().padLeft(2, '0'),
+                                    hour12.toString().padLeft(2, '0'),
                                     style: TextStyle(
                                       fontSize: 20,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                       color: isDisabled
                                           ? Colors.grey.withAlpha(100)
                                           : isSelected
-                                              ? AppColors.primary
-                                              : AppColors.grey900,
+                                          ? AppColors.primary
+                                          : AppColors.grey900,
                                     ),
                                   ),
                                 ),
@@ -179,16 +279,30 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                 Expanded(
                   child: Column(
                     children: [
-                      const Text('Minute', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                      const Text(
+                        'Minute',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Expanded(
                         child: _selectedHour == null
-                            ? const Center(child: Text('Select hour first', style: TextStyle(color: Colors.grey)))
+                            ? const Center(
+                                child: Text(
+                                  'Select hour first',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              )
                             : ListView.builder(
                                 itemCount: minutesList.length,
                                 itemBuilder: (context, index) {
                                   final minute = minutesList[index];
-                                  final isDisabled = _isTimeDisabled(_selectedHour!, minute);
+                                  final isDisabled = _isTimeDisabled(
+                                    _realHour,
+                                    minute,
+                                  );
                                   final isSelected = _selectedMinute == minute;
 
                                   return InkWell(
@@ -200,19 +314,25 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                                             });
                                           },
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 12),
-                                      color: isSelected ? AppColors.primary.withAlpha(30) : null,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                      color: isSelected
+                                          ? AppColors.primary.withAlpha(30)
+                                          : null,
                                       child: Center(
                                         child: Text(
                                           minute.toString().padLeft(2, '0'),
                                           style: TextStyle(
                                             fontSize: 20,
-                                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                            fontWeight: isSelected
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
                                             color: isDisabled
                                                 ? Colors.grey.withAlpha(100)
                                                 : isSelected
-                                                    ? AppColors.primary
-                                                    : AppColors.grey900,
+                                                ? AppColors.primary
+                                                : AppColors.grey900,
                                           ),
                                         ),
                                       ),
@@ -236,18 +356,23 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                     ? () {
                         Navigator.pop(
                           context,
-                          TimeOfDay(hour: _selectedHour!, minute: _selectedMinute!),
+                          TimeOfDay(hour: _realHour, minute: _selectedMinute!),
                         );
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   disabledBackgroundColor: Colors.grey.withAlpha(50),
                 ),
-                child: const Text('Confirm', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Confirm',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),
