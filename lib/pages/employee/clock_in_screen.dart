@@ -25,6 +25,7 @@ class ClockInArgs {
   final double longitude;
   final double distance;
   final int? radius;
+  final bool isLateNow;
 
   ClockInArgs({
     required this.isClockIn,
@@ -34,6 +35,7 @@ class ClockInArgs {
     required this.longitude,
     required this.distance,
     this.radius,
+    this.isLateNow = false,
   });
 }
 
@@ -198,6 +200,16 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
       final repo = ref.read(attendanceRepositoryProvider);
       final String deviceName = await _getDeviceName();
 
+      if (widget.args.isLateNow && _lateReasonController.text.trim().isEmpty) {
+        if (mounted) {
+          setState(() => _isSubmitting = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.fieldRequired), backgroundColor: AppColors.danger),
+          );
+        }
+        return;
+      }
+
       if (widget.args.isClockIn) {
         if (widget.args.isOvertime) {
           await repo.overtimeIn(
@@ -329,11 +341,11 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
               
               const Spacer(),
               
-              if (widget.args.isClockIn && !widget.args.isOvertime) ...[
+              if (widget.args.isClockIn && !widget.args.isOvertime && widget.args.isLateNow) ...[
                 TextField(
                   controller: _lateReasonController,
                   decoration: InputDecoration(
-                    labelText: 'Late Reason / Notes (Optional)',
+                    labelText: 'Late Reason / Notes (Required)',
                     hintText: 'e.g. Traffic jam, doctor appointment',
                     prefixIcon: const Icon(Icons.edit_note, color: AppColors.primary),
                     filled: true,

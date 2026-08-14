@@ -294,21 +294,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     bool isClockedIn,
     ProfileData? profile,
     TodayAttendance? today,
+    bool isLateNow,
   ) {
     final bool isRegularCompleted =
         today?.clockIn != null && today?.clockOut != null;
-    final bool isOvertimeIn =
-        today?.overtimeIn != null && today?.overtimeOut == null;
-    final bool isOvertimeCompleted =
-        today?.overtimeIn != null && today?.overtimeOut != null;
-    final bool isEarlyLeave = (today?.earlyLeaveMinutes ?? 0) > 0;
 
-    if (isOvertimeCompleted || (isRegularCompleted && isEarlyLeave)) {
-      return const SizedBox(); // Do not show Overtime option if clocked out early or OT completed
+    if (isRegularCompleted) {
+      return const SizedBox(); // Shift completed, no more clocking in/out.
     }
 
-    final isClockingOut = isClockedIn || isOvertimeIn;
-    final isOvertimeAction = isRegularCompleted && !isOvertimeCompleted;
+    final isClockingOut = isClockedIn;
+    const isOvertimeAction = false;
 
     return _SwipeToClockButton(
       l10n: l10n,
@@ -340,6 +336,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           longitude: _currentPosition!.longitude,
           distance: profile != null ? (_calculateDistance(profile) ?? 0) : 0,
           radius: profile?.branchRadius,
+          isLateNow: isLateNow,
         );
 
         context.push(AppRoutes.clockIn, extra: args);
@@ -1288,18 +1285,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     TodayAttendance? today, {
     required AsyncValue<ProfileData> profileAsync,
   }) {
+    final summaryAsync = ref.watch(employeeDashboardSummaryProvider);
     final isClockedIn = today?.clockIn != null && today?.clockOut == null;
     final isCompleted = today?.clockIn != null && today?.clockOut != null;
-    final isOvertimeIn =
-        today?.overtimeIn != null && today?.overtimeOut == null;
-    final isOvertimeCompleted =
-        today?.overtimeIn != null && today?.overtimeOut != null;
 
-    final Color cardColor = isOvertimeIn
-        ? Colors.deepPurple
-        : isOvertimeCompleted
-        ? AppColors.grey800
-        : isClockedIn
+    final Color cardColor = isClockedIn
         ? AppColors.success
         : (isCompleted ? Colors.deepOrange : AppColors.primary);
 
@@ -1326,9 +1316,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isOvertimeIn || isClockedIn
+              isClockedIn
                   ? Icons.timer_outlined
-                  : (isOvertimeCompleted || isCompleted
+                  : (isCompleted
                         ? Icons.check_circle
                         : Icons.access_time_rounded),
               size: 40,
@@ -1375,26 +1365,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 : const SizedBox(height: 6),
             orElse: () => const SizedBox(height: 6),
           ),
-          if (isOvertimeIn) ...[
-            Text(
-              l10n.overtimeStartedAt + _formatTime(today!.overtimeIn!),
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ] else if (isOvertimeCompleted) ...[
-            Text(
-              l10n.overtimeCompleted,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ] else if (isClockedIn) ...[
+          if (isClockedIn) ...[
             Text(
               l10n.clockedInAt + _formatTime(today!.clockIn!),
               style: const TextStyle(
@@ -1463,133 +1434,131 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
             ),
           ],
           const SizedBox(height: 24),
-
-          if (!isOvertimeCompleted)
-            profileAsync.maybeWhen(
-              data: (profile) {
-                if (_locationPermissionGranted == false &&
-                    !isClockedIn &&
-                    !isOvertimeIn &&
-                    !isCompleted) {
-                  return Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(20),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Icons.location_disabled,
-                          color: Colors.white70,
-                          size: 32,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.locationAccessRequired,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          l10n.locationAccessDesc,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: () async {
-                            LocationPermission permission =
-                                await Geolocator.checkPermission();
-                            if (permission == LocationPermission.denied) {
-                              permission = await Geolocator.requestPermission();
-                            }
-                            if (permission ==
-                                LocationPermission.deniedForever) {
-                              // Only open settings if permanently denied
-                              await Geolocator.openAppSettings();
-                            }
-                            _startLocationTracking();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.surfaceLight,
-                            foregroundColor: AppColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(
-                            l10n.enableLocation,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                if (profile.branchLat == null ||
-                    profile.branchLng == null ||
-                    profile.branchRadius == null) {
-                  return _buildClockButton(
-                    context,
-                    ref,
-                    l10n,
-                    isClockedIn,
-                    profile,
-                    today,
-                  );
-                }
-
-                final distance = _calculateDistance(profile);
-                if (distance == null &&
-                    !isClockedIn &&
-                    !isOvertimeIn &&
-                    !isCompleted) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      l10n.calculatingLocation,
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  );
-                }
-
-                if (isClockedIn ||
-                    isOvertimeIn ||
-                    isCompleted ||
-                    (distance != null && distance <= profile.branchRadius!)) {
-                  return Column(
+          profileAsync.maybeWhen(
+            data: (profile) {
+              if (_locationPermissionGranted == false &&
+                  !isClockedIn &&
+                  !isCompleted) {
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(20),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
                     children: [
-                      if (!isClockedIn && !isOvertimeIn && !isCompleted)
-                        Text(
-                          '${l10n.withinRadiusPrefix}${distance?.toStringAsFixed(0) ?? '0'}m / ${profile.branchRadius}m)',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                      if (isClockedIn || isOvertimeIn)
-                        Text(
-                          l10n.clockOutAnywhere,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                      const SizedBox(height: 8),
-                      _buildClockButton(
-                        context,
-                        ref,
-                        l10n,
-                        isClockedIn,
-                        profile,
-                        today,
+                      const Icon(
+                        Icons.location_disabled,
+                        color: Colors.white70,
+                        size: 32,
                       ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.locationAccessRequired,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        l10n.locationAccessDesc,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: () async {
+                          LocationPermission permission =
+                              await Geolocator.checkPermission();
+                          if (permission == LocationPermission.denied) {
+                            permission = await Geolocator.requestPermission();
+                          }
+                          if (permission ==
+                              LocationPermission.deniedForever) {
+                            // Only open settings if permanently denied
+                            await Geolocator.openAppSettings();
+                          }
+                          _startLocationTracking();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.surfaceLight,
+                          foregroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          l10n.enableLocation,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              if (profile.branchLat == null ||
+                  profile.branchLng == null ||
+                  profile.branchRadius == null) {
+                return _buildClockButton(
+                  context,
+                  ref,
+                  l10n,
+                  isClockedIn,
+                  profile,
+                  today,
+                  summaryAsync.valueOrNull?['is_late_now'] == true,
+                );
+              }
+
+              final distance = _calculateDistance(profile);
+              if (distance == null &&
+                  !isClockedIn &&
+                  !isCompleted) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    l10n.calculatingLocation,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                );
+              }
+
+              if (isClockedIn ||
+                  isCompleted ||
+                  (distance != null && distance <= profile.branchRadius!)) {
+                return Column(
+                  children: [
+                    if (!isClockedIn && !isCompleted)
+                      Text(
+                        '${l10n.withinRadiusPrefix}${distance?.toStringAsFixed(0) ?? '0'}m / ${profile.branchRadius}m)',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    if (isClockedIn)
+                      Text(
+                        l10n.clockOutAnywhere,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    _buildClockButton(
+                      context,
+                      ref,
+                      l10n,
+                      isClockedIn,
+                      profile,
+                      today,
+                      summaryAsync.valueOrNull?['is_late_now'] == true,
+                    ),
+
                     ],
                   );
                 } else {
@@ -1634,6 +1603,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                 isClockedIn,
                 null,
                 today,
+                summaryAsync.valueOrNull?['is_late_now'] == true,
               ),
             ),
         ],
@@ -1668,6 +1638,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
           icon: Icons.event_note_outlined,
           color: AppColors.secondary,
           onTap: () => context.push(AppRoutes.leaveList),
+        ),
+        _GridItem(
+          title: 'Overtime',
+          description: 'Request Overtime',
+          icon: Icons.timer_outlined,
+          color: Colors.deepPurple,
+          onTap: () => context.push(AppRoutes.requestOvertime),
         ),
         _GridItem(
           title: l10n.expenses,

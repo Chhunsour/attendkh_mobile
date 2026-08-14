@@ -45,7 +45,7 @@ class _CompanyAdminDashboardScreenState
 
     return Stack(
       children: [
-        _buildMainScaffold(context, ref, authState, profileAsync, l10n),
+        _buildMainScaffold(context, ref, authState, branchSwitchState, profileAsync, l10n),
         // Blur overlay when switching branches
         if (branchSwitchState.isSwitching) _buildBlurOverlay(l10n),
       ],
@@ -130,6 +130,7 @@ class _CompanyAdminDashboardScreenState
     BuildContext context,
     WidgetRef ref,
     AuthState authState,
+    BranchSwitchState branchSwitchState,
     AsyncValue<ProfileData> profileAsync,
     AppLocalizations l10n,
   ) {
@@ -179,8 +180,8 @@ class _CompanyAdminDashboardScreenState
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 )
-                              : PopupMenuButton<BranchData>(
-                                  tooltip: 'Select a branch to impersonate',
+                              : PopupMenuButton<BranchData?>(
+                                  tooltip: 'Filter by branch',
                                   offset: const Offset(0, 48),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
@@ -205,7 +206,7 @@ class _CompanyAdminDashboardScreenState
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
-                                            l10n.selectBranch,
+                                            branchSwitchState.activeBranchName ?? l10n.selectBranch,
                                             style: const TextStyle(
                                               color: AppColors.primary,
                                               fontSize: 12,
@@ -223,16 +224,18 @@ class _CompanyAdminDashboardScreenState
                                     ],
                                   ),
                                   onSelected: (branch) async {
-                                    await ref
-                                        .read(branchSwitchProvider.notifier)
-                                        .switchToBranch(branch);
-                                    if (context.mounted) {
-                                      context.push(AppRoutes.branchManagerView);
+                                    if (branch == null) {
+                                      ref.read(branchSwitchProvider.notifier).exitBranchView();
+                                    } else {
+                                      await ref
+                                          .read(branchSwitchProvider.notifier)
+                                          .switchToBranch(branch);
                                     }
+                                    ref.invalidate(dashboardStatsProvider);
                                   },
                                   itemBuilder: (context) {
                                     return [
-                                      PopupMenuItem<BranchData>(
+                                      PopupMenuItem<BranchData?>(
                                         enabled: false,
                                         height: 30,
                                         child: Text(
@@ -244,8 +247,25 @@ class _CompanyAdminDashboardScreenState
                                           ),
                                         ),
                                       ),
+                                      if (branchSwitchState.isActive)
+                                        const PopupMenuItem<BranchData?>(
+                                          value: null,
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.clear, size: 16, color: AppColors.danger),
+                                              SizedBox(width: 12),
+                                              Text(
+                                                'Clear Filter',
+                                                style: TextStyle(
+                                                  color: AppColors.danger,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ...branches.map(
-                                        (b) => PopupMenuItem<BranchData>(
+                                        (b) => PopupMenuItem<BranchData?>(
                                           value: b,
                                           child: Row(
                                             children: [
@@ -576,6 +596,15 @@ class _CompanyAdminDashboardScreenState
                     color: const Color(0xFFEF4444),
                     routePath: AppRoutes.adminLeave,
                   ),
+                if (authState.isCompanyAdmin || authState.isBranchManager)
+                  _buildGridItem(
+                    context,
+                    title: 'Overtime',
+                    description: 'Review OT requests',
+                    icon: Icons.more_time_rounded,
+                    color: const Color(0xFFF97316), // Orange
+                    routePath: AppRoutes.adminOvertime,
+                  ),
                 if (authState.isBranchManager && !authState.isCompanyAdmin)
                   _buildGridItem(
                     context,
@@ -717,6 +746,15 @@ class _CompanyAdminDashboardScreenState
                     icon: Icons.notifications_rounded,
                     color: const Color(0xFFEF4444),
                     routePath: AppRoutes.notifications,
+                  ),
+                if (authState.isCompanyAdmin || authState.isBranchManager)
+                  _buildGridItem(
+                    context,
+                    title: 'Top Employees',
+                    description: 'View Leaderboard',
+                    icon: Icons.emoji_events_rounded,
+                    color: const Color(0xFFF59E0B),
+                    routePath: AppRoutes.adminTopEmployees,
                   ),
               ],
             ),

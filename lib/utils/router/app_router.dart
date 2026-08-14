@@ -9,6 +9,7 @@ import 'package:mpg_hr_mobile_app/pages/auth/company_select_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/auth/verify_email_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/attendance_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/employee/request_overtime_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/leave_list_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/leave_request_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/employee/payslip_screen.dart';
@@ -41,6 +42,7 @@ import 'package:mpg_hr_mobile_app/pages/hr/hr_structure_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employees_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_attendance_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_leave_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_overtime_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_payroll_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_shifts_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_assets_screen.dart';
@@ -48,6 +50,7 @@ import 'package:mpg_hr_mobile_app/pages/hr/admin_expenses_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_recruitment_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_performance_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_reports_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/admin_top_employees_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_roles_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_resources_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employee_form_screen.dart';
@@ -67,6 +70,9 @@ import 'package:mpg_hr_mobile_app/pages/hr/branch_manager_view_screen.dart';
 class AppRoutes {
   static const splash = '/';
   static const login = '/login';
+  static const String requestLeave = '/request-leave';
+  static const String requestOvertime = '/request-overtime';
+  static const String requestsManager = '/requests-manager';
   static const register = '/register';
   static const verifyEmail = '/verify-email';
   static const companySelect = '/company-select';
@@ -102,6 +108,7 @@ class AppRoutes {
   static const adminEmployees = '/company-admin/employees';
   static const adminAttendance = '/company-admin/attendance';
   static const adminLeave = '/company-admin/leave';
+  static const adminOvertime = '/company-admin/overtime';
   static const adminPayroll = '/company-admin/payroll';
   static const adminShifts = '/company-admin/shifts';
   static const adminAssets = '/company-admin/assets';
@@ -109,6 +116,7 @@ class AppRoutes {
   static const adminRecruitment = '/company-admin/recruitment';
   static const adminPerformance = '/company-admin/performance';
   static const adminReports = '/company-admin/reports';
+  static const adminTopEmployees = '/company-admin/top-employees';
   static const adminRoles = '/company-admin/roles';
   static const adminResources = '/company-admin/resources';
   static const adminEmployeeForm = '/company-admin/employee-form';
@@ -291,8 +299,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LeaveListScreen(),
       ),
       GoRoute(
-        path: AppRoutes.leaveRequest,
+        path: AppRoutes.requestLeave,
         builder: (context, state) => const LeaveRequestScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.requestOvertime,
+        builder: (context, state) => const RequestOvertimeScreen(),
       ),
       GoRoute(
         path: AppRoutes.payslip,
@@ -403,6 +415,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AdminLeaveScreen(),
       ),
       GoRoute(
+        path: AppRoutes.adminOvertime,
+        builder: (context, state) => const AdminOvertimeScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.adminPayroll,
         builder: (context, state) => const AdminPayrollScreen(),
       ),
@@ -429,6 +445,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminReports,
         builder: (context, state) => const AdminReportsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminTopEmployees,
+        builder: (context, state) => const TopEmployeesScreen(),
       ),
       GoRoute(
         path: AppRoutes.adminRoles,
