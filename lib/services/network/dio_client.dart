@@ -3,16 +3,18 @@ import 'package:flutter/foundation.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
 
-/// Base URL for the Laravel backend.
-/// - Android Emulator : 10.0.2.2 maps to the host machine's localhost.
-/// - Real device (WiFi): Use the Mac's LAN IP so the device can reach the server.
-/// Change [_devServerIp] to match your machine's current IP when on a real device.
-const String _devServerIp = '10.0.2.2:8000';
+/// Server Host for the backend (e.g. 'attendkh.com' for production, or '10.0.2.2:8000' for local emulator).
+const String _devServerIp = 'attendkh.com';
 const String _r2StorageUrl =
     'https://pub-ccd9b4a59b6e4eddb12ef2a2c45e75c7.r2.dev';
 
 String get _baseUrl {
-  return 'http://$_devServerIp/api';
+  final isLocal = _devServerIp.contains('10.0.2.2') ||
+      _devServerIp.contains('localhost') ||
+      _devServerIp.contains('192.168.') ||
+      _devServerIp.contains(':8000');
+  final protocol = isLocal ? 'http' : 'https';
+  return '$protocol://$_devServerIp/api';
 }
 
 class DioClient {
