@@ -245,17 +245,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                                     color: Colors.white.withAlpha(120),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                const Text('⚡', style: TextStyle(fontSize: 12)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Live Attendance',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white.withAlpha(220),
-                                  ),
-                                ),
                               ],
                             ),
                           ),
