@@ -66,7 +66,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     final authNotifier = ref.read(authProvider.notifier);
     await authNotifier.login(
       login: _loginController.text.trim(),
-      password: _passwordController.text,
+      password: _passwordController.text.trim(),
     );
 
     if (!mounted) return;

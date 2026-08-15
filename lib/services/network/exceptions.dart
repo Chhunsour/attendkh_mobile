@@ -76,10 +76,20 @@ AppException mapDioException(DioException e) {
     case 404:
       return const NotFoundException();
     case 422:
-      final errors = e.response?.data?['errors'] as Map<String, dynamic>?;
+      final rawData = e.response?.data;
+      final errors = rawData is Map<String, dynamic> ? rawData['errors'] as Map<String, dynamic>? : null;
+      String? specificMessage;
+      if (errors != null && errors.isNotEmpty) {
+        final firstVal = errors.values.first;
+        if (firstVal is List && firstVal.isNotEmpty) {
+          specificMessage = firstVal.first.toString();
+        } else if (firstVal is String) {
+          specificMessage = firstVal;
+        }
+      }
       return ValidationException(
-        message: e.response?.data?['message'] ?? 'Validation failed',
-        errors: errors?.map((k, v) => MapEntry(k, (v as List).cast<String>())) ?? {},
+        message: specificMessage ?? (rawData is Map<String, dynamic> ? rawData['message'] : null) ?? 'These credentials do not match our records.',
+        errors: errors?.map((k, v) => MapEntry(k, (v is List ? v : [v]).cast<String>())) ?? {},
       );
     case 500:
     case 502:
