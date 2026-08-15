@@ -254,6 +254,30 @@ abstract class AppLocalizations {
   /// **'HR Management System'**
   String get hrManagementSystem;
 
+  /// No description provided for @smartAttendanceSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Attendance & HR Solution'**
+  String get smartAttendanceSystem;
+
+  /// No description provided for @gpsAttendanceReady.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS Geofence Attendance Ready'**
+  String get gpsAttendanceReady;
+
+  /// No description provided for @cambodiaAttendanceTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Cambodia\'s Smart Attendance & Workforce Management'**
+  String get cambodiaAttendanceTagline;
+
+  /// No description provided for @poweredByAttendKH.
+  ///
+  /// In en, this message translates to:
+  /// **'AttendKH Cambodia'**
+  String get poweredByAttendKH;
+
   /// No description provided for @companyPrefix.
   ///
   /// In en, this message translates to:

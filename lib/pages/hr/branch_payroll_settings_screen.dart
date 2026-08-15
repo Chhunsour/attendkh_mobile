@@ -46,9 +46,14 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
   final _halfDayHoursCtrl = TextEditingController();
   final _halfDayPctCtrl = TextEditingController();
 
+  final _taxRateCtrl = TextEditingController();
+  final _insuranceRateCtrl = TextEditingController();
+
   bool _isCustom = false;
   bool _otEnabled = false;
   bool _lateEnabled = false;
+  bool _taxEnabled = false;
+  bool _insuranceEnabled = false;
   
   String _lateCalcMethod = 'per_minute';
   String _earlyLeaveDedType = 'per_minute';
@@ -111,6 +116,11 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
 
             _halfDayHoursCtrl.text = settings.halfDayHours.toString();
             _halfDayPctCtrl.text = settings.halfDayDeductionPercentage.toString();
+
+            _taxEnabled = settings.taxEnabled;
+            _taxRateCtrl.text = settings.taxRatePercentage.toString();
+            _insuranceEnabled = settings.insuranceEnabled;
+            _insuranceRateCtrl.text = settings.insuranceRatePercentage.toString();
             
             _workingDaysType = settings.workingDaysType;
             _workingDaysCtrl.text = settings.fixedWorkingDays.toString();
@@ -303,6 +313,33 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                       const SizedBox(height: 12),
                       _textField(_halfDayPctCtrl, l10n.halfDayDeductionPctLabel, keyboardType: const TextInputType.numberWithOptions(decimal: true)),
 
+                      const SizedBox(height: 28),
+                      _sectionHeader('Tax & NSSF / Social Security'),
+                      const SizedBox(height: 8),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Enable Tax on Salary (TOAS)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        subtitle: const Text('Deduct income tax percentage from gross salary', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                        value: _taxEnabled,
+                        onChanged: (v) => setState(() => _taxEnabled = v),
+                      ),
+                      if (_taxEnabled) ...[
+                        const SizedBox(height: 8),
+                        _textField(_taxRateCtrl, 'Tax Rate Percentage (%)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                      ],
+                      const SizedBox(height: 12),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Enable NSSF / Insurance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        subtitle: const Text('Deduct social security percentage from base salary', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                        value: _insuranceEnabled,
+                        onChanged: (v) => setState(() => _insuranceEnabled = v),
+                      ),
+                      if (_insuranceEnabled) ...[
+                        const SizedBox(height: 8),
+                        _textField(_insuranceRateCtrl, 'NSSF / Insurance Rate (%)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+                      ],
+
                       const SizedBox(height: 32),
                       ElevatedButton(
                         onPressed: _saveSettings,
@@ -364,6 +401,11 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
 
         'half_day_hours': double.tryParse(_halfDayHoursCtrl.text) ?? 4.0,
         'half_day_deduction_percentage': double.tryParse(_halfDayPctCtrl.text) ?? 50.0,
+
+        'tax_enabled': _taxEnabled,
+        'tax_rate_percentage': double.tryParse(_taxRateCtrl.text) ?? 0.0,
+        'insurance_enabled': _insuranceEnabled,
+        'insurance_rate_percentage': double.tryParse(_insuranceRateCtrl.text) ?? 0.0,
       });
       ref.invalidate(branchPayrollSettingsProvider(widget.branchId));
       ref.invalidate(branchFormulasProvider(widget.branchId));

@@ -88,6 +88,20 @@ class AppLocalizationsKm extends AppLocalizations {
   String get hrManagementSystem => 'ប្រព័ន្ធគ្រប់គ្រងធនធានមនុស្ស';
 
   @override
+  String get smartAttendanceSystem =>
+      'ប្រព័ន្ធកត់ត្រាវត្តមាន & ធនធានមនុស្សឆ្លាតវៃ';
+
+  @override
+  String get gpsAttendanceReady => 'ប្រព័ន្ធវត្តមាន GPS Geofence ត្រៀមរួចរាល់';
+
+  @override
+  String get cambodiaAttendanceTagline =>
+      'ប្រព័ន្ធកត់ត្រាវត្តមាន និងគ្រប់គ្រងបុគ្គលិកកម្ពុជា';
+
+  @override
+  String get poweredByAttendKH => 'AttendKH កម្ពុជា';
+
+  @override
   String get companyPrefix => 'ក្រុមហ៊ុន \"';
 
   @override

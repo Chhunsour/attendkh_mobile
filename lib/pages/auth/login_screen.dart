@@ -1,15 +1,14 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-// import 'package:mpg_hr_mobile_app/services/auth_repository.dart';
 import 'package:mpg_hr_mobile_app/components/app_logo.dart';
 import 'package:mpg_hr_mobile_app/components/custom_text_field.dart';
 import 'package:mpg_hr_mobile_app/components/primary_button.dart';
 import 'package:mpg_hr_mobile_app/components/secondary_button.dart';
+import 'package:mpg_hr_mobile_app/components/language_switch_button.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -43,7 +42,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       curve: Curves.easeOut,
     );
     _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.15),
+      begin: const Offset(0, 0.12),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animController,
@@ -79,7 +78,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authState.error!),
-          backgroundColor: Colors.redAccent,
+          backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -88,417 +87,299 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  BUILD — Full-screen Stack layout
-  // ═══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final l10n = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
-    final viewInsets = MediaQuery.of(context).viewInsets;
-    final padding = MediaQuery.of(context).padding;
-    double formTop = size.height * 0.40 - viewInsets.bottom;
-    if (formTop < padding.top + 20) {
-      formTop = padding.top + 20;
-    }
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: isDark ? AppColors.backgroundDark : const Color(0xFF071228),
       body: Stack(
         children: [
-          // ── Layer 1: Full-screen garage/workshop background image ──
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: size.height,
-            child: Image.asset(
-              'assets/images/background_image_without_logo.png',
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF1A1A2E),
-                      Color(0xFF16213E),
-                      Color(0xFF0F3460),
-                    ],
-                  ),
+          // ── Layer 1: Modern Tech Gradient Background ──
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF061124),
+                    Color(0xFF092055),
+                    Color(0xFF0038B8),
+                    Color(0xFF02132B),
+                  ],
+                  stops: [0.0, 0.35, 0.75, 1.0],
                 ),
               ),
             ),
           ),
 
-          // ── Layer 2: Dark overlay (45 % opacity) ──
+          // ── Layer 2: Ambient Glowing Light Orbs ──
           Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: size.height,
-            child: Container(color: const Color(0x73000000)),
+            top: -size.width * 0.2,
+            right: -size.width * 0.15,
+            child: Container(
+              width: size.width * 0.75,
+              height: size.width * 0.75,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary.withAlpha(50),
+              ),
+            ),
           ),
-
-          // ── Layer 3: Logo + branding (top-center, absolute) ──
-          FadeTransition(
-            opacity: _fadeAnim,
-            child: const SafeArea(
-              child: Align(
-                alignment: Alignment(0, -0.80), // upper portion
-                child: _TopBranding(),
+          Positioned(
+            top: size.height * 0.22,
+            left: -size.width * 0.2,
+            child: Container(
+              width: size.width * 0.65,
+              height: size.width * 0.65,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.secondary.withAlpha(35),
               ),
             ),
           ),
 
-          // ── Layer 4: Glassmorphism bottom card (slides up, overlaps image) ──
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            top: formTop,
+          // ── Layer 3: Top Navigation Bar with Language Switcher ──
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 20, 0),
+                child: const LanguageSwitchButton(isDark: true),
+              ),
+            ),
+          ),
 
-            child: SlideTransition(
-              position: _slideAnim,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
-                ),
-                child: BackdropFilter(
-                  filter: _uiFilter(), // Custom filter import needed? Actually dart:ui is available if imported. Wait, I'll use ImageFilter from dart:ui
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark 
-                          ? Colors.black.withAlpha(150) 
-                          : Colors.white.withAlpha(220),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(40),
-                        topRight: Radius.circular(40),
-                      ),
-                      border: Border(
-                        top: BorderSide(
-                          color: Colors.white.withAlpha(50),
-                          width: 1.5,
+          // ── Layer 4: Main Content Layout ──
+          SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                // Top Header Branding
+                Expanded(
+                  flex: 3,
+                  child: FadeTransition(
+                    opacity: _fadeAnim,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Glowing Logo
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.primary.withAlpha(120),
+                                    blurRadius: 30,
+                                    spreadRadius: 4,
+                                  ),
+                                ],
+                              ),
+                              child: const AppLogo(size: 88),
+                            ),
+                            const SizedBox(height: 14),
+                            const Text(
+                              'AttendKH',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              l10n.smartAttendanceSystem,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white.withAlpha(200),
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    child: _buildLoginForm(authState, l10n),
                   ),
                 ),
-              ),
+
+                // Bottom Form Card
+                Expanded(
+                  flex: 5,
+                  child: SlideTransition(
+                    position: _slideAnim,
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppColors.surfaceDark
+                            : AppColors.surfaceLight,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(36),
+                          topRight: Radius.circular(36),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(70),
+                            blurRadius: 30,
+                            offset: const Offset(0, -10),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(36),
+                          topRight: Radius.circular(36),
+                        ),
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 28),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Attendance Readiness Badge
+                                Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withAlpha(20),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: AppColors.primary.withAlpha(40),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Text('📍', style: TextStyle(fontSize: 12)),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          l10n.gpsAttendanceReady,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.primaryDark,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 18),
+
+                                // Title
+                                Text(
+                                  l10n.welcomeBack,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? Colors.white
+                                        : AppColors.grey900,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Identity Input (Phone / Email / Employee ID)
+                                CustomTextField(
+                                  controller: _loginController,
+                                  hintText: l10n.loginIdentityHint,
+                                  labelText: l10n.loginIdentityLabel,
+                                  prefixIcon: Icons.badge_outlined,
+                                  keyboardType: TextInputType.text,
+                                  validator: (v) =>
+                                      v == null || v.trim().isEmpty
+                                          ? l10n.fieldRequired
+                                          : null,
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Password Input
+                                CustomTextField(
+                                  controller: _passwordController,
+                                  hintText: l10n.enterYourPassword,
+                                  labelText: l10n.password,
+                                  prefixIcon: Icons.lock_outline_rounded,
+                                  obscureText: _obscurePassword,
+                                  textInputAction: TextInputAction.done,
+                                  onFieldSubmitted: (_) => _handleLogin(),
+                                  suffix: IconButton(
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      color: AppColors.grey400,
+                                      size: 22,
+                                    ),
+                                    onPressed: () => setState(
+                                      () => _obscurePassword = !_obscurePassword,
+                                    ),
+                                  ),
+                                  validator: (v) =>
+                                      v == null || v.isEmpty
+                                          ? l10n.passwordRequired
+                                          : null,
+                                ),
+                                const SizedBox(height: 22),
+
+                                // Sign In Button
+                                PrimaryButton(
+                                  label: l10n.signIn,
+                                  isLoading: authState.isLoading,
+                                  onPressed: _handleLogin,
+                                ),
+                                const SizedBox(height: 16),
+
+                                // OR Divider
+                                _OrDivider(l10n: l10n),
+                                const SizedBox(height: 16),
+
+                                // Create Company Account Button
+                                SecondaryButton(
+                                  label: l10n.createAccount,
+                                  onPressed: () =>
+                                      context.go(AppRoutes.register),
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Cambodian HR Footer Note
+                                Text(
+                                  l10n.cambodiaAttendanceTagline,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.grey500,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  ImageFilter _uiFilter() {
-    return ImageFilter.blur(sigmaX: 20, sigmaY: 20);
-  }
-
-  // ────────────────────────────────────────────
-  //  LOGIN FORM (inside white bottom card)
-  // ────────────────────────────────────────────
-  // ignore: strict_top_level_inference
-  Widget _buildLoginForm(authState, AppLocalizations l10n) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 30, 24, 24),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            // ── Title ──
-            Text(
-              l10n.welcomeBack,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                color: AppColors.grey900,
-              ),
-            ),
-            const SizedBox(height: 30),
-
-            // ── Login Identity Field ──
-            CustomTextField(
-              controller: _loginController,
-              hintText: l10n.loginIdentityHint,
-              labelText: l10n.loginIdentityLabel,
-              prefixIcon: Icons.person_outline,
-              keyboardType: TextInputType.text,
-              validator: (v) =>
-                  v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
-            ),
-            const SizedBox(height: 18),
-
-            // ── Password Field ──
-            CustomTextField(
-              controller: _passwordController,
-              hintText: l10n.enterYourPassword,
-              labelText: l10n.password,
-              prefixIcon: Icons.lock_outline_rounded,
-              obscureText: _obscurePassword,
-              textInputAction: TextInputAction.done,
-              onFieldSubmitted: (_) => _handleLogin(),
-              suffix: IconButton(
-                icon: Icon(
-                  _obscurePassword
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  color: AppColors.grey400,
-                  size: 22,
-                ),
-                onPressed: () =>
-                    setState(() => _obscurePassword = !_obscurePassword),
-              ),
-              validator: (v) =>
-                  v == null || v.isEmpty ? l10n.passwordRequired : null,
-            ),
-            const SizedBox(height: 20),
-
-            // ── Forgot Password ──
-            // Align(
-            //   alignment: Alignment.centerRight,
-            //   child: GestureDetector(
-            //     onTap: () => _showForgotPasswordDialog(context),
-            //     child: const Text(
-            //       'Forgot Password?',
-            //       style: TextStyle(
-            //         fontSize: 14,
-            //         fontWeight: FontWeight.w500,
-            //         color: _primaryBlue,
-            //         fontFamily: 'Inter',
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            // const SizedBox(height: 18),
-
-            // ── Sign In Button ──
-            PrimaryButton(
-              label: l10n.signIn,
-              isLoading: authState.isLoading,
-              onPressed: _handleLogin,
-            ),
-            const SizedBox(height: 18),
-
-            // ── OR Divider ──
-            _OrDivider(l10n: l10n),
-            const SizedBox(height: 18),
-
-            // ── Create Account Button ──
-            SecondaryButton(
-              label: l10n.createAccount,
-              onPressed: () => context.go(AppRoutes.register),
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ────────────────────────────────────────────
-  //  FORGOT PASSWORD DIALOG
-  // ────────────────────────────────────────────
-//   Future<void> _showForgotPasswordDialog(BuildContext context) async {
-//   final emailCtrl = TextEditingController();
-
-//   final result = await showDialog<bool>(
-//     context: context,
-//     barrierDismissible: false,
-//     builder: (ctx) {
-//       return Dialog(
-//         backgroundColor: _white,
-//         elevation: 0,
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(24),
-//         ),
-//         child: Padding(
-//           padding: const EdgeInsets.all(24),
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               Container(
-//                 height: 70,
-//                 width: 70,
-//                 decoration: BoxDecoration(
-//                   color: Colors.blue.withValues(alpha: 0.1),
-//                   shape: BoxShape.circle,
-//                 ),
-//                 child: const Icon(
-//                   Icons.lock_reset,
-//                   color: Colors.blue,
-//                   size: 38,
-//                 ),
-//               ),
-
-//               const SizedBox(height: 20),
-
-//               const Text(
-//                 "Forgot Password?",
-//                 style: TextStyle(
-//                   fontSize: 22,
-//                   fontWeight: FontWeight.bold,
-//                 ),
-//               ),
-
-//               const SizedBox(height: 10),
-
-//               const Text(
-//                 "Enter your email address and we'll send you a password reset link.",
-//                 textAlign: TextAlign.center,
-//                 style: TextStyle(
-//                   color: Colors.grey,
-//                   height: 1.4,
-//                 ),
-//               ),
-
-//               const SizedBox(height: 24),
-
-//               TextField(
-//                 controller: emailCtrl,
-//                 keyboardType: TextInputType.emailAddress,
-//                 decoration: InputDecoration(
-//                   hintText: "Enter your email",
-//                   prefixIcon: const Icon(Icons.email_outlined),
-//                   filled: true,
-//                   fillColor: Colors.grey.shade100,
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(14),
-//                     borderSide: BorderSide.none,
-//                   ),
-//                   enabledBorder: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(14),
-//                     borderSide: BorderSide(
-//                       color: Colors.grey.shade300,
-//                     ),
-//                   ),
-//                   focusedBorder: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(14),
-//                     borderSide: const BorderSide(
-//                       color: Colors.blue,
-//                       width: 2,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-
-//               const SizedBox(height: 28),
-
-//               Row(
-//                 children: [
-//                   Expanded(
-//                     child: OutlinedButton(
-//                       onPressed: () => Navigator.pop(ctx, false),
-//                       style: OutlinedButton.styleFrom(
-//                         padding: const EdgeInsets.symmetric(vertical: 15),
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(14),
-//                         ),
-//                       ),
-//                       child: const Text("Cancel"),
-//                     ),
-//                   ),
-
-//                   const SizedBox(width: 12),
-
-//                   Expanded(
-//                     child: ElevatedButton(
-//                       onPressed: () => Navigator.pop(ctx, true),
-//                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: Colors.blue,
-//                         foregroundColor: Colors.white,
-//                         elevation: 0,
-//                         padding: const EdgeInsets.symmetric(vertical: 15),
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(14),
-//                         ),
-//                       ),
-//                       child: const Text(
-//                         "Send Link",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ),
-//         ),
-//       );
-//     },
-//   );
-
-//   if (result == true && emailCtrl.text.trim().isNotEmpty) {
-//     try {
-//       final repo = AuthRepository();
-//       await repo.forgotPassword(emailCtrl.text.trim());
-
-//       if (!context.mounted) return;
-
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(
-//           content: Text("✅ Reset link sent. Check your email."),
-//           backgroundColor: Colors.green,
-//           behavior: SnackBarBehavior.floating,
-//         ),
-//       );
-//     } catch (e) {
-//       if (!context.mounted) return;
-
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           content: Text("❌ ${e.toString()}"),
-//           backgroundColor: Colors.red,
-//           behavior: SnackBarBehavior.floating,
-//         ),
-//       );
-//     }
-//   }
-// }
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-//  TOP BRANDING — Logo + "MPG GARAGE" + tagline
-// ══════════════════════════════════════════════════════════════════════════════
-class _TopBranding extends StatelessWidget {
-  const _TopBranding();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Logo
-        const AppLogo(size: 100),
-        const SizedBox(height: 16),
-        // Brand name
-        const Text(
-          'AttendKH',
-          style: TextStyle(
-            fontSize: 26,
-            fontWeight: FontWeight.w800,
-            color: Colors.white,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 6),
-        // Tagline
-        Text(
-          'Smart Attendance & Payroll',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: Colors.white.withAlpha(200),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -517,7 +398,7 @@ class _OrDivider extends StatelessWidget {
         Expanded(
           child: Container(
             height: 1,
-            color: AppColors.grey300,
+            color: AppColors.grey200,
           ),
         ),
         Padding(
@@ -525,7 +406,7 @@ class _OrDivider extends StatelessWidget {
           child: Text(
             l10n.or,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppColors.grey400,
             ),
@@ -534,7 +415,7 @@ class _OrDivider extends StatelessWidget {
         Expanded(
           child: Container(
             height: 1,
-            color: AppColors.grey300,
+            color: AppColors.grey200,
           ),
         ),
       ],

@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/app_logo.dart';
 import 'package:mpg_hr_mobile_app/components/custom_text_field.dart';
 import 'package:mpg_hr_mobile_app/components/primary_button.dart';
+import 'package:mpg_hr_mobile_app/components/language_switch_button.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class RegisterCompanyScreen extends ConsumerStatefulWidget {
@@ -46,10 +47,10 @@ class _RegisterCompanyScreenState
   late final Animation<Offset> _slideAnim;
 
   static const _companySizes = [
-    '1 - 15 Employees',
-    '16 - 50 Employees',
-    '51 - 200 Employees',
-    '200+ Employees',
+    '1 - 15 Employees (SME / សហគ្រាសធុនតូច)',
+    '16 - 50 Employees (Medium / មធ្យម)',
+    '51 - 200 Employees (Large / ធំ)',
+    '200+ Employees (Enterprise / សាជីវកម្ម)',
   ];
 
   @override
@@ -64,7 +65,7 @@ class _RegisterCompanyScreenState
       curve: Curves.easeOut,
     );
     _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.15),
+      begin: const Offset(0, 0.12),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animController,
@@ -130,7 +131,11 @@ class _RegisterCompanyScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.companyPrefix + result.companyName + l10n.createdSuccessSuffix),
+          content: Text(
+            l10n.companyPrefix +
+                result.companyName +
+                l10n.createdSuccessSuffix,
+          ),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
           shape: const RoundedRectangleBorder(
@@ -147,113 +152,175 @@ class _RegisterCompanyScreenState
     }
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  BUILD — Full-screen Stack (same layout as login screen)
-  // ═══════════════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
-    final viewInsets = MediaQuery.of(context).viewInsets;
-    final padding = MediaQuery.of(context).padding;
-    double formTop = size.height * 0.40 - viewInsets.bottom;
-    if (formTop < padding.top + 20) {
-      formTop = padding.top + 20;
-    }
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : const Color(0xFF071228),
       body: Stack(
         children: [
-          // ── Layer 1: Background image ──
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: size.height,
-            child: Image.asset(
-              'assets/images/background_image_without_logo.png',
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF1A1A2E),
-                      Color(0xFF16213E),
-                      Color(0xFF0F3460),
-                    ],
-                  ),
+          // ── Layer 1: Tech Gradient Background ──
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF061124),
+                    Color(0xFF092055),
+                    Color(0xFF0038B8),
+                    Color(0xFF02132B),
+                  ],
+                  stops: [0.0, 0.35, 0.75, 1.0],
                 ),
               ),
             ),
           ),
 
-          // ── Layer 2: Dark overlay ──
+          // ── Layer 2: Ambient Glowing Light Orbs ──
           Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: size.height,
-            child: Container(color: const Color(0x73000000)),
+            top: -size.width * 0.2,
+            right: -size.width * 0.15,
+            child: Container(
+              width: size.width * 0.75,
+              height: size.width * 0.75,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary.withAlpha(50),
+              ),
+            ),
           ),
 
-          // ── Layer 3: Back button (app-bar style, top-left) ──
+          // ── Layer 3: Top Navigation (Back Button + Language Switcher) ──
           SafeArea(
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 0, 0),
-                child: GestureDetector(
-                  onTap: () => context.go('/login'),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(51),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_rounded,
-                      color: Colors.white,
-                      size: 22,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      if (_step == 2) {
+                        _goToStep1();
+                      } else {
+                        context.go('/login');
+                      }
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(35),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withAlpha(50),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                   ),
-                ),
+                  const LanguageSwitchButton(isDark: true),
+                ],
               ),
             ),
           ),
 
-          // ── Layer 4: Logo + branding (top-center) ──
-          FadeTransition(
-            opacity: _fadeAnim,
-            child: const SafeArea(
-              child: Align(
-                alignment: Alignment(0, -0.80),
-                child: _TopBranding(),
-              ),
-            ),
-          ),
+          // ── Layer 4: Main Content Layout ──
+          SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                const SizedBox(height: 48),
 
-          // ── Layer 5: White bottom card ──
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            top: formTop,
-            child: SlideTransition(
-              position: _slideAnim,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: AppColors.surfaceLight,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(35),
-                    topRight: Radius.circular(35),
+                // Top Header Branding
+                FadeTransition(
+                  opacity: _fadeAnim,
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withAlpha(120),
+                                blurRadius: 24,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: const AppLogo(size: 72),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'AttendKH',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          l10n.smartAttendanceSystem,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.white.withAlpha(190),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: _buildCardContent(l10n),
-              ),
+
+                const SizedBox(height: 20),
+
+                // Bottom Form Card
+                Expanded(
+                  child: SlideTransition(
+                    position: _slideAnim,
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppColors.surfaceDark
+                            : AppColors.surfaceLight,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(36),
+                          topRight: Radius.circular(36),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(70),
+                            blurRadius: 30,
+                            offset: const Offset(0, -10),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(36),
+                          topRight: Radius.circular(36),
+                        ),
+                        child: _buildCardContent(l10n, isDark),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -264,51 +331,46 @@ class _RegisterCompanyScreenState
   // ────────────────────────────────────────────
   //  CARD CONTENT — stepper + form
   // ────────────────────────────────────────────
-  Widget _buildCardContent(AppLocalizations l10n) {
+  Widget _buildCardContent(AppLocalizations l10n, bool isDark) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Title ──
+          // ── Title & Subtitle ──
           Text(
             _step == 1 ? l10n.registerYourCompany : l10n.companyDetails,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: AppColors.grey900,
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white : AppColors.grey900,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            _step == 1
-                ? l10n.step1Of2
-                : l10n.step2Of2,
-            style: const TextStyle(
-              fontSize: 14,
+            _step == 1 ? l10n.step1Of2 : l10n.step2Of2,
+            style: TextStyle(
+              fontSize: 13,
               fontWeight: FontWeight.w400,
-              color: AppColors.grey500,
+              color: isDark ? AppColors.grey400 : AppColors.grey600,
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
 
-          // ── Stepper progress bar ──
+          // ── Visual 2-Step Progress Indicator ──
           Row(
             children: [
-              Expanded(
-                child: Container(
-                  height: 4,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
-                    color: AppColors.primary,
-                  ),
-                ),
+              _buildStepIndicator(
+                stepNumber: 1,
+                label: l10n.step1Of2.split(':').first,
+                isActive: _step >= 1,
+                isCurrent: _step == 1,
               ),
-              const SizedBox(width: 8),
               Expanded(
                 child: Container(
-                  height: 4,
+                  height: 3,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(2),
                     color: _step == 2
@@ -317,10 +379,16 @@ class _RegisterCompanyScreenState
                   ),
                 ),
               ),
+              _buildStepIndicator(
+                stepNumber: 2,
+                label: l10n.step2Of2.split(':').first,
+                isActive: _step == 2,
+                isCurrent: _step == 2,
+              ),
             ],
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 22),
 
           // ── Error banner ──
           if (_serverError != null) ...[
@@ -330,15 +398,29 @@ class _RegisterCompanyScreenState
               decoration: BoxDecoration(
                 color: AppColors.dangerLight,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.danger.withValues(alpha: 0.5)),
-              ),
-              child: Text(
-                _serverError!,
-                style: const TextStyle(
-                  color: AppColors.danger,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+                border: Border.all(
+                  color: AppColors.danger.withAlpha(120),
                 ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    color: AppColors.danger,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      _serverError!,
+                      style: const TextStyle(
+                        color: AppColors.danger,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -350,9 +432,68 @@ class _RegisterCompanyScreenState
           // ── Step 2: Company Details ──
           if (_step == 2) _buildStep2(l10n),
 
-          
+          const SizedBox(height: 16),
+
+          // ── Already have account? Sign in ──
+          Center(
+            child: TextButton(
+              onPressed: () => context.go('/login'),
+              child: RichText(
+                text: TextSpan(
+                  text: 'Already have an account? ',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? AppColors.grey400 : AppColors.grey600,
+                  ),
+                  children: const [
+                    TextSpan(
+                      text: 'Sign In',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStepIndicator({
+    required int stepNumber,
+    required String label,
+    required bool isActive,
+    required bool isCurrent,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isActive ? AppColors.primary : AppColors.grey200,
+            border: isCurrent
+                ? Border.all(color: AppColors.primaryLight, width: 3)
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              '$stepNumber',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: isActive ? Colors.white : AppColors.grey500,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -370,17 +511,17 @@ class _RegisterCompanyScreenState
             validator: (v) =>
                 v == null || v.trim().isEmpty ? l10n.fullNameRequired : null,
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           CustomTextField(
             controller: _userPhoneController,
             labelText: l10n.phoneNumber,
-            hintText: l10n.phoneNumberHint,
-            prefixIcon: Icons.phone_rounded,
+            hintText: '012 345 678 / +855 12 345 678',
+            prefixIcon: Icons.phone_android_rounded,
             keyboardType: TextInputType.phone,
             validator: (v) =>
                 v == null || v.trim().isEmpty ? l10n.phoneRequiredForLogin : null,
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           CustomTextField(
             controller: _emailController,
             labelText: l10n.workEmail,
@@ -395,7 +536,7 @@ class _RegisterCompanyScreenState
               return null;
             },
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           CustomTextField(
             controller: _passwordController,
             labelText: l10n.password,
@@ -419,7 +560,7 @@ class _RegisterCompanyScreenState
               return null;
             },
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           CustomTextField(
             controller: _confirmPasswordController,
             labelText: l10n.confirmPassword,
@@ -465,96 +606,95 @@ class _RegisterCompanyScreenState
             controller: _companyNameController,
             labelText: l10n.companyName,
             hintText: l10n.companyNameHint,
-            prefixIcon: Icons.business_outlined,
+            prefixIcon: Icons.business_rounded,
             validator: (v) =>
                 v == null || v.trim().isEmpty ? l10n.companyNameRequired : null,
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
 
-          // ── Company Size dropdown (not a text field) ──
-          SizedBox(
-            height: 56,
-            child: DropdownButtonFormField<String>(
-              initialValue: _companySize,
-              isExpanded: true,
-              hint: Text(
-                l10n.selectCompanySize,
-                style: const TextStyle(
-                  color: AppColors.grey400,
-                  fontSize: 16,
-                ),
-              ),
-              dropdownColor: AppColors.surfaceLight,
-              borderRadius: BorderRadius.circular(16),
+          // ── Company Size dropdown ──
+          DropdownButtonFormField<String>(
+            initialValue: _companySize,
+            isExpanded: true,
+            hint: Text(
+              l10n.selectCompanySize,
               style: const TextStyle(
-                fontSize: 16,
-                color: AppColors.grey900,
-              ),
-              icon: const Icon(
-                Icons.keyboard_arrow_down_rounded,
                 color: AppColors.grey400,
+                fontSize: 14,
               ),
-              decoration: InputDecoration(
-                labelText: l10n.companySize,
-                hintStyle: const TextStyle(
-                  color: AppColors.grey400,
-                  fontSize: 16,
-                ),
-                labelStyle: const TextStyle(
-                  color: AppColors.grey400,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                prefixIcon: const Icon(
-                  Icons.people_outline_rounded,
-                  color: AppColors.grey400,
-                  size: 22,
-                ),
-                filled: true,
-                fillColor: AppColors.grey50,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.grey200),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.grey200),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(
-                    color: AppColors.primary,
-                    width: 2,
-                  ),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.danger),
-                ),
-              ),
-              items: _companySizes
-                  .map((size) => DropdownMenuItem(
-                        value: size,
-                        child: Text(
-                          size,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                      ))
-                  .toList(),
-              onChanged: (v) => setState(() => _companySize = v),
-              validator: (v) =>
-                  v == null ? l10n.companySizeRequired : null,
             ),
+            dropdownColor: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.surfaceDark
+                : AppColors.surfaceLight,
+            borderRadius: BorderRadius.circular(16),
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppColors.grey900,
+            ),
+            icon: const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: AppColors.grey400,
+            ),
+            decoration: InputDecoration(
+              labelText: l10n.companySize,
+              labelStyle: const TextStyle(
+                color: AppColors.grey500,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              prefixIcon: const Icon(
+                Icons.people_outline_rounded,
+                color: AppColors.grey400,
+                size: 22,
+              ),
+              filled: true,
+              fillColor: Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.grey800
+                  : AppColors.grey50,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.grey200),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.grey200),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 2,
+                ),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AppColors.danger),
+              ),
+            ),
+            items: _companySizes
+                .map((size) => DropdownMenuItem(
+                      value: size,
+                      child: Text(
+                        size,
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ))
+                .toList(),
+            onChanged: (v) => setState(() => _companySize = v),
+            validator: (v) =>
+                v == null ? l10n.companySizeRequired : null,
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           CustomTextField(
             controller: _phoneController,
             labelText: l10n.phoneNumberOptional,
-            hintText: l10n.phoneOptionalHint,
+            hintText: '+855 23 888 999 / 012 345 678',
             prefixIcon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
           ),
@@ -566,20 +706,19 @@ class _RegisterCompanyScreenState
               Expanded(
                 flex: 2,
                 child: SizedBox(
-                  height: 55,
+                  height: 52,
                   child: OutlinedButton(
                     onPressed: _goToStep1,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.grey500,
-                      side: const BorderSide(color: AppColors.grey200),
+                      foregroundColor: AppColors.grey600,
+                      side: const BorderSide(color: AppColors.grey300),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       textStyle: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
-                      backgroundColor: AppColors.surfaceLight,
                     ),
                     child: Text(l10n.back),
                   ),
@@ -598,43 +737,6 @@ class _RegisterCompanyScreenState
           ),
         ],
       ),
-    );
-  }
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-//  TOP BRANDING — Logo + "MPG GARAGE" + tagline
-// ══════════════════════════════════════════════════════════════════════════════
-class _TopBranding extends StatelessWidget {
-  const _TopBranding();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const AppLogo(size: 100),
-        const SizedBox(height: 16),
-        const Text(
-          'MPG GARAGE',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: 1.2,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          l10n.hrManagementSystem,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w400,
-            color: Color(0xB3FFFFFF),
-          ),
-        ),
-      ],
     );
   }
 }

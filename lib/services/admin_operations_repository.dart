@@ -902,6 +902,11 @@ class PayrollSettingsData {
   final double preShiftOtMultiplier;
   final int maxPreShiftOtMinutes;
 
+  final bool taxEnabled;
+  final double taxRatePercentage;
+  final bool insuranceEnabled;
+  final double insuranceRatePercentage;
+
   final String workingDaysType;
   final int fixedWorkingDays;
 
@@ -910,6 +915,10 @@ class PayrollSettingsData {
     required this.overtimeEnabled,
     required this.overtimeThreshold,
     required this.lateDeductionEnabled,
+    this.taxEnabled = false,
+    this.taxRatePercentage = 0.0,
+    this.insuranceEnabled = false,
+    this.insuranceRatePercentage = 0.0,
     required this.halfDayHours,
     required this.halfDayDeductionPercentage,
     required this.payrollPeriod,
@@ -957,6 +966,15 @@ class PayrollSettingsData {
       lateDeductionEnabled:
           json['late_deduction_enabled'] == 1 ||
           json['late_deduction_enabled'] == true,
+      taxEnabled:
+          json['tax_enabled'] == 1 || json['tax_enabled'] == true,
+      taxRatePercentage: parseDouble(json['tax_rate_percentage'], 0.0),
+      insuranceEnabled:
+          json['insurance_enabled'] == 1 || json['insurance_enabled'] == true,
+      insuranceRatePercentage: parseDouble(
+        json['insurance_rate_percentage'],
+        0.0,
+      ),
       halfDayHours: parseDouble(json['half_day_hours'], 4.0),
       halfDayDeductionPercentage: parseDouble(
         json['half_day_deduction_percentage'],

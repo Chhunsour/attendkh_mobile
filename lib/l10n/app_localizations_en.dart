@@ -88,6 +88,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hrManagementSystem => 'HR Management System';
 
   @override
+  String get smartAttendanceSystem => 'Smart Attendance & HR Solution';
+
+  @override
+  String get gpsAttendanceReady => 'GPS Geofence Attendance Ready';
+
+  @override
+  String get cambodiaAttendanceTagline =>
+      'Cambodia\'s Smart Attendance & Workforce Management';
+
+  @override
+  String get poweredByAttendKH => 'AttendKH Cambodia';
+
+  @override
   String get companyPrefix => 'Company \"';
 
   @override
