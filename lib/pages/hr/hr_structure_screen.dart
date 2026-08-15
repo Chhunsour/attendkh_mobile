@@ -930,9 +930,13 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
   late TextEditingController _latCtrl;
   late TextEditingController _lngCtrl;
   late TextEditingController _radiusCtrl;
+  late TextEditingController _mapUrlCtrl;
   int? _managerId;
   bool _isActive = true;
   bool _isLoading = false;
+  bool _isResolvingMap = false;
+  String? _mapSuccessMsg;
+  String? _mapErrorMsg;
 
   @override
   void initState() {
@@ -947,6 +951,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
     _radiusCtrl = TextEditingController(
       text: b?.allowedRadiusMeters?.toString() ?? '100',
     );
+    _mapUrlCtrl = TextEditingController();
     _managerId = b?.managerId;
     _isActive = b?.isActive ?? true;
   }
@@ -960,7 +965,116 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
     _latCtrl.dispose();
     _lngCtrl.dispose();
     _radiusCtrl.dispose();
+    _mapUrlCtrl.dispose();
     super.dispose();
+  }
+
+  Map<String, double>? _extractCoordsFromText(String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return null;
+
+    // 1. Direct "11.5564, 104.9282"
+    final directMatch = RegExp(r'^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)\s*,\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$').firstMatch(trimmed);
+    if (directMatch != null) {
+      final parts = trimmed.split(',');
+      final lat = double.tryParse(parts[0].trim());
+      final lng = double.tryParse(parts[1].trim());
+      if (lat != null && lng != null) return {'latitude': lat, 'longitude': lng};
+    }
+
+    // 2. @11.5564,104.9282
+    final atMatch = RegExp(r'@(-?\d+\.\d+),(-?\d+\.\d+)').firstMatch(trimmed);
+    if (atMatch != null) {
+      final lat = double.tryParse(atMatch.group(1)!);
+      final lng = double.tryParse(atMatch.group(2)!);
+      if (lat != null && lng != null) return {'latitude': lat, 'longitude': lng};
+    }
+
+    // 3. ?q=11.5564,104.9282
+    final qMatch = RegExp(r'[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)').firstMatch(trimmed);
+    if (qMatch != null) {
+      final lat = double.tryParse(qMatch.group(1)!);
+      final lng = double.tryParse(qMatch.group(2)!);
+      if (lat != null && lng != null) return {'latitude': lat, 'longitude': lng};
+    }
+
+    // 4. center=11.5564%2C104.9282
+    final centerMatch = RegExp(r'center=(-?\d+\.\d+)(?:%2C|,)(-?\d+\.\d+)', caseSensitive: false).firstMatch(trimmed);
+    if (centerMatch != null) {
+      final lat = double.tryParse(centerMatch.group(1)!);
+      final lng = double.tryParse(centerMatch.group(2)!);
+      if (lat != null && lng != null) return {'latitude': lat, 'longitude': lng};
+    }
+
+    // 5. ll= or daddr= or saddr=
+    final llMatch = RegExp(r'[?&](?:ll|daddr|saddr)=(-?\d+\.\d+),(-?\d+\.\d+)').firstMatch(trimmed);
+    if (llMatch != null) {
+      final lat = double.tryParse(llMatch.group(1)!);
+      final lng = double.tryParse(llMatch.group(2)!);
+      if (lat != null && lng != null) return {'latitude': lat, 'longitude': lng};
+    }
+
+    // 6. /place/11.5564,104.9282
+    final placeMatch = RegExp(r'/place/(-?\d+\.\d+),(-?\d+\.\d+)').firstMatch(trimmed);
+    if (placeMatch != null) {
+      final lat = double.tryParse(placeMatch.group(1)!);
+      final lng = double.tryParse(placeMatch.group(2)!);
+      if (lat != null && lng != null) return {'latitude': lat, 'longitude': lng};
+    }
+
+    // 7. !3d11.5564!4d104.9282
+    final embedMatch = RegExp(r'!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)').firstMatch(trimmed);
+    if (embedMatch != null) {
+      final lat = double.tryParse(embedMatch.group(1)!);
+      final lng = double.tryParse(embedMatch.group(2)!);
+      if (lat != null && lng != null) return {'latitude': lat, 'longitude': lng};
+    }
+
+    return null;
+  }
+
+  Future<void> _resolveMapUrl([String? urlOverride]) async {
+    final text = (urlOverride ?? _mapUrlCtrl.text).trim();
+    if (text.isEmpty) return;
+
+    setState(() {
+      _mapSuccessMsg = null;
+      _mapErrorMsg = null;
+    });
+
+    // 1. Client-side regex check first
+    final local = _extractCoordsFromText(text);
+    if (local != null) {
+      setState(() {
+        _latCtrl.text = local['latitude']!.toString();
+        _lngCtrl.text = local['longitude']!.toString();
+        _mapSuccessMsg = 'Coordinates extracted: ${local['latitude']!.toStringAsFixed(6)}, ${local['longitude']!.toStringAsFixed(6)}';
+      });
+      return;
+    }
+
+    // 2. Server resolver for shortened URLs (maps.app.goo.gl, etc.)
+    setState(() => _isResolvingMap = true);
+    try {
+      final res = await ref.read(hrRepositoryProvider).resolveMapUrl(text);
+      if (res != null && res['latitude'] != null && res['longitude'] != null) {
+        setState(() {
+          _latCtrl.text = res['latitude']!.toString();
+          _lngCtrl.text = res['longitude']!.toString();
+          _mapSuccessMsg = 'Coordinates extracted: ${res['latitude']!.toStringAsFixed(6)}, ${res['longitude']!.toStringAsFixed(6)}';
+        });
+      } else {
+        setState(() {
+          _mapErrorMsg = 'Could not extract coordinates from this link.';
+        });
+      }
+    } catch (_) {
+      setState(() {
+        _mapErrorMsg = 'Network error resolving map link.';
+      });
+    } finally {
+      setState(() => _isResolvingMap = false);
+    }
   }
 
   Future<void> _getLocation() async {
@@ -988,6 +1102,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
       setState(() {
         _latCtrl.text = position.latitude.toString();
         _lngCtrl.text = position.longitude.toString();
+        _mapSuccessMsg = 'GPS location set: ${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)}';
       });
     } catch (e) {
       if (mounted) {
@@ -1252,9 +1367,9 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                       // Geofence Section
                       Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFFBEB),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFFCD34D)),
+                          color: const Color(0xFFF0FDF4),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFBBF7D0)),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -1263,32 +1378,38 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(
-                                  Icons.gps_fixed_rounded,
-                                  size: 18,
-                                  color: Color(0xFFD97706),
+                                Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF16A34A),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.location_on_rounded,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
+                                const SizedBox(width: 10),
+                                const Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        'Geofence — Clock-In Location Lock',
+                                      Text(
+                                        'Geofence — GPS Clock-In Office Lock',
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
-                                          color: Color(0xFF92400E),
+                                          color: Color(0xFF14532D),
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      const Text(
-                                        'Employees can only clock in when they are within the allowed radius of this branch. To set the exact location, someone must physically be inside the branch office and click the button below.',
+                                      SizedBox(height: 3),
+                                      Text(
+                                        'Employees can only clock in within this boundary. Paste a Google Maps link or coordinates below, or use GPS if you are on-site.',
                                         style: TextStyle(
                                           fontSize: 11,
-                                          color: Color(0xFFB45309),
-                                          height: 1.4,
+                                          color: Color(0xFF166534),
+                                          height: 1.35,
                                         ),
                                       ),
                                     ],
@@ -1296,7 +1417,186 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 14),
+
+                            // Option 1: Paste Google Maps URL (Auto-Calculate)
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Row(
+                                        children: [
+                                          Icon(Icons.link_rounded, size: 14, color: AppColors.primary),
+                                          SizedBox(width: 4),
+                                          Text(
+                                            'Paste Google Maps Link',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.grey800,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFECFDF5),
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: const Color(0xFFA7F3D0)),
+                                        ),
+                                        child: const Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.auto_awesome_rounded, size: 10, color: Color(0xFF059669)),
+                                            SizedBox(width: 3),
+                                            Text(
+                                              'Auto-Calculates',
+                                              style: TextStyle(
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.w700,
+                                                color: Color(0xFF059669),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          controller: _mapUrlCtrl,
+                                          onChanged: (val) => _resolveMapUrl(val),
+                                          style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                                          decoration: InputDecoration(
+                                            hintText: 'https://maps.app.goo.gl/... or 11.5564, 104.9282',
+                                            hintStyle: TextStyle(fontSize: 10, color: Colors.grey.shade400),
+                                            isDense: true,
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                              borderSide: BorderSide(color: Colors.grey.shade300),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                              borderSide: BorderSide(color: Colors.grey.shade300),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                              borderSide: const BorderSide(color: AppColors.primary),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      SizedBox(
+                                        height: 36,
+                                        child: ElevatedButton(
+                                          onPressed: _isResolvingMap ? null : () => _resolveMapUrl(),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.primary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            elevation: 0,
+                                          ),
+                                          child: _isResolvingMap
+                                              ? const SizedBox(
+                                                  width: 14,
+                                                  height: 14,
+                                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                                )
+                                              : const Text('Extract', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (_mapSuccessMsg != null) ...[
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF0FDF4),
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: const Color(0xFFBBF7D0)),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.check_circle_rounded, size: 13, color: Color(0xFF16A34A)),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text(
+                                              _mapSuccessMsg!,
+                                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF15803D)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                  if (_mapErrorMsg != null) ...[
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFEF2F2),
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: const Color(0xFFFECACA)),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.error_outline_rounded, size: 13, color: Color(0xFFDC2626)),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text(
+                                              _mapErrorMsg!,
+                                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFFB91C1C)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
                             const SizedBox(height: 12),
+
+                            // Divider
+                            Row(
+                              children: [
+                                Expanded(child: Divider(color: Colors.grey.shade300, height: 1)),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Text(
+                                    'OR USE ON-SITE GPS',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey.shade500,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(child: Divider(color: Colors.grey.shade300, height: 1)),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
                             // GPS Button
                             SizedBox(
                               width: double.infinity,
@@ -1304,44 +1604,45 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                                 onPressed: _isLoading ? null : _getLocation,
                                 icon: _isLoading
                                     ? const SizedBox(
-                                        width: 16,
-                                        height: 16,
+                                        width: 14,
+                                        height: 14,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          color: Color(0xFFD97706),
+                                          color: AppColors.primary,
                                         ),
                                       )
                                     : const Icon(
                                         Icons.my_location_rounded,
-                                        size: 16,
-                                        color: Color(0xFFD97706),
+                                        size: 14,
+                                        color: AppColors.primary,
                                       ),
                                 label: Text(
                                   _isLoading
-                                      ? 'Getting location...'
-                                      : 'I am inside this branch office right now — Set Location',
+                                      ? 'Getting GPS location...'
+                                      : '📍 I am physically at this office right now — Detect GPS',
                                   style: const TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF92400E),
+                                    color: AppColors.grey800,
                                   ),
                                 ),
                                 style: OutlinedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 14,
+                                    vertical: 10,
                                   ),
-                                  side: const BorderSide(
-                                    color: Color(0xFFFBBF24),
-                                    width: 2,
+                                  side: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    width: 1,
                                   ),
                                   backgroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                   minimumSize: Size.zero,
                                 ),
                               ),
                             ),
+
                             // Show coordinates if set
                             if (_latCtrl.text.isNotEmpty ||
                                 _lngCtrl.text.isNotEmpty) ...[
@@ -1352,8 +1653,8 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                                   vertical: 8,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF0FDF4),
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: const Color(0xFFBBF7D0),
                                   ),
@@ -1361,19 +1662,33 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                                 child: Row(
                                   children: [
                                     const Icon(
-                                      Icons.place_outlined,
-                                      size: 14,
+                                      Icons.check_circle_rounded,
+                                      size: 16,
                                       color: Color(0xFF16A34A),
                                     ),
-                                    const SizedBox(width: 6),
+                                    const SizedBox(width: 8),
                                     Expanded(
-                                      child: Text(
-                                        'Location set: ${double.tryParse(_latCtrl.text)?.toStringAsFixed(6) ?? _latCtrl.text}, ${double.tryParse(_lngCtrl.text)?.toStringAsFixed(6) ?? _lngCtrl.text}',
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF15803D),
-                                        ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Office Coordinates Lock:',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF14532D),
+                                            ),
+                                          ),
+                                          Text(
+                                            '${double.tryParse(_latCtrl.text)?.toStringAsFixed(6) ?? _latCtrl.text}, ${double.tryParse(_lngCtrl.text)?.toStringAsFixed(6) ?? _lngCtrl.text}',
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                              fontFamily: 'monospace',
+                                              color: Color(0xFF15803D),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                     GestureDetector(
@@ -1381,11 +1696,13 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                                         setState(() {
                                           _latCtrl.clear();
                                           _lngCtrl.clear();
+                                          _mapUrlCtrl.clear();
+                                          _mapSuccessMsg = null;
                                         });
                                       },
                                       child: const Icon(
                                         Icons.close_rounded,
-                                        size: 14,
+                                        size: 16,
                                         color: AppColors.grey400,
                                       ),
                                     ),

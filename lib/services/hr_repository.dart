@@ -624,6 +624,28 @@ class HrRepository {
     return BranchData.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<Map<String, double>?> resolveMapUrl(String url) async {
+    try {
+      final response = await _api.post(
+        '/company/branches/resolve-map-url',
+        data: {'url': url},
+      );
+      final data = response.data;
+      final payload = (data is Map<String, dynamic> && data.containsKey('data'))
+          ? data['data']
+          : data;
+      if (payload is Map<String, dynamic> &&
+          payload['latitude'] != null &&
+          payload['longitude'] != null) {
+        return {
+          'latitude': (payload['latitude'] as num).toDouble(),
+          'longitude': (payload['longitude'] as num).toDouble(),
+        };
+      }
+    } catch (_) {}
+    return null;
+  }
+
   Future<void> updateBranch(
     int id, {
     String? name,
