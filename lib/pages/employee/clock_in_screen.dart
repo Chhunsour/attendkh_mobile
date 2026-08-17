@@ -52,6 +52,40 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
   String? _photoPath;
   bool _isSubmitting = false;
   final TextEditingController _lateReasonController = TextEditingController();
+  int? _selectedReasonIndex;
+
+  static const List<Map<String, String>> _cambodiaLateReasons = [
+    {
+      'icon': '🚗',
+      'en': 'Heavy Traffic',
+      'km': 'ស្ទះចរាចរណ៍',
+    },
+    {
+      'icon': '🌧️',
+      'en': 'Heavy Rain',
+      'km': 'ភ្លៀងធ្លាក់ខ្លាំង',
+    },
+    {
+      'icon': '🛵',
+      'en': 'Vehicle Issue',
+      'km': 'យានយន្តខូច/មានបញ្ហា',
+    },
+    {
+      'icon': '🏥',
+      'en': 'Medical Clinic',
+      'km': 'ទៅជួបគ្រូពេទ្យ',
+    },
+    {
+      'icon': '👨‍👩‍👧',
+      'en': 'Family Emergency',
+      'km': 'ការងារបន្ទាន់គ្រួសារ',
+    },
+    {
+      'icon': '✏️',
+      'en': 'Other (Custom)',
+      'km': 'ផ្សេងៗ',
+    },
+  ];
 
   @override
   void dispose() {
@@ -278,6 +312,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isKhmer = Localizations.localeOf(context).languageCode == 'km';
     final title = widget.args.isClockIn 
         ? (widget.args.isOvertime ? l10n.overtimeCheckIn : l10n.checkInTitle) 
         : (widget.args.isOvertime ? l10n.overtimeCheckOut : l10n.checkOutTitle);
@@ -292,8 +327,9 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
         iconTheme: const IconThemeData(color: AppColors.grey900),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -301,14 +337,14 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
                 l10n.takeSelfie,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
               
               // Camera Circle
               GestureDetector(
                 onTap: _takeSelfie,
                 child: Container(
-                  width: 200,
-                  height: 200,
+                  width: 170,
+                  height: 170,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: AppColors.grey100,
@@ -324,29 +360,90 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
                       ? Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.camera_alt, size: 48, color: AppColors.primary),
-                            const SizedBox(height: 8),
-                            Text(l10n.tapToCapture, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w500)),
+                            const Icon(Icons.camera_alt, size: 40, color: AppColors.primary),
+                            const SizedBox(height: 6),
+                            Text(l10n.tapToCapture, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w500, fontSize: 13)),
                           ],
                         )
                       : null,
                 ),
               ),
               
-              const SizedBox(height: 32),
+              const SizedBox(height: 12),
               Text(
                 l10n.takeSelfieToVerify,
-                style: const TextStyle(fontSize: 14, color: AppColors.grey600),
+                style: const TextStyle(fontSize: 13, color: AppColors.grey600),
               ),
               
-              const Spacer(),
+              const SizedBox(height: 20),
               
               if (widget.args.isClockIn && !widget.args.isOvertime && widget.args.isLateNow) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    isKhmer ? 'ជ្រើសរើសមូលហេតុមកយឺត៖' : 'Select Late Reason:',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.grey700,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: List.generate(_cambodiaLateReasons.length, (index) {
+                    final item = _cambodiaLateReasons[index];
+                    final isSelected = _selectedReasonIndex == index;
+                    final label = isKhmer ? item['km']! : item['en']!;
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        setState(() {
+                          _selectedReasonIndex = index;
+                          if (item['en'] == 'Other (Custom)') {
+                            _lateReasonController.clear();
+                          } else {
+                            _lateReasonController.text = label;
+                          }
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected ? AppColors.primary.withAlpha(25) : AppColors.grey100,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isSelected ? AppColors.primary : AppColors.grey300,
+                            width: isSelected ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(item['icon']!, style: const TextStyle(fontSize: 14)),
+                            const SizedBox(width: 6),
+                            Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                color: isSelected ? AppColors.primary : AppColors.grey800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _lateReasonController,
                   decoration: InputDecoration(
-                    labelText: 'Late Reason / Notes (Required)',
-                    hintText: 'e.g. Traffic jam, doctor appointment',
+                    labelText: isKhmer ? 'មូលហេតុមកយឺត / កំណត់ចំណាំ (ចាំបាច់)' : 'Late Reason / Notes (Required)',
+                    hintText: isKhmer ? 'ឧ. ស្ទះចរាចរណ៍, ភ្លៀងខ្លាំង...' : 'e.g. Traffic jam, doctor appointment',
                     prefixIcon: const Icon(Icons.edit_note, color: AppColors.primary),
                     filled: true,
                     fillColor: AppColors.grey50,
@@ -366,7 +463,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
               // Location Info Card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
                 decoration: BoxDecoration(
                   color: AppColors.grey50,
                   borderRadius: BorderRadius.circular(16),
@@ -381,26 +478,26 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen> {
                         const SizedBox(width: 8),
                         Text(
                           l10n.locationLabel + widget.args.branchName,
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.grey800, fontSize: 16),
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.grey800, fontSize: 15),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     if (widget.args.radius != null)
                       Text(
                         l10n.withinRadiusLabel + widget.args.radius.toString() + l10n.mRadius,
-                        style: const TextStyle(color: AppColors.grey600, fontSize: 14),
+                        style: const TextStyle(color: AppColors.grey600, fontSize: 13),
                       ),
                   ],
                 ),
               ),
               
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               
               // Confirm Button
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: 54,
                 child: ElevatedButton(
                   onPressed: (_photoPath != null && !_isSubmitting) ? _submitClockIn : null,
                   style: ElevatedButton.styleFrom(

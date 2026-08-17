@@ -30,7 +30,6 @@ class LeaveBalance {
   });
 
   double get remaining {
-    if (availableDays != null) return availableDays!;
     final total = allocated + carriedForward;
     final rem = total - used - pending;
     return rem < 0 ? 0.0 : rem;

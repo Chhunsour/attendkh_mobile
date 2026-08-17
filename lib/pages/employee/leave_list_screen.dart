@@ -336,21 +336,7 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 13, color: AppColors.grey500),
             ),
-            if (_selectedFilter == 'all') ...[
-              const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: () => context.push(AppRoutes.leaveRequest),
-                icon: const Icon(Icons.add_rounded, size: 18),
-                label: Text(l10n.requestLeave),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ),
-            ],
+            
           ],
         ),
       ),
@@ -367,7 +353,7 @@ class _LeaveBalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final remaining = balance.remaining;
     final total = balance.allocated + balance.carriedForward;
-    final used = total - remaining;
+    final used = balance.used;
     final baseColor = Color(
       int.tryParse(balance.color?.replaceFirst('#', 'FF') ?? 'FF0052FF') ??
           0xFF0052FF,
@@ -436,9 +422,7 @@ class _LeaveBalanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            balance.accruedToDate != null
-                ? '${balance.accruedToDate!.toStringAsFixed(1)}d Accrued'
-                : '${used.toStringAsFixed(used % 1 == 0 ? 0 : 1)} / ${total.toStringAsFixed(total % 1 == 0 ? 0 : 1)} used',
+            '${used.toStringAsFixed(used % 1 == 0 ? 0 : 1)} / ${total.toStringAsFixed(total % 1 == 0 ? 0 : 1)} used',
             style: const TextStyle(
               fontSize: 10.5,
               color: AppColors.grey500,

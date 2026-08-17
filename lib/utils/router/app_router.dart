@@ -71,7 +71,7 @@ import 'package:mpg_hr_mobile_app/pages/hr/branch_manager_view_screen.dart';
 class AppRoutes {
   static const splash = '/';
   static const login = '/login';
-  static const String requestLeave = '/request-leave';
+  static const String requestLeave = '/main/leave/request';
   static const String requestOvertime = '/request-overtime';
   static const String requestsManager = '/requests-manager';
   static const register = '/register';
@@ -301,7 +301,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LeaveListScreen(),
       ),
       GoRoute(
-        path: AppRoutes.requestLeave,
+        path: AppRoutes.leaveRequest,
         builder: (context, state) => const LeaveRequestScreen(),
       ),
       GoRoute(

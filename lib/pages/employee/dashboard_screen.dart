@@ -587,7 +587,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     AppLocalizations l10n,
   ) {
     final leaveBalance = summary['leave_balance']?.toString() ?? '0';
-    final nextShift = summary['next_shift']?.toString() ?? 'No shift today';
+    final nextShift = formatShiftTime(summary['next_shift']?.toString());
     final recentPayslip =
         summary['recent_payslip']?.toString() ?? 'No payslips';
 
@@ -732,15 +732,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Flexible(
-                  child: Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.grey900,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.grey900,
+                      ),
+                      maxLines: 1,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 if (subtitle.isNotEmpty) ...[

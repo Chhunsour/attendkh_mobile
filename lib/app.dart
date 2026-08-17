@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 
@@ -14,15 +13,13 @@ class MPGHRApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
-    final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'MPGHR',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,
+      themeMode: ThemeMode.light,
       routerConfig: router,
       locale: locale,
       localizationsDelegates: const [
