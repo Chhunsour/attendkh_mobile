@@ -1,6 +1,7 @@
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
+
 class PayslipData {
   final int? id;
   final String period;
@@ -61,7 +62,11 @@ class PayslipData {
   factory PayslipData.fromJson(Map<String, dynamic> json) {
     return PayslipData(
       id: _parseInt(json['id']),
-      period: json['payroll_period'] as String? ?? json['pay_period'] as String? ?? json['period'] as String? ?? '',
+      period:
+          json['payroll_period'] as String? ??
+          json['pay_period'] as String? ??
+          json['period'] as String? ??
+          '',
       netPay: _parseDouble(json['net_salary'] ?? json['net_pay']),
       grossPay: _parseDouble(json['gross_salary'] ?? json['gross_pay']),
       basicSalary: _parseDouble(json['basic_salary']),
@@ -90,23 +95,38 @@ class PayslipRepository {
   Future<List<PayslipData>> getPayslips() async {
     final response = await _api.get('/company/my-payslips');
     final data = response.data;
-    if (data is List) return data.map((e) => PayslipData.fromJson(e as Map<String, dynamic>)).toList();
+    if (data is List) {
+      return data
+          .map((e) => PayslipData.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
     if (data is Map && data['data'] != null) {
-      return (data['data'] as List).map((e) => PayslipData.fromJson(e as Map<String, dynamic>)).toList();
+      return (data['data'] as List)
+          .map((e) => PayslipData.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
     return [];
   }
 
   Future<void> downloadPayslip(String periodOrId) async {
-    final tempDir = await getTemporaryDirectory();
-    final savePath = '${tempDir.path}/payslip_$periodOrId.pdf';
-    
-    await _api.download(
-      '/company/my-payslips/$periodOrId/download', 
-      savePath, 
-      method: 'GET',
-    );
-    
-    await OpenFilex.open(savePath);
+    try {
+      final tempDir = await getTemporaryDirectory();
+      // Clean identifier for filename
+      final safeId = periodOrId.replaceAll(RegExp(r'[^\w\-]'), '_');
+      final savePath = '${tempDir.path}/payslip_$safeId.pdf';
+
+      await _api.download(
+        '/company/my-payslips/$periodOrId/download',
+        savePath,
+        method: 'GET',
+      );
+
+      final result = await OpenFilex.open(savePath, type: "application/pdf");
+      if (result.type != ResultType.done) {
+        throw 'Could not open PDF: ${result.message}';
+      }
+    } catch (e) {
+      throw 'Download failed: $e';
+    }
   }
 }

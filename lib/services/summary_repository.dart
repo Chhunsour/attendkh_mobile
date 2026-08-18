@@ -22,4 +22,22 @@ class SummaryRepository {
     }
     return [];
   }
+
+  Future<Map<String, dynamic>> fetchSpecializedSummary({
+    required String type,
+    Map<String, dynamic>? filters,
+  }) async {
+    final response = await _api.get(
+      '/company/summaries/$type',
+      queryParameters: filters,
+    );
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    if (data is List) {
+      return {'data': data};
+    }
+    return {};
+  }
 }

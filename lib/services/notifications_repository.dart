@@ -65,6 +65,15 @@ class NotificationsRepository {
     await _api.post('/company/notifications/$id/read');
   }
 
+  /// GET /api/v1/company/notifications/{id}/download-file
+  Future<void> downloadAttachment(int id, String savePath) async {
+    await _api.download(
+      '/company/notifications/$id/download-file',
+      savePath,
+      method: 'GET',
+    );
+  }
+
   /// POST /api/v1/company/notifications/read-all
   Future<void> markAllRead() async {
     await _api.post('/company/notifications/read-all');

@@ -9,7 +9,8 @@ const String _r2StorageUrl =
     'https://pub-ccd9b4a59b6e4eddb12ef2a2c45e75c7.r2.dev';
 
 String get _baseUrl {
-  final isLocal = _devServerIp.contains('10.0.2.2') ||
+  final isLocal =
+      _devServerIp.contains('10.0.2.2') ||
       _devServerIp.contains('localhost') ||
       _devServerIp.contains('192.168.') ||
       _devServerIp.contains(':8000');
@@ -130,10 +131,20 @@ class _LoggingInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (kDebugMode) {
+      final responseData = err.response?.data;
+      String body = '';
+
+      if (responseData is ResponseBody) {
+        // Dio download returns ResponseBody which is a stream
+        body = '\nBody: [Binary/Stream Data]';
+      } else if (responseData != null) {
+        body = '\nBody: $responseData';
+      }
+
       AppLogger.e(
-        '❌ ${err.response?.statusCode} ${err.requestOptions.uri}',
+        '❌ ${err.response?.statusCode} ${err.requestOptions.uri}$body',
         'Message: ${err.message}',
       );
     }

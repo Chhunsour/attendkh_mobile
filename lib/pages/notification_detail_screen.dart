@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart'; 
 import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 
 class NotificationDetailScreen extends StatelessWidget {
   final NotificationItem notification;
@@ -16,10 +16,16 @@ class NotificationDetailScreen extends StatelessWidget {
     if (type.contains('policy')) return Icons.policy_rounded;
     if (type.contains('document')) return Icons.description_rounded;
     if (type.contains('leave')) return Icons.event_available_rounded;
-    if (type.contains('attendance') || type.contains('correction')) return Icons.fingerprint_rounded;
+    if (type.contains('attendance') || type.contains('correction')) {
+      return Icons.fingerprint_rounded;
+    }
     if (type.contains('overtime')) return Icons.schedule_rounded;
     if (type.contains('expense')) return Icons.receipt_long_rounded;
-    if (type.contains('payroll') || type.contains('salary') || type.contains('payslip')) return Icons.payments_rounded;
+    if (type.contains('payroll') ||
+        type.contains('salary') ||
+        type.contains('payslip')) {
+      return Icons.payments_rounded;
+    }
     return Icons.notifications_active_rounded;
   }
 
@@ -28,10 +34,16 @@ class NotificationDetailScreen extends StatelessWidget {
     if (type.contains('policy')) return const Color(0xFFEC4899);
     if (type.contains('document')) return const Color(0xFF14B8A6);
     if (type.contains('leave')) return const Color(0xFF3B82F6);
-    if (type.contains('attendance') || type.contains('correction')) return const Color(0xFF6366F1);
+    if (type.contains('attendance') || type.contains('correction')) {
+      return const Color(0xFF6366F1);
+    }
     if (type.contains('overtime')) return const Color(0xFF8B5CF6);
     if (type.contains('expense')) return const Color(0xFFF59E0B);
-    if (type.contains('payroll') || type.contains('salary') || type.contains('payslip')) return const Color(0xFF10B981);
+    if (type.contains('payroll') ||
+        type.contains('salary') ||
+        type.contains('payslip')) {
+      return const Color(0xFF10B981);
+    }
     return AppColors.primary;
   }
 
@@ -40,8 +52,11 @@ class NotificationDetailScreen extends StatelessWidget {
     final type = n.type.toLowerCase();
 
     // 1. Daily Attendance Summary Report
-    if (type.contains('attendance') && (type.contains('summary') || data['date'] != null)) {
-      final date = data['date']?.toString() ?? (n.createdAt.isNotEmpty ? n.createdAt.split('T').first : 'report');
+    if (type.contains('attendance') &&
+        (type.contains('summary') || data['date'] != null)) {
+      final date =
+          data['date']?.toString() ??
+          (n.createdAt.isNotEmpty ? n.createdAt.split('T').first : 'report');
       return {
         'name': 'Daily_Attendance_Summary_$date.pdf',
         'type': 'Official Attendance PDF Report',
@@ -62,7 +77,8 @@ class NotificationDetailScreen extends StatelessWidget {
     }
 
     // 3. Direct document / attachment / receipt
-    final filePath = data['file_path'] ??
+    final filePath =
+        data['file_path'] ??
         data['document_path'] ??
         data['receipt_path'] ??
         data['pdf_path'] ??
@@ -73,7 +89,9 @@ class NotificationDetailScreen extends StatelessWidget {
     if (filePath != null && filePath.toString().isNotEmpty) {
       final pathStr = filePath.toString();
       final filename = pathStr.split('/').last.split('?').first;
-      final ext = filename.contains('.') ? filename.split('.').last.toUpperCase() : 'FILE';
+      final ext = filename.contains('.')
+          ? filename.split('.').last.toUpperCase()
+          : 'FILE';
       final isPdf = ext == 'PDF';
       final isImage = ['JPG', 'JPEG', 'PNG', 'WEBP'].contains(ext);
 
@@ -94,24 +112,51 @@ class NotificationDetailScreen extends StatelessWidget {
 
   Future<void> _handleDownload(BuildContext context, NotificationItem n) async {
     try {
-      final baseUrl = DioClient.instance.options.baseUrl.replaceAll('/api/v1', '');
-      final downloadUrl = '$baseUrl/company/notifications/${n.id}/download-file';
-      final uri = Uri.parse(downloadUrl);
+      final attachment = _getAttachmentInfo(n);
+      final filename = attachment?['name'] ?? 'attachment_${n.id}.pdf';
 
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        if (context.mounted) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text('Downloading $filename...'),
+              ],
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+
+      final tempDir = await getTemporaryDirectory();
+      final savePath = '${tempDir.path}/$filename';
+
+      final repo = NotificationsRepository();
+      await repo.downloadAttachment(n.id, savePath);
+
+      if (context.mounted) {
+        final result = await OpenFilex.open(savePath);
+        if (result.type != ResultType.done) {
+          // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not open file URL')),
+            SnackBar(content: Text('Could not open file: ${result.message}')),
           );
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to open file: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to download file: $e')));
       }
     }
   }
@@ -155,7 +200,9 @@ class NotificationDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+                border: Border.all(
+                  color: AppColors.grey200.withValues(alpha: 0.8),
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.02),
@@ -172,7 +219,10 @@ class NotificationDetailScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: typeColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(8),
@@ -183,7 +233,10 @@ class NotificationDetailScreen extends StatelessWidget {
                             Icon(typeIcon, size: 15, color: typeColor),
                             const SizedBox(width: 6),
                             Text(
-                              n.type.replaceAll('.', ' ').replaceAll('_', ' ').toUpperCase(),
+                              n.type
+                                  .replaceAll('.', ' ')
+                                  .replaceAll('_', ' ')
+                                  .toUpperCase(),
                               style: TextStyle(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.bold,
@@ -196,7 +249,10 @@ class NotificationDetailScreen extends StatelessWidget {
                       ),
                       Text(
                         formatDateTime(n.createdAt),
-                        style: const TextStyle(fontSize: 11.5, color: AppColors.grey500),
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          color: AppColors.grey500,
+                        ),
                       ),
                     ],
                   ),
@@ -230,7 +286,11 @@ class NotificationDetailScreen extends StatelessWidget {
                   else
                     const Text(
                       'No additional details provided.',
-                      style: TextStyle(fontSize: 13, color: AppColors.grey400, fontStyle: FontStyle.italic),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.grey400,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
 
                   // File Attachment Box if available
@@ -241,7 +301,11 @@ class NotificationDetailScreen extends StatelessWidget {
 
                     Row(
                       children: [
-                        const Icon(Icons.attach_file_rounded, size: 16, color: AppColors.primary),
+                        const Icon(
+                          Icons.attach_file_rounded,
+                          size: 16,
+                          color: AppColors.primary,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           'ATTACHED DOCUMENT',
@@ -256,71 +320,77 @@ class NotificationDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
 
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: (attachment['color'] as Color).withValues(alpha: 0.06),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: (attachment['color'] as Color).withValues(alpha: 0.25),
-                        ),
+                    Material(
+                      color: (attachment['color'] as Color).withValues(
+                        alpha: 0.06,
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: (attachment['color'] as Color).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              attachment['icon'] as IconData,
-                              color: attachment['color'] as Color,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  attachment['name'] as String,
-                                  style: const TextStyle(
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.grey900,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  attachment['type'] as String,
-                                  style: const TextStyle(
-                                    fontSize: 11.5,
-                                    color: AppColors.grey500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton.icon(
-                            onPressed: () => _handleDownload(context, n),
-                            icon: const Icon(Icons.download_rounded, size: 16),
-                            label: const Text('Open', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(14),
+                      child: InkWell(
+                        onTap: () => _handleDownload(context, n),
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: (attachment['color'] as Color).withValues(
+                                alpha: 0.25,
                               ),
                             ),
                           ),
-                        ],
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: (attachment['color'] as Color)
+                                      .withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  attachment['icon'] as IconData,
+                                  color: attachment['color'] as Color,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      attachment['name'] as String,
+                                      style: const TextStyle(
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.grey900,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      attachment['type'] as String,
+                                      style: const TextStyle(
+                                        fontSize: 11.5,
+                                        color: AppColors.grey500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 14,
+                                color: AppColors.grey400,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ],

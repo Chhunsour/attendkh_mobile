@@ -97,7 +97,10 @@ class ApiRepository {
     try {
       AppLogger.i('PUT $path');
       final response = await _dio.put(path, data: data);
-      return ApiResponse.fromJson(response.data as Map<String, dynamic>, fromData);
+      return ApiResponse.fromJson(
+        response.data as Map<String, dynamic>,
+        fromData,
+      );
     } on DioException catch (e) {
       AppLogger.e('PUT $path failed', e.message);
       throw mapDioException(e);
@@ -116,20 +119,42 @@ class ApiRepository {
   }
 
   /// DOWNLOAD request
-  Future<void> download(String path, String savePath, {dynamic data, String method = 'POST'}) async {
+  Future<void> download(
+    String path,
+    String savePath, {
+    dynamic data,
+    String method = 'GET',
+  }) async {
     try {
       AppLogger.i('DOWNLOAD $path to $savePath');
+
+      final isGet = method.toUpperCase() == 'GET';
+
       await _dio.download(
         path,
         savePath,
-        data: data,
+        queryParameters: isGet && data is Map<String, dynamic> ? data : null,
+        data: !isGet ? data : null,
         options: Options(method: method),
       );
     } on DioException catch (e) {
-      AppLogger.e('DOWNLOAD $path failed', e.message);
+      final responseData = e.response?.data;
+      String errorDetail = '';
+
+      // If download fails, the response data might be a JSON error even if we expected a file
+      if (responseData is Map && responseData.containsKey('message')) {
+        errorDetail = ": ${responseData['message']}";
+      } else if (responseData is String && responseData.isNotEmpty) {
+        errorDetail = ": $responseData";
+      } else if (e.response != null) {
+        // Sometimes Dio doesn't parse the error body if it expected a stream
+        try {
+          errorDetail = ": ${e.response.toString()}";
+        } catch (_) {}
+      }
+
+      AppLogger.e('DOWNLOAD $path failed$errorDetail', e.message);
       throw mapDioException(e);
     }
   }
-
-
 }

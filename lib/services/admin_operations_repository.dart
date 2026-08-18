@@ -966,8 +966,7 @@ class PayrollSettingsData {
       lateDeductionEnabled:
           json['late_deduction_enabled'] == 1 ||
           json['late_deduction_enabled'] == true,
-      taxEnabled:
-          json['tax_enabled'] == 1 || json['tax_enabled'] == true,
+      taxEnabled: json['tax_enabled'] == 1 || json['tax_enabled'] == true,
       taxRatePercentage: parseDouble(json['tax_rate_percentage'], 0.0),
       insuranceEnabled:
           json['insurance_enabled'] == 1 || json['insurance_enabled'] == true,
