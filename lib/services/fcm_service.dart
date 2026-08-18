@@ -97,7 +97,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
 }
 
-
 class FcmService {
   FcmService._();
   static final FcmService instance = FcmService._();
@@ -219,7 +218,7 @@ class FcmService {
 
         if (message.notification != null) {
           AppLogger.i(
-            'Message also contained a notification: ${message.notification}',
+            'Message also contained a notification: ${message.notification?.title} - ${message.notification?.body}',
           );
         }
         _showLocalNotification(message);
@@ -235,7 +234,9 @@ class FcmService {
       // Handle message open app from terminated state tap
       FirebaseMessaging.instance.getInitialMessage().then((message) {
         if (message != null) {
-          AppLogger.i('App launched from terminated state via notification tap');
+          AppLogger.i(
+            'App launched from terminated state via notification tap',
+          );
           handleNotificationDataRouting(message.data);
         }
       });
@@ -251,7 +252,7 @@ class FcmService {
     final context = rootNavigatorKey.currentContext!;
 
     AppLogger.i('Routing push notification payload: $data');
-    
+
     // First navigate to notifications list as a fallback/history
     context.push(AppRoutes.notifications);
 
@@ -302,8 +303,9 @@ class FcmService {
     final notification = message.notification;
     final data = message.data;
 
-    String? title = notification?.title ?? data['title'];
-    String? body = notification?.body ?? data['body'] ?? data['message'];
+    String? title = notification?.title ?? data['title'] ?? data['subject'];
+    String? body =
+        notification?.body ?? data['body'] ?? data['message'] ?? data['text'];
 
     if (title == null && data['data'] is String) {
       try {
@@ -356,7 +358,8 @@ class FcmService {
         android: AndroidNotificationDetails(
           'high_importance_channel', // channel id
           'High Importance Notifications', // channel name
-          channelDescription: 'This channel is used for important notifications.',
+          channelDescription:
+              'This channel is used for important notifications.',
           icon: '@mipmap/ic_launcher',
           color: Color(0xFF0052FF),
           importance: Importance.max,
@@ -444,10 +447,7 @@ class FcmService {
                 decoration: BoxDecoration(
                   color: const Color(0xFFEFF6FF),
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFFDBEAFE),
-                    width: 2,
-                  ),
+                  border: Border.all(color: const Color(0xFFDBEAFE), width: 2),
                 ),
                 child: const Icon(
                   Icons.notifications_active_rounded,
