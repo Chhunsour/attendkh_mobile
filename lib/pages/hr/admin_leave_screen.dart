@@ -97,8 +97,14 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
               unselectedLabelColor: AppColors.grey500,
               indicatorColor: const Color(0xFFEF4444),
               indicatorWeight: 3,
-              labelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
-              unselectedLabelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500),
+              labelStyle: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.bold,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w500,
+              ),
               tabs: [
                 Tab(
                   child: Row(
@@ -114,7 +120,10 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.account_balance_wallet_outlined, size: 16),
+                      const Icon(
+                        Icons.account_balance_wallet_outlined,
+                        size: 16,
+                      ),
                       const SizedBox(width: 6),
                       Text(l10n.tabBalances),
                     ],
@@ -228,7 +237,9 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
                       icon: Icons.inbox_rounded,
                       message: _filter == 'all'
                           ? l10n.noLeaveRequests
-                          : l10n.noRequestsByFilter(filters.firstWhere((f) => f.$1 == _filter).$2),
+                          : l10n.noRequestsByFilter(
+                              filters.firstWhere((f) => f.$1 == _filter).$2,
+                            ),
                     );
                   }
                   return ListView.builder(
@@ -240,8 +251,7 @@ class _RequestsTabState extends ConsumerState<_RequestsTab> {
                     ),
                   );
                 },
-                loading: () =>
-                    LoadingIndicator(message: l10n.loadingLogs),
+                loading: () => LoadingIndicator(message: l10n.loadingLogs),
                 error: (e, _) => _ErrorRetry(
                   onRetry: () => ref.invalidate(allLeaveRequestsProvider),
                 ),
@@ -740,14 +750,22 @@ class _RequestCard extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: AppColors.primaryLight,
                             borderRadius: BorderRadius.circular(21),
-                            image: (request.employeePhoto != null && request.employeePhoto!.isNotEmpty)
+                            image:
+                                (request.employeePhoto != null &&
+                                    request.employeePhoto!.isNotEmpty)
                                 ? DecorationImage(
-                                    image: NetworkImage(request.employeePhoto!),
+                                    image: NetworkImage(
+                                      request.employeePhoto!.startsWith('http')
+                                          ? request.employeePhoto!
+                                          : '${DioClient.storageUrl}/${request.employeePhoto!.startsWith('/') ? request.employeePhoto!.substring(1) : request.employeePhoto!}',
+                                    ),
                                     fit: BoxFit.cover,
                                   )
                                 : null,
                           ),
-                          child: (request.employeePhoto == null || request.employeePhoto!.isEmpty)
+                          child:
+                              (request.employeePhoto == null ||
+                                  request.employeePhoto!.isEmpty)
                               ? Center(
                                   child: Text(
                                     request.employeeName.isNotEmpty
@@ -777,19 +795,35 @@ class _RequestCard extends ConsumerWidget {
                               ),
                               Row(
                                 children: [
-                                  if (request.employeeCode != null && request.employeeCode!.isNotEmpty)
+                                  if (request.employeeCode != null &&
+                                      request.employeeCode!.isNotEmpty)
                                     Text(
                                       request.employeeCode!,
-                                      style: const TextStyle(fontSize: 11, color: AppColors.grey400, fontFamily: 'monospace'),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: AppColors.grey400,
+                                        fontFamily: 'monospace',
+                                      ),
                                     ),
-                                  if (request.employeePosition != null && request.employeePosition!.isNotEmpty) ...[
+                                  if (request.employeePosition != null &&
+                                      request.employeePosition!.isNotEmpty) ...[
                                     const SizedBox(width: 6),
-                                    const Text('•', style: TextStyle(fontSize: 11, color: AppColors.grey400)),
+                                    const Text(
+                                      '•',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: AppColors.grey400,
+                                      ),
+                                    ),
                                     const SizedBox(width: 6),
                                     Flexible(
                                       child: Text(
                                         request.employeePosition!,
-                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.primary,
+                                        ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -828,7 +862,9 @@ class _RequestCard extends ConsumerWidget {
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        AppLocalizations.of(context)!.halfDayLabel,
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.halfDayLabel,
                                         style: const TextStyle(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w700,
@@ -951,7 +987,9 @@ class _RequestCard extends ConsumerWidget {
                               onPressed: () =>
                                   _action(context, ref, request.id, 'approve'),
                               icon: const Icon(Icons.check_rounded, size: 15),
-                              label: Text(AppLocalizations.of(context)!.approve),
+                              label: Text(
+                                AppLocalizations.of(context)!.approve,
+                              ),
                               style: FilledButton.styleFrom(
                                 backgroundColor: AppColors.success,
                                 shape: RoundedRectangleBorder(
@@ -984,10 +1022,14 @@ class _RequestCard extends ConsumerWidget {
     if (status.isEmpty) return status;
     final l10n = AppLocalizations.of(context)!;
     switch (status) {
-      case 'pending': return l10n.filterPending;
-      case 'approved': return l10n.filterApproved;
-      case 'rejected': return l10n.filterRejected;
-      default: return status[0].toUpperCase() + status.substring(1);
+      case 'pending':
+        return l10n.filterPending;
+      case 'approved':
+        return l10n.filterApproved;
+      case 'rejected':
+        return l10n.filterRejected;
+      default:
+        return status[0].toUpperCase() + status.substring(1);
     }
   }
 
@@ -1069,7 +1111,9 @@ class _LeaveBalancesTabState extends ConsumerState<_LeaveBalancesTab> {
                     child: _BalanceCard(balance: items[i]),
                   ),
                 ),
-          loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingBalances),
+          loading: () => LoadingIndicator(
+            message: AppLocalizations.of(context)!.loadingBalances,
+          ),
           error: (e, _) =>
               _ErrorRetry(onRetry: () => ref.invalidate(leaveBalancesProvider)),
         ),
@@ -1149,7 +1193,9 @@ class _BalanceCard extends ConsumerWidget {
                   color: AppColors.primary.withAlpha(15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: balance.employeeAvatar != null && balance.employeeAvatar!.isNotEmpty
+                child:
+                    balance.employeeAvatar != null &&
+                        balance.employeeAvatar!.isNotEmpty
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: Image.network(
@@ -1161,7 +1207,9 @@ class _BalanceCard extends ConsumerWidget {
                           fit: BoxFit.cover,
                           errorBuilder: (_, _, _) => Center(
                             child: Text(
-                              balance.employeeName.isNotEmpty ? balance.employeeName[0].toUpperCase() : '?',
+                              balance.employeeName.isNotEmpty
+                                  ? balance.employeeName[0].toUpperCase()
+                                  : '?',
                               style: const TextStyle(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 16,
@@ -1199,19 +1247,35 @@ class _BalanceCard extends ConsumerWidget {
                     ),
                     Row(
                       children: [
-                        if (balance.employeeCode != null && balance.employeeCode!.isNotEmpty)
+                        if (balance.employeeCode != null &&
+                            balance.employeeCode!.isNotEmpty)
                           Text(
                             balance.employeeCode!,
-                            style: const TextStyle(fontSize: 11, color: AppColors.grey400, fontFamily: 'monospace'),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.grey400,
+                              fontFamily: 'monospace',
+                            ),
                           ),
-                        if (balance.employeePosition != null && balance.employeePosition!.isNotEmpty) ...[
+                        if (balance.employeePosition != null &&
+                            balance.employeePosition!.isNotEmpty) ...[
                           const SizedBox(width: 6),
-                          const Text('•', style: TextStyle(fontSize: 11, color: AppColors.grey400)),
+                          const Text(
+                            '•',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.grey400,
+                            ),
+                          ),
                           const SizedBox(width: 6),
                           Flexible(
                             child: Text(
                               balance.employeePosition!,
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primary,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -1390,7 +1454,9 @@ class _BalanceCard extends ConsumerWidget {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(AppLocalizations.of(context)!.balanceUpdated),
+                            content: Text(
+                              AppLocalizations.of(context)!.balanceUpdated,
+                            ),
                             backgroundColor: AppColors.success,
                           ),
                         );
@@ -1409,7 +1475,10 @@ class _BalanceCard extends ConsumerWidget {
                   },
                   child: Text(
                     AppLocalizations.of(context)!.saveChanges,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
               ),
@@ -1759,7 +1828,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        AppLocalizations.of(context)!.employeesSelected(selectedEmpIds.length),
+                        AppLocalizations.of(
+                          context,
+                        )!.employeesSelected(selectedEmpIds.length),
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.grey400,
@@ -1841,7 +1912,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                AppLocalizations.of(context)!.allocatedDaysRequired,
+                                AppLocalizations.of(
+                                  context,
+                                )!.allocatedDaysRequired,
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -1932,8 +2005,14 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                                       SnackBar(
                                         content: Text(
                                           bulkMode
-                                              ? AppLocalizations.of(context)!.leaveBalanceAssignedMulti(selectedEmpIds.length)
-                                              : AppLocalizations.of(context)!.leaveBalanceCreated,
+                                              ? AppLocalizations.of(
+                                                  context,
+                                                )!.leaveBalanceAssignedMulti(
+                                                  selectedEmpIds.length,
+                                                )
+                                              : AppLocalizations.of(
+                                                  context,
+                                                )!.leaveBalanceCreated,
                                         ),
                                         backgroundColor: AppColors.success,
                                       ),
@@ -1964,7 +2043,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                               )
                             : Text(
                                 bulkMode
-                                    ? AppLocalizations.of(context)!.assignToEmployees
+                                    ? AppLocalizations.of(
+                                        context,
+                                      )!.assignToEmployees
                                     : AppLocalizations.of(context)!.addBalance,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
@@ -2032,7 +2113,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                     ),
                   ),
                 ),
-          loading: () => LoadingIndicator(message: AppLocalizations.of(context)!.loadingTypes),
+          loading: () => LoadingIndicator(
+            message: AppLocalizations.of(context)!.loadingTypes,
+          ),
           error: (e, _) =>
               _ErrorRetry(onRetry: () => ref.invalidate(leaveTypesProvider)),
         ),
@@ -2114,7 +2197,9 @@ class _LeaveTypesTab extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                 child: Text(
-                  isEdit ? AppLocalizations.of(context)!.editLeaveType : AppLocalizations.of(context)!.addLeaveType,
+                  isEdit
+                      ? AppLocalizations.of(context)!.editLeaveType
+                      : AppLocalizations.of(context)!.addLeaveType,
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
@@ -2158,7 +2243,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                               Expanded(
                                 child: _SheetField(
                                   controller: nameCtrl,
-                                  label: AppLocalizations.of(context)!.nameRequired,
+                                  label: AppLocalizations.of(
+                                    context,
+                                  )!.nameRequired,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -2177,7 +2264,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                               Expanded(
                                 child: _SheetField(
                                   controller: daysCtrl,
-                                  label: AppLocalizations.of(context)!.daysPerYear,
+                                  label: AppLocalizations.of(
+                                    context,
+                                  )!.daysPerYear,
                                   keyboard:
                                       const TextInputType.numberWithOptions(
                                         decimal: true,
@@ -2188,7 +2277,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                               Expanded(
                                 child: _SheetField(
                                   controller: sortOrderCtrl,
-                                  label: AppLocalizations.of(context)!.sortOrder,
+                                  label: AppLocalizations.of(
+                                    context,
+                                  )!.sortOrder,
                                   keyboard: TextInputType.number,
                                 ),
                               ),
@@ -2287,8 +2378,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                             const SizedBox(height: 4),
                             _SheetField(
                               controller: maxCarryForwardCtrl,
-                              label:
-                                  AppLocalizations.of(context)!.maxCarryForwardDays,
+                              label: AppLocalizations.of(
+                                context,
+                              )!.maxCarryForwardDays,
                               keyboard: TextInputType.number,
                             ),
                             const SizedBox(height: 8),
@@ -2308,7 +2400,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                           const SizedBox(height: 10),
                           _SheetField(
                             controller: noticeCtrl,
-                            label: AppLocalizations.of(context)!.noticePeriodDays,
+                            label: AppLocalizations.of(
+                              context,
+                            )!.noticePeriodDays,
                             keyboard: TextInputType.number,
                           ),
                           const SizedBox(height: 12),
@@ -2320,7 +2414,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                           const SizedBox(height: 12),
                           _SheetField(
                             controller: maxConsecutiveCtrl,
-                            label: AppLocalizations.of(context)!.maxConsecutiveDays,
+                            label: AppLocalizations.of(
+                              context,
+                            )!.maxConsecutiveDays,
                             keyboard: TextInputType.number,
                           ),
                           const SizedBox(height: 12),
@@ -2396,7 +2492,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                             onChanged: (v) =>
                                 setSt(() => allowHalfDay = v ?? false),
                             title: Text(
-                              AppLocalizations.of(context)!.allowHalfDayRequests,
+                              AppLocalizations.of(
+                                context,
+                              )!.allowHalfDayRequests,
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -2538,8 +2636,12 @@ class _LeaveTypesTab extends ConsumerWidget {
                                       SnackBar(
                                         content: Text(
                                           isEdit
-                                              ? AppLocalizations.of(context)!.leaveTypeUpdated
-                                              : AppLocalizations.of(context)!.leaveTypeCreated,
+                                              ? AppLocalizations.of(
+                                                  context,
+                                                )!.leaveTypeUpdated
+                                              : AppLocalizations.of(
+                                                  context,
+                                                )!.leaveTypeCreated,
                                         ),
                                         backgroundColor: AppColors.success,
                                       ),
@@ -2557,7 +2659,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                                 }
                               },
                               child: Text(
-                                isEdit ? AppLocalizations.of(context)!.saveChanges : AppLocalizations.of(context)!.create,
+                                isEdit
+                                    ? AppLocalizations.of(context)!.saveChanges
+                                    : AppLocalizations.of(context)!.create,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
@@ -2699,7 +2803,9 @@ class _LeaveTypeCard extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                AppLocalizations.of(context)!.daysPerYearLabel(type.defaultDays.toStringAsFixed(0)),
+                                AppLocalizations.of(context)!.daysPerYearLabel(
+                                  type.defaultDays.toStringAsFixed(0),
+                                ),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: AppColors.grey500,
@@ -2721,7 +2827,13 @@ class _LeaveTypeCard extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            type.isActive ? AppLocalizations.of(context)!.activeLabel.toUpperCase() : AppLocalizations.of(context)!.inactiveLabel.toUpperCase(),
+                            type.isActive
+                                ? AppLocalizations.of(
+                                    context,
+                                  )!.activeLabel.toUpperCase()
+                                : AppLocalizations.of(
+                                    context,
+                                  )!.inactiveLabel.toUpperCase(),
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
@@ -2740,7 +2852,9 @@ class _LeaveTypeCard extends ConsumerWidget {
                       runSpacing: 4,
                       children: [
                         _PolicyBadge(
-                          label: type.isPaid ? AppLocalizations.of(context)!.paid : AppLocalizations.of(context)!.unpaid,
+                          label: type.isPaid
+                              ? AppLocalizations.of(context)!.paid
+                              : AppLocalizations.of(context)!.unpaid,
                           color: type.isPaid
                               ? AppColors.success
                               : AppColors.grey500,
@@ -2763,15 +2877,21 @@ class _LeaveTypeCard extends ConsumerWidget {
                         if (type.carryForward) ...[
                           _PolicyBadge(
                             label: type.maxCarryForward != null
-                                ? AppLocalizations.of(context)!.carryFwd(type.maxCarryForward!.toString())
-                                : AppLocalizations.of(context)!.carryForwardBadge,
+                                ? AppLocalizations.of(
+                                    context,
+                                  )!.carryFwd(type.maxCarryForward!.toString())
+                                : AppLocalizations.of(
+                                    context,
+                                  )!.carryForwardBadge,
                             color: const Color(0xFF7C3AED),
                             bg: const Color(0xFFF5F3FF),
                           ),
                         ],
                         if (type.maxConsecutiveDays != null)
                           _PolicyBadge(
-                            label: AppLocalizations.of(context)!.maxConsec(type.maxConsecutiveDays!.toString()),
+                            label: AppLocalizations.of(
+                              context,
+                            )!.maxConsec(type.maxConsecutiveDays!.toString()),
                             color: const Color(0xFFB45309),
                             bg: const Color(0xFFFEF3C7),
                           ),
@@ -2786,7 +2906,7 @@ class _LeaveTypeCard extends ConsumerWidget {
                             label: AppLocalizations.of(context)!.genderBadge(
                               type.genderSpecific == 'male'
                                   ? AppLocalizations.of(context)!.maleOnly
-                                  : AppLocalizations.of(context)!.femaleOnly
+                                  : AppLocalizations.of(context)!.femaleOnly,
                             ),
                             color: AppColors.grey600,
                             bg: AppColors.grey100,
@@ -2798,7 +2918,10 @@ class _LeaveTypeCard extends ConsumerWidget {
                     Row(
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.noticeSort(type.noticePeriodDays.toString(), type.sortOrder.toString()),
+                          AppLocalizations.of(context)!.noticeSort(
+                            type.noticePeriodDays.toString(),
+                            type.sortOrder.toString(),
+                          ),
                           style: const TextStyle(
                             fontSize: 10,
                             color: AppColors.grey400,
@@ -2807,7 +2930,9 @@ class _LeaveTypeCard extends ConsumerWidget {
                         if (type.minimumTenureDays != null) ...[
                           const SizedBox(width: 8),
                           Text(
-                            AppLocalizations.of(context)!.minTenureBadge(type.minimumTenureDays!.toString()),
+                            AppLocalizations.of(context)!.minTenureBadge(
+                              type.minimumTenureDays!.toString(),
+                            ),
                             style: const TextStyle(
                               fontSize: 10,
                               color: AppColors.grey400,
@@ -2938,7 +3063,10 @@ class _LeaveTypeCard extends ConsumerWidget {
 
                 Text(
                   AppLocalizations.of(context)!.deleteLeaveType,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
 
                 const SizedBox(height: 12),
@@ -2952,7 +3080,11 @@ class _LeaveTypeCard extends ConsumerWidget {
                       height: 1.5,
                     ),
                     children: [
-                      TextSpan(text: AppLocalizations.of(context)!.deleteLeaveTypeConfirm(name)),
+                      TextSpan(
+                        text: AppLocalizations.of(
+                          context,
+                        )!.deleteLeaveTypeConfirm(name),
+                      ),
                     ],
                   ),
                 ),

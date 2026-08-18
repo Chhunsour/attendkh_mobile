@@ -12,6 +12,7 @@ import 'package:mpg_hr_mobile_app/services/directory_repository.dart'
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 class AdminPerformanceScreen extends StatefulWidget {
   const AdminPerformanceScreen({super.key});
@@ -2417,7 +2418,9 @@ class _TrainingTabState extends State<_TrainingTab> {
                                     t.coverImage != null &&
                                         t.coverImage!.isNotEmpty
                                     ? Image.network(
-                                        t.coverImage!,
+                                        t.coverImage!.startsWith('http')
+                                            ? t.coverImage!
+                                            : '${DioClient.storageUrl}/${t.coverImage!.startsWith('/') ? t.coverImage!.substring(1) : t.coverImage!}',
                                         fit: BoxFit.cover,
                                         errorBuilder: (ctx, err, stack) =>
                                             const Center(

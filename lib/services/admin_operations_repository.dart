@@ -117,8 +117,12 @@ class AdminAttendanceRecord {
       lateMinutes: json['late_minutes'] != null
           ? int.tryParse(json['late_minutes'].toString())
           : null,
-      earlyClockInMinutes: json['early_clock_in_minutes'] as int?,
-      approvedPreShiftOtMinutes: json['approved_pre_shift_ot_minutes'] as int?,
+      earlyClockInMinutes: int.tryParse(
+        json['early_clock_in_minutes']?.toString() ?? '',
+      ),
+      approvedPreShiftOtMinutes: int.tryParse(
+        json['approved_pre_shift_ot_minutes']?.toString() ?? '',
+      ),
       canApprovePreShiftOt: json['can_approve_pre_shift_ot'] == true,
       notes: json['notes'] as String?,
       clockInPhoto: json['clock_in_photo'] as String?,
@@ -214,7 +218,7 @@ class AdminLeaveRequestData {
       halfDay: json['half_day'] as bool? ?? false,
       startDate: json['start_date'] as String? ?? '',
       endDate: json['end_date'] as String? ?? '',
-      days: (json['total_days'] as num?)?.toDouble() ?? 1.0,
+      days: double.tryParse(json['total_days']?.toString() ?? '') ?? 1.0,
       reason: json['reason'] as String?,
       status: json['status'] as String? ?? 'pending',
       createdAt: json['created_at'] as String? ?? '',
@@ -1044,13 +1048,18 @@ class DashboardKpiData {
   factory DashboardKpiData.fromJson(Map<String, dynamic> json) {
     final activityList = json['recent_activity'] as List? ?? [];
     return DashboardKpiData(
-      totalEmployees: json['total_employees'] as int? ?? 0,
-      todayAttendance: json['today_attendance'] as int? ?? 0,
-      pendingLeaves: json['pending_leaves'] as int? ?? 0,
-      pendingExpenses: json['pending_expenses'] as int? ?? 0,
-      openJobs: json['open_jobs'] as int? ?? 0,
-      totalAssets: json['total_assets'] as int? ?? 0,
-      assignedAssets: json['assigned_assets'] as int? ?? 0,
+      totalEmployees:
+          int.tryParse(json['total_employees']?.toString() ?? '') ?? 0,
+      todayAttendance:
+          int.tryParse(json['today_attendance']?.toString() ?? '') ?? 0,
+      pendingLeaves:
+          int.tryParse(json['pending_leaves']?.toString() ?? '') ?? 0,
+      pendingExpenses:
+          int.tryParse(json['pending_expenses']?.toString() ?? '') ?? 0,
+      openJobs: int.tryParse(json['open_jobs']?.toString() ?? '') ?? 0,
+      totalAssets: int.tryParse(json['total_assets']?.toString() ?? '') ?? 0,
+      assignedAssets:
+          int.tryParse(json['assigned_assets']?.toString() ?? '') ?? 0,
       monthlyPayroll:
           double.tryParse(json['monthly_payroll']?.toString() ?? '0') ?? 0.0,
       recentActivity: activityList

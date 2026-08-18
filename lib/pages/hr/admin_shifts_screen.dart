@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 // ─── Accent colors (work on white backgrounds) ───────────────────────────────
 const _cardAccents = [
@@ -26,7 +27,8 @@ class AdminShiftsScreen extends ConsumerStatefulWidget {
   ConsumerState<AdminShiftsScreen> createState() => _AdminShiftsScreenState();
 }
 
-class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen> with SingleTickerProviderStateMixin {
+class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -88,7 +90,10 @@ class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen> with Sing
             data: (shifts) => Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -120,8 +125,14 @@ class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen> with Sing
               unselectedLabelColor: AppColors.grey500,
               indicatorColor: const Color(0xFF8B5CF6),
               indicatorWeight: 3,
-              labelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
-              unselectedLabelStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500),
+              labelStyle: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.bold,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w500,
+              ),
               tabs: const [
                 Tab(
                   child: Row(
@@ -154,7 +165,9 @@ class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen> with Sing
           // Tab 1: Schedules
           shiftsAsync.when(
             data: (shifts) => shifts.isEmpty
-                ? _EmptyState(onAdd: () => context.push(AppRoutes.adminShiftForm))
+                ? _EmptyState(
+                    onAdd: () => context.push(AppRoutes.adminShiftForm),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
                     itemCount: shifts.length,
@@ -167,7 +180,8 @@ class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen> with Sing
                     ),
                   ),
             loading: () => LoadingIndicator(message: l10n.loadingShifts),
-            error: (e, _) => _ErrorState(onRetry: () => ref.invalidate(shiftsProvider)),
+            error: (e, _) =>
+                _ErrorState(onRetry: () => ref.invalidate(shiftsProvider)),
           ),
 
           // Tab 2: Assignments
@@ -200,9 +214,14 @@ class _ShiftCard extends ConsumerWidget {
   final int colorIndex;
   const _ShiftCard({required this.shift, required this.colorIndex});
 
-
   static const _dayOrder = [
-    'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
   ];
 
   String _formatTime(String t) {
@@ -243,15 +262,20 @@ class _ShiftCard extends ConsumerWidget {
         final ds = schedule[day];
         if (ds != null && ds.isWorking) {
           final key = '${ds.start}|${ds.end}|${ds.breakStart}|${ds.breakEnd}';
-          final newKey = '$currentStart|$currentEnd|$currentBreakStart|$currentBreakEnd';
+          final newKey =
+              '$currentStart|$currentEnd|$currentBreakStart|$currentBreakEnd';
           if (currentStart == null || key != newKey) {
             if (currentDays.isNotEmpty) {
               periods.add({
                 'days': List<String>.from(currentDays),
                 'start': _formatTime(currentStart!),
                 'end': _formatTime(currentEnd!),
-                'breakStart': currentBreakStart != null ? _formatTime(currentBreakStart) : null,
-                'breakEnd': currentBreakEnd != null ? _formatTime(currentBreakEnd) : null,
+                'breakStart': currentBreakStart != null
+                    ? _formatTime(currentBreakStart)
+                    : null,
+                'breakEnd': currentBreakEnd != null
+                    ? _formatTime(currentBreakEnd)
+                    : null,
               });
             }
             currentStart = ds.start;
@@ -267,8 +291,12 @@ class _ShiftCard extends ConsumerWidget {
               'days': List<String>.from(currentDays),
               'start': _formatTime(currentStart!),
               'end': _formatTime(currentEnd!),
-              'breakStart': currentBreakStart != null ? _formatTime(currentBreakStart) : null,
-              'breakEnd': currentBreakEnd != null ? _formatTime(currentBreakEnd) : null,
+              'breakStart': currentBreakStart != null
+                  ? _formatTime(currentBreakStart)
+                  : null,
+              'breakEnd': currentBreakEnd != null
+                  ? _formatTime(currentBreakEnd)
+                  : null,
             });
           }
           currentStart = null;
@@ -283,8 +311,12 @@ class _ShiftCard extends ConsumerWidget {
           'days': List<String>.from(currentDays),
           'start': _formatTime(currentStart!),
           'end': _formatTime(currentEnd!),
-          'breakStart': currentBreakStart != null ? _formatTime(currentBreakStart) : null,
-          'breakEnd': currentBreakEnd != null ? _formatTime(currentBreakEnd) : null,
+          'breakStart': currentBreakStart != null
+              ? _formatTime(currentBreakStart)
+              : null,
+          'breakEnd': currentBreakEnd != null
+              ? _formatTime(currentBreakEnd)
+              : null,
         });
       }
     }
@@ -322,7 +354,6 @@ class _ShiftCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // ── Header ──────────────────────────────────────────
                   Padding(
                     padding: const EdgeInsets.fromLTRB(14, 14, 10, 10),
@@ -358,21 +389,27 @@ class _ShiftCard extends ConsumerWidget {
                                       ),
                                     ),
                                   ),
-                                  if (shift.code != null && shift.code!.isNotEmpty)
+                                  if (shift.code != null &&
+                                      shift.code!.isNotEmpty)
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 7, vertical: 2),
+                                        horizontal: 7,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: accent.withAlpha(15),
                                         borderRadius: BorderRadius.circular(5),
-                                        border: Border.all(color: accent.withAlpha(40)),
+                                        border: Border.all(
+                                          color: accent.withAlpha(40),
+                                        ),
                                       ),
                                       child: Text(
                                         shift.code!,
                                         style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w800,
-                                            color: accent),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                          color: accent,
+                                        ),
                                       ),
                                     ),
                                 ],
@@ -381,7 +418,9 @@ class _ShiftCard extends ConsumerWidget {
                               Row(
                                 children: [
                                   _Badge(
-                                    label: shift.isActive ? l10n.activeShiftBadge : l10n.inactiveShiftBadge,
+                                    label: shift.isActive
+                                        ? l10n.activeShiftBadge
+                                        : l10n.inactiveShiftBadge,
                                     color: shift.isActive
                                         ? AppColors.success
                                         : AppColors.grey500,
@@ -410,8 +449,10 @@ class _ShiftCard extends ConsumerWidget {
                               icon: Icons.edit_rounded,
                               color: AppColors.secondary,
                               bg: AppColors.secondaryLight,
-                              onTap: () =>
-                                  context.push(AppRoutes.adminShiftForm, extra: shift),
+                              onTap: () => context.push(
+                                AppRoutes.adminShiftForm,
+                                extra: shift,
+                              ),
                             ),
                             const SizedBox(height: 6),
                             _IconBtn(
@@ -452,15 +493,21 @@ class _ShiftCard extends ConsumerWidget {
                                     Wrap(
                                       spacing: 3,
                                       children: days.map((d) {
-                                        final abbr = dayAbbr[d] ?? d.substring(0, 2);
+                                        final abbr =
+                                            dayAbbr[d] ?? d.substring(0, 2);
                                         return Container(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 6, vertical: 2),
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
                                           decoration: BoxDecoration(
                                             color: accent.withAlpha(15),
-                                            borderRadius: BorderRadius.circular(5),
-                                            border:
-                                                Border.all(color: accent.withAlpha(35)),
+                                            borderRadius: BorderRadius.circular(
+                                              5,
+                                            ),
+                                            border: Border.all(
+                                              color: accent.withAlpha(35),
+                                            ),
                                           ),
                                           child: Text(
                                             abbr,
@@ -477,8 +524,11 @@ class _ShiftCard extends ConsumerWidget {
                                     // Time range
                                     Row(
                                       children: [
-                                        Icon(Icons.schedule_rounded,
-                                            size: 11, color: AppColors.grey500),
+                                        Icon(
+                                          Icons.schedule_rounded,
+                                          size: 11,
+                                          color: AppColors.grey500,
+                                        ),
                                         const SizedBox(width: 4),
                                         Text(
                                           '${p['start']} – ${p['end']}',
@@ -496,11 +546,17 @@ class _ShiftCard extends ConsumerWidget {
                                   const SizedBox(height: 3),
                                   Row(
                                     children: [
-                                      Icon(Icons.coffee_rounded,
-                                          size: 10, color: AppColors.grey400),
+                                      Icon(
+                                        Icons.coffee_rounded,
+                                        size: 10,
+                                        color: AppColors.grey400,
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        l10n.breakTimeRange(p['breakStart'].toString(), p['breakEnd'].toString()),
+                                        l10n.breakTimeRange(
+                                          p['breakStart'].toString(),
+                                          p['breakEnd'].toString(),
+                                        ),
                                         style: const TextStyle(
                                           fontSize: 10,
                                           color: AppColors.grey500,
@@ -532,7 +588,9 @@ class _ShiftCard extends ConsumerWidget {
                           onTap: () => _showAssignSheet(context, ref),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 7),
+                              horizontal: 12,
+                              vertical: 7,
+                            ),
                             decoration: BoxDecoration(
                               color: accent,
                               borderRadius: BorderRadius.circular(9),
@@ -540,8 +598,11 @@ class _ShiftCard extends ConsumerWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.person_add_alt_1_rounded,
-                                    color: Colors.white, size: 13),
+                                const Icon(
+                                  Icons.person_add_alt_1_rounded,
+                                  color: Colors.white,
+                                  size: 13,
+                                ),
                                 const SizedBox(width: 5),
                                 Text(
                                   l10n.assign,
@@ -568,157 +629,149 @@ class _ShiftCard extends ConsumerWidget {
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
-  final l10n = AppLocalizations.of(context)!;
-  final confirm = await showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (ctx) {
-      return Dialog(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Delete Icon
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: AppColors.danger.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.delete_forever_rounded,
-                  color: AppColors.danger,
-                  size: 40,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              Text(
-                l10n.deleteShiftTitle,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: const TextStyle(
-                    color: AppColors.grey800,
-                    fontSize: 15,
-                    height: 1.5,
+    final l10n = AppLocalizations.of(context)!;
+    final confirm = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: AppColors.surfaceLight,
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Delete Icon
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: AppColors.danger.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  children: [
-                    TextSpan(
-                      text: l10n.deleteShiftConfirmPrefix,
+                  child: const Icon(
+                    Icons.delete_forever_rounded,
+                    color: AppColors.danger,
+                    size: 40,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                Text(
+                  l10n.deleteShiftTitle,
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 12),
+
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: const TextStyle(
+                      color: AppColors.grey800,
+                      fontSize: 15,
+                      height: 1.5,
                     ),
-                    TextSpan(
-                      text: '"${shift.name}"',
-                      style: const TextStyle(
-                        color: AppColors.danger,
-                        fontWeight: FontWeight.bold,
+                    children: [
+                      TextSpan(text: l10n.deleteShiftConfirmPrefix),
+                      TextSpan(
+                        text: '"${shift.name}"',
+                        style: const TextStyle(
+                          color: AppColors.danger,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const TextSpan(
+                        text: "?\n\nThis action cannot be undone.",
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: Colors.grey),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          l10n.cancel,
+                          style: TextStyle(
+                            color: AppColors.grey800,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                    const TextSpan(
-                      text:
-                          "?\n\nThis action cannot be undone.",
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        icon: const Icon(Icons.delete_outline),
+                        label: Text(l10n.delete),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.danger,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-
-              const SizedBox(height: 28),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        side: const BorderSide(
-                          color: Colors.grey,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: Text(
-                        l10n.cancel,
-                        style: TextStyle(
-                          color: AppColors.grey800,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      icon: const Icon(Icons.delete_outline),
-                      label: Text(l10n.delete),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.danger,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
 
-  if (confirm == true) {
-    try {
-      await ref.read(adminOpsRepositoryProvider).deleteShift(shift.id);
+    if (confirm == true) {
+      try {
+        await ref.read(adminOpsRepositoryProvider).deleteShift(shift.id);
 
-      ref.invalidate(shiftsProvider);
+        ref.invalidate(shiftsProvider);
 
-      if (!context.mounted) return;
+        if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.shiftDeletedSuccess(shift.name)),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (e) {
-      if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.shiftDeletedSuccess(shift.name)),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } catch (e) {
+        if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.shiftDeleteFailed(e.toString())),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.shiftDeleteFailed(e.toString())),
+            backgroundColor: AppColors.danger,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
-}
 
   void _showAssignSheet(BuildContext context, WidgetRef ref) {
     showModalBottomSheet(
@@ -749,9 +802,18 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
-      child: Text(label,
-          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: color)),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          color: color,
+        ),
+      ),
     );
   }
 }
@@ -761,8 +823,12 @@ class _IconBtn extends StatelessWidget {
   final Color color;
   final Color bg;
   final VoidCallback onTap;
-  const _IconBtn(
-      {required this.icon, required this.color, required this.bg, required this.onTap});
+  const _IconBtn({
+    required this.icon,
+    required this.color,
+    required this.bg,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -771,7 +837,10 @@ class _IconBtn extends StatelessWidget {
       child: Container(
         width: 34,
         height: 34,
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(9)),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(9),
+        ),
         child: Icon(icon, color: color, size: 16),
       ),
     );
@@ -782,7 +851,11 @@ class _StatPill extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _StatPill({required this.icon, required this.label, required this.color});
+  const _StatPill({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -798,9 +871,14 @@ class _StatPill extends StatelessWidget {
         children: [
           Icon(icon, size: 11, color: color),
           const SizedBox(width: 4),
-          Text(label,
-              style:
-                  TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
@@ -817,14 +895,17 @@ class _AssignShiftSheet extends ConsumerStatefulWidget {
   ConsumerState<_AssignShiftSheet> createState() => _AssignShiftSheetState();
 }
 
-final shiftAssignmentsProvider = FutureProvider.autoDispose<List<ShiftAssignmentData>>((ref) async {
-  return ref.read(adminOpsRepositoryProvider).getShiftAssignments();
-});
+final shiftAssignmentsProvider =
+    FutureProvider.autoDispose<List<ShiftAssignmentData>>((ref) async {
+      return ref.read(adminOpsRepositoryProvider).getShiftAssignments();
+    });
 
 class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
   final Set<int> _selectedIds = {};
   final TextEditingController _searchCtrl = TextEditingController();
-  final TextEditingController _effectiveDateCtrl = TextEditingController(text: DateTime.now().toIso8601String().split('T')[0]);
+  final TextEditingController _effectiveDateCtrl = TextEditingController(
+    text: DateTime.now().toIso8601String().split('T')[0],
+  );
   final TextEditingController _endDateCtrl = TextEditingController();
   int? _selectedShiftId;
   String _searchQuery = '';
@@ -861,15 +942,24 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
           activeAssignments[a.employeeId] = a;
         }
       }
-      if (!_initializedAssignments && employeesAsync.value != null && widget.shift != null) {
+      if (!_initializedAssignments &&
+          employeesAsync.value != null &&
+          widget.shift != null) {
         _initializedAssignments = true;
         final validEmpIds = employeesAsync.value!
-            .where((e) => e.employmentStatus != 'terminated' && (activeBranchId == null || e.branchId == null || e.branchId == activeBranchId))
+            .where(
+              (e) =>
+                  e.employmentStatus != 'terminated' &&
+                  (activeBranchId == null ||
+                      e.branchId == null ||
+                      e.branchId == activeBranchId),
+            )
             .map((e) => e.id)
             .toSet();
 
         for (final a in assignmentsAsync.value!) {
-          if (a.shiftId == widget.shift!.id && (a.endDate == null || a.endDate!.isEmpty)) {
+          if (a.shiftId == widget.shift!.id &&
+              (a.endDate == null || a.endDate!.isEmpty)) {
             if (validEmpIds.contains(a.employeeId)) {
               _selectedIds.add(a.employeeId);
             }
@@ -892,7 +982,9 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                  color: AppColors.grey300, borderRadius: BorderRadius.circular(2)),
+                color: AppColors.grey300,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
 
@@ -905,27 +997,38 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.person_add_alt_1_rounded,
-                      color: AppColors.primary, size: 22),
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.person_add_alt_1_rounded,
+                    color: AppColors.primary,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(l10n.assignEmployeesTitle,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                              color: AppColors.grey800)),
                       Text(
-                        l10n.assignEmployeesSubtitle(widget.shift?.name ?? 'Shift', _selectedIds.length.toString()),
+                        l10n.assignEmployeesTitle,
                         style: const TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: AppColors.grey800,
+                        ),
+                      ),
+                      Text(
+                        l10n.assignEmployeesSubtitle(
+                          widget.shift?.name ?? 'Shift',
+                          _selectedIds.length.toString(),
+                        ),
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -936,10 +1039,14 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                        color: AppColors.grey100,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: const Icon(Icons.close_rounded,
-                        color: AppColors.grey500, size: 18),
+                      color: AppColors.grey100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.close_rounded,
+                      color: AppColors.grey500,
+                      size: 18,
+                    ),
                   ),
                 ),
               ],
@@ -958,17 +1065,33 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                     labelText: 'Shift *',
                     hintText: 'Select shift',
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 10,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  items: shifts.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name, style: const TextStyle(fontSize: 13)))).toList(),
+                  items: shifts
+                      .map(
+                        (s) => DropdownMenuItem(
+                          value: s.id,
+                          child: Text(
+                            s.name,
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ),
+                      )
+                      .toList(),
                   onChanged: (val) {
                     setState(() {
                       _selectedShiftId = val;
                       _selectedIds.clear();
                       if (val != null && assignmentsAsync.value != null) {
                         for (final a in assignmentsAsync.value!) {
-                          if (a.shiftId == val && (a.endDate == null || a.endDate!.isEmpty)) {
+                          if (a.shiftId == val &&
+                              (a.endDate == null || a.endDate!.isEmpty)) {
                             _selectedIds.add(a.employeeId);
                           }
                         }
@@ -996,8 +1119,13 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                       labelText: 'Effective Date *',
                       hintText: 'YYYY-MM-DD',
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
@@ -1010,8 +1138,13 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                       labelText: 'End Date (Optional)',
                       hintText: 'YYYY-MM-DD',
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
@@ -1033,13 +1166,20 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
               ),
               child: TextField(
                 controller: _searchCtrl,
-                onChanged: (v) => setState(() => _searchQuery = v.toLowerCase()),
+                onChanged: (v) =>
+                    setState(() => _searchQuery = v.toLowerCase()),
                 style: const TextStyle(fontSize: 13),
                 decoration: InputDecoration(
                   hintText: l10n.searchEmployeesHint,
-                  hintStyle: const TextStyle(fontSize: 12, color: AppColors.grey400),
-                  prefixIcon:
-                      const Icon(Icons.search_rounded, size: 18, color: AppColors.grey400),
+                  hintStyle: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.grey400,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    size: 18,
+                    color: AppColors.grey400,
+                  ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -1054,27 +1194,38 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
               data: (allEmployees) {
                 var filtered = allEmployees.where((e) {
                   if (e.employmentStatus == 'terminated') return false;
-                  if (activeBranchId != null && e.branchId != null && e.branchId != activeBranchId) return false;
+                  if (activeBranchId != null &&
+                      e.branchId != null &&
+                      e.branchId != activeBranchId) {
+                    return false;
+                  }
                   return true;
                 }).toList();
 
                 if (_searchQuery.isNotEmpty) {
                   filtered = filtered
-                      .where((e) =>
-                          e.name.toLowerCase().contains(_searchQuery) ||
-                          (e.employeeId ?? '').toLowerCase().contains(_searchQuery))
+                      .where(
+                        (e) =>
+                            e.name.toLowerCase().contains(_searchQuery) ||
+                            (e.employeeId ?? '').toLowerCase().contains(
+                              _searchQuery,
+                            ),
+                      )
                       .toList();
                 }
 
                 if (filtered.isEmpty) {
                   return const Center(
-                    child: Text('No employees found',
-                        style: TextStyle(fontSize: 13, color: AppColors.grey400)),
+                    child: Text(
+                      'No employees found',
+                      style: TextStyle(fontSize: 13, color: AppColors.grey400),
+                    ),
                   );
                 }
 
-                final allFilteredSelected =
-                    filtered.every((e) => _selectedIds.contains(e.id));
+                final allFilteredSelected = filtered.every(
+                  (e) => _selectedIds.contains(e.id),
+                );
 
                 return Column(
                   children: [
@@ -1097,10 +1248,13 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
-                              color: AppColors.grey50,
-                              borderRadius: BorderRadius.circular(8)),
+                            color: AppColors.grey50,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           child: Row(
                             children: [
                               Icon(
@@ -1114,7 +1268,9 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                allFilteredSelected ? l10n.deselectAll : l10n.selectAll,
+                                allFilteredSelected
+                                    ? l10n.deselectAll
+                                    : l10n.selectAll,
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -1124,9 +1280,15 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                 ),
                               ),
                               const Spacer(),
-                              Text(l10n.employeesCountLabel(filtered.length.toString()),
-                                  style: const TextStyle(
-                                      fontSize: 11, color: AppColors.grey400)),
+                              Text(
+                                l10n.employeesCountLabel(
+                                  filtered.length.toString(),
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.grey400,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -1145,8 +1307,11 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                           final emp = filtered[i];
                           final isSelected = _selectedIds.contains(emp.id);
                           final activeAssign = activeAssignments[emp.id];
-                          final isThisShift = widget.shift != null && activeAssign?.shiftId == widget.shift!.id;
-                          final isOtherShift = activeAssign != null && !isThisShift;
+                          final isThisShift =
+                              widget.shift != null &&
+                              activeAssign?.shiftId == widget.shift!.id;
+                          final isOtherShift =
+                              activeAssign != null && !isThisShift;
 
                           return GestureDetector(
                             onTap: () {
@@ -1160,7 +1325,9 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? AppColors.primaryLight
@@ -1202,7 +1369,8 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
@@ -1222,11 +1390,20 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                             if (isThisShift) ...[
                                               const SizedBox(width: 6),
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2,
+                                                    ),
                                                 decoration: BoxDecoration(
-                                                  color: AppColors.success.withAlpha(25),
-                                                  borderRadius: BorderRadius.circular(6),
-                                                  border: Border.all(color: AppColors.success.withAlpha(60)),
+                                                  color: AppColors.success
+                                                      .withAlpha(25),
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                  border: Border.all(
+                                                    color: AppColors.success
+                                                        .withAlpha(60),
+                                                  ),
                                                 ),
                                                 child: Text(
                                                   l10n.assignedBadge,
@@ -1240,14 +1417,24 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                             ] else if (isOtherShift) ...[
                                               const SizedBox(width: 6),
                                               Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2,
+                                                    ),
                                                 decoration: BoxDecoration(
-                                                  color: AppColors.info.withAlpha(25),
-                                                  borderRadius: BorderRadius.circular(6),
-                                                  border: Border.all(color: AppColors.info.withAlpha(60)),
+                                                  color: AppColors.info
+                                                      .withAlpha(25),
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                  border: Border.all(
+                                                    color: AppColors.info
+                                                        .withAlpha(60),
+                                                  ),
                                                 ),
                                                 child: Text(
-                                                  activeAssign.shiftName ?? l10n.otherShiftBadge,
+                                                  activeAssign.shiftName ??
+                                                      l10n.otherShiftBadge,
                                                   style: const TextStyle(
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.w600,
@@ -1259,10 +1446,13 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                           ],
                                         ),
                                         if (emp.employeeId != null)
-                                          Text(emp.employeeId!,
-                                              style: const TextStyle(
-                                                  fontSize: 11,
-                                                  color: AppColors.grey400)),
+                                          Text(
+                                            emp.employeeId!,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: AppColors.grey400,
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
@@ -1287,8 +1477,10 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
               },
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => const Center(
-                child: Text('Error loading employees',
-                    style: TextStyle(color: AppColors.danger)),
+                child: Text(
+                  'Error loading employees',
+                  style: TextStyle(color: AppColors.danger),
+                ),
               ),
             ),
           ),
@@ -1296,15 +1488,20 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
           // Bottom actions
           Container(
             padding: EdgeInsets.fromLTRB(
-                20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
+              20,
+              12,
+              20,
+              MediaQuery.of(context).padding.bottom + 12,
+            ),
             decoration: BoxDecoration(
               color: Colors.white,
               border: const Border(top: BorderSide(color: AppColors.grey100)),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withAlpha(8),
-                    blurRadius: 6,
-                    offset: const Offset(0, -2)),
+                  color: Colors.black.withAlpha(8),
+                  blurRadius: 6,
+                  offset: const Offset(0, -2),
+                ),
               ],
             ),
             child: Row(
@@ -1317,22 +1514,31 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                       side: const BorderSide(color: AppColors.grey300),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       minimumSize: Size.zero,
                     ),
-                    child: Text(l10n.cancel,
-                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    child: Text(
+                      l10n.cancel,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton(
-                    onPressed: _selectedIds.isEmpty || _isLoading ? null : _assign,
+                    onPressed: _selectedIds.isEmpty || _isLoading
+                        ? null
+                        : _assign,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       minimumSize: Size.zero,
                     ),
                     child: _isLoading
@@ -1340,11 +1546,21 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2))
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
                         : Text(
-                            _selectedIds.isEmpty ? l10n.assign : l10n.assignCount(_selectedIds.length.toString()),
+                            _selectedIds.isEmpty
+                                ? l10n.assign
+                                : l10n.assignCount(
+                                    _selectedIds.length.toString(),
+                                  ),
                             style: const TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 14)),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -1360,7 +1576,10 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
     final targetShiftId = _selectedShiftId ?? widget.shift?.id;
     if (targetShiftId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a shift schedule'), backgroundColor: AppColors.danger),
+        const SnackBar(
+          content: Text('Please select a shift schedule'),
+          backgroundColor: AppColors.danger,
+        ),
       );
       return;
     }
@@ -1389,8 +1608,16 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-                failCount > 0 ? l10n.assignSuccessWithFail(successCount.toString(), failCount.toString()) : l10n.assignSuccess(successCount.toString())),
-            backgroundColor: failCount == 0 ? AppColors.success : AppColors.warning,
+              failCount > 0
+                  ? l10n.assignSuccessWithFail(
+                      successCount.toString(),
+                      failCount.toString(),
+                    )
+                  : l10n.assignSuccess(successCount.toString()),
+            ),
+            backgroundColor: failCount == 0
+                ? AppColors.success
+                : AppColors.warning,
           ),
         );
       }
@@ -1398,7 +1625,9 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(l10n.assignFailedError(e.toString())), backgroundColor: AppColors.danger),
+            content: Text(l10n.assignFailedError(e.toString())),
+            backgroundColor: AppColors.danger,
+          ),
         );
       }
     } finally {
@@ -1488,14 +1717,20 @@ class _EmptyState extends StatelessWidget {
                 color: AppColors.primaryLight,
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(Icons.schedule_rounded,
-                  color: AppColors.primary, size: 40),
+              child: const Icon(
+                Icons.schedule_rounded,
+                color: AppColors.primary,
+                size: 40,
+              ),
             ),
             const SizedBox(height: 20),
             Text(
               AppLocalizations.of(context)!.noShiftsYet,
               style: TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 18, color: AppColors.grey800),
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                color: AppColors.grey800,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -1508,15 +1743,20 @@ class _EmptyState extends StatelessWidget {
               onPressed: onAdd,
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 minimumSize: Size.zero,
               ),
               icon: const Icon(Icons.add_rounded),
-              label: Text(AppLocalizations.of(context)!.createFirstShiftBtn,
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              label: Text(
+                AppLocalizations.of(context)!.createFirstShiftBtn,
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
             ),
           ],
         ),
@@ -1539,35 +1779,46 @@ class _ErrorState extends StatelessWidget {
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-                color: AppColors.dangerLight,
-                borderRadius: BorderRadius.circular(20)),
-            child: const Icon(Icons.cloud_off_rounded,
-                color: AppColors.danger, size: 36),
+              color: AppColors.dangerLight,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(
+              Icons.cloud_off_rounded,
+              color: AppColors.danger,
+              size: 36,
+            ),
           ),
           const SizedBox(height: 16),
-          Text(AppLocalizations.of(context)!.failedToLoadShifts,
-              style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: AppColors.grey700)),
+          Text(
+            AppLocalizations.of(context)!.failedToLoadShifts,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: AppColors.grey700,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text(AppLocalizations.of(context)!.checkConnectionRetry,
-              style: TextStyle(color: AppColors.grey500, fontSize: 13)),
+          Text(
+            AppLocalizations.of(context)!.checkConnectionRetry,
+            style: TextStyle(color: AppColors.grey500, fontSize: 13),
+          ),
           const SizedBox(height: 20),
           OutlinedButton.icon(
             onPressed: onRetry,
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: const BorderSide(color: AppColors.primary),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               minimumSize: Size.zero,
             ),
             icon: const Icon(Icons.refresh_rounded),
-            label: Text(AppLocalizations.of(context)!.tryAgain,
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            label: Text(
+              AppLocalizations.of(context)!.tryAgain,
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),
@@ -1579,7 +1830,8 @@ class _ShiftAssignmentsTab extends ConsumerStatefulWidget {
   const _ShiftAssignmentsTab();
 
   @override
-  ConsumerState<_ShiftAssignmentsTab> createState() => _ShiftAssignmentsTabState();
+  ConsumerState<_ShiftAssignmentsTab> createState() =>
+      _ShiftAssignmentsTabState();
 }
 
 class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
@@ -1600,7 +1852,8 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
     final List<Widget> badges = [];
     for (final d in daysMap) {
       final sched = schedule[d['key']];
-      if (sched is Map && (sched['is_working'] == true || sched['is_working'] == 1)) {
+      if (sched is Map &&
+          (sched['is_working'] == true || sched['is_working'] == 1)) {
         final start = _fmtTime(sched['start']?.toString());
         final end = _fmtTime(sched['end']?.toString());
         badges.add(
@@ -1613,7 +1866,11 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
             ),
             child: Text(
               '${d['short']}: $start - $end',
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.grey700),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grey700,
+              ),
             ),
           ),
         );
@@ -1622,11 +1879,7 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
 
     if (badges.isEmpty) return const SizedBox.shrink();
 
-    return Wrap(
-      spacing: 4,
-      runSpacing: 4,
-      children: badges,
-    );
+    return Wrap(spacing: 4, runSpacing: 4, children: badges);
   }
 
   String _fmtTime(String? timeStr) {
@@ -1662,9 +1915,16 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                 onChanged: (val) => setState(() => _searchQuery = val),
                 decoration: InputDecoration(
                   hintText: 'Search employee or shift assignment…',
-                  prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.grey500),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    size: 20,
+                    color: AppColors.grey500,
+                  ),
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   filled: true,
                   fillColor: AppColors.backgroundLight,
                   border: OutlineInputBorder(
@@ -1682,10 +1942,14 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
             Expanded(
               child: filtered.isEmpty
                   ? const Center(
-                      child: Text('No shift assignments found', style: TextStyle(color: AppColors.grey400)),
+                      child: Text(
+                        'No shift assignments found',
+                        style: TextStyle(color: AppColors.grey400),
+                      ),
                     )
                   : RefreshIndicator(
-                      onRefresh: () async => ref.invalidate(shiftAssignmentsProvider),
+                      onRefresh: () async =>
+                          ref.invalidate(shiftAssignmentsProvider),
                       child: ListView.separated(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
                         itemCount: filtered.length,
@@ -1712,20 +1976,37 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                                       decoration: BoxDecoration(
                                         color: AppColors.primaryLight,
                                         borderRadius: BorderRadius.circular(22),
-                                        image: (item.employeePhoto != null && item.employeePhoto!.isNotEmpty)
+                                        image:
+                                            (item.employeePhoto != null &&
+                                                item.employeePhoto!.isNotEmpty)
                                             ? DecorationImage(
-                                                image: NetworkImage(item.employeePhoto!),
+                                                image: NetworkImage(
+                                                  item.employeePhoto!
+                                                          .startsWith('http')
+                                                      ? item.employeePhoto!
+                                                      : '${DioClient.storageUrl}/${item.employeePhoto!.startsWith('/') ? item.employeePhoto!.substring(1) : item.employeePhoto!}',
+                                                ),
                                                 fit: BoxFit.cover,
                                               )
                                             : null,
                                       ),
-                                      child: (item.employeePhoto == null || item.employeePhoto!.isEmpty)
+                                      child:
+                                          (item.employeePhoto == null ||
+                                              item.employeePhoto!.isEmpty)
                                           ? Center(
                                               child: Text(
-                                                (item.employeeName != null && item.employeeName!.isNotEmpty)
-                                                    ? item.employeeName![0].toUpperCase()
+                                                (item.employeeName != null &&
+                                                        item
+                                                            .employeeName!
+                                                            .isNotEmpty)
+                                                    ? item.employeeName![0]
+                                                          .toUpperCase()
                                                     : '?',
-                                                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 16),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppColors.primary,
+                                                  fontSize: 16,
+                                                ),
                                               ),
                                             )
                                           : null,
@@ -1733,25 +2014,55 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            item.employeeName ?? 'Employee #${item.employeeId}',
-                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.grey800),
+                                            item.employeeName ??
+                                                'Employee #${item.employeeId}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15,
+                                              color: AppColors.grey800,
+                                            ),
                                           ),
                                           Row(
                                             children: [
-                                              if (item.employeeCode != null && item.employeeCode!.isNotEmpty)
-                                                Text(item.employeeCode!, style: const TextStyle(fontSize: 11, color: AppColors.grey400, fontFamily: 'monospace')),
-                                              if (item.employeePosition != null && item.employeePosition!.isNotEmpty) ...[
+                                              if (item.employeeCode != null &&
+                                                  item.employeeCode!.isNotEmpty)
+                                                Text(
+                                                  item.employeeCode!,
+                                                  style: const TextStyle(
+                                                    fontSize: 11,
+                                                    color: AppColors.grey400,
+                                                    fontFamily: 'monospace',
+                                                  ),
+                                                ),
+                                              if (item.employeePosition !=
+                                                      null &&
+                                                  item
+                                                      .employeePosition!
+                                                      .isNotEmpty) ...[
                                                 const SizedBox(width: 6),
-                                                const Text('•', style: TextStyle(fontSize: 11, color: AppColors.grey400)),
+                                                const Text(
+                                                  '•',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: AppColors.grey400,
+                                                  ),
+                                                ),
                                                 const SizedBox(width: 6),
                                                 Flexible(
                                                   child: Text(
                                                     item.employeePosition!,
-                                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primary),
-                                                    overflow: TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      fontSize: 11,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: AppColors.primary,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
                                               ],
@@ -1761,20 +2072,44 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                                       ),
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.danger, size: 20),
+                                      icon: const Icon(
+                                        Icons.delete_outline_rounded,
+                                        color: AppColors.danger,
+                                        size: 20,
+                                      ),
                                       onPressed: () async {
                                         try {
-                                          await ref.read(adminOpsRepositoryProvider).deleteShiftAssignment(item.id);
-                                          ref.invalidate(shiftAssignmentsProvider);
+                                          await ref
+                                              .read(adminOpsRepositoryProvider)
+                                              .deleteShiftAssignment(item.id);
+                                          ref.invalidate(
+                                            shiftAssignmentsProvider,
+                                          );
                                           if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Shift assignment deleted.'), backgroundColor: AppColors.success),
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Shift assignment deleted.',
+                                                ),
+                                                backgroundColor:
+                                                    AppColors.success,
+                                              ),
                                             );
                                           }
                                         } catch (e) {
                                           if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Failed: ${e.toString()}'), backgroundColor: AppColors.danger),
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Failed: ${e.toString()}',
+                                                ),
+                                                backgroundColor:
+                                                    AppColors.danger,
+                                              ),
                                             );
                                           }
                                         }
@@ -1790,24 +2125,36 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            item.shiftName ?? 'Shift #${item.shiftId}',
-                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.grey800),
+                                            item.shiftName ??
+                                                'Shift #${item.shiftId}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                              color: AppColors.grey800,
+                                            ),
                                           ),
                                           Text(
                                             '${item.effectiveDate ?? '—'} ${item.endDate != null && item.endDate!.isNotEmpty ? '→ ${item.endDate}' : '(Indefinite)'}',
-                                            style: const TextStyle(fontSize: 11, color: AppColors.grey500),
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: AppColors.grey500,
+                                            ),
                                           ),
                                         ],
                                       ),
                                       if (item.shiftSchedule != null) ...[
                                         const SizedBox(height: 6),
-                                        _buildScheduleBadges(item.shiftSchedule),
+                                        _buildScheduleBadges(
+                                          item.shiftSchedule,
+                                        ),
                                       ],
                                     ],
                                   ),
@@ -1822,7 +2169,8 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
           ],
         );
       },
-      loading: () => const LoadingIndicator(message: 'Loading shift assignments…'),
+      loading: () =>
+          const LoadingIndicator(message: 'Loading shift assignments…'),
       error: (e, _) => Center(
         child: OutlinedButton.icon(
           onPressed: () => ref.invalidate(shiftAssignmentsProvider),
@@ -1845,7 +2193,9 @@ class _AssignShiftModal extends ConsumerStatefulWidget {
 class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
   final _formKey = GlobalKey<FormState>();
   final _employeeIdCtrl = TextEditingController();
-  final _effectiveDateCtrl = TextEditingController(text: DateTime.now().toIso8601String().split('T')[0]);
+  final _effectiveDateCtrl = TextEditingController(
+    text: DateTime.now().toIso8601String().split('T')[0],
+  );
   final _endDateCtrl = TextEditingController();
   int? _selectedShiftId;
   bool _isSaving = false;
@@ -1861,30 +2211,40 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate() || _selectedShiftId == null) {
       if (_selectedShiftId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a shift schedule')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a shift schedule')),
+        );
       }
       return;
     }
     setState(() => _isSaving = true);
     try {
       final empId = int.parse(_employeeIdCtrl.text.trim());
-      await ref.read(adminOpsRepositoryProvider).assignShift(
-        _selectedShiftId!,
-        empId,
-        effectiveDate: _effectiveDateCtrl.text.trim(),
-        endDate: _endDateCtrl.text.trim(),
-      );
+      await ref
+          .read(adminOpsRepositoryProvider)
+          .assignShift(
+            _selectedShiftId!,
+            empId,
+            effectiveDate: _effectiveDateCtrl.text.trim(),
+            endDate: _endDateCtrl.text.trim(),
+          );
       widget.onSaved();
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Shift assigned successfully.'), backgroundColor: AppColors.success),
+          const SnackBar(
+            content: Text('Shift assigned successfully.'),
+            backgroundColor: AppColors.success,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed: ${e.toString()}'), backgroundColor: AppColors.danger),
+          SnackBar(
+            content: Text('Failed: ${e.toString()}'),
+            backgroundColor: AppColors.danger,
+          ),
         );
       }
     } finally {
@@ -1917,18 +2277,33 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Assign Shift to Employee', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                  const Text(
+                    'Assign Shift to Employee',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
               shiftsAsync.when(
                 data: (shifts) => DropdownButtonFormField<int>(
                   initialValue: _selectedShiftId,
-                  decoration: const InputDecoration(labelText: 'Select Shift Schedule *', border: OutlineInputBorder()),
-                  items: shifts.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
+                  decoration: const InputDecoration(
+                    labelText: 'Select Shift Schedule *',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: shifts
+                      .map(
+                        (s) =>
+                            DropdownMenuItem(value: s.id, child: Text(s.name)),
+                      )
+                      .toList(),
                   onChanged: (val) => setState(() => _selectedShiftId = val),
-                  validator: (val) => val == null ? 'Please select a shift' : null,
+                  validator: (val) =>
+                      val == null ? 'Please select a shift' : null,
                 ),
                 loading: () => const CircularProgressIndicator(),
                 error: (e, _) => const Text('Failed to load shift options'),
@@ -1937,19 +2312,32 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
               TextFormField(
                 controller: _employeeIdCtrl,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Employee ID *', border: OutlineInputBorder()),
-                validator: (val) => val == null || val.trim().isEmpty ? 'Please enter employee ID' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Employee ID *',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? 'Please enter employee ID'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _effectiveDateCtrl,
-                decoration: const InputDecoration(labelText: 'Effective Date * (YYYY-MM-DD)', border: OutlineInputBorder()),
-                validator: (val) => val == null || val.trim().isEmpty ? 'Please enter effective date' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Effective Date * (YYYY-MM-DD)',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? 'Please enter effective date'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _endDateCtrl,
-                decoration: const InputDecoration(labelText: 'End Date (Optional) (YYYY-MM-DD)', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                  labelText: 'End Date (Optional) (YYYY-MM-DD)',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -1957,10 +2345,19 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _submit,
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                  ),
                   child: _isSaving
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Assign Shift', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                      : const Text(
+                          'Assign Shift',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
             ],
