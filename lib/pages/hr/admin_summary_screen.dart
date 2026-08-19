@@ -217,9 +217,9 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
             alignment: Alignment.center,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 8,
-                color: Colors.white,
+                color: AppColors.textPrimary(context),
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -322,7 +322,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppColors.grey100,
-                      border: Border.all(color: AppColors.grey200, width: 0.5),
+                      border: Border.all(color: AppColors.border(context), width: 0.5),
                     ),
                     child: ClipOval(
                       child: photoUrl != null && photoUrl.isNotEmpty
@@ -342,17 +342,17 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                             ),
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         emp['full_name'] ?? 'Unknown',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       Text(
@@ -381,9 +381,9 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                   alignment: Alignment.center,
                   child: Text(
                     _getStatusLabel(status),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 8,
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -429,15 +429,15 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           'Summary Reports',
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -453,9 +453,9 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.45,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 2.15,
               children: _summaryTypes.map((t) {
                 final isSelected = _selectedType == t['key'];
                 final color = t['color'] as Color;
@@ -463,60 +463,69 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                   onTap: () => _loadSummary(t['key'] as String),
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? color.withAlpha(10) : Colors.white,
+                      color: isSelected ? color.withAlpha(15) : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSelected ? color : AppColors.grey200,
-                        width: isSelected ? 2 : 1,
+                        width: isSelected ? 1.5 : 1,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withAlpha(5),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                          color: Colors.black.withAlpha(isSelected ? 10 : 5),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(6),
+                          width: 38,
+                          height: 38,
                           decoration: BoxDecoration(
                             color: color.withAlpha(20),
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(11),
                           ),
                           child: Icon(
                             t['icon'] as IconData,
                             color: color,
-                            size: 18,
+                            size: 19,
                           ),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              t['label'] as String,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: isSelected ? color : AppColors.grey800,
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                t['label'] as String,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSelected ? color : AppColors.grey900,
+                                  letterSpacing: -0.2,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Tap to view',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: isSelected
-                                    ? color.withAlpha(180)
-                                    : AppColors.grey500,
+                              const SizedBox(height: 2),
+                              Text(
+                                'Tap to view',
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  color: isSelected
+                                      ? color.withAlpha(200)
+                                      : AppColors.grey500,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -524,26 +533,26 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
             // Month Picker for Attendance
             if (_selectedType == 'attendance') ...[
               Container(
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.textPrimary(context),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.grey200),
+                  border: Border.all(color: AppColors.border(context)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
                       onPressed: () => _changeMonth(-1),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.chevron_left_rounded,
                         color: AppColors.grey600,
                       ),
@@ -551,10 +560,10 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                     ),
                     Text(
                       DateFormat('MMMM yyyy').format(_selectedMonth),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     IconButton(
@@ -600,16 +609,16 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                 onChanged: (v) => setState(() => _searchQuery = v),
                 decoration: InputDecoration(
                   hintText: 'Search records...',
-                  prefixIcon: const Icon(Icons.search, size: 20),
+                  prefixIcon: Icon(Icons.search, size: 20),
                   filled: true,
                   fillColor: AppColors.surfaceLight,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.grey200),
+                    borderSide: BorderSide(color: AppColors.border(context)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.grey200),
+                    borderSide: BorderSide(color: AppColors.border(context)),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -627,13 +636,13 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               // Horizontal scrollable table
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.surfaceLight,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.grey200),
+                  border: Border.all(color: AppColors.border(context)),
                 ),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,

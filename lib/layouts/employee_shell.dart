@@ -35,13 +35,7 @@ class EmployeeShell extends ConsumerWidget {
           outlineIcon: Icons.receipt_long_outlined,
           filledIcon: Icons.receipt_long,
           label: 'Payslip',
-          screen: const PayslipScreen(),
-        ),
-        NavItem(
-          outlineIcon: Icons.person_outline,
-          filledIcon: Icons.person,
-          label: 'Profile',
-          screen: const ProfileScreen(showBackButton: false),
+          screen: PayslipScreen(),
         ),
         NavItem(
           outlineIcon: Icons.apps_outlined,
@@ -123,6 +117,12 @@ class EmployeeShell extends ConsumerWidget {
               ),
             ],
           ),
+        ),
+        NavItem(
+          outlineIcon: Icons.person_outline,
+          filledIcon: Icons.person,
+          label: 'Profile',
+          screen: const ProfileScreen(showBackButton: false),
         ),
       ],
     );

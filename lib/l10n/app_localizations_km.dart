@@ -4910,4 +4910,19 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get payrollAttendanceRules => 'ច្បាប់ប្រាក់ខែ ការចូលធ្វើការ និង OT';
+
+  @override
+  String get overtime => 'ធ្វើការបន្ថែមម៉ោង';
+
+  @override
+  String get companyServices => 'សេវាកម្មក្រុមហ៊ុន';
+
+  @override
+  String get moveCloserToBranch => 'សូមចូលមកជិតសាខា ដើម្បីចុះឈ្មោះចូល។';
+
+  @override
+  String get locationNeedsAttention => 'ទីតាំងត្រូវការការពិនិត្យ';
+
+  @override
+  String get noPayslipsYet => 'មិនទាន់មានប័ណ្ណប្រាក់ខែ';
 }

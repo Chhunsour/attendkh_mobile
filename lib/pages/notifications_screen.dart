@@ -13,7 +13,8 @@ class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
@@ -115,10 +116,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     if (type.contains('policy')) return Icons.policy_rounded;
     if (type.contains('document')) return Icons.description_rounded;
     if (type.contains('leave')) return Icons.event_available_rounded;
-    if (type.contains('attendance') || type.contains('correction')) return Icons.fingerprint_rounded;
+    if (type.contains('attendance') || type.contains('correction')) {
+      return Icons.fingerprint_rounded;
+    }
     if (type.contains('overtime')) return Icons.schedule_rounded;
     if (type.contains('expense')) return Icons.receipt_long_rounded;
-    if (type.contains('payroll') || type.contains('salary')) return Icons.payments_rounded;
+    if (type.contains('payroll') || type.contains('salary')) {
+      return Icons.payments_rounded;
+    }
     return Icons.notifications_active_rounded;
   }
 
@@ -127,27 +132,32 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     if (type.contains('policy')) return const Color(0xFFEC4899);
     if (type.contains('document')) return const Color(0xFF14B8A6);
     if (type.contains('leave')) return const Color(0xFF3B82F6);
-    if (type.contains('attendance') || type.contains('correction')) return const Color(0xFF6366F1);
-    if (type.contains('overtime')) return const Color(0xFF8B5CF6);
-    if (type.contains('expense')) return const Color(0xFFF59E0B);
-    if (type.contains('payroll') || type.contains('salary')) return const Color(0xFF10B981);
+    if (type.contains('attendance') || type.contains('correction')) {
+      return Color(0xFF6366F1);
+    }
+    if (type.contains('overtime')) return Color(0xFF8B5CF6);
+    if (type.contains('expense')) return Color(0xFFF59E0B);
+    if (type.contains('payroll') || type.contains('salary')) {
+      return Color(0xFF10B981);
+    }
     return AppColors.primary;
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.notifications,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -158,11 +168,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             icon: const Icon(Icons.done_all_rounded, size: 16),
             label: Text(
               l10n.readAll,
-              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             style: TextButton.styleFrom(
               foregroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: EdgeInsets.symmetric(horizontal: 12),
             ),
           ),
         ],
@@ -171,16 +184,20 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         children: [
           // ── Search & Filter Strip ──
           Container(
-            color: Colors.white,
+            color: isDark ? AppColors.surfaceDark : Colors.white,
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
             child: Column(
               children: [
                 // Search Field
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.grey50,
+                    color: isDark
+                        ? AppColors.surfaceDarkElevated
+                        : AppColors.grey50,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(
+                      color: isDark ? AppColors.borderDark : AppColors.grey200,
+                    ),
                   ),
                   child: TextField(
                     controller: _searchCtrl,
@@ -188,14 +205,28 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       setState(() => _searchTerm = val.toLowerCase().trim());
                       _refresh();
                     },
-                    style: const TextStyle(fontSize: 13.5, color: AppColors.grey900),
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      color: isDark ? Colors.white : AppColors.grey900,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Search notifications...',
-                      hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
-                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 18),
+                      hintStyle: const TextStyle(
+                        color: AppColors.grey400,
+                        fontSize: 13,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.search_rounded,
+                        color: AppColors.grey400,
+                        size: 18,
+                      ),
                       suffixIcon: _searchTerm.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear_rounded, color: AppColors.grey400, size: 16),
+                              icon: const Icon(
+                                Icons.clear_rounded,
+                                color: AppColors.grey400,
+                                size: 16,
+                              ),
                               onPressed: () {
                                 _searchCtrl.clear();
                                 setState(() => _searchTerm = '');
@@ -204,7 +235,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                             )
                           : null,
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 11,
+                      ),
                     ),
                   ),
                 ),
@@ -225,7 +259,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             ),
           ),
 
-          const Divider(height: 1, color: AppColors.grey200),
+          Divider(
+            height: 1,
+            color: isDark ? AppColors.borderDark : AppColors.grey200,
+          ),
 
           // ── Notifications List ──
           Expanded(
@@ -240,11 +277,18 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline_rounded, size: 44, color: AppColors.grey400),
+                        const Icon(
+                          Icons.error_outline_rounded,
+                          size: 44,
+                          color: AppColors.grey400,
+                        ),
                         const SizedBox(height: 10),
                         Text(
                           'Failed to load notifications',
-                          style: const TextStyle(color: AppColors.grey600, fontSize: 13),
+                          style: const TextStyle(
+                            color: AppColors.grey600,
+                            fontSize: 13,
+                          ),
                         ),
                         const SizedBox(height: 12),
                         OutlinedButton.icon(
@@ -263,11 +307,19 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.notifications_none_rounded, size: 56, color: AppColors.grey300),
+                        Icon(
+                          Icons.notifications_none_rounded,
+                          size: 56,
+                          color: AppColors.grey300,
+                        ),
                         const SizedBox(height: 12),
                         Text(
                           l10n.noNotifications,
-                          style: const TextStyle(color: AppColors.grey600, fontSize: 14.5, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                            color: AppColors.grey600,
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
@@ -281,9 +333,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                     physics: const AlwaysScrollableScrollPhysics(
                       parent: BouncingScrollPhysics(),
                     ),
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 40),
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
                     itemCount: items.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    separatorBuilder: (_, _) => SizedBox(height: 10),
                     itemBuilder: (context, i) {
                       final n = items[i];
                       final isUnread = !n.isRead;
@@ -292,18 +344,26 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
                       return Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? AppColors.surfaceDark : Colors.white,
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
                             color: isUnread
                                 ? typeColor.withValues(alpha: 0.35)
-                                : AppColors.grey200.withValues(alpha: 0.8),
+                                : (isDark
+                                      ? AppColors.borderDark
+                                      : AppColors.grey200.withValues(
+                                          alpha: 0.8,
+                                        )),
                           ),
                           boxShadow: [
                             BoxShadow(
                               color: isUnread
-                                  ? typeColor.withValues(alpha: 0.04)
-                                  : Colors.black.withValues(alpha: 0.02),
+                                  ? typeColor.withValues(
+                                      alpha: isDark ? 0.08 : 0.04,
+                                    )
+                                  : Colors.black.withValues(
+                                      alpha: isDark ? 0.2 : 0.02,
+                                    ),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -324,12 +384,17 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                     color: typeColor.withValues(alpha: 0.12),
                                     borderRadius: BorderRadius.circular(13),
                                   ),
-                                  child: Icon(typeIcon, color: typeColor, size: 20),
+                                  child: Icon(
+                                    typeIcon,
+                                    color: typeColor,
+                                    size: 20,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -337,9 +402,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                             child: Text(
                                               n.title,
                                               style: TextStyle(
-                                                fontWeight: isUnread ? FontWeight.bold : FontWeight.w600,
+                                                fontWeight: isUnread
+                                                    ? FontWeight.bold
+                                                    : FontWeight.w600,
                                                 fontSize: 14,
-                                                color: AppColors.grey900,
+                                                color: AppColors.textPrimary(
+                                                  context,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -347,7 +416,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                             Container(
                                               width: 8,
                                               height: 8,
-                                              margin: const EdgeInsets.only(left: 6),
+                                              margin: const EdgeInsets.only(
+                                                left: 6,
+                                              ),
                                               decoration: BoxDecoration(
                                                 color: typeColor,
                                                 shape: BoxShape.circle,
@@ -355,7 +426,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                             ),
                                         ],
                                       ),
-                                      if (n.body != null && n.body!.isNotEmpty) ...[
+                                      if (n.body != null &&
+                                          n.body!.isNotEmpty) ...[
                                         const SizedBox(height: 4),
                                         Text(
                                           n.body!,
@@ -370,27 +442,48 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                       ],
                                       const SizedBox(height: 8),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
-                                            formatDateTime(n.createdAt),
-                                            style: const TextStyle(fontSize: 11, color: AppColors.grey400),
+                                          Flexible(
+                                            child: Text(
+                                              formatDateTime(n.createdAt),
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                color: AppColors.grey400,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ),
-                                          if (isUnread)
+                                          if (isUnread) ...[
+                                            const SizedBox(width: 8),
                                             InkWell(
                                               onTap: () => _markRead(n.id),
-                                              borderRadius: BorderRadius.circular(6),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                               child: Padding(
-                                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 4,
+                                                      vertical: 2,
+                                                    ),
                                                 child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
-                                                    Icon(Icons.check_rounded, size: 13, color: typeColor),
+                                                    Icon(
+                                                      Icons.check_rounded,
+                                                      size: 13,
+                                                      color: typeColor,
+                                                    ),
                                                     const SizedBox(width: 3),
                                                     Text(
                                                       'Mark Read',
                                                       style: TextStyle(
                                                         fontSize: 11,
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                         color: typeColor,
                                                       ),
                                                     ),
@@ -398,6 +491,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                                 ),
                                               ),
                                             ),
+                                          ],
                                         ],
                                       ),
                                     ],
@@ -420,6 +514,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   }
 
   Widget _buildFilterChip(String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = _statusFilter == value;
     return InkWell(
       onTap: () {
@@ -430,7 +525,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFEF4444) : AppColors.grey100,
+          color: isSelected
+              ? const Color(0xFFEF4444)
+              : (isDark ? AppColors.surfaceDarkElevated : AppColors.grey100),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
@@ -438,7 +535,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.grey700,
+            color: isSelected
+                ? Colors.white
+                : (isDark ? AppColors.grey300 : AppColors.grey700),
           ),
         ),
       ),

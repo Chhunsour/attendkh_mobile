@@ -29,12 +29,6 @@ class SuperAdminShell extends ConsumerWidget {
           label: 'Companies',
           screen: const AdminCompaniesScreen(),
         ),
-         NavItem(
-          outlineIcon: Icons.person_outline,
-          filledIcon: Icons.person,
-          label: 'Profile',
-          screen: const AdminProfileScreen(showBackButton: false),
-        ),
         NavItem(
           outlineIcon: Icons.apps_outlined,
           filledIcon: Icons.apps_rounded,
@@ -88,7 +82,12 @@ class SuperAdminShell extends ConsumerWidget {
             ],
           ),
         ),
-       
+        NavItem(
+          outlineIcon: Icons.person_outline,
+          filledIcon: Icons.person,
+          label: 'Profile',
+          screen: const AdminProfileScreen(showBackButton: false),
+        ),
       ],
     );
   }

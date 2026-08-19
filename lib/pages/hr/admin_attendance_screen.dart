@@ -55,15 +55,15 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
     );
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.attendanceLogsTitle,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -79,7 +79,7 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
           ),
           IconButton(
             tooltip: 'Refresh',
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            icon: Icon(Icons.refresh_rounded, color: AppColors.grey700),
             onPressed: () {
               ref.invalidate(allAttendanceLogsProvider);
               ref.invalidate(attendanceCorrectionsProvider);
@@ -87,9 +87,9 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
+          preferredSize: Size.fromHeight(48),
           child: Container(
-            color: Colors.white,
+            color: AppColors.textPrimary(context),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: TabBar(
@@ -129,19 +129,19 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
                       if (pendingCorrections > 0) ...[
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 6,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFEF4444),
+                            color: Color(0xFFEF4444),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             '$pendingCorrections',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 9.5,
-                              color: Colors.white,
+                              color: AppColors.textPrimary(context),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -258,25 +258,25 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                       title: 'On Leave',
                       value: '$onLeave',
                       icon: Icons.beach_access_rounded,
-                      color: const Color(0xFF8B5CF6),
+                      color: Color(0xFF8B5CF6),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               // ── Search Field ──
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.textPrimary(context),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.grey200),
+                  border: Border.all(color: AppColors.border(context)),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 6,
-                      offset: const Offset(0, 2),
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
@@ -284,9 +284,9 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                   controller: _searchCtrl,
                   onChanged: (val) =>
                       setState(() => _searchQuery = val.trim().toLowerCase()),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13.5,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                   decoration: InputDecoration(
                     hintText: 'Search employee name...',
@@ -337,15 +337,15 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                 ),
               ),
 
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               // ── List of Records ──
               if (filteredItems.isEmpty)
                 Container(
-                  padding: const EdgeInsets.all(32),
+                  padding: EdgeInsets.all(32),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       color: AppColors.grey200.withValues(alpha: 0.7),
@@ -425,9 +425,9 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -506,8 +506,8 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
       'late' => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
       'early_leave' => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
       'on_leave' ||
-      'leave' => (const Color(0xFF8B5CF6), const Color(0xFFF5F3FF)),
-      _ => (const Color(0xFFEF4444), const Color(0xFFFEF2F2)),
+      'leave' => (Color(0xFF8B5CF6), Color(0xFFF5F3FF)),
+      _ => (Color(0xFFEF4444), Color(0xFFFEF2F2)),
     };
 
     final hasUnapprovedEarlyIn =
@@ -517,9 +517,9 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -553,17 +553,17 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                         size: 20,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             c.employeeName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14.5,
-                              color: AppColors.grey900,
+                              color: AppColors.textPrimary(context),
                             ),
                           ),
                           const SizedBox(height: 1),
@@ -623,15 +623,15 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                               size: 14,
                               color: Color(0xFF10B981),
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: 6),
                             Text(
                               c.clockIn != null
                                   ? formatTime(c.clockIn)
                                   : '--:--',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                           ],
@@ -647,15 +647,15 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                               size: 14,
                               color: Color(0xFFEF4444),
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: 6),
                             Text(
                               c.clockOut != null
                                   ? formatTime(c.clockOut)
                                   : '--:--',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                           ],
@@ -777,10 +777,10 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
               children: [
                 Text(
                   c.employeeName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 IconButton(
@@ -794,16 +794,16 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
             ),
             Text(
               'Date: ${c.date}',
-              style: const TextStyle(color: AppColors.grey500, fontSize: 12),
+              style: TextStyle(color: AppColors.grey500, fontSize: 12),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             if (c.clockInPhoto != null) ...[
-              const Text(
+              Text(
                 'Clock-In Photo Verification',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
-                  color: AppColors.grey800,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
               const SizedBox(height: 8),
@@ -991,19 +991,19 @@ class _CorrectionsTab extends ConsumerWidget {
                   final (statusColor, statusBg) = switch (c.status) {
                     'approved' => (
                       const Color(0xFF10B981),
-                      const Color(0xFFECFDF5),
+                      Color(0xFFECFDF5),
                     ),
                     'rejected' => (
-                      const Color(0xFFEF4444),
-                      const Color(0xFFFEF2F2),
+                      Color(0xFFEF4444),
+                      Color(0xFFFEF2F2),
                     ),
-                    _ => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
+                    _ => (Color(0xFFF59E0B), Color(0xFFFFFBEB)),
                   };
 
                   return Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(
                         color: AppColors.grey200.withValues(alpha: 0.8),
@@ -1034,17 +1034,17 @@ class _CorrectionsTab extends ConsumerWidget {
                                 size: 18,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     c.employeeName,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14.5,
-                                      color: AppColors.grey900,
+                                      color: AppColors.textPrimary(context),
                                     ),
                                   ),
                                   const SizedBox(height: 1),
@@ -1098,10 +1098,10 @@ class _CorrectionsTab extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       '${l10n.inTime}: ${formatTime(c.clockIn)}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11.5,
                                         fontWeight: FontWeight.bold,
-                                        color: AppColors.grey800,
+                                        color: AppColors.textPrimary(context),
                                       ),
                                     ),
                                   ),
@@ -1109,10 +1109,10 @@ class _CorrectionsTab extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       '${l10n.outTime}: ${formatTime(c.clockOut)}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11.5,
                                         fontWeight: FontWeight.bold,
-                                        color: AppColors.grey800,
+                                        color: AppColors.textPrimary(context),
                                       ),
                                     ),
                                   ),
@@ -1337,8 +1337,8 @@ class _ManualAttendanceModalState
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
@@ -1370,12 +1370,12 @@ class _ManualAttendanceModalState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Manual Attendance Entry',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.grey900,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   IconButton(
@@ -1473,7 +1473,7 @@ class _ManualAttendanceModalState
                     elevation: 2,
                   ),
                   child: _isSaving
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
@@ -1500,16 +1500,16 @@ class _ManualAttendanceModalState
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(fontSize: 12.5, color: AppColors.grey500),
+      labelStyle: TextStyle(fontSize: 12.5, color: AppColors.grey500),
       prefixIcon: Icon(icon, size: 18, color: AppColors.grey400),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

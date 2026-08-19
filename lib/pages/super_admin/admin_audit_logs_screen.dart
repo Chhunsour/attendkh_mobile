@@ -66,9 +66,9 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
       case 'updated':
         return const Color(0xFFEEF2FF);
       case 'deleted':
-        return const Color(0xFFFEF2F2);
+        return Color(0xFFFEF2F2);
       default:
-        return const Color(0xFFF1F5F9);
+        return Color(0xFFF1F5F9);
     }
   }
 
@@ -78,15 +78,15 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.auditLogsTitle,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -120,18 +120,18 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.wifi_off_rounded,
               color: AppColors.danger,
               size: 48,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               l10n.failedToLoadAuditLogs,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey900,
+                color: AppColors.textPrimary(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -214,32 +214,32 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                 title: 'Deleted',
                 value: '$deleteCount',
                 icon: Icons.delete_outline_rounded,
-                color: const Color(0xFFEF4444),
+                color: Color(0xFFEF4444),
               ),
             ),
           ],
         ),
 
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
 
         // ── Search Field ──
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.textPrimary(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: AppColors.border(context)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 6,
-                offset: const Offset(0, 2),
+                offset: Offset(0, 2),
               ),
             ],
           ),
           child: TextField(
             controller: _searchCtrl,
             onChanged: (val) => setState(() => _searchTerm = val.trim().toLowerCase()),
-            style: const TextStyle(fontSize: 13.5, color: AppColors.grey900),
+            style: TextStyle(fontSize: 13.5, color: AppColors.textPrimary(context)),
             decoration: InputDecoration(
               hintText: 'Search action, user, or model...',
               hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
@@ -283,17 +283,17 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
           ),
         ),
 
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
 
         // ── List of Logs ──
         if (filtered.isEmpty)
           Container(
-            padding: const EdgeInsets.all(32),
+            padding: EdgeInsets.all(32),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.textPrimary(context),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+              border: Border.all(color: AppColors.border(context)),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -321,9 +321,9 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -407,18 +407,18 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
     final icon = _actionIcons.entries
         .firstWhere(
           (e) => actionLower.contains(e.key),
-          orElse: () => const MapEntry('default', Icons.receipt_long_rounded),
+          orElse: () => MapEntry('default', Icons.receipt_long_rounded),
         )
         .value;
 
     final hasChanges = log.changes != null && log.changes!.isNotEmpty;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -457,10 +457,10 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                           Flexible(
                             child: Text(
                               _formatAction(log.action),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13.5,
-                                color: AppColors.grey900,
+                                color: AppColors.textPrimary(context),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -620,13 +620,13 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text(
                         l10n.changesTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                     ],
@@ -637,7 +637,7 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
               Container(
                 width: double.infinity,
                 constraints: BoxConstraints(
@@ -646,7 +646,7 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.grey50,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.grey200),
+                  border: Border.all(color: AppColors.border(context)),
                 ),
                 child: ListView.separated(
                   shrinkWrap: true,
@@ -716,9 +716,9 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                         else
                           Text(
                             newValue,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
-                              color: AppColors.grey900,
+                              color: AppColors.textPrimary(context),
                               fontWeight: FontWeight.w600,
                             ),
                           ),

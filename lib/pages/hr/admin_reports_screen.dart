@@ -371,15 +371,15 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     final activeLabel = activeType['label'] as String;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.reportsTitle,
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -429,11 +429,11 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     AppLocalizations l10n,
   ) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Row(
         children: [
@@ -445,17 +445,17 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
             child: Icon(icon, color: color, size: 24),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '$label Report',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 Text(
@@ -573,7 +573,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(
         children: [
@@ -592,13 +592,13 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                         size: 18,
                         color: AppColors.primary,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text(
                         'Report Filters & Criteria',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.grey800,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       if (_activeFilterCount > 0) ...[
@@ -801,12 +801,12 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                           ),
                         )
                       else
-                        const SizedBox(),
+                        SizedBox(),
                       Flexible(
                         child: ElevatedButton.icon(
                           onPressed: _isLoading ? null : _generate,
                           icon: _isLoading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 14,
                                   height: 14,
                                   child: CircularProgressIndicator(
@@ -871,15 +871,15 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   ? DateTime.tryParse(value) ?? DateTime.now()
                   : DateTime.now(),
               firstDate: DateTime(2020),
-              lastDate: DateTime.now().add(const Duration(days: 365)),
+              lastDate: DateTime.now().add(Duration(days: 365)),
             );
             if (d != null) onChanged(d.toString().substring(0, 10));
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.grey200),
+              border: Border.all(color: AppColors.border(context)),
               color: AppColors.surfaceLight,
             ),
             child: Row(
@@ -923,12 +923,12 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             color: AppColors.grey600,
           ),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: AppColors.border(context)),
             color: AppColors.surfaceLight,
           ),
           child: DropdownButtonHideUnderline(
@@ -976,12 +976,12 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             color: AppColors.grey600,
           ),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: AppColors.border(context)),
             color: AppColors.surfaceLight,
           ),
           child: DropdownButtonHideUnderline(
@@ -1023,11 +1023,11 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     AppLocalizations l10n,
   ) {
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(40),
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(
         children: [
@@ -1069,11 +1069,11 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     AppLocalizations l10n,
   ) {
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(40),
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200, width: 2),
+        border: Border.all(color: AppColors.border(context), width: 2),
       ),
       child: Column(
         children: [
@@ -1085,13 +1085,13 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
             child: Icon(icon, size: 32, color: color),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             '$label Report',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w800,
-              color: AppColors.grey800,
+              color: AppColors.textPrimary(context),
             ),
           ),
           const SizedBox(height: 6),
@@ -1128,7 +1128,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               },
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
         ],
 
         // ── Results container ──
@@ -1136,7 +1136,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
           decoration: BoxDecoration(
             color: AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: AppColors.border(context)),
           ),
           child: Column(
             children: [
@@ -1156,13 +1156,13 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                           ),
                           child: Icon(icon, color: color, size: 16),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                         Text(
                           '$label Results',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.grey800,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -1201,21 +1201,21 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                       fontSize: 12,
                       color: AppColors.grey400,
                     ),
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.search,
                       size: 18,
                       color: AppColors.grey400,
                     ),
                     filled: true,
                     fillColor: AppColors.backgroundLight,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.grey200),
+                      borderSide: BorderSide(color: AppColors.border(context)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.grey200),
+                      borderSide: BorderSide(color: AppColors.border(context)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1347,11 +1347,11 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     }).toList();
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: AppColors.grey200.withAlpha(50),
@@ -1375,10 +1375,10 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       if (subtitle != null && subtitle.isNotEmpty) ...[

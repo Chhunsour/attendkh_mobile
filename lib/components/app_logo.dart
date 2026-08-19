@@ -37,13 +37,13 @@ class AppLogo extends StatelessWidget {
         child: Image.asset(
           'assets/images/attendkh_logo.png',
           fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => const Center(
+          errorBuilder: (_, _, _) => Center(
             child: Text(
               'AttendKH',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: AppColors.textPrimary(context),
                 letterSpacing: 1.5,
                 
               ),

@@ -77,8 +77,8 @@ class _State extends State<AdminDocumentsScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         height: MediaQuery.of(ctx).size.height * 0.85,
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: AppColors.textPrimary(context),
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -92,17 +92,17 @@ class _State extends State<AdminDocumentsScreen> {
                     child: Row(
                       children: [
                         _buildFileIcon(doc.mimeType),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 doc.title,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.grey900,
+                                  color: AppColors.textPrimary(context),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -194,12 +194,12 @@ class _State extends State<AdminDocumentsScreen> {
                           color: AppColors.grey600,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         doc.description!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.grey800,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -239,15 +239,15 @@ class _State extends State<AdminDocumentsScreen> {
                           Navigator.pop(ctx);
                           _downloadFile(doc);
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.download,
                           color: Colors.white,
                           size: 18,
                         ),
-                        label: const Text(
+                        label: Text(
                           'Download',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.textPrimary(context),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -273,7 +273,7 @@ class _State extends State<AdminDocumentsScreen> {
             width: 100,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppColors.grey500,
@@ -283,7 +283,7 @@ class _State extends State<AdminDocumentsScreen> {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontSize: 14, color: AppColors.grey800),
+              style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
             ),
           ),
         ],
@@ -361,9 +361,9 @@ class _State extends State<AdminDocumentsScreen> {
               bottom: MediaQuery.of(ctx).viewInsets.bottom,
             ),
             child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.textPrimary(context),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SingleChildScrollView(
@@ -373,10 +373,10 @@ class _State extends State<AdminDocumentsScreen> {
                   children: [
                     Text(
                       isEdit ? 'Edit Document' : 'Upload Document',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -502,14 +502,14 @@ class _State extends State<AdminDocumentsScreen> {
                         }
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.backgroundLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.grey300),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -656,10 +656,10 @@ class _State extends State<AdminDocumentsScreen> {
                         },
                         child: Text(
                           isEdit ? 'Update Document' : 'Upload Document',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                       ),
@@ -723,33 +723,33 @@ class _State extends State<AdminDocumentsScreen> {
       return const Icon(Icons.table_chart, color: Colors.green, size: 32);
     }
     if (mimeType.contains('image')) {
-      return const Icon(Icons.image, color: Colors.blue, size: 32);
+      return Icon(Icons.image, color: Colors.blue, size: 32);
     }
     if (mimeType.contains('word') || mimeType.contains('document')) {
-      return const Icon(Icons.description, color: Colors.blueAccent, size: 32);
+      return Icon(Icons.description, color: Colors.blueAccent, size: 32);
     }
-    return const Icon(Icons.insert_drive_file, color: Colors.grey, size: 32);
+    return Icon(Icons.insert_drive_file, color: Colors.grey, size: 32);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Documents',
           style: TextStyle(
-            color: AppColors.grey800,
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add, color: AppColors.primary),
+            icon: Icon(Icons.add, color: AppColors.primary),
             onPressed: () => _showForm(),
           ),
         ],
@@ -757,7 +757,7 @@ class _State extends State<AdminDocumentsScreen> {
       body: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             color: Colors.white,
             child: Column(
               children: [
@@ -830,16 +830,16 @@ class _State extends State<AdminDocumentsScreen> {
                     ),
                   )
                 : ListView.separated(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16),
                     itemCount: _documents.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    separatorBuilder: (_, _) => SizedBox(height: 12),
                     itemBuilder: (context, i) {
                       final doc = _documents[i];
                       return Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.textPrimary(context),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -1052,8 +1052,8 @@ class _State extends State<AdminDocumentsScreen> {
           ),
           if (_lastPage > 1)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              color: AppColors.textPrimary(context),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1077,10 +1077,10 @@ class _State extends State<AdminDocumentsScreen> {
                       ),
                       Text(
                         '$_currentPage / $_lastPage',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey800,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       IconButton(

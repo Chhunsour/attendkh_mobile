@@ -21,7 +21,7 @@ class AdminMoreScreen extends ConsumerWidget {
     final isBranchManager = authState.isBranchManager;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         children: [
@@ -149,63 +149,76 @@ class AdminMoreScreen extends ConsumerWidget {
       crossAxisCount: 2,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
-      childAspectRatio: 1.45,
+      childAspectRatio: 2.15,
       children: items.map((item) => _buildGridItem(context, item)).toList(),
     );
   }
 
   Widget _buildGridItem(BuildContext context, _MoreItem item) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       onTap: () => context.push(item.route),
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.grey200),
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? AppColors.borderDark : AppColors.grey200.withValues(alpha: 0.8),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.grey900.withAlpha(5),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(7),
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
-                color: item.color.withAlpha(20),
-                shape: BoxShape.circle,
+                color: item.color.withValues(alpha: isDark ? 0.18 : 0.10),
+                borderRadius: BorderRadius.circular(11),
               ),
-              child: Icon(item.icon, color: item.color, size: 18),
+              child: Icon(item.icon, color: item.color, size: 19),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey800,
-                    
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    item.title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : AppColors.grey900,
+                      letterSpacing: -0.2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  item.description,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: AppColors.grey500,
-                    
-                  ),
-                ),
-              ],
+                  if (item.description.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      item.description,
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: isDark ? AppColors.grey400 : AppColors.grey500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
         ),
@@ -234,9 +247,9 @@ class _BranchSwitcherTile extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
-          BoxShadow(color: AppColors.grey900.withAlpha(5), blurRadius: 8, offset: const Offset(0, 3)),
+          BoxShadow(color: AppColors.textPrimary(context).withAlpha(5), blurRadius: 8, offset: Offset(0, 3)),
         ],
       ),
       child: Column(

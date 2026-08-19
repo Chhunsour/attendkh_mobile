@@ -76,16 +76,16 @@ class _AdminEmployeeDetailScreenState
     final detailAsync = ref.watch(employeeDetailProvider(widget.employee.id));
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.grey800),
+        iconTheme: IconThemeData(color: AppColors.textPrimary(context)),
         title: Text(
           AppLocalizations.of(context)!.employeeProfile,
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -271,13 +271,13 @@ class _AdminEmployeeDetailScreenState
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 emp.name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.grey800,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
               if (emp.khmerName != null && emp.khmerName!.isNotEmpty) ...[
@@ -547,16 +547,16 @@ class _AdminEmployeeDetailScreenState
           ]),
           // ── Documents ──
           if (emp.documents != null && emp.documents!.isNotEmpty) ...[
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _buildSectionHeader('Documents'),
             ...emp.documents!.map(
               (doc) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: EdgeInsets.only(bottom: 8),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: ListTile(
                     leading: Container(
@@ -591,22 +591,22 @@ class _AdminEmployeeDetailScreenState
             ),
           ],
           if (emp.notes != null && emp.notes!.isNotEmpty) ...[
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _buildSectionHeader(l10n.adminNotes),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.textPrimary(context),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withAlpha(4),
                     blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    offset: Offset(0, 4),
                   ),
                 ],
-                border: Border.all(color: AppColors.grey200),
+                border: Border.all(color: AppColors.border(context)),
               ),
               child: Text(
                 emp.notes!,
@@ -638,26 +638,26 @@ class _AdminEmployeeDetailScreenState
           else
             ListView.separated(
               shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+              physics: NeverScrollableScrollPhysics(),
               itemCount: balances.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final bal = balances[index];
                 final double total = bal.allocatedDays + bal.carriedForward;
                 final double remaining = total - bal.usedDays;
                 return Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withAlpha(4),
                         blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        offset: Offset(0, 4),
                       ),
                     ],
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -676,14 +676,14 @@ class _AdminEmployeeDetailScreenState
                               size: 18,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               bal.leaveTypeName,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                           ),
@@ -694,14 +694,17 @@ class _AdminEmployeeDetailScreenState
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildMiniStat(
+                            context,
                             l10n.allocated,
                             total.toStringAsFixed(1),
                           ),
                           _buildMiniStat(
+                            context,
                             l10n.used,
                             bal.usedDays.toStringAsFixed(1),
                           ),
                           _buildMiniStat(
+                            context,
                             l10n.remaining,
                             remaining.toStringAsFixed(1),
                             highlight: true,
@@ -720,25 +723,25 @@ class _AdminEmployeeDetailScreenState
           else
             ListView.separated(
               shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+              physics: NeverScrollableScrollPhysics(),
               itemCount: requests.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final req = requests[index];
                 final statusCol = _getLeaveStatusColor(req.status);
                 return Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withAlpha(4),
                         blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        offset: Offset(0, 4),
                       ),
                     ],
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Row(
                     children: [
@@ -762,17 +765,17 @@ class _AdminEmployeeDetailScreenState
                           ),
                         ),
                       ),
-                      const SizedBox(width: 14),
+                      SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               req.leaveType,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -823,25 +826,25 @@ class _AdminEmployeeDetailScreenState
           else
             ListView.separated(
               shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+              physics: NeverScrollableScrollPhysics(),
               itemCount: logs.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final log = logs[index];
                 final statusCol = _getAttendanceStatusColor(log.status);
                 return Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withAlpha(4),
                         blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        offset: Offset(0, 4),
                       ),
                     ],
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Row(
                     children: [
@@ -851,10 +854,10 @@ class _AdminEmployeeDetailScreenState
                           children: [
                             Text(
                               formatDate(log.date),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -1052,10 +1055,10 @@ class _AdminEmployeeDetailScreenState
           BoxShadow(
             color: Colors.black.withAlpha(4),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(children: children),
     );
@@ -1077,14 +1080,14 @@ class _AdminEmployeeDetailScreenState
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Text(
               value ?? '—',
               textAlign: TextAlign.end,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.grey800,
+                color: AppColors.textPrimary(context),
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -1094,7 +1097,13 @@ class _AdminEmployeeDetailScreenState
     );
   }
 
-  Widget _buildMiniStat(String label, String value, {bool highlight = false}) {
+  Widget _buildMiniStat(
+    BuildContext context,
+    String label,
+    String value, {
+    bool highlight = false,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1112,7 +1121,9 @@ class _AdminEmployeeDetailScreenState
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: highlight ? AppColors.primary : AppColors.grey800,
+            color: highlight
+                ? AppColors.primary
+                : (isDark ? Colors.white : AppColors.grey800),
           ),
         ),
       ],
@@ -1120,20 +1131,23 @@ class _AdminEmployeeDetailScreenState
   }
 
   Widget _buildEmptyState(String message) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.grey200,
+        ),
       ),
       child: Center(
         child: Text(
           message,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: AppColors.grey400,
+            color: isDark ? AppColors.grey500 : AppColors.grey400,
             fontWeight: FontWeight.w500,
           ),
         ),

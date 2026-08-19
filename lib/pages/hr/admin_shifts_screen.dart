@@ -65,15 +65,15 @@ class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen>
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.shiftsAndCalendars,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -112,9 +112,9 @@ class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen>
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
+          preferredSize: Size.fromHeight(48),
           child: Container(
-            color: Colors.white,
+            color: AppColors.textPrimary(context),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: TabBar(
@@ -323,7 +323,7 @@ class _ShiftCard extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -382,10 +382,10 @@ class _ShiftCard extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       shift.name,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 15,
-                                        color: AppColors.grey800,
+                                        color: AppColors.textPrimary(context),
                                       ),
                                     ),
                                   ),
@@ -598,16 +598,16 @@ class _ShiftCard extends ConsumerWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.person_add_alt_1_rounded,
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary(context),
                                   size: 13,
                                 ),
-                                const SizedBox(width: 5),
+                                SizedBox(width: 5),
                                 Text(
                                   l10n.assign,
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary(context),
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -667,13 +667,13 @@ class _ShiftCard extends ConsumerWidget {
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
 
                 RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    style: const TextStyle(
-                      color: AppColors.grey800,
+                    style: TextStyle(
+                      color: AppColors.textPrimary(context),
                       fontSize: 15,
                       height: 1.5,
                     ),
@@ -701,8 +701,8 @@ class _ShiftCard extends ConsumerWidget {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx, false),
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          side: const BorderSide(color: Colors.grey),
+                          padding: EdgeInsets.symmetric(vertical: 15),
+                          side: BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -710,7 +710,7 @@ class _ShiftCard extends ConsumerWidget {
                         child: Text(
                           l10n.cancel,
                           style: TextStyle(
-                            color: AppColors.grey800,
+                            color: AppColors.textPrimary(context),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -969,8 +969,8 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
     }
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -1006,17 +1006,17 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                     size: 22,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         l10n.assignEmployeesTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
-                          color: AppColors.grey800,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       Text(
@@ -1152,17 +1152,17 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
             ),
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           // Search
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20),
             child: Container(
               height: 42,
               decoration: BoxDecoration(
                 color: AppColors.grey50,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.grey200),
+                border: Border.all(color: AppColors.border(context)),
               ),
               child: TextField(
                 controller: _searchCtrl,
@@ -1494,7 +1494,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
               MediaQuery.of(context).padding.bottom + 12,
             ),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.textPrimary(context),
               border: const Border(top: BorderSide(color: AppColors.grey100)),
               boxShadow: [
                 BoxShadow(
@@ -1535,14 +1535,14 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                         : _assign,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       minimumSize: Size.zero,
                     ),
                     child: _isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
@@ -1680,11 +1680,11 @@ class _GradientFAB extends StatelessWidget {
               ),
               child: Icon(icon, color: Colors.white, size: 18),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Text(
               label ?? AppLocalizations.of(context)!.newShift,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: AppColors.textPrimary(context),
                 fontWeight: FontWeight.w800,
                 fontSize: 14,
                 letterSpacing: 0.3,
@@ -1717,19 +1717,19 @@ class _EmptyState extends StatelessWidget {
                 color: AppColors.primaryLight,
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.schedule_rounded,
                 color: AppColors.primary,
                 size: 40,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Text(
               AppLocalizations.of(context)!.noShiftsYet,
               style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
-                color: AppColors.grey800,
+                color: AppColors.textPrimary(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -1858,11 +1858,11 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
         final end = _fmtTime(sched['end']?.toString());
         badges.add(
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: AppColors.grey200),
+              border: Border.all(color: AppColors.border(context)),
             ),
             child: Text(
               '${d['short']}: $start - $end',
@@ -1921,7 +1921,7 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                     color: AppColors.grey500,
                   ),
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
+                  contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 10,
                   ),
@@ -1929,11 +1929,11 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                   fillColor: AppColors.backgroundLight,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.grey200),
+                    borderSide: BorderSide(color: AppColors.border(context)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.grey200),
+                    borderSide: BorderSide(color: AppColors.border(context)),
                   ),
                 ),
               ),
@@ -1951,17 +1951,17 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                       onRefresh: () async =>
                           ref.invalidate(shiftAssignmentsProvider),
                       child: ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                        padding: EdgeInsets.fromLTRB(16, 16, 16, 100),
                         itemCount: filtered.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 10),
+                        separatorBuilder: (_, _) => SizedBox(height: 10),
                         itemBuilder: (context, i) {
                           final item = filtered[i];
                           return Container(
-                            padding: const EdgeInsets.all(14),
+                            padding: EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               color: AppColors.surfaceLight,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.grey200),
+                              border: Border.all(color: AppColors.border(context)),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2011,7 +2011,7 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                                             )
                                           : null,
                                     ),
-                                    const SizedBox(width: 12),
+                                    SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -2020,10 +2020,10 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                                           Text(
                                             item.employeeName ??
                                                 'Employee #${item.employeeId}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 15,
-                                              color: AppColors.grey800,
+                                              color: AppColors.textPrimary(context),
                                             ),
                                           ),
                                           Row(
@@ -2135,10 +2135,10 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                                           Text(
                                             item.shiftName ??
                                                 'Shift #${item.shiftId}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 12,
-                                              color: AppColors.grey800,
+                                              color: AppColors.textPrimary(context),
                                             ),
                                           ),
                                           Text(
@@ -2257,7 +2257,7 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
     final shiftsAsync = ref.watch(shiftsProvider);
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -2349,8 +2349,8 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
                     backgroundColor: AppColors.primary,
                   ),
                   child: _isSaving
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
                           'Assign Shift',
                           style: TextStyle(
                             fontSize: 16,

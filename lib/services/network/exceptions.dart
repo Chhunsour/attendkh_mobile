@@ -9,7 +9,7 @@ class AppException implements Exception {
   const AppException({required this.message, this.statusCode, this.data});
 
   @override
-  String toString() => 'AppException: $message (status: $statusCode)';
+  String toString() => message;
 }
 
 class NetworkException extends AppException {
@@ -38,7 +38,7 @@ class ValidationException extends AppException {
   });
 
   @override
-  String toString() => 'ValidationException: $message, errors: $errors';
+  String toString() => message;
 }
 
 class ServerException extends AppException {

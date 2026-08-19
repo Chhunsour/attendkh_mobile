@@ -16,17 +16,25 @@ class PayslipScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Payslips & Salary',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: AppColors.textPrimary(context),
+          ),
         ),
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            icon: Icon(
+              Icons.refresh_rounded,
+              color: AppColors.textPrimary(context),
+            ),
             tooltip: 'Refresh',
             onPressed: () => ref.invalidate(payslipsProvider),
           ),
@@ -49,16 +57,16 @@ class PayslipScreen extends ConsumerWidget {
               // ── Section Header ──
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                  padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Payment History',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       if (payslips.isNotEmpty)
@@ -92,19 +100,19 @@ class PayslipScreen extends ConsumerWidget {
                               color: AppColors.primary.withValues(alpha: 0.08),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.receipt_long_rounded,
                               size: 32,
                               color: AppColors.primary,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           Text(
                             l10n.noPayslipsAvailable,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.grey800,
+                              color: AppColors.textPrimary(context),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -204,18 +212,18 @@ class PayslipScreen extends ConsumerWidget {
                 children: [
                   Text(
                     companyName.toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white70,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     employeeName,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: AppColors.textPrimary(context),
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
@@ -224,7 +232,7 @@ class PayslipScreen extends ConsumerWidget {
               ),
               if (latest != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
@@ -232,8 +240,8 @@ class PayslipScreen extends ConsumerWidget {
                   ),
                   child: Text(
                     latest.period,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: AppColors.textPrimary(context),
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
@@ -254,15 +262,15 @@ class PayslipScreen extends ConsumerWidget {
               letterSpacing: 0.8,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
                 '\$$netAmount',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: AppColors.textPrimary(context),
                   fontSize: 34,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
@@ -414,14 +422,16 @@ class _StatementCardState extends State<_StatementCard> {
     final l10n = AppLocalizations.of(context)!;
     final statusColor = _statusColor;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.grey200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -446,7 +456,7 @@ class _StatementCardState extends State<_StatementCard> {
                     ),
                     child: const Icon(Icons.receipt_long_rounded, color: AppColors.primary, size: 22),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -455,10 +465,10 @@ class _StatementCardState extends State<_StatementCard> {
                           children: [
                             Text(
                               p.period,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
-                                color: AppColors.grey900,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                             if (widget.isLatest) ...[
@@ -536,48 +546,48 @@ class _StatementCardState extends State<_StatementCard> {
 
           // Expanded Breakdown Section
           if (_expanded) ...[
-            const Divider(height: 1, color: AppColors.grey100),
+            Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.grey100),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Earnings & Deductions Breakdown',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.grey700,
+                      color: isDark ? Colors.white : AppColors.grey700,
                     ),
                   ),
                   const SizedBox(height: 10),
 
                   // Earnings
-                  _breakdownRow(l10n.basicSalary, '\$${p.basicSalary.toStringAsFixed(2)}'),
+                  _breakdownRow(context, l10n.basicSalary, '\$${p.basicSalary.toStringAsFixed(2)}'),
                   if (p.overtimePay > 0)
-                    _breakdownRow(l10n.overtimePay, '+\$${p.overtimePay.toStringAsFixed(2)}', color: AppColors.info),
+                    _breakdownRow(context, l10n.overtimePay, '+\$${p.overtimePay.toStringAsFixed(2)}', color: AppColors.info),
                   if (p.allowances > 0)
-                    _breakdownRow(l10n.allowances, '+\$${p.allowances.toStringAsFixed(2)}', color: AppColors.success),
-                  _breakdownRow(l10n.grossPay, '\$${p.grossPay.toStringAsFixed(2)}', isBold: true),
+                    _breakdownRow(context, l10n.allowances, '+\$${p.allowances.toStringAsFixed(2)}', color: AppColors.success),
+                  _breakdownRow(context, l10n.grossPay, '\$${p.grossPay.toStringAsFixed(2)}', isBold: true),
 
-                  const Divider(height: 16, color: AppColors.grey100),
+                  Divider(height: 16, color: isDark ? AppColors.borderDark : AppColors.grey100),
 
                   // Deductions
                   if (p.taxDeduction > 0)
-                    _breakdownRow(l10n.tax, '-\$${p.taxDeduction.toStringAsFixed(2)}', color: AppColors.danger),
+                    _breakdownRow(context, l10n.tax, '-\$${p.taxDeduction.toStringAsFixed(2)}', color: AppColors.danger),
                   if (p.insuranceDeduction > 0)
-                    _breakdownRow(l10n.insurance, '-\$${p.insuranceDeduction.toStringAsFixed(2)}', color: AppColors.danger),
+                    _breakdownRow(context, l10n.insurance, '-\$${p.insuranceDeduction.toStringAsFixed(2)}', color: AppColors.danger),
                   if (p.lateDeduction > 0)
-                    _breakdownRow(l10n.lateDeduction, '-\$${p.lateDeduction.toStringAsFixed(2)}', color: AppColors.warning),
+                    _breakdownRow(context, l10n.lateDeduction, '-\$${p.lateDeduction.toStringAsFixed(2)}', color: AppColors.warning),
                   if (p.earlyLeaveDeduction > 0)
-                    _breakdownRow(l10n.earlyLeaveDeduction, '-\$${p.earlyLeaveDeduction.toStringAsFixed(2)}', color: AppColors.warning),
+                    _breakdownRow(context, l10n.earlyLeaveDeduction, '-\$${p.earlyLeaveDeduction.toStringAsFixed(2)}', color: AppColors.warning),
                   if (p.totalDeductions > 0)
-                    _breakdownRow(l10n.totalDeductions, '-\$${p.totalDeductions.toStringAsFixed(2)}', color: AppColors.danger, isBold: true),
+                    _breakdownRow(context, l10n.totalDeductions, '-\$${p.totalDeductions.toStringAsFixed(2)}', color: AppColors.danger, isBold: true),
 
-                  const Divider(height: 16, color: AppColors.grey100),
+                  Divider(height: 16, color: isDark ? AppColors.borderDark : AppColors.grey100),
 
                   // Net Pay
-                  _breakdownRow(l10n.netPay, '\$${p.netPay.toStringAsFixed(2)}', isBold: true, isNet: true),
+                  _breakdownRow(context, l10n.netPay, '\$${p.netPay.toStringAsFixed(2)}', isBold: true, isNet: true),
 
                   const SizedBox(height: 14),
 
@@ -585,7 +595,7 @@ class _StatementCardState extends State<_StatementCard> {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
                     decoration: BoxDecoration(
-                      color: AppColors.grey50,
+                      color: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -627,7 +637,8 @@ class _StatementCardState extends State<_StatementCard> {
     );
   }
 
-  Widget _breakdownRow(String label, String value, {Color? color, bool isBold = false, bool isNet = false}) {
+  Widget _breakdownRow(BuildContext context, String label, String value, {Color? color, bool isBold = false, bool isNet = false}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.5),
       child: Row(
@@ -638,7 +649,7 @@ class _StatementCardState extends State<_StatementCard> {
             style: TextStyle(
               fontSize: isNet ? 14 : 12.5,
               fontWeight: (isBold || isNet) ? FontWeight.bold : FontWeight.w400,
-              color: isNet ? AppColors.grey900 : AppColors.grey600,
+              color: isNet ? (isDark ? Colors.white : AppColors.grey900) : (isDark ? AppColors.grey300 : AppColors.grey600),
             ),
           ),
           Text(
@@ -646,7 +657,7 @@ class _StatementCardState extends State<_StatementCard> {
             style: TextStyle(
               fontSize: isNet ? 15 : 12.5,
               fontWeight: (isBold || isNet) ? FontWeight.bold : FontWeight.w600,
-              color: isNet ? AppColors.success : (color ?? AppColors.grey800),
+              color: isNet ? AppColors.success : (color ?? (isDark ? Colors.white : AppColors.grey800)),
             ),
           ),
         ],

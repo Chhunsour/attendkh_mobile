@@ -69,12 +69,12 @@ class _CompanyAdminDashboardScreenState
               child: Material(
                 type: MaterialType.transparency,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
+                  padding: EdgeInsets.symmetric(
                     horizontal: 36,
                     vertical: 28,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
                       color: const Color(0xFFDBEAFE),
@@ -99,13 +99,13 @@ class _CompanyAdminDashboardScreenState
                           strokeWidth: 3.5,
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      SizedBox(height: 18),
                       Text(
                         l10n.switchingBranchView,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                           decoration: TextDecoration.none,
                         ),
                       ),
@@ -137,10 +137,13 @@ class _CompanyAdminDashboardScreenState
     AsyncValue<ProfileData> profileAsync,
     AppLocalizations l10n,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
         elevation: 0,
         centerTitle: false,
         title: Row(
@@ -152,19 +155,19 @@ class _CompanyAdminDashboardScreenState
                 borderRadius: BorderRadius.circular(10),
                 color: const Color(0xFF6366F1).withValues(alpha: 0.12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.corporate_fare_rounded,
                 color: Color(0xFF6366F1),
                 size: 20,
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: !authState.isCompanyAdmin
                   ? Text(
                       l10n.hrDashboard,
-                      style: const TextStyle(
-                        color: AppColors.grey900,
+                      style: TextStyle(
+                        color: AppColors.textPrimary(context),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -176,8 +179,8 @@ class _CompanyAdminDashboardScreenState
                           data: (branches) => branches.isEmpty
                               ? Text(
                                   l10n.hrDashboard,
-                                  style: const TextStyle(
-                                    color: AppColors.grey900,
+                                  style: TextStyle(
+                                    color: AppColors.textPrimary(context),
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -189,7 +192,7 @@ class _CompanyAdminDashboardScreenState
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
-                                  color: Colors.white,
+                                  color: isDark ? AppColors.surfaceDark : Colors.white,
                                   elevation: 6,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,8 +200,8 @@ class _CompanyAdminDashboardScreenState
                                     children: [
                                       Text(
                                         l10n.hrDashboard,
-                                        style: const TextStyle(
-                                          color: AppColors.grey900,
+                                        style: TextStyle(
+                                          color: AppColors.textPrimary(context),
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -207,12 +210,16 @@ class _CompanyAdminDashboardScreenState
                                       Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Text(
-                                            branchSwitchState.activeBranchName ?? l10n.selectBranch,
-                                            style: const TextStyle(
-                                              color: Color(0xFF6366F1),
-                                              fontSize: 11.5,
-                                              fontWeight: FontWeight.bold,
+                                          Flexible(
+                                            child: Text(
+                                              branchSwitchState.activeBranchName ?? l10n.selectBranch,
+                                              style: const TextStyle(
+                                                color: Color(0xFF6366F1),
+                                                fontSize: 11.5,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                           const SizedBox(width: 2),
@@ -267,18 +274,18 @@ class _CompanyAdminDashboardScreenState
                                                 width: 32,
                                                 height: 32,
                                                 decoration: BoxDecoration(
-                                                  color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                                                  color: Color(0xFF6366F1).withValues(alpha: 0.12),
                                                   borderRadius: BorderRadius.circular(8),
                                                 ),
-                                                child: const Icon(Icons.business_rounded, color: Color(0xFF6366F1), size: 16),
+                                                child: Icon(Icons.business_rounded, color: Color(0xFF6366F1), size: 16),
                                               ),
-                                              const SizedBox(width: 10),
+                                              SizedBox(width: 10),
                                               Expanded(
                                                 child: Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
-                                                    Text(b.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                                                    Text(b.name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
                                                     if (b.address != null)
                                                       Text(b.address!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
                                                   ],
@@ -307,7 +314,10 @@ class _CompanyAdminDashboardScreenState
                 alignment: Alignment.center,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.notifications_outlined, color: AppColors.grey700),
+                    icon: Icon(
+                      Icons.notifications_outlined,
+                      color: isDark ? AppColors.grey300 : AppColors.grey700,
+                    ),
                     onPressed: () async {
                       await context.push(AppRoutes.notifications);
                       ref.invalidate(unreadCountProvider);
@@ -348,7 +358,8 @@ class _CompanyAdminDashboardScreenState
                 ),
                 child: CircleAvatar(
                   radius: 17,
-                  backgroundColor: AppColors.grey100,
+                  backgroundColor:
+                      isDark ? AppColors.surfaceDarkElevated : AppColors.grey100,
                   backgroundImage: profileAsync.value?.photoUrl != null
                       ? CachedNetworkImageProvider(
                           profileAsync.value!.photoUrl!,
@@ -391,16 +402,16 @@ class _CompanyAdminDashboardScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 4),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               l10n.companyOverview,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.grey900,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                             Container(
@@ -430,6 +441,7 @@ class _CompanyAdminDashboardScreenState
                         children: [
                           Expanded(
                             child: _buildKpiCard(
+                              context,
                               l10n.totalStaff,
                               kpi.totalEmployees.toString(),
                               Icons.people_alt_rounded,
@@ -440,6 +452,7 @@ class _CompanyAdminDashboardScreenState
                           const SizedBox(width: 10),
                           Expanded(
                             child: _buildKpiCard(
+                              context,
                               l10n.attendanceMenu,
                               kpi.todayAttendance.toString(),
                               Icons.fingerprint_rounded,
@@ -456,6 +469,7 @@ class _CompanyAdminDashboardScreenState
                         children: [
                           Expanded(
                             child: _buildKpiCard(
+                              context,
                               l10n.leaveRequests,
                               kpi.pendingLeaves.toString(),
                               Icons.event_busy_rounded,
@@ -466,6 +480,7 @@ class _CompanyAdminDashboardScreenState
                           const SizedBox(width: 10),
                           Expanded(
                             child: _buildKpiCard(
+                              context,
                               l10n.expenseClaims,
                               kpi.pendingExpenses.toString(),
                               Icons.receipt_long_rounded,
@@ -482,6 +497,7 @@ class _CompanyAdminDashboardScreenState
                         children: [
                           Expanded(
                             child: _buildKpiCard(
+                              context,
                               l10n.openJobs,
                               kpi.openJobs.toString(),
                               Icons.work_outline_rounded,
@@ -492,6 +508,7 @@ class _CompanyAdminDashboardScreenState
                           const SizedBox(width: 10),
                           Expanded(
                             child: _buildKpiCard(
+                              context,
                               l10n.assets,
                               '${kpi.assignedAssets}/${kpi.totalAssets}',
                               Icons.devices_rounded,
@@ -508,6 +525,7 @@ class _CompanyAdminDashboardScreenState
                         children: [
                           Expanded(
                             child: _buildKpiCard(
+                              context,
                               l10n.payroll,
                               '\$${kpi.monthlyPayroll.toStringAsFixed(0)}',
                               Icons.payments_rounded,
@@ -525,24 +543,24 @@ class _CompanyAdminDashboardScreenState
                       // ── Recent Activity ──
                       if (kpi.recentActivity.isNotEmpty) ...[
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 4),
                           child: Row(
                             children: [
-                              const Icon(Icons.history_rounded, size: 16, color: Color(0xFF6366F1)),
-                              const SizedBox(width: 6),
+                              Icon(Icons.history_rounded, size: 16, color: Color(0xFF6366F1)),
+                              SizedBox(width: 6),
                               Text(
                                 'Recent Activity',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14.5,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.grey900,
+                                  color: AppColors.textPrimary(context),
                                 ),
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 10),
-                        ...kpi.recentActivity.map((a) => _buildActivityItem(a)),
+                        ...kpi.recentActivity.map((a) => _buildActivityItem(context, a)),
                         const SizedBox(height: 20),
                       ],
                     ],
@@ -562,18 +580,18 @@ class _CompanyAdminDashboardScreenState
                     ),
                     child: Text(
                       '${l10n.errorLoadingKpis}$e',
-                      style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
 
             // ── HR Manager Note ──
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface(context),
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+                border: Border.all(color: AppColors.border(context)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.02),
@@ -596,17 +614,17 @@ class _CompanyAdminDashboardScreenState
                       size: 22,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           l10n.hrPortalActive,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.grey900,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                         const SizedBox(height: 3),
@@ -630,21 +648,21 @@ class _CompanyAdminDashboardScreenState
     );
   }
 
-  Widget _buildActivityItem(RecentActivity activity) {
+  Widget _buildActivityItem(BuildContext context, RecentActivity activity) {
     final (icon, color, bg) = switch (activity.type) {
-      'hire' => (Icons.person_add_rounded, const Color(0xFF10B981), const Color(0xFFECFDF5)),
-      'leave' => (Icons.event_busy_rounded, const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
-      'expense' => (Icons.receipt_long_rounded, const Color(0xFFEC4899), const Color(0xFFFDF2F8)),
-      _ => (Icons.history_rounded, const Color(0xFF64748B), const Color(0xFFF1F5F9)),
+      'hire' => (Icons.person_add_rounded, Color(0xFF10B981), Color(0xFFECFDF5)),
+      'leave' => (Icons.event_busy_rounded, Color(0xFFF59E0B), Color(0xFFFFFBEB)),
+      'expense' => (Icons.receipt_long_rounded, Color(0xFFEC4899), Color(0xFFFDF2F8)),
+      _ => (Icons.history_rounded, Color(0xFF64748B), Color(0xFFF1F5F9)),
     };
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -663,17 +681,17 @@ class _CompanyAdminDashboardScreenState
             ),
             child: Icon(icon, color: color, size: 18),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   activity.message,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -772,17 +790,17 @@ class _CompanyAdminDashboardScreenState
 
     return [
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
+        padding: EdgeInsets.symmetric(horizontal: 4),
         child: Row(
           children: [
-            const Icon(Icons.notifications_active_rounded, size: 16, color: Color(0xFFF59E0B)),
-            const SizedBox(width: 6),
+            Icon(Icons.notifications_active_rounded, size: 16, color: Color(0xFFF59E0B)),
+            SizedBox(width: 6),
             Text(
               'Pending Actions',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14.5,
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey900,
+                color: AppColors.textPrimary(context),
               ),
             ),
           ],
@@ -836,11 +854,18 @@ class _CompanyAdminDashboardScreenState
     );
   }
 
-  Widget _buildKpiCard(String title, String value, IconData icon, Color color, Color bgColor) {
+  Widget _buildKpiCard(
+    BuildContext context,
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    Color bgColor,
+  ) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -946,11 +971,11 @@ class _CompanyAdminDashboardScreenState
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   name,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: AppColors.textPrimary(context),
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),

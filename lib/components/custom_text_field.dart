@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 
-/// Reusable text field for auth screens.
-///
-/// Features:
-/// - Rounded border (16 radius)
-/// - Icon prefix
-/// - Optional suffix (e.g. visibility toggle)
-/// - Height ~56
-/// - Light grey border, white/off-white fill
+/// Reusable text field with full Light & Dark mode adaptation.
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String? hintText;
@@ -37,18 +30,19 @@ class CustomTextField extends StatelessWidget {
     this.autofocus = false,
   });
 
-  // ── Design token constants (matches login-screen spec) ──
   static const _borderRadius = 16.0;
   static const _height = 56.0;
-  static const _borderColor = AppColors.grey200;
-  static const _fillColor = AppColors.grey50;
-  static const _textColor = AppColors.grey900;
-  static const _hintColor = AppColors.grey400;
-  static const _iconColor = AppColors.grey400;
-  static const _primaryColor = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final fillColor = isDark ? AppColors.surfaceDarkElevated : AppColors.grey50;
+    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
+    final textColor = isDark ? Colors.white : AppColors.grey900;
+    final hintColor = isDark ? AppColors.grey500 : AppColors.grey400;
+    final iconColor = isDark ? const Color(0xFF94A3B8) : AppColors.grey500;
+
     return SizedBox(
       height: _height,
       child: TextFormField(
@@ -59,46 +53,49 @@ class CustomTextField extends StatelessWidget {
         autofocus: autofocus,
         onFieldSubmitted: onFieldSubmitted,
         validator: validator,
-        style: const TextStyle(
-          fontSize: 16,
-          
-          color: _textColor,
+        style: TextStyle(
+          fontSize: 15.5,
+          fontWeight: FontWeight.w500,
+          color: textColor,
         ),
         decoration: InputDecoration(
           hintText: hintText,
           labelText: labelText,
-          hintStyle: const TextStyle(
-            color: _hintColor,
-            fontSize: 16,
-            
+          hintStyle: TextStyle(
+            color: hintColor,
+            fontSize: 14.5,
+            fontWeight: FontWeight.w400,
           ),
-          labelStyle: const TextStyle(
-            color: _hintColor,
+          labelStyle: TextStyle(
+            color: hintColor,
             fontSize: 14,
-            
             fontWeight: FontWeight.w500,
           ),
-          prefixIcon: Icon(prefixIcon, color: _iconColor, size: 22),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(left: 14, right: 10),
+            child: Icon(prefixIcon, color: iconColor, size: 21),
+          ),
+          prefixIconConstraints: const BoxConstraints(minWidth: 46),
           suffixIcon: suffix,
           filled: true,
-          fillColor: _fillColor,
+          fillColor: fillColor,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: _borderColor),
+            borderSide: BorderSide(color: borderColor, width: 1),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: _borderColor),
+            borderSide: BorderSide(color: borderColor, width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: _primaryColor, width: 2),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: AppColors.danger),
+            borderSide: const BorderSide(color: AppColors.danger, width: 1),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(_borderRadius),

@@ -27,15 +27,15 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.expenses,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -203,15 +203,16 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     required IconData icon,
     required Color color,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        border: Border.all(color: color.withValues(alpha: isDark ? 0.3 : 0.2)),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.04),
+            color: color.withValues(alpha: isDark ? 0.15 : 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -223,24 +224,34 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.grey500,
-                  fontWeight: FontWeight.w600,
+              Flexible(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? AppColors.grey400 : AppColors.grey500,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 4),
               Icon(icon, size: 16, color: color),
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+              maxLines: 1,
             ),
           ),
         ],
@@ -249,6 +260,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   }
 
   Widget _buildFilterChip(String label, String value, int count) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = _statusFilter == value;
     return InkWell(
       onTap: () => setState(() => _statusFilter = value),
@@ -256,12 +268,12 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: isSelected ? AppColors.primary : (isDark ? AppColors.surfaceDark : Colors.white),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.grey200),
+          border: Border.all(color: isSelected ? AppColors.primary : (isDark ? AppColors.borderDark : AppColors.grey200)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),
@@ -275,7 +287,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? Colors.white : AppColors.grey700,
+                color: isSelected ? Colors.white : (isDark ? AppColors.grey300 : AppColors.grey700),
               ),
             ),
             if (count > 0) ...[
@@ -283,7 +295,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white.withValues(alpha: 0.25) : AppColors.grey100,
+                  color: isSelected ? Colors.white.withValues(alpha: 0.25) : (isDark ? AppColors.surfaceDarkElevated : AppColors.grey100),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -291,7 +303,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : AppColors.grey600,
+                    color: isSelected ? Colors.white : (isDark ? AppColors.grey400 : AppColors.grey600),
                   ),
                 ),
               ),
@@ -317,20 +329,22 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   }
 
   void _showAddExpenseSheet(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _ExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider)),
     );
   }
 
   void _showEditExpenseSheet(BuildContext context, WidgetRef ref, ExpenseData e) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _ExpenseForm(
         onSubmitted: () => ref.invalidate(expensesProvider),
@@ -340,10 +354,11 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   }
 
   void _showDetailModal(BuildContext context, ExpenseData e, Color statusColor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _ExpenseDetailSheet(expense: e, statusColor: statusColor),
     );
@@ -411,14 +426,15 @@ class _ExpenseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.grey200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -444,14 +460,14 @@ class _ExpenseCard extends StatelessWidget {
                     ),
                     child: Icon(_categoryIcon(expense.category), color: statusColor, size: 22),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           expense.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.grey900),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary(context)),
                         ),
                         const SizedBox(height: 3),
                         Row(
@@ -471,7 +487,7 @@ class _ExpenseCard extends StatelessWidget {
                             ),
                             if (expense.receiptPath != null && expense.receiptPath!.isNotEmpty) ...[
                               const SizedBox(width: 6),
-                              const Icon(Icons.attach_file_rounded, size: 13, color: AppColors.primary),
+                              Icon(Icons.attach_file_rounded, size: 13, color: AppColors.primary),
                             ],
                           ],
                         ),
@@ -483,7 +499,7 @@ class _ExpenseCard extends StatelessWidget {
                     children: [
                       Text(
                         '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.grey900),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary(context)),
                       ),
                       const SizedBox(height: 4),
                       Container(
@@ -623,7 +639,7 @@ class _ExpenseDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -633,16 +649,16 @@ class _ExpenseDetailSheet extends StatelessWidget {
             children: [
               Text(
                 l10n.expenseClaimDetails,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
               ),
               IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
             ],
           ),
           const SizedBox(height: 16),
-          _detailRow(l10n.title, expense.title),
-          _detailRow(l10n.category, expense.category),
-          _detailRow(l10n.amount, '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
-          _detailRow(l10n.expenseDate, expense.date),
+          _detailRow(context, l10n.title, expense.title),
+          _detailRow(context, l10n.category, expense.category),
+          _detailRow(context, l10n.amount, '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
+          _detailRow(context, l10n.expenseDate, expense.date),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -663,7 +679,7 @@ class _ExpenseDetailSheet extends StatelessWidget {
           ),
           if (expense.description != null && expense.description!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _detailRow(l10n.description, expense.description!),
+            _detailRow(context, l10n.description, expense.description!),
           ],
           if (expense.rejectionReason != null && expense.rejectionReason!.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -673,7 +689,7 @@ class _ExpenseDetailSheet extends StatelessWidget {
           ],
           if (expense.paidAt != null && expense.paidAt!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _detailRow(l10n.paidAt, expense.paidAt!),
+            _detailRow(context, l10n.paidAt, expense.paidAt!),
           ],
           if (expense.receiptPath != null && expense.receiptPath!.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -696,15 +712,15 @@ class _ExpenseDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _detailRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.grey500)),
-          const SizedBox(height: 2),
-          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey900)),
+          Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.grey500)),
+          SizedBox(height: 2),
+          Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary(context))),
         ],
       ),
     );
@@ -889,13 +905,13 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                   decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2)),
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     _isEditing ? 'Edit Expense Claim' : 'New Expense Claim',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close_rounded, size: 20, color: AppColors.grey500),
@@ -903,7 +919,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               // Title
               TextFormField(
@@ -912,8 +928,8 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                   labelText: 'Title / Subject *',
                   filled: true,
                   fillColor: AppColors.grey50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                 ),
                 validator: (val) => val == null || val.trim().isEmpty ? l10n.fieldRequired : null,
               ),
@@ -930,8 +946,8 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                         labelText: 'Category',
                         filled: true,
                         fillColor: AppColors.grey50,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                       ),
                       items: const [
                         DropdownMenuItem(value: 'Travel', child: Text('Travel')),
@@ -945,7 +961,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                       onChanged: (v) => setState(() => _category = v!),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Expanded(
                     flex: 2,
                     child: DropdownButtonFormField<String>(
@@ -954,8 +970,8 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                         labelText: 'Currency',
                         filled: true,
                         fillColor: AppColors.grey50,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                       ),
                       items: const [
                         DropdownMenuItem(value: 'USD', child: Text('USD (\$)')),
@@ -975,14 +991,14 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                   Expanded(
                     child: TextFormField(
                       controller: _amountCtrl,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
                         labelText: 'Amount *',
-                        prefixIcon: const Icon(Icons.attach_money_rounded, size: 18),
+                        prefixIcon: Icon(Icons.attach_money_rounded, size: 18),
                         filled: true,
                         fillColor: AppColors.grey50,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                       ),
                       validator: (val) {
                         if (val == null || val.trim().isEmpty) return l10n.fieldRequired;
@@ -992,23 +1008,23 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Expanded(
                     child: InkWell(
                       onTap: _pickDate,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                         decoration: BoxDecoration(
                           color: AppColors.grey50,
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               DateFormat('yyyy-MM-dd').format(_expenseDate),
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey900),
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary(context)),
                             ),
                             const Icon(Icons.calendar_month_rounded, size: 18, color: AppColors.primary),
                           ],
@@ -1018,7 +1034,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               // Description
               TextFormField(
@@ -1028,8 +1044,8 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                   labelText: 'Description / Purpose',
                   filled: true,
                   fillColor: AppColors.grey50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                 ),
               ),
               const SizedBox(height: 14),

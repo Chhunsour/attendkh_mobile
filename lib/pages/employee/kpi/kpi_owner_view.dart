@@ -123,10 +123,10 @@ class _CompanyScoreBanner extends StatelessWidget {
                 children: [
                   Text(
                     '$average',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   Text(
@@ -147,33 +147,33 @@ class _CompanyScoreBanner extends StatelessWidget {
               children: [
                 Text(
                   l10n.companyHealthScore,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     color: Colors.white70,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   _scoreLabel(context),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     l10n.kpisTrackedLiveData(totalKpis),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -264,7 +264,7 @@ class _OwnerKpiCard extends StatelessWidget {
                     ),
                     child: Icon(icon, color: color, size: 22),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   // Title + description
                   Expanded(
                     child: Column(
@@ -272,10 +272,10 @@ class _OwnerKpiCard extends StatelessWidget {
                       children: [
                         Text(
                           kpi.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.grey900,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                         const SizedBox(height: 2),

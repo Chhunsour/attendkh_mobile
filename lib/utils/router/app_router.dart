@@ -310,7 +310,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.payslip,
-        builder: (context, state) => const PayslipScreen(),
+        builder: (context, state) => PayslipScreen(),
       ),
       GoRoute(
         path: AppRoutes.expense,
@@ -380,7 +380,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.adminSettings,
-        builder: (context, state) => const AdminSettingsScreen(),
+        builder: (context, state) => AdminSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.superAdminRoles,
@@ -458,7 +458,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.adminRoles,
-        builder: (context, state) => const AdminRolesScreen(),
+        builder: (context, state) => AdminRolesScreen(),
       ),
       GoRoute(
         path: AppRoutes.adminResources,

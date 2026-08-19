@@ -77,7 +77,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         children: [
           // ── Modern Deep Tech & Attendance Gradient ──
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -150,15 +150,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                               ),
                             ],
                           ),
-                          child: const AppLogo(size: 110),
+                          child: AppLogo(size: 110),
                         ),
 
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
 
                         // App Title
-                        const Text(
+                        Text(
                           'AttendKH',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 34,
                             fontWeight: FontWeight.w900,
                             color: Colors.white,

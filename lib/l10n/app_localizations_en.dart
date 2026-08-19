@@ -4891,4 +4891,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payrollAttendanceRules => 'Payroll, attendance & OT rules';
+
+  @override
+  String get overtime => 'Overtime';
+
+  @override
+  String get companyServices => 'Company Services';
+
+  @override
+  String get moveCloserToBranch => 'Move closer to the branch to clock in.';
+
+  @override
+  String get locationNeedsAttention => 'Location needs attention';
+
+  @override
+  String get noPayslipsYet => 'No payslips yet';
 }

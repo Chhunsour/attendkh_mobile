@@ -109,12 +109,6 @@ class CompanyAdminShell extends ConsumerWidget {
         ),
 
         NavItem(
-          outlineIcon: Icons.person_outline,
-          filledIcon: Icons.person,
-          label: 'Profile',
-          screen: _buildProfileScreen(ref),
-        ),
-        NavItem(
           outlineIcon: Icons.apps_outlined,
           filledIcon: Icons.apps_rounded,
           label: 'More',
@@ -194,6 +188,12 @@ class CompanyAdminShell extends ConsumerWidget {
               ),
             ],
           ),
+        ),
+        NavItem(
+          outlineIcon: Icons.person_outline,
+          filledIcon: Icons.person,
+          label: 'Profile',
+          screen: _buildProfileScreen(ref),
         ),
       ],
     );

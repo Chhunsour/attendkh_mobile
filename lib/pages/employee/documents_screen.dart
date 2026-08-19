@@ -109,15 +109,15 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.companyDocuments,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -177,31 +177,31 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
               physics: const AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics(),
               ),
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
+              padding: EdgeInsets.fromLTRB(16, 12, 16, 40),
               children: [
                 // ── Hero Document Vault Banner ──
                 _buildHeroBanner(documents.length),
 
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
 
                 // ── Search Bar ──
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.02),
                         blurRadius: 6,
-                        offset: const Offset(0, 2),
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
                   child: TextField(
                     controller: _searchCtrl,
                     onChanged: (val) => setState(() => _search = val.trim()),
-                    style: const TextStyle(fontSize: 14, color: AppColors.grey900),
+                    style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
                     decoration: InputDecoration(
                       hintText: 'Search files, forms, templates...',
                       hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
@@ -246,16 +246,16 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
 
                 // ── Section Header ──
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 4),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Available Files',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       Text(
@@ -270,17 +270,17 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
 
                 // ── Documents List ──
                 if (filtered.isEmpty)
                   Container(
-                    padding: const EdgeInsets.all(32),
+                    padding: EdgeInsets.all(32),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+                      border: Border.all(color: AppColors.border(context)),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -301,13 +301,13 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                     final icon = _getFileIcon(doc.mimeType);
 
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.only(bottom: 10),
                       child: Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.textPrimary(context),
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+                          border: Border.all(color: AppColors.border(context)),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.02),
@@ -328,17 +328,17 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                               ),
                               child: Icon(icon, color: color, size: 22),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     doc.title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14.5,
-                                      color: AppColors.grey900,
+                                      color: AppColors.textPrimary(context),
                                     ),
                                   ),
                                   if (doc.description != null && doc.description!.isNotEmpty) ...[
@@ -450,30 +450,30 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                 child: const Icon(Icons.folder_shared_rounded, color: Colors.white, size: 22),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '$totalDocs Files Available',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                     letterSpacing: 0.3,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          const Text(
+          SizedBox(height: 14),
+          Text(
             'Corporate Document Vault',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: AppColors.textPrimary(context),
             ),
           ),
           const SizedBox(height: 4),

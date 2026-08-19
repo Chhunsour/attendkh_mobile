@@ -134,11 +134,11 @@ class KpiSuperAdminView extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 l10n.platformGlobalHealth,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: AppColors.textPrimary(context),
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
@@ -155,15 +155,15 @@ class KpiSuperAdminView extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
 
         // ── Platform Summary Card ──
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.textPrimary(context),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+            border: Border.all(color: AppColors.border(context)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
@@ -181,19 +181,19 @@ class KpiSuperAdminView extends StatelessWidget {
                   color: const Color(0xFF6366F1).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.insights_rounded, color: Color(0xFF6366F1), size: 20),
+                child: Icon(Icons.insights_rounded, color: Color(0xFF6366F1), size: 20),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       l10n.platformSummary,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -216,17 +216,17 @@ class KpiSuperAdminView extends StatelessWidget {
 
         // ── Strategic System KPIs Header ──
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: EdgeInsets.symmetric(horizontal: 4),
           child: Row(
             children: [
-              const Icon(Icons.track_changes_rounded, color: Color(0xFF10B981), size: 18),
-              const SizedBox(width: 8),
+              Icon(Icons.track_changes_rounded, color: Color(0xFF10B981), size: 18),
+              SizedBox(width: 8),
               Text(
                 l10n.platformStrategicKpis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey900,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
             ],

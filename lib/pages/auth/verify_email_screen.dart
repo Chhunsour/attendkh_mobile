@@ -74,23 +74,24 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
         ],
       ),
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.mark_email_unread_outlined,
                 size: 80,
                 color: AppColors.primary,
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               Text(
                 l10n.verifyYourEmailAddress,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey800,
+                  color: AppColors.textPrimary(context),
                 ),
                 textAlign: TextAlign.center,
               ),

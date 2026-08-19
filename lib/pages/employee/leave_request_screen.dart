@@ -141,14 +141,32 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
     final leaveTypesAsync = ref.watch(leaveTypesProvider);
     final leaveBalancesAsync = ref.watch(leaveBalancesProvider);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.requestLeave)),
+      backgroundColor: AppColors.bg(context),
+      appBar: AppBar(
+        title: Text(
+          l10n.requestLeave,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary(context),
+          ),
+        ),
+        backgroundColor: AppColors.surface(context),
+        elevation: 0,
+      ),
       body: _isSubmitting
           ? LoadingIndicator(message: l10n.submittingLeave)
           : leaveTypesAsync.when(
               data: (leaveTypes) {
                 if (leaveTypes.isEmpty) {
-                  return Center(child: Text(l10n.noLeaveTypesConfigured, style: const TextStyle(color: AppColors.grey500)));
+                  return Center(
+                    child: Text(
+                      l10n.noLeaveTypesConfigured,
+                      style: const TextStyle(color: AppColors.grey500),
+                    ),
+                  );
                 }
 
                 // Default selection
@@ -168,14 +186,36 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Leave Type
-                      Text(l10n.leaveTypeLabel, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
-                      const SizedBox(height: 8),
+                      Text(
+                        l10n.leaveTypeLabel,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.grey300 : AppColors.grey700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
                       DropdownButtonFormField<int>(
                         initialValue: _selectedLeaveTypeId ?? leaveTypes.first.id,
-                        decoration: const InputDecoration(
+                        dropdownColor: AppColors.surface(context),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textPrimary(context),
+                        ),
+                        decoration: InputDecoration(
                           prefixIcon: Icon(Icons.category),
                           filled: true,
-                          fillColor: AppColors.surfaceLight,
+                          fillColor: isDark
+                              ? AppColors.surfaceDarkElevated
+                              : AppColors.grey50,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.border(context)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.border(context)),
+                          ),
                         ),
                         items: leaveTypes.map((lt) {
                           return DropdownMenuItem<int>(
@@ -199,9 +239,17 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             return Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
-                                color: isLow ? AppColors.warningLight : AppColors.successLight,
+                                color: isDark
+                                    ? (isLow
+                                        ? AppColors.warning.withValues(alpha: 0.15)
+                                        : AppColors.success.withValues(alpha: 0.15))
+                                    : (isLow ? AppColors.warningLight : AppColors.successLight),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: isLow ? AppColors.warning : AppColors.success),
+                                border: Border.all(
+                                  color: isLow
+                                      ? (isDark ? AppColors.warning.withValues(alpha: 0.5) : AppColors.warning)
+                                      : (isDark ? AppColors.success.withValues(alpha: 0.5) : AppColors.success),
+                                ),
                               ),
                               child: Row(
                                 children: [
@@ -212,7 +260,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                     child: Text.rich(
                                       TextSpan(
                                         text: '${balance.typeName}${l10n.balanceLabel}',
-                                        style: const TextStyle(fontSize: 13, color: AppColors.grey700),
+                                        style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : AppColors.grey700),
                                         children: [
                                           TextSpan(
                                             text: remaining.toStringAsFixed(remaining % 1 == 0 ? 0 : 1) + l10n.daysRemaining,
@@ -232,15 +280,15 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             return Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
-                                color: AppColors.warningLight,
+                                color: isDark ? AppColors.warning.withValues(alpha: 0.15) : AppColors.warningLight,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.warning),
+                                border: Border.all(color: isDark ? AppColors.warning.withValues(alpha: 0.5) : AppColors.warning),
                               ),
                               child: Row(
                                 children: [
                                   const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.warning),
                                   const SizedBox(width: 8),
-                                  Text(l10n.noBalanceRecord, style: const TextStyle(fontSize: 13, color: AppColors.grey700)),
+                                  Text(l10n.noBalanceRecord, style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : AppColors.grey700)),
                                 ],
                               ),
                             );
@@ -258,17 +306,35 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(l10n.startDate, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
-                                const SizedBox(height: 6),
+                                Text(
+                                  l10n.startDate,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? AppColors.grey300 : AppColors.grey700,
+                                  ),
+                                ),
+                                SizedBox(height: 6),
                                 InkWell(
                                   onTap: () => _pickDate(true),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                    decoration: BoxDecoration(color: AppColors.backgroundLight, border: Border.all(color: AppColors.grey300), borderRadius: BorderRadius.circular(12)),
+                                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                                      border: Border.all(color: AppColors.border(context)),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(DateFormat('dd MMM yyyy').format(_startDate), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                                        Text(
+                                          DateFormat('dd MMM yyyy').format(_startDate),
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.textPrimary(context),
+                                          ),
+                                        ),
                                         const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
                                       ],
                                     ),
@@ -282,17 +348,35 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(l10n.endDate, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700)),
-                                const SizedBox(height: 6),
+                                Text(
+                                  l10n.endDate,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? AppColors.grey300 : AppColors.grey700,
+                                  ),
+                                ),
+                                SizedBox(height: 6),
                                 InkWell(
                                   onTap: () => _pickDate(false),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                    decoration: BoxDecoration(color: AppColors.backgroundLight, border: Border.all(color: AppColors.grey300), borderRadius: BorderRadius.circular(12)),
+                                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                                      border: Border.all(color: AppColors.border(context)),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(DateFormat('dd MMM yyyy').format(_endDate), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                                        Text(
+                                          DateFormat('dd MMM yyyy').format(_endDate),
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.textPrimary(context),
+                                          ),
+                                        ),
                                         const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
                                       ],
                                     ),
@@ -303,18 +387,29 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
 
                       // Half Day Toggle
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.surfaceDark : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: isDark ? AppColors.borderDark : AppColors.grey200),
+                        ),
                         child: Column(
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(l10n.requestHalfDay, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                                Text(
+                                  l10n.requestHalfDay,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? AppColors.grey300 : AppColors.grey700,
+                                  ),
+                                ),
                                 Switch(
                                   value: _isHalfDay,
                                   onChanged: (v) {
@@ -328,31 +423,104 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                               ],
                             ),
                             if (_isHalfDay) ...[
-                              const Divider(height: 1),
+                              Divider(height: 1, color: AppColors.border(context)),
+                              const SizedBox(height: 8),
                               Row(
                                 children: [
                                   Expanded(
-                                    child: RadioListTile<String>(
-                                      title: Text(l10n.morning, style: const TextStyle(fontSize: 14)),
-                                      value: 'morning',
-                                      groupValue: _halfDayPeriod,
-                                      onChanged: (v) => setState(() => _halfDayPeriod = v!),
-                                      activeColor: AppColors.primary,
-                                      contentPadding: EdgeInsets.zero,
+                                    child: InkWell(
+                                      onTap: () => setState(() => _halfDayPeriod = 'morning'),
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                        decoration: BoxDecoration(
+                                          color: _halfDayPeriod == 'morning'
+                                              ? AppColors.primary.withAlpha(20)
+                                              : (isDark ? AppColors.surfaceDarkElevated : AppColors.grey50),
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(
+                                            color: _halfDayPeriod == 'morning'
+                                                ? AppColors.primary
+                                                : (isDark ? AppColors.borderDark : AppColors.grey300),
+                                            width: _halfDayPeriod == 'morning' ? 1.5 : 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              _halfDayPeriod == 'morning' ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                                              size: 16,
+                                              color: _halfDayPeriod == 'morning' ? AppColors.primary : AppColors.grey500,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Flexible(
+                                              child: FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: Text(
+                                                  l10n.morning,
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: _halfDayPeriod == 'morning' ? FontWeight.bold : FontWeight.w500,
+                                                    color: _halfDayPeriod == 'morning' ? AppColors.primary : (isDark ? AppColors.grey300 : AppColors.grey700),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
                                   Expanded(
-                                    child: RadioListTile<String>(
-                                      title: Text(l10n.afternoon, style: const TextStyle(fontSize: 14)),
-                                      value: 'afternoon',
-                                      groupValue: _halfDayPeriod,
-                                      onChanged: (v) => setState(() => _halfDayPeriod = v!),
-                                      activeColor: AppColors.primary,
-                                      contentPadding: EdgeInsets.zero,
+                                    child: InkWell(
+                                      onTap: () => setState(() => _halfDayPeriod = 'afternoon'),
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                        decoration: BoxDecoration(
+                                          color: _halfDayPeriod == 'afternoon'
+                                              ? AppColors.primary.withAlpha(20)
+                                              : (isDark ? AppColors.surfaceDarkElevated : AppColors.grey50),
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(
+                                            color: _halfDayPeriod == 'afternoon'
+                                                ? AppColors.primary
+                                                : (isDark ? AppColors.borderDark : AppColors.grey300),
+                                            width: _halfDayPeriod == 'afternoon' ? 1.5 : 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              _halfDayPeriod == 'afternoon' ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                                              size: 16,
+                                              color: _halfDayPeriod == 'afternoon' ? AppColors.primary : AppColors.grey500,
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Flexible(
+                                              child: FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: Text(
+                                                  l10n.afternoon,
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: _halfDayPeriod == 'afternoon' ? FontWeight.bold : FontWeight.w500,
+                                                    color: _halfDayPeriod == 'afternoon' ? AppColors.primary : (isDark ? AppColors.grey300 : AppColors.grey700),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 4),
                             ],
                           ],
                         ),
@@ -360,21 +528,44 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                       const SizedBox(height: 16),
 
                       // Reason
-                      Text(l10n.reason, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
-                      const SizedBox(height: 8),
+                      Text(
+                        l10n.reason,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.grey300 : AppColors.grey700,
+                        ),
+                      ),
+                      SizedBox(height: 8),
                       TextFormField(
                         controller: _reasonController,
                         maxLines: 4,
+                        style: TextStyle(color: AppColors.textPrimary(context)),
                         decoration: InputDecoration(
                           hintText: l10n.describeLeaveReason,
                           filled: true,
-                          fillColor: AppColors.surfaceLight,
+                          fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.border(context)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.border(context)),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
 
                       // Attachment
-                      Text(l10n.attachmentOptional, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey700)),
+                      Text(
+                        l10n.attachmentOptional,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.grey300 : AppColors.grey700,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       InkWell(
                         onTap: () async {
@@ -387,10 +578,14 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                           }
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceLight,
-                            border: Border.all(color: _attachment != null ? AppColors.primary : AppColors.grey300),
+                            color: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                            border: Border.all(
+                              color: _attachment != null
+                                  ? AppColors.primary
+                                  : AppColors.border(context),
+                            ),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -402,7 +597,9 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                 child: Text(
                                   _attachment?.name ?? l10n.tapToSelectFile,
                                   style: TextStyle(
-                                    color: _attachment != null ? AppColors.grey800 : AppColors.grey500,
+                                    color: _attachment != null
+                                        ? (isDark ? Colors.white : AppColors.grey800)
+                                        : AppColors.grey500,
                                     fontWeight: _attachment != null ? FontWeight.w600 : FontWeight.normal,
                                   ),
                                   overflow: TextOverflow.ellipsis,

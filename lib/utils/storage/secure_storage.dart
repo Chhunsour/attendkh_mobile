@@ -29,9 +29,13 @@ class SecureStorageService {
       aOptions: AndroidOptions(encryptedSharedPreferences: true),
       iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
     );
-    // Warm up in-memory caches on startup
-    _cachedToken = await _storage.read(key: _tokenKey);
-    _cachedCompanyId = await _storage.read(key: _companyIdKey);
+    try {
+      _cachedToken = await _storage.read(key: _tokenKey);
+      _cachedCompanyId = await _storage.read(key: _companyIdKey);
+    } catch (e) {
+      _cachedToken = null;
+      _cachedCompanyId = null;
+    }
   }
 
   /// Synchronous fast accessors for Dio network interceptors (0ms latency)

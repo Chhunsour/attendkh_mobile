@@ -9310,6 +9310,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Payroll, attendance & OT rules'**
   String get payrollAttendanceRules;
+
+  /// No description provided for @overtime.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime'**
+  String get overtime;
+
+  /// No description provided for @companyServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Services'**
+  String get companyServices;
+
+  /// No description provided for @moveCloserToBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Move closer to the branch to clock in.'**
+  String get moveCloserToBranch;
+
+  /// No description provided for @locationNeedsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Location needs attention'**
+  String get locationNeedsAttention;
+
+  /// No description provided for @noPayslipsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No payslips yet'**
+  String get noPayslipsYet;
 }
 
 class _AppLocalizationsDelegate

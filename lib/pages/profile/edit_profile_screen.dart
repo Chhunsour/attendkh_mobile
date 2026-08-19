@@ -4,12 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -26,7 +27,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late TextEditingController _emailCtrl;
 
   String? _gender;
-  String? _maritalStatus;
   DateTime? _dateOfBirth;
   File? _photo;
   bool _isLoading = false;
@@ -34,7 +34,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late TextEditingController _bankNameCtrl;
   late TextEditingController _bankAccountCtrl;
   late TextEditingController _emergencyContactNameCtrl;
-  late TextEditingController _emergencyContactRelationshipCtrl;
   late TextEditingController _emergencyContactPhoneCtrl;
 
   @override
@@ -47,7 +46,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _bankNameCtrl = TextEditingController();
     _bankAccountCtrl = TextEditingController();
     _emergencyContactNameCtrl = TextEditingController();
-    _emergencyContactRelationshipCtrl = TextEditingController();
     _emergencyContactPhoneCtrl = TextEditingController();
   }
 
@@ -62,7 +60,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _phoneCtrl.text = data.phone ?? '';
 
     _gender = data.gender;
-    _maritalStatus = data.maritalStatus;
     if (data.dateOfBirth != null) {
       _dateOfBirth = DateTime.tryParse(data.dateOfBirth!);
     }
@@ -73,8 +70,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (data.emergencyContact != null) {
       _emergencyContactNameCtrl.text =
           data.emergencyContact!['name']?.toString() ?? '';
-      _emergencyContactRelationshipCtrl.text =
-          data.emergencyContact!['relationship']?.toString() ?? '';
       _emergencyContactPhoneCtrl.text =
           data.emergencyContact!['phone']?.toString() ?? '';
     }
@@ -89,14 +84,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _bankNameCtrl.dispose();
     _bankAccountCtrl.dispose();
     _emergencyContactNameCtrl.dispose();
-    _emergencyContactRelationshipCtrl.dispose();
     _emergencyContactPhoneCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+      imageQuality: 85,
+    );
     if (pickedFile != null) {
       final compressed = await ImageCompressor.compressToWebp(pickedFile.path);
       setState(() => _photo = compressed);
@@ -137,20 +135,24 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
       final String fullName = _fullNameCtrl.text.trim();
       final String khmerName = _khmerNameCtrl.text.trim();
-      final String displayName = [fullName, khmerName].where((s) => s.isNotEmpty).join(' ');
+      final String displayName = [
+        fullName,
+        khmerName,
+      ].where((s) => s.isNotEmpty).join(' ');
       final String phone = _phoneCtrl.text.trim();
 
       await repo.updateProfile(
         name: displayName.isNotEmpty ? displayName : null,
         fullName: fullName.isNotEmpty ? fullName : null,
         khmerName: khmerName.isNotEmpty ? khmerName : null,
-        email: _emailCtrl.text.trim().isNotEmpty ? _emailCtrl.text.trim() : null,
+        email: _emailCtrl.text.trim().isNotEmpty
+            ? _emailCtrl.text.trim()
+            : null,
         phone: phone.isNotEmpty ? phone : null,
         gender: _gender,
         dateOfBirth: _dateOfBirth != null
             ? DateFormat('yyyy-MM-dd').format(_dateOfBirth!)
             : null,
-        maritalStatus: _maritalStatus,
         bankName: _bankNameCtrl.text.trim().isNotEmpty
             ? _bankNameCtrl.text.trim()
             : null,
@@ -160,21 +162,24 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         emergencyContactName: _emergencyContactNameCtrl.text.trim().isNotEmpty
             ? _emergencyContactNameCtrl.text.trim()
             : null,
-        emergencyContactRelationship:
-            _emergencyContactRelationshipCtrl.text.trim().isNotEmpty
-            ? _emergencyContactRelationshipCtrl.text.trim()
-            : null,
         emergencyContactPhone: _emergencyContactPhoneCtrl.text.trim().isNotEmpty
             ? _emergencyContactPhoneCtrl.text.trim()
             : null,
         photo: _photo,
       );
+
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
         ref.invalidate(profileProvider);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.profileUpdatedSuccess),
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Text(l10n.profileUpdatedSuccess, style: const TextStyle(fontWeight: FontWeight.w600)),
+              ],
+            ),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -199,26 +204,29 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final profileAsync = ref.watch(profileProvider);
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: isDark ? AppColors.backgroundDark : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: AppColors.grey900,
+            color: isDark ? Colors.white : AppColors.grey900,
             size: 20,
           ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           l10n.editProfile,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: isDark ? Colors.white : AppColors.grey900,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -246,7 +254,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 child: SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
             ),
@@ -255,27 +266,36 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: AppColors.grey200.withValues(alpha: 0.8))),
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          border: Border(
+            top: BorderSide(
+              color: isDark
+                  ? AppColors.borderDark
+                  : AppColors.grey200.withValues(alpha: 0.8),
+            ),
+          ),
         ),
         child: SizedBox(
           width: double.infinity,
-          height: 50,
+          height: 52,
           child: ElevatedButton(
             onPressed: _isLoading ? null : _save,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              elevation: 2,
+              elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
             child: _isLoading
                 ? const SizedBox(
                     width: 22,
                     height: 22,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -284,7 +304,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       const SizedBox(width: 8),
                       Text(
                         l10n.save,
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -307,126 +330,121 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Profile Photo Section ──
-                _buildPhotoPicker(data),
+                // ── Streamlined Profile Photo Picker ──
+                _buildPhotoPicker(data, isDark),
 
                 const SizedBox(height: 20),
 
-                // ── Personal Info Card ──
+                // ── Core Personal & Contact Info ──
                 _buildSectionCard(
-                  icon: Icons.person_outline_rounded,
-                  iconColor: const Color(0xFF3B82F6),
-                  title: l10n.profileInfoTitle,
+                  icon: Icons.person_rounded,
+                  iconColor: AppColors.primary,
+                  title: 'Personal & Contact Info',
+                  isDark: isDark,
                   children: [
                     _buildInputField(
                       label: 'Full Name (Latin)',
                       controller: _fullNameCtrl,
-                      icon: Icons.person_rounded,
+                      icon: Icons.person_outline_rounded,
+                      isDark: isDark,
                     ),
                     _buildInputField(
-                      label: 'Khmer Name (ឈ្មោះជាភាសាខ្មែរ)',
+                      label: 'Khmer Name (Optional)',
                       controller: _khmerNameCtrl,
                       icon: Icons.badge_outlined,
+                      isDark: isDark,
                     ),
                     _buildInputField(
-                      label: l10n.phoneLabel,
+                      label: 'Phone Number',
                       controller: _phoneCtrl,
                       icon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
+                      isDark: isDark,
                     ),
                     _buildInputField(
-                      label: l10n.emailLabel,
+                      label: 'Email Address',
                       controller: _emailCtrl,
                       icon: Icons.mail_outline_rounded,
                       keyboardType: TextInputType.emailAddress,
+                      isDark: isDark,
                     ),
                     Row(
                       children: [
                         Expanded(
-                          child: _buildDropdownField<String>(
-                            label: l10n.genderLabel,
-                            value: _gender,
-                            icon: Icons.wc_rounded,
-                            items: [
-                              DropdownMenuItem(value: 'male', child: Text(l10n.genderMale)),
-                              DropdownMenuItem(value: 'female', child: Text(l10n.genderFemale)),
-                              DropdownMenuItem(value: 'other', child: Text(l10n.genderOther)),
-                            ],
-                            onChanged: (val) => setState(() => _gender = val),
+                          child: _buildDatePickerField(
+                            label: 'Date of Birth',
+                            value: _dateOfBirth,
+                            icon: Icons.cake_outlined,
+                            onTap: _selectDateOfBirth,
+                            isDark: isDark,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildDropdownField<String>(
-                            label: 'Marital Status',
-                            value: _maritalStatus,
-                            icon: Icons.favorite_border_rounded,
+                            label: 'Gender',
+                            value: _gender,
+                            icon: Icons.wc_rounded,
+                            isDark: isDark,
                             items: const [
-                              DropdownMenuItem(value: 'single', child: Text('Single')),
-                              DropdownMenuItem(value: 'married', child: Text('Married')),
-                              DropdownMenuItem(value: 'divorced', child: Text('Divorced')),
-                              DropdownMenuItem(value: 'widowed', child: Text('Widowed')),
+                              DropdownMenuItem(value: 'male', child: Text('Male')),
+                              DropdownMenuItem(value: 'female', child: Text('Female')),
+                              DropdownMenuItem(value: 'other', child: Text('Other')),
                             ],
-                            onChanged: (val) => setState(() => _maritalStatus = val),
+                            onChanged: (val) => setState(() => _gender = val),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    _buildDatePickerField(
-                      label: 'Date of Birth',
-                      value: _dateOfBirth,
-                      icon: Icons.cake_outlined,
-                      onTap: _selectDateOfBirth,
-                    ),
                   ],
                 ),
 
                 const SizedBox(height: 16),
 
-                // ── Banking Card ──
+                // ── Payroll & Banking Card (Optional) ──
                 _buildSectionCard(
-                  icon: Icons.account_balance_outlined,
+                  icon: Icons.account_balance_rounded,
                   iconColor: const Color(0xFF10B981),
-                  title: 'Financial & Banking',
+                  title: 'Payroll & Banking (Optional)',
+                  isDark: isDark,
                   children: [
                     _buildInputField(
-                      label: 'Bank Name',
+                      label: 'Bank Name (e.g. ABA, ACLEDA)',
                       controller: _bankNameCtrl,
-                      icon: Icons.account_balance_rounded,
+                      icon: Icons.account_balance_outlined,
+                      isDark: isDark,
                     ),
                     _buildInputField(
                       label: 'Bank Account Number',
                       controller: _bankAccountCtrl,
-                      icon: Icons.numbers_rounded,
+                      icon: Icons.credit_card_rounded,
                       keyboardType: TextInputType.number,
+                      isDark: isDark,
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 16),
 
-                // ── Emergency Contact Card ──
+                // ── Emergency Contact Card (Optional) ──
                 _buildSectionCard(
-                  icon: Icons.emergency_outlined,
+                  icon: Icons.health_and_safety_rounded,
                   iconColor: const Color(0xFFEF4444),
-                  title: 'Emergency Contact',
+                  title: 'Emergency Contact (Optional)',
+                  isDark: isDark,
                   children: [
                     _buildInputField(
                       label: 'Contact Name',
                       controller: _emergencyContactNameCtrl,
-                      icon: Icons.person_outline_rounded,
+                      icon: Icons.person_rounded,
+                      isDark: isDark,
                     ),
                     _buildInputField(
-                      label: 'Relationship',
-                      controller: _emergencyContactRelationshipCtrl,
-                      icon: Icons.people_outline_rounded,
-                    ),
-                    _buildInputField(
-                      label: 'Emergency Phone',
+                      label: 'Emergency Phone Number',
                       controller: _emergencyContactPhoneCtrl,
                       icon: Icons.phone_in_talk_rounded,
                       keyboardType: TextInputType.phone,
+                      isDark: isDark,
                     ),
                   ],
                 ),
@@ -442,27 +460,30 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     );
   }
 
-  Widget _buildPhotoPicker(ProfileData data) {
+  Widget _buildPhotoPicker(ProfileData data, bool isDark) {
     return Center(
       child: Column(
         children: [
           GestureDetector(
             onTap: _pickImage,
             child: Stack(
-              alignment: Alignment.bottomRight,
+              clipBehavior: Clip.none,
               children: [
                 Container(
-                  width: 100,
-                  height: 100,
+                  width: 96,
+                  height: 96,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    border: Border.all(color: Colors.white, width: 3),
+                    color: isDark ? AppColors.surfaceDark : Colors.white,
+                    border: Border.all(
+                      color: AppColors.primary,
+                      width: 2.5,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.2),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
+                        color: AppColors.primary.withValues(alpha: isDark ? 0.35 : 0.15),
+                        blurRadius: 14,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
@@ -471,15 +492,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         ? Image.file(
                             _photo!,
                             fit: BoxFit.cover,
-                            width: 100,
-                            height: 100,
+                            width: 96,
+                            height: 96,
                           )
                         : (data.photoUrl != null && data.photoUrl!.isNotEmpty
                             ? CachedNetworkImage(
                                 imageUrl: data.photoUrl!,
                                 fit: BoxFit.cover,
-                                width: 100,
-                                height: 100,
+                                width: 96,
+                                height: 96,
                                 placeholder: (context, url) => const Center(
                                   child: SizedBox(
                                     width: 22,
@@ -489,38 +510,52 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 ),
                                 errorWidget: (context, url, error) => const Icon(
                                   Icons.person,
-                                  size: 50,
+                                  size: 46,
                                   color: AppColors.grey400,
                                 ),
                               )
                             : const Icon(
                                 Icons.person,
-                                size: 50,
+                                size: 46,
                                 color: AppColors.grey400,
                               )),
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt_rounded,
-                    size: 16,
-                    color: Colors.white,
+                Positioned(
+                  bottom: 0,
+                  right: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(7),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isDark ? AppColors.surfaceDark : Colors.white,
+                        width: 2.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.20),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_rounded,
+                      size: 14,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Tap avatar to change photo',
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.grey500,
+              color: isDark ? AppColors.grey400 : AppColors.grey600,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -534,16 +569,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     required Color iconColor,
     required String title,
     required List<Widget> children,
+    required bool isDark,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
+            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.02),
+            blurRadius: 10,
             offset: const Offset(0, 2),
           ),
         ],
@@ -552,13 +591,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.1),
+                    color: iconColor.withValues(alpha: isDark ? 0.20 : 0.10),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, size: 16, color: iconColor),
@@ -566,16 +605,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 const SizedBox(width: 10),
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                  style: TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : AppColors.grey900,
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, color: AppColors.grey100),
+          Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.grey100),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(children: children),
@@ -589,6 +628,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     required String label,
     required TextEditingController controller,
     required IconData icon,
+    required bool isDark,
     TextInputType? keyboardType,
   }) {
     return Padding(
@@ -596,26 +636,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.grey900),
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: isDark ? Colors.white : AppColors.grey900,
+        ),
         decoration: InputDecoration(
           labelText: label,
           floatingLabelBehavior: FloatingLabelBehavior.auto,
-          prefixIcon: Icon(icon, size: 18, color: AppColors.grey400),
+          prefixIcon: Icon(icon, size: 18, color: isDark ? AppColors.grey400 : AppColors.grey500),
           filled: true,
-          fillColor: AppColors.grey50,
+          fillColor: isDark ? AppColors.surfaceDarkElevated : const Color(0xFFF8FAFC),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.grey200),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.grey200),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
           ),
-          labelStyle: const TextStyle(color: AppColors.grey500, fontSize: 13),
+          labelStyle: TextStyle(
+            color: isDark ? AppColors.grey400 : AppColors.grey500,
+            fontSize: 13,
+          ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         ),
       ),
@@ -628,30 +675,39 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     required IconData icon,
     required List<DropdownMenuItem<T>> items,
     required ValueChanged<T?> onChanged,
+    required bool isDark,
   }) {
     return DropdownButtonFormField<T>(
       initialValue: value,
       items: items,
       onChanged: onChanged,
-      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.grey900),
+      dropdownColor: isDark ? AppColors.surfaceDark : Colors.white,
+      style: TextStyle(
+        fontSize: 13.5,
+        fontWeight: FontWeight.w500,
+        color: isDark ? Colors.white : AppColors.grey900,
+      ),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, size: 18, color: AppColors.grey400),
+        prefixIcon: Icon(icon, size: 18, color: isDark ? AppColors.grey400 : AppColors.grey500),
         filled: true,
-        fillColor: AppColors.grey50,
+        fillColor: isDark ? AppColors.surfaceDarkElevated : const Color(0xFFF8FAFC),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.grey200),
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.grey200),
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
-        labelStyle: const TextStyle(color: AppColors.grey500, fontSize: 13),
+        labelStyle: TextStyle(
+          color: isDark ? AppColors.grey400 : AppColors.grey500,
+          fontSize: 13,
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
     );
@@ -662,22 +718,25 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     required DateTime? value,
     required IconData icon,
     required VoidCallback onTap,
+    required bool isDark,
   }) {
-    final displayStr = value != null ? DateFormat('yyyy-MM-dd').format(value) : 'Select date';
+    final displayStr = value != null
+        ? DateFormat('dd MMM yyyy').format(value)
+        : 'Select date';
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         decoration: BoxDecoration(
-          color: AppColors.grey50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.grey200),
+          color: isDark ? AppColors.surfaceDarkElevated : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: AppColors.grey400),
+            Icon(icon, size: 18, color: isDark ? AppColors.grey400 : AppColors.grey500),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -685,7 +744,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(fontSize: 11, color: AppColors.grey500),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? AppColors.grey400 : AppColors.grey500,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -693,13 +755,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: value != null ? AppColors.grey900 : AppColors.grey400,
+                      color: value != null
+                          ? (isDark ? Colors.white : AppColors.grey900)
+                          : (isDark ? AppColors.grey500 : AppColors.grey400),
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.calendar_month_rounded, size: 18, color: AppColors.primary),
+            const Icon(
+              Icons.calendar_month_rounded,
+              size: 18,
+              color: AppColors.primary,
+            ),
           ],
         ),
       ),

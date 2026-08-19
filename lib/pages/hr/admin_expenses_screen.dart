@@ -34,14 +34,14 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     final l10n = AppLocalizations.of(context)!;
     final expensesAsync = ref.watch(expensesProvider);
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.expenseClaimsTitle,
-          style: const TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700),
+          style: TextStyle(color: AppColors.textPrimary(context), fontSize: 18, fontWeight: FontWeight.w700),
         ),
         actions: [
           IconButton(
@@ -125,7 +125,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
                         prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.grey400),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
-                                icon: const Icon(Icons.clear_rounded, size: 18),
+                                icon: Icon(Icons.clear_rounded, size: 18),
                                 onPressed: () {
                                   _searchCtrl.clear();
                                   setState(() => _searchQuery = '');
@@ -134,14 +134,14 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
                             : null,
                         filled: true,
                         fillColor: AppColors.surfaceLight,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                        contentPadding: EdgeInsets.symmetric(vertical: 10),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppColors.grey200),
+                          borderSide: BorderSide(color: AppColors.border(context)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppColors.grey200),
+                          borderSide: BorderSide(color: AppColors.border(context)),
                         ),
                       ),
                     ),
@@ -242,11 +242,11 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
 
   Widget _kpiCard({required IconData icon, required Color color, required String value, required String label}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,17 +266,21 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
               Expanded(
                 child: Text(
                   label,
-                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.grey500),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.grey500),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.grey900),
-            overflow: TextOverflow.ellipsis,
+          SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context)),
+              maxLines: 1,
+            ),
           ),
         ],
       ),
@@ -470,11 +474,11 @@ class _AdminExpenseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: InkWell(
         onTap: onTap,
@@ -523,17 +527,17 @@ class _AdminExpenseCard extends StatelessWidget {
                             const SizedBox(width: 6),
                             Text(
                               expense.employeeName!,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700),
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700),
                               overflow: TextOverflow.ellipsis,
                             ),
                             if (expense.employeeCode != null && expense.employeeCode!.isNotEmpty) ...[
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                                 decoration: BoxDecoration(
                                   color: AppColors.grey100,
                                   borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: AppColors.grey300),
+                                  border: Border.all(color: AppColors.border(context)),
                                 ),
                                 child: Text(
                                   expense.employeeCode!,
@@ -706,7 +710,7 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -714,16 +718,16 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(l10n.expenseDetailTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+              Text(l10n.expenseDetailTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
               IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
             ],
           ),
           const SizedBox(height: 20),
-          _detailRow(l10n.titleLabel, expense.title),
-          if (expense.employeeName != null) _detailRow(l10n.employeeLabel, expense.employeeName!),
-          _detailRow(l10n.categoryLabel, expense.category),
-          _detailRow(l10n.amountLabel, '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
-          _detailRow(l10n.expenseDateLabel, expense.date),
+          _detailRow(context, l10n.titleLabel, expense.title),
+          if (expense.employeeName != null) _detailRow(context, l10n.employeeLabel, expense.employeeName!),
+          _detailRow(context, l10n.categoryLabel, expense.category),
+          _detailRow(context, l10n.amountLabel, '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
+          _detailRow(context, l10n.expenseDateLabel, expense.date),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -743,7 +747,7 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
           ),
           if (expense.description != null && expense.description!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _detailRow(l10n.descriptionLabel, expense.description!),
+            _detailRow(context, l10n.descriptionLabel, expense.description!),
           ],
           if (expense.rejectionReason != null && expense.rejectionReason!.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -753,7 +757,7 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
           ],
           if (expense.paidAt != null && expense.paidAt!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _detailRow(l10n.paidAtLabel, expense.paidAt!),
+            _detailRow(context, l10n.paidAtLabel, expense.paidAt!),
           ],
           if (expense.receiptPath != null && expense.receiptPath!.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -798,15 +802,15 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _detailRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
-          const SizedBox(height: 2),
-          Text(value, style: const TextStyle(fontSize: 13, color: AppColors.grey800)),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+          SizedBox(height: 2),
+          Text(value, style: TextStyle(fontSize: 13, color: AppColors.textPrimary(context))),
         ],
       ),
     );
@@ -984,7 +988,7 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(_isEditing ? l10n.editExpenseClaimTitle : l10n.newExpenseClaimTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                  Text(_isEditing ? l10n.editExpenseClaimTitle : l10n.newExpenseClaimTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
                   IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
                 ],
               ),
@@ -1045,16 +1049,16 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               InkWell(
                 onTap: _pickDate,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: AppColors.backgroundLight,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.grey300),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1064,12 +1068,12 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
                         children: [
                           Text(
                             l10n.expenseDateLabel,
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             DateFormat('EEE, dd MMM yyyy').format(_expenseDate),
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.grey900),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context)),
                           ),
                         ],
                       ),

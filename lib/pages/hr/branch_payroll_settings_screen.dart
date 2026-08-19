@@ -68,11 +68,11 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
     final settingsAsync = ref.watch(branchPayrollSettingsProvider(widget.branchId));
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        title: Text(l10n.branchPayrollTitle(widget.branchName), style: const TextStyle(color: AppColors.grey800)),
+        title: Text(l10n.branchPayrollTitle(widget.branchName), style: TextStyle(color: AppColors.textPrimary(context))),
         backgroundColor: AppColors.surfaceLight,
-        iconTheme: const IconThemeData(color: AppColors.grey800),
+        iconTheme: IconThemeData(color: AppColors.textPrimary(context)),
         elevation: 0,
         actions: [
           IconButton(
@@ -133,16 +133,16 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceLight,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,7 +424,7 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
   }
 
   Widget _sectionHeader(String title) {
-    return Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800));
+    return Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)));
   }
 
   Widget _textField(TextEditingController ctrl, String label, {TextInputType? keyboardType}) {

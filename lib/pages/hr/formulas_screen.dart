@@ -15,13 +15,14 @@ class FormulasScreen extends StatelessWidget {
     final symbol = settings.currencySymbol;
     final fixedDays = settings.fixedWorkingDays > 0 ? settings.fixedWorkingDays : 22;
     final hourlyRate = (1000 / fixedDays) / 8;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        title: Text(l10n.formulasHandbookScreenTitle, style: const TextStyle(color: Colors.black87)),
-        backgroundColor: AppColors.surfaceLight,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        title: Text(l10n.formulasHandbookScreenTitle, style: TextStyle(color: AppColors.textPrimary(context))),
+        backgroundColor: AppColors.surface(context),
+        iconTheme: IconThemeData(color: AppColors.textPrimary(context)),
         elevation: 0,
         centerTitle: true,
       ),
@@ -64,13 +65,13 @@ class FormulasScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.amber.shade50,
-                border: Border.all(color: Colors.amber.shade200),
+                color: isDark ? const Color(0xFF78350F).withValues(alpha: 0.3) : Colors.amber.shade50,
+                border: Border.all(color: isDark ? const Color(0xFFB45309) : Colors.amber.shade200),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: RichText(
                 text: TextSpan(
-                  style: TextStyle(color: Colors.amber.shade900, fontSize: 13, height: 1.4),
+                  style: TextStyle(color: isDark ? const Color(0xFFFDE68A) : Colors.amber.shade900, fontSize: 13, height: 1.4),
                   children: [
                     TextSpan(text: l10n.formulasExampleBasis, style: const TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(text: l10n.formulasExampleBasisDetail),
@@ -82,6 +83,7 @@ class FormulasScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             _buildSection(
+              context: context,
               title: l10n.hourlyRateCalcTitle,
               icon: Icons.calculate_outlined,
               iconColor: Colors.teal,
@@ -109,6 +111,7 @@ class FormulasScreen extends StatelessWidget {
   }
 
   Widget _buildSection({
+    required BuildContext context,
     required String title,
     required IconData icon,
     required Color iconColor,
@@ -116,12 +119,13 @@ class FormulasScreen extends StatelessWidget {
     required String formula,
     required String example,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.grey200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,29 +134,36 @@ class FormulasScreen extends StatelessWidget {
             children: [
               Icon(icon, color: iconColor, size: 20),
               const SizedBox(width: 8),
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : AppColors.grey900,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(description, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-          const SizedBox(height: 12),
+          SizedBox(height: 8),
+          Text(description, style: TextStyle(color: isDark ? AppColors.grey400 : Colors.grey.shade600, fontSize: 13)),
+          SizedBox(height: 12),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: isDark ? AppColors.surfaceDarkElevated : Colors.grey.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: AppColors.border(context)),
             ),
             child: Text(
               formula,
-              style: TextStyle(fontFamily: 'monospace', fontSize: 12, color: Colors.grey.shade800),
+              style: TextStyle(fontFamily: 'monospace', fontSize: 12, color: isDark ? Colors.tealAccent : Colors.grey.shade800),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             example,
-            style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontStyle: FontStyle.italic),
+            style: TextStyle(color: isDark ? AppColors.grey400 : Colors.grey.shade500, fontSize: 12, fontStyle: FontStyle.italic),
           ),
         ],
       ),
@@ -161,7 +172,7 @@ class FormulasScreen extends StatelessWidget {
 
   Widget _buildLateDeductionSection(BuildContext context, AppLocalizations l10n, double hourlyRate, String symbol) {
     if (!settings.lateDeductionEnabled) {
-      return _buildDisabledSection(l10n.lateDeductionFormulaTitle, Icons.shield_outlined, l10n.lateDeductionDisabled);
+      return _buildDisabledSection(context, l10n.lateDeductionFormulaTitle, Icons.shield_outlined, l10n.lateDeductionDisabled);
     }
 
     String formula = '';
@@ -184,6 +195,7 @@ class FormulasScreen extends StatelessWidget {
     }
 
     return _buildSection(
+      context: context,
       title: l10n.lateDeductionFormulaTitle,
       icon: Icons.shield_outlined,
       iconColor: Colors.red,
@@ -195,7 +207,7 @@ class FormulasScreen extends StatelessWidget {
 
   Widget _buildEarlyLeaveSection(BuildContext context, AppLocalizations l10n, double hourlyRate, String symbol) {
     if (!settings.lateDeductionEnabled) {
-      return _buildDisabledSection(l10n.earlyLeaveFormulaTitle, Icons.shield_outlined, l10n.earlyLeaveDeductionDisabled);
+      return _buildDisabledSection(context, l10n.earlyLeaveFormulaTitle, Icons.shield_outlined, l10n.earlyLeaveDeductionDisabled);
     }
 
     String formula = '';
@@ -218,6 +230,7 @@ class FormulasScreen extends StatelessWidget {
     }
 
     return _buildSection(
+      context: context,
       title: l10n.earlyLeaveFormulaTitle,
       icon: Icons.shield_outlined,
       iconColor: Colors.red,
@@ -229,11 +242,11 @@ class FormulasScreen extends StatelessWidget {
 
   Widget _buildOvertimeSection(BuildContext context, AppLocalizations l10n, double hourlyRate, String symbol) {
     if (!settings.overtimeEnabled) {
-      return _buildDisabledSection(l10n.overtimeCalcTitle, Icons.menu_book, l10n.overtimeDisabled);
+      return _buildDisabledSection(context, l10n.overtimeCalcTitle, Icons.menu_book, l10n.overtimeDisabled);
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -318,12 +331,13 @@ class FormulasScreen extends StatelessWidget {
       formula = l10n.earlyClockInPaidOutsideFormula;
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.grey200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,7 +346,14 @@ class FormulasScreen extends StatelessWidget {
             children: [
               const Icon(Icons.shield_outlined, color: Colors.orange, size: 20),
               const SizedBox(width: 8),
-              Text(l10n.earlyClockInPolicyTitle, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                l10n.earlyClockInPolicyTitle,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : AppColors.grey900,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -340,20 +361,34 @@ class FormulasScreen extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
+              color: isDark ? Colors.orange.withValues(alpha: 0.15) : Colors.orange.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.orange.shade100),
+              border: Border.all(color: isDark ? Colors.orange.withValues(alpha: 0.3) : Colors.orange.shade100),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(formula, style: TextStyle(fontFamily: 'monospace', fontSize: 12, color: Colors.orange.shade900)),
-                if (example.isNotEmpty) ...[
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Divider(color: Colors.black12, height: 1),
+                Text(
+                  formula,
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                    color: isDark ? Colors.orange.shade300 : Colors.orange.shade900,
                   ),
-                  Text(example, style: TextStyle(color: Colors.orange.shade700, fontSize: 11, fontStyle: FontStyle.italic)),
+                ),
+                if (example.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(color: isDark ? Colors.white12 : Colors.black12, height: 1),
+                  ),
+                  Text(
+                    example,
+                    style: TextStyle(
+                      color: isDark ? Colors.orange.shade200 : Colors.orange.shade700,
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
                 ]
               ],
             ),
@@ -363,13 +398,14 @@ class FormulasScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDisabledSection(String title, IconData icon, String message) {
+  Widget _buildDisabledSection(BuildContext context, String title, IconData icon, String message) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.grey200),
       ),
       child: Row(
         children: [
@@ -379,9 +415,16 @@ class FormulasScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : AppColors.grey900,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(message, style: TextStyle(color: Colors.red.shade600, fontSize: 13)),
+                Text(message, style: TextStyle(color: isDark ? Colors.red.shade300 : Colors.red.shade600, fontSize: 13)),
               ],
             ),
           ),

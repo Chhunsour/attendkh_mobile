@@ -12,6 +12,7 @@ import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
+import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
 
 class CompanyOwnerProfileScreen extends ConsumerStatefulWidget {
   final bool showBackButton;
@@ -204,7 +205,7 @@ class _CompanyOwnerProfileScreenState
     final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -215,17 +216,17 @@ class _CompanyOwnerProfileScreenState
             surfaceTintColor: Colors.transparent,
             leading: widget.showBackButton
                 ? IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_rounded,
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                     ),
                     onPressed: () => context.pop(),
                   )
                 : null,
             title: Text(
               l10n.profileSettingsTitle,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: AppColors.textPrimary(context),
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
               ),
@@ -234,15 +235,15 @@ class _CompanyOwnerProfileScreenState
               if (!_isEditing)
                 TextButton.icon(
                   onPressed: () => setState(() => _isEditing = true),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.edit_rounded,
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                     size: 18,
                   ),
                   label: Text(
                     l10n.editProfile,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: AppColors.textPrimary(context),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -286,23 +287,23 @@ class _CompanyOwnerProfileScreenState
                                     profileAsync.value?.photoUrl == null)
                                 ? Text(
                                     _initials(authState.userName ?? 'O'),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      color: AppColors.textPrimary(context),
                                     ),
                                   )
                                 : null,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(
                         authState.userName ?? 'Company Owner',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -326,9 +327,9 @@ class _CompanyOwnerProfileScreenState
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.business_center_rounded,
-                              color: Colors.white,
+                              color: AppColors.textPrimary(context),
                               size: 14,
                             ),
                             const SizedBox(width: 6),
@@ -554,12 +555,12 @@ class _CompanyOwnerProfileScreenState
                                         elevation: 0,
                                       ),
                                       child: _isSavingProfile
-                                          ? const SizedBox(
+                                          ? SizedBox(
                                               width: 20,
                                               height: 20,
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
-                                                color: Colors.white,
+                                                color: AppColors.textPrimary(context),
                                               ),
                                             )
                                           : Text(
@@ -686,7 +687,7 @@ class _CompanyOwnerProfileScreenState
                                   ? null
                                   : _savePassword,
                               icon: _isSavingPassword
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(
@@ -730,13 +731,13 @@ class _CompanyOwnerProfileScreenState
                           trailing: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               value: ref.watch(localeProvider).languageCode,
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.arrow_drop_down,
                                 color: AppColors.grey500,
                               ),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                               items: [
                                 DropdownMenuItem(
@@ -753,6 +754,55 @@ class _CompanyOwnerProfileScreenState
                                   ref
                                       .read(localeProvider.notifier)
                                       .setLocale(Locale(newValue));
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        Divider(
+                          height: 1,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppColors.borderDark
+                              : AppColors.grey100,
+                        ),
+                        _buildSettingsTile(
+                          icon: switch (ref.watch(themeModeProvider)) {
+                            ThemeMode.light => Icons.light_mode_rounded,
+                            ThemeMode.dark => Icons.dark_mode_rounded,
+                            ThemeMode.system => Icons.brightness_auto_rounded,
+                          },
+                          title: 'Appearance',
+                          trailing: DropdownButtonHideUnderline(
+                            child: DropdownButton<ThemeMode>(
+                              value: ref.watch(themeModeProvider),
+                              icon: const Icon(
+                                Icons.arrow_drop_down,
+                                color: AppColors.grey500,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              items: const [
+                                DropdownMenuItem(
+                                  value: ThemeMode.light,
+                                  child: Text('Light'),
+                                ),
+                                DropdownMenuItem(
+                                  value: ThemeMode.dark,
+                                  child: Text('Dark'),
+                                ),
+                                DropdownMenuItem(
+                                  value: ThemeMode.system,
+                                  child: Text('Auto'),
+                                ),
+                              ],
+                              onChanged: (ThemeMode? newMode) {
+                                if (newMode != null) {
+                                  ref
+                                      .read(themeModeProvider.notifier)
+                                      .setThemeMode(newMode);
                                 }
                               },
                             ),
@@ -835,7 +885,7 @@ class _CompanyOwnerProfileScreenState
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(5),
@@ -860,17 +910,17 @@ class _CompanyOwnerProfileScreenState
                   ),
                   child: Icon(icon, color: AppColors.secondary, size: 20),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey800,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -938,19 +988,19 @@ class _CompanyOwnerProfileScreenState
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: AppColors.grey500,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.grey800,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
               ],
@@ -971,18 +1021,18 @@ class _CompanyOwnerProfileScreenState
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 4),
         child: Row(
           children: [
             Icon(icon, size: 22, color: AppColors.grey600),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.grey800,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
             ),
@@ -1004,16 +1054,16 @@ class _CompanyOwnerProfileScreenState
   InputDecoration _inputDecoration() {
     return InputDecoration(
       isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       filled: true,
       fillColor: AppColors.backgroundLight,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),

@@ -25,6 +25,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
   Future<void> _showMonthYearPicker() async {
     int selectedYear = _focusedDay.year;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final newDate = await showModalBottomSheet<DateTime>(
       context: context,
@@ -53,15 +54,15 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.chevron_left_rounded),
+                    icon: Icon(Icons.chevron_left_rounded),
                     onPressed: () => setSheetState(() => selectedYear--),
                   ),
                   Text(
                     '$selectedYear',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.grey900,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   IconButton(
@@ -76,41 +77,65 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
-                  childAspectRatio: 2.2,
+                  childAspectRatio: 2.0,
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
                 ),
                 itemCount: 12,
                 itemBuilder: (context, index) {
                   final month = index + 1;
-                  final monthName = DateFormat('MMM').format(DateTime(2000, month));
-                  final isCurrent = selectedYear == DateTime.now().year && month == DateTime.now().month;
-                  final isSelected = selectedYear == _focusedDay.year && month == _focusedDay.month;
+                  final monthName = DateFormat(
+                    'MMM',
+                  ).format(DateTime(2000, month));
+                  final isCurrent =
+                      selectedYear == DateTime.now().year &&
+                      month == DateTime.now().month;
+                  final isSelected =
+                      selectedYear == _focusedDay.year &&
+                      month == _focusedDay.month;
 
                   return InkWell(
-                    onTap: () => Navigator.pop(ctx, DateTime(selectedYear, month, 1)),
+                    onTap: () =>
+                        Navigator.pop(ctx, DateTime(selectedYear, month, 1)),
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
                       alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppColors.primary
                             : (isCurrent
-                                ? AppColors.primary.withValues(alpha: 0.1)
-                                : AppColors.grey50),
+                                  ? AppColors.primary.withValues(alpha: 0.12)
+                                  : (isDark
+                                        ? AppColors.surfaceDarkElevated
+                                        : AppColors.grey50)),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isSelected ? AppColors.primary : AppColors.grey200,
+                          color: isSelected
+                              ? AppColors.primary
+                              : (isDark
+                                    ? AppColors.borderDark
+                                    : AppColors.grey200),
                         ),
                       ),
-                      child: Text(
-                        monthName,
-                        style: TextStyle(
-                          color: isSelected
-                              ? Colors.white
-                              : (isCurrent ? AppColors.primary : AppColors.grey800),
-                          fontWeight: isSelected || isCurrent ? FontWeight.bold : FontWeight.w500,
-                          fontSize: 13,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          monthName,
+                          style: TextStyle(
+                            color: isSelected
+                                ? Colors.white
+                                : (isCurrent
+                                      ? AppColors.primary
+                                      : (isDark
+                                            ? Colors.white
+                                            : AppColors.grey800)),
+                            fontWeight: isSelected || isCurrent
+                                ? FontWeight.bold
+                                : FontWeight.w500,
+                            fontSize: 13,
+                          ),
+                          maxLines: 1,
                         ),
                       ),
                     ),
@@ -166,16 +191,24 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     l10n.requestCorrection,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary(context),
+                    ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, size: 20, color: AppColors.grey500),
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      size: 20,
+                      color: AppColors.grey500,
+                    ),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
@@ -188,7 +221,11 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
               Text(
                 l10n.dateStr,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.grey700),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.grey700,
+                ),
               ),
               const SizedBox(height: 6),
               TextField(
@@ -198,7 +235,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   final date = await showDatePicker(
                     context: ctx,
                     initialDate: DateTime.now(),
-                    firstDate: DateTime.now().subtract(const Duration(days: 30)),
+                    firstDate: DateTime.now().subtract(Duration(days: 30)),
                     lastDate: DateTime.now(),
                   );
                   if (date != null) {
@@ -207,36 +244,87 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 },
                 decoration: InputDecoration(
                   hintText: l10n.selectDate,
-                  prefixIcon: const Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.grey400),
+                  prefixIcon: Icon(
+                    Icons.calendar_today_rounded,
+                    size: 18,
+                    color: AppColors.grey400,
+                  ),
                   filled: true,
                   fillColor: AppColors.grey50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.border(context)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.border(context)),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                 ),
               ),
               const SizedBox(height: 14),
 
               Text(
                 l10n.correctionType,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.grey700),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.grey700,
+                ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 initialValue: correctionType,
-                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.grey500),
+                icon: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.grey500,
+                ),
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.category_outlined, size: 18, color: AppColors.grey400),
+                  prefixIcon: Icon(
+                    Icons.category_outlined,
+                    size: 18,
+                    color: AppColors.grey400,
+                  ),
                   filled: true,
                   fillColor: AppColors.grey50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.border(context)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.border(context)),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                 ),
                 items: [
-                  DropdownMenuItem(value: 'missed_clock_in', child: Text(l10n.missedClockIn, style: const TextStyle(fontSize: 14))),
-                  DropdownMenuItem(value: 'missed_clock_out', child: Text(l10n.missedClockOut, style: const TextStyle(fontSize: 14))),
-                  DropdownMenuItem(value: 'wrong_time', child: Text(l10n.wrongTime, style: const TextStyle(fontSize: 14))),
+                  DropdownMenuItem(
+                    value: 'missed_clock_in',
+                    child: Text(
+                      l10n.missedClockIn,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'missed_clock_out',
+                    child: Text(
+                      l10n.missedClockOut,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'wrong_time',
+                    child: Text(
+                      l10n.wrongTime,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
                 ],
                 onChanged: (v) => setSheetState(() => correctionType = v!),
               ),
@@ -244,20 +332,33 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
               Text(
                 l10n.reason,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.grey700),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.grey700,
+                ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               TextField(
                 controller: reasonCtrl,
                 maxLines: 3,
                 decoration: InputDecoration(
                   hintText: l10n.explainCorrectionReason,
-                  hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
+                  hintStyle: TextStyle(color: AppColors.grey400, fontSize: 13),
                   filled: true,
                   fillColor: AppColors.grey50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.border(context)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.border(context)),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -269,13 +370,18 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                     elevation: 0,
                   ),
                   onPressed: () => Navigator.pop(ctx, true),
                   child: Text(
                     l10n.submitRequest,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -292,7 +398,9 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         await repo.requestCorrection(
           date: dateCtrl.text.trim(),
           type: correctionType,
-          reason: reasonCtrl.text.trim().isEmpty ? 'No reason provided' : reasonCtrl.text.trim(),
+          reason: reasonCtrl.text.trim().isEmpty
+              ? 'No reason provided'
+              : reasonCtrl.text.trim(),
         );
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -322,22 +430,25 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     final summaryAsync = ref.watch(attendanceSummaryProvider(_selectedMonth));
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.attendanceHistory,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_calendar_rounded, color: AppColors.primary),
+            icon: const Icon(
+              Icons.edit_calendar_rounded,
+              color: AppColors.primary,
+            ),
             tooltip: l10n.requestCorrection,
             onPressed: () => _showCorrectionDialog(l10n),
           ),
@@ -366,7 +477,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
             children: [
               // ── Month Selector Bar ──
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -374,11 +485,14 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                       onTap: _showMonthYearPicker,
                       borderRadius: BorderRadius.circular(14),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: AppColors.border(context)),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.02),
@@ -390,18 +504,26 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.calendar_month_rounded, size: 16, color: AppColors.primary),
-                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.calendar_month_rounded,
+                              size: 16,
+                              color: AppColors.primary,
+                            ),
+                            SizedBox(width: 8),
                             Text(
                               _monthLabel,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.grey900,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                             const SizedBox(width: 4),
-                            const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.grey500),
+                            const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 18,
+                              color: AppColors.grey500,
+                            ),
                           ],
                         ),
                       ),
@@ -412,7 +534,10 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                       label: Text(l10n.requestCorrection),
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.primary,
-                        textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        textStyle: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -422,29 +547,34 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               // ── Monthly Summary Stats Strip ──
               summaryAsync.when(
                 data: (summary) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
                   child: _SummaryGrid(summary: summary, l10n: l10n),
                 ),
                 loading: () => const SizedBox(
                   height: 70,
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
                 ),
                 error: (_, _) => const SizedBox.shrink(),
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               // ── Calendar View ──
               historyAsync.when(
                 data: (records) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 16),
                     child: Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.textPrimary(context),
                         borderRadius: BorderRadius.circular(22),
-                        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+                        border: Border.all(color: AppColors.border(context)),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.02),
@@ -457,7 +587,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         firstDay: DateTime.utc(2020, 1, 1),
                         lastDay: DateTime.utc(2030, 12, 31),
                         focusedDay: _focusedDay,
-                        selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                        selectedDayPredicate: (day) =>
+                            isSameDay(_selectedDay, day),
                         onDaySelected: (selectedDay, focusedDay) {
                           setState(() {
                             _selectedDay = selectedDay;
@@ -477,15 +608,15 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                             color: AppColors.primary.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
-                          todayTextStyle: const TextStyle(
+                          todayTextStyle: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,
                           ),
-                          selectedDecoration: const BoxDecoration(
+                          selectedDecoration: BoxDecoration(
                             color: AppColors.primary,
                             shape: BoxShape.circle,
                           ),
-                          selectedTextStyle: const TextStyle(
+                          selectedTextStyle: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -493,7 +624,13 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         ),
                         calendarBuilders: CalendarBuilders(
                           markerBuilder: (context, date, events) {
-                            final record = records.where((r) => r.date != null && isSameDay(DateTime.parse(r.date!), date)).firstOrNull;
+                            final record = records
+                                .where(
+                                  (r) =>
+                                      r.date != null &&
+                                      isSameDay(DateTime.parse(r.date!), date),
+                                )
+                                .firstOrNull;
                             if (record != null) {
                               Color markerColor;
                               switch (record.status) {
@@ -533,7 +670,9 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 },
                 loading: () => const SizedBox(
                   height: 280,
-                  child: Center(child: LoadingIndicator(message: 'Loading calendar...')),
+                  child: Center(
+                    child: LoadingIndicator(message: 'Loading calendar...'),
+                  ),
                 ),
                 error: (_, _) => const SizedBox.shrink(),
               ),
@@ -542,16 +681,18 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
               // ── Daily History Section Header ──
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      _selectedDay != null ? 'Records for ${DateFormat('MMM d').format(_selectedDay!)}' : 'Daily Logs',
-                      style: const TextStyle(
+                      _selectedDay != null
+                          ? 'Records for ${DateFormat('MMM d').format(_selectedDay!)}'
+                          : 'Daily Logs',
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     if (_selectedDay != null)
@@ -575,14 +716,25 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 data: (records) {
                   final filteredRecords = _selectedDay == null
                       ? records
-                      : records.where((r) => r.date != null && isSameDay(DateTime.parse(r.date!), _selectedDay)).toList();
+                      : records
+                            .where(
+                              (r) =>
+                                  r.date != null &&
+                                  isSameDay(
+                                    DateTime.parse(r.date!),
+                                    _selectedDay,
+                                  ),
+                            )
+                            .toList();
 
                   if (filteredRecords.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.all(32.0),
                       child: Center(
                         child: Text(
-                          _selectedDay != null ? l10n.noRecordForThisDay : l10n.noRecordsThisMonth,
+                          _selectedDay != null
+                              ? l10n.noRecordForThisDay
+                              : l10n.noRecordsThisMonth,
                           style: const TextStyle(color: AppColors.grey400),
                         ),
                       ),
@@ -596,7 +748,10 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                     itemCount: filteredRecords.length,
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, i) {
-                      return _HistoryCard(record: filteredRecords[i], l10n: l10n);
+                      return _HistoryCard(
+                        record: filteredRecords[i],
+                        l10n: l10n,
+                      );
                     },
                   );
                 },
@@ -605,10 +760,16 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 40, color: AppColors.grey400),
+                      const Icon(
+                        Icons.error_outline,
+                        size: 40,
+                        color: AppColors.grey400,
+                      ),
                       const SizedBox(height: 8),
                       OutlinedButton.icon(
-                        onPressed: () => ref.invalidate(attendanceHistoryProvider(_selectedMonth)),
+                        onPressed: () => ref.invalidate(
+                          attendanceHistoryProvider(_selectedMonth),
+                        ),
                         icon: const Icon(Icons.refresh),
                         label: Text(l10n.retry),
                       ),
@@ -689,42 +850,54 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.05),
+            color: color.withValues(alpha: isDark ? 0.15 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, size: 16, color: color),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+              maxLines: 1,
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 10.5,
-              color: AppColors.grey500,
-              fontWeight: FontWeight.w500,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10.5,
+                  color: isDark ? AppColors.grey400 : AppColors.grey500,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+              ),
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -740,23 +913,26 @@ class _HistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final statusColor = record.status == 'present'
         ? AppColors.success
         : record.status == 'absent'
-            ? AppColors.danger
-            : record.status == 'late'
-                ? AppColors.warning
-                : AppColors.info;
+        ? AppColors.danger
+        : record.status == 'late'
+        ? AppColors.warning
+        : AppColors.info;
 
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.grey200,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -775,10 +951,10 @@ class _HistoryCard extends StatelessWidget {
               record.status == 'present'
                   ? Icons.check_circle_rounded
                   : record.status == 'absent'
-                      ? Icons.cancel_rounded
-                      : record.status == 'late'
-                          ? Icons.alarm_rounded
-                          : Icons.bookmark_added_rounded,
+                  ? Icons.cancel_rounded
+                  : record.status == 'late'
+                  ? Icons.alarm_rounded
+                  : Icons.bookmark_added_rounded,
               color: statusColor,
               size: 20,
             ),
@@ -791,28 +967,67 @@ class _HistoryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  record.date != null ? formatDate(record.date) : l10n.unknownDate,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.grey900),
+                  record.date != null
+                      ? formatDate(record.date)
+                      : l10n.unknownDate,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: isDark ? Colors.white : AppColors.grey900,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.login_rounded, size: 12, color: AppColors.success),
+                    const Icon(
+                      Icons.login_rounded,
+                      size: 12,
+                      color: AppColors.success,
+                    ),
                     const SizedBox(width: 3),
-                    Text(formatTime(record.clockIn), style: const TextStyle(fontSize: 12, color: AppColors.grey700, fontWeight: FontWeight.w500)),
+                    Text(
+                      formatTime(record.clockIn),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? AppColors.grey300 : AppColors.grey700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                     const SizedBox(width: 10),
-                    const Icon(Icons.logout_rounded, size: 12, color: AppColors.warning),
+                    const Icon(
+                      Icons.logout_rounded,
+                      size: 12,
+                      color: AppColors.warning,
+                    ),
                     const SizedBox(width: 3),
-                    Text(formatTime(record.clockOut), style: const TextStyle(fontSize: 12, color: AppColors.grey700, fontWeight: FontWeight.w500)),
+                    Text(
+                      formatTime(record.clockOut),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? AppColors.grey300 : AppColors.grey700,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
-                if (record.breakMinutes != null && record.breakMinutes! > 0) ...[
+                if (record.breakMinutes != null &&
+                    record.breakMinutes! > 0) ...[
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.coffee_outlined, size: 12, color: AppColors.grey500),
+                      const Icon(
+                        Icons.coffee_outlined,
+                        size: 12,
+                        color: AppColors.grey500,
+                      ),
                       const SizedBox(width: 4),
-                      Text('${record.breakMinutes}${l10n.minsBreak}', style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
+                      Text(
+                        '${record.breakMinutes}${l10n.minsBreak}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isDark ? AppColors.grey400 : AppColors.grey500,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -821,19 +1036,42 @@ class _HistoryCard extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                        decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 1,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                         child: Text(
                           '${l10n.earlyIn}${record.earlyClockInMinutes! ~/ 60}${l10n.hLabel}${record.earlyClockInMinutes! % 60}${l10n.mLabel}',
-                          style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                       if ((record.approvedPreShiftOtMinutes ?? 0) > 0) ...[
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                          decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-                          child: Text(l10n.otApproved, style: const TextStyle(fontSize: 10, color: AppColors.success, fontWeight: FontWeight.w600)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.success.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            l10n.otApproved,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.success,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ],
                     ],
@@ -850,7 +1088,11 @@ class _HistoryCard extends StatelessWidget {
               if (record.workHours != null)
                 Text(
                   formatDurationHours(record.workHours),
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary(context),
+                  ),
                 ),
               const SizedBox(height: 4),
               Container(
@@ -861,14 +1103,25 @@ class _HistoryCard extends StatelessWidget {
                 ),
                 child: Text(
                   (record.status ?? '').replaceAll('_', ' ').toUpperCase(),
-                  style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: statusColor, letterSpacing: 0.3),
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                    color: statusColor,
+                    letterSpacing: 0.3,
+                  ),
                 ),
               ),
-              if (record.status == 'late' && record.lateMinutes != null && record.lateMinutes != 0) ...[
+              if (record.status == 'late' &&
+                  record.lateMinutes != null &&
+                  record.lateMinutes != 0) ...[
                 const SizedBox(height: 4),
                 Text(
                   '${formatDurationMinutes(record.lateMinutes)}${l10n.lateLabel}',
-                  style: const TextStyle(fontSize: 10, color: AppColors.danger, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppColors.danger,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ],

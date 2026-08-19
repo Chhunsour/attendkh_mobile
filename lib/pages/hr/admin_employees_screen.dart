@@ -132,16 +132,16 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       // ── App Bar ──────────────────────────────────────────────────────────
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.employeeDirectory,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -213,14 +213,14 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
               orElse: () => const SizedBox.shrink(),
             ),
 
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
 
             // ── Search & Filter Toggle Bar ────────────────────────────────────
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.textPrimary(context),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.grey200),
+                border: Border.all(color: AppColors.border(context)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.02),
@@ -238,7 +238,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                         child: TextField(
                           controller: _searchCtrl,
                           onChanged: _onSearchChanged,
-                          style: const TextStyle(fontSize: 13.5, color: AppColors.grey900),
+                          style: TextStyle(fontSize: 13.5, color: AppColors.textPrimary(context)),
                           decoration: InputDecoration(
                             hintText: l10n.searchEmployeesHint,
                             hintStyle: const TextStyle(fontSize: 13, color: AppColors.grey400),
@@ -295,7 +295,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                                 const SizedBox(width: 4),
                                 Container(
                                   padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     color: Color(0xFF0EA5E9),
                                     shape: BoxShape.circle,
                                   ),
@@ -431,16 +431,16 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                           color: AppColors.grey700,
                         ),
                       ),
-                      const Spacer(),
+                      Spacer(),
                       InkWell(
                         onTap: () => setState(() => _sortAscending = !_sortAscending),
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.textPrimary(context),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.grey200),
+                            border: Border.all(color: AppColors.border(context)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -536,9 +536,9 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -571,12 +571,17 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+              maxLines: 1,
             ),
           ),
         ],
@@ -613,9 +618,9 @@ class _EmployeeCard extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -709,10 +714,10 @@ class _EmployeeCard extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               employee.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14.5,
-                                color: AppColors.grey900,
+                                color: AppColors.textPrimary(context),
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -940,15 +945,17 @@ class _ActionBtn extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(10),
       child: Container(
-        width: 32,
-        height: 32,
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, size: 16, color: color),
+        child: Center(
+          child: Icon(icon, size: 18, color: color),
+        ),
       ),
     );
   }
@@ -972,21 +979,21 @@ class _FilterDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
       decoration: BoxDecoration(
         color: AppColors.grey50,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
           value: value,
           isExpanded: true,
-          hint: Text(hint, style: const TextStyle(fontSize: 11.5, color: AppColors.grey500)),
+          hint: Text(hint, style: TextStyle(fontSize: 11.5, color: AppColors.grey500)),
           items: items,
           onChanged: onChanged,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.grey500),
-          style: const TextStyle(fontSize: 12, color: AppColors.grey900, fontWeight: FontWeight.w600),
+          icon: Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.grey500),
+          style: TextStyle(fontSize: 12, color: AppColors.textPrimary(context), fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -1006,12 +1013,12 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(32),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1050,15 +1057,15 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
-            const SizedBox(height: 16),
+            Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
+            SizedBox(height: 16),
             Text(
               l10n.failedToLoadEmployees,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.grey900),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(

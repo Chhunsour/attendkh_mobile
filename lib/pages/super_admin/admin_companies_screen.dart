@@ -146,15 +146,15 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.adminCompaniesTitle,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -205,18 +205,18 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.wifi_off_rounded,
               color: AppColors.danger,
               size: 48,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               l10n.failedToLoadCompanies,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey900,
+                color: AppColors.textPrimary(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -305,26 +305,26 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
           ],
         ),
 
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
 
         // ── Search Field ──
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.textPrimary(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: AppColors.border(context)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 6,
-                offset: const Offset(0, 2),
+                offset: Offset(0, 2),
               ),
             ],
           ),
           child: TextField(
             controller: _searchCtrl,
             onChanged: (val) => setState(() => _searchQuery = val.trim()),
-            style: const TextStyle(fontSize: 13.5, color: AppColors.grey900),
+            style: TextStyle(fontSize: 13.5, color: AppColors.textPrimary(context)),
             decoration: InputDecoration(
               hintText: 'Search companies by name or email...',
               hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
@@ -357,17 +357,17 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
           ],
         ),
 
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
 
         // ── Company List ──
         if (filtered.isEmpty)
           Container(
-            padding: const EdgeInsets.all(32),
+            padding: EdgeInsets.all(32),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.textPrimary(context),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+              border: Border.all(color: AppColors.border(context)),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -395,9 +395,9 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -479,12 +479,12 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
     final isActive = company.status == 'active';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      margin: EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -504,9 +504,9 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                 height: 46,
                 clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
-                  color: isActive ? const Color(0xFFEEF2FF) : AppColors.danger.withValues(alpha: 0.08),
+                  color: isActive ? Color(0xFFEEF2FF) : AppColors.danger.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.grey200),
+                  border: Border.all(color: AppColors.border(context)),
                 ),
                 child: (company.logo != null && company.logo!.isNotEmpty)
                     ? CompanyLogoImage(
@@ -524,17 +524,17 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                         size: 22,
                       ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       company.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14.5,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     if (company.email != null && company.email!.isNotEmpty) ...[
@@ -579,22 +579,22 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                   ],
                 ),
               ),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               PopupMenuButton<String>(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                color: Colors.white,
+                color: AppColors.textPrimary(context),
                 surfaceTintColor: Colors.transparent,
                 elevation: 8,
                 position: PopupMenuPosition.under,
-                offset: const Offset(0, 4),
+                offset: Offset(0, 4),
                 child: Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: AppColors.grey50,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: const Icon(
                     Icons.more_horiz_rounded,
@@ -1223,7 +1223,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -1241,16 +1241,16 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
           ),
           // Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+            padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   _isEditing ? l10n.editCompanyTitle : l10n.createCompanyTitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 IconButton(
@@ -1457,22 +1457,22 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                             color: AppColors.grey600,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: 6),
                         TextFormField(
                           controller: _mapUrlCtrl,
                           onChanged: _parseMapUrl,
                           decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
+                            contentPadding: EdgeInsets.symmetric(
                               horizontal: 14,
                               vertical: 12,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.grey200),
+                              borderSide: BorderSide(color: AppColors.border(context)),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.grey200),
+                              borderSide: BorderSide(color: AppColors.border(context)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -1548,18 +1548,18 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: 6),
                         TextFormField(
                           controller: _addressCtrl,
                           maxLines: 2,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.grey200),
+                              borderSide: BorderSide(color: AppColors.border(context)),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.grey200),
+                              borderSide: BorderSide(color: AppColors.border(context)),
                             ),
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 14,
@@ -1787,13 +1787,13 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 14),
                     // Social Media section
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(14),
+                      padding: EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.grey200),
+                        border: Border.all(color: AppColors.border(context)),
                         borderRadius: BorderRadius.circular(12),
                         color: AppColors.backgroundLight,
                       ),
@@ -1805,10 +1805,10 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                             children: [
                               Text(
                                 l10n.socialMediaLinksTitle,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.grey800,
+                                  color: AppColors.textPrimary(context),
                                 ),
                               ),
                               TextButton.icon(
@@ -2011,16 +2011,16 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                const Icon(
+                                                Icon(
                                                   Icons.edit,
-                                                  color: Colors.white,
+                                                  color: AppColors.textPrimary(context),
                                                   size: 12,
                                                 ),
-                                                const SizedBox(width: 4),
+                                                SizedBox(width: 4),
                                                 Text(
                                                   l10n.tapToChangeLogo,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
+                                                  style: TextStyle(
+                                                    color: AppColors.textPrimary(context),
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -2076,12 +2076,12 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                       width: 32,
                                       height: 32,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF0EA5E9),
+                                        color: Color(0xFF0EA5E9),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: const Icon(
+                                      child: Icon(
                                         Icons.send_rounded,
-                                        color: Colors.white,
+                                        color: AppColors.textPrimary(context),
                                         size: 16,
                                       ),
                                     ),
@@ -2162,15 +2162,15 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                         ? null
                                         : _testTelegram,
                                     icon: _isTestingTelegram
-                                        ? const SizedBox(
+                                        ? SizedBox(
                                             width: 14,
                                             height: 14,
                                             child: CircularProgressIndicator(
                                               strokeWidth: 2,
-                                              color: Colors.white,
+                                              color: AppColors.textPrimary(context),
                                             ),
                                           )
-                                        : const Icon(
+                                        : Icon(
                                             Icons.send_rounded,
                                             size: 14,
                                             color: Colors.white,
@@ -2179,7 +2179,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                       _isTestingTelegram
                                           ? 'Testing...'
                                           : 'Test Connection',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,
@@ -2267,17 +2267,17 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                       children: [
                         Text(
                           l10n.statusLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.grey600,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          padding: EdgeInsets.symmetric(horizontal: 14),
                           decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.grey200),
+                            border: Border.all(color: AppColors.border(context)),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: DropdownButtonHideUnderline(
@@ -2317,7 +2317,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                           elevation: 0,
                         ),
                         child: _isSaving
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 22,
                                 height: 22,
                                 child: CircularProgressIndicator(
@@ -2371,17 +2371,17 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
           maxLines: maxLines,
           validator: validator,
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
+            contentPadding: EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 12,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.grey200),
+              borderSide: BorderSide(color: AppColors.border(context)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.grey200),
+              borderSide: BorderSide(color: AppColors.border(context)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -2415,21 +2415,21 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
             color: AppColors.grey600,
           ),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         TextFormField(
           controller: ctrl,
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
+            contentPadding: EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 12,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.grey200),
+              borderSide: BorderSide(color: AppColors.border(context)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.grey200),
+              borderSide: BorderSide(color: AppColors.border(context)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -2451,13 +2451,13 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(16),
                           child: Text(
                             label,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.grey800,
+                              color: AppColors.textPrimary(context),
                             ),
                           ),
                         ),
@@ -2547,7 +2547,7 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -2563,7 +2563,7 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+            padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -2572,10 +2572,10 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
                   children: [
                     Text(
                       l10n.companyStatsTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     Text(
@@ -2654,21 +2654,21 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
                             .join(' ');
                         return Container(
                           width: (MediaQuery.of(context).size.width - 52) / 2,
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: AppColors.grey50,
                             borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.grey200),
+                            border: Border.all(color: AppColors.border(context)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 value,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.grey900,
+                                  color: AppColors.textPrimary(context),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -2769,19 +2769,19 @@ class _CompanyCreatedSuccessDialogState
                 color: AppColors.success.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.check_circle_rounded,
                 color: AppColors.success,
                 size: 38,
               ),
             ),
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
             Text(
               l10n.companyCreatedAlertTitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey900,
+                color: AppColors.textPrimary(context),
                 letterSpacing: -0.5,
               ),
             ),
@@ -2795,15 +2795,15 @@ class _CompanyCreatedSuccessDialogState
                 height: 1.3,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             // Credentials Card Container
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.backgroundLight,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.grey200),
+                border: Border.all(color: AppColors.border(context)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -2855,13 +2855,13 @@ class _CompanyCreatedSuccessDialogState
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   SelectableText(
                     widget.email,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.grey900,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   const Divider(height: 20, color: AppColors.grey200),
@@ -2915,13 +2915,13 @@ class _CompanyCreatedSuccessDialogState
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   SelectableText(
                     widget.password,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.grey900,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                 ],

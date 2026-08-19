@@ -87,15 +87,15 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.holidayCalendar,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -127,15 +127,15 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
                   // ── Hero Upcoming Holiday Banner ──
                   if (nextHoliday != null) ...[
                     _buildUpcomingHeroBanner(nextHoliday),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 14),
                   ],
 
                   // ── Modern Calendar Card ──
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                       borderRadius: BorderRadius.circular(22),
-                      border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+                      border: Border.all(color: AppColors.border(context)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.02),
@@ -160,10 +160,10 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
                         setState(() => _focusedDay = focusedDay);
                       },
                       eventLoader: (day) => _getHolidaysForDay(allHolidays, day),
-                      headerStyle: const HeaderStyle(
+                      headerStyle: HeaderStyle(
                         formatButtonVisible: false,
                         titleCentered: true,
-                        titleTextStyle: TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                        titleTextStyle: TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                         leftChevronIcon: Icon(Icons.chevron_left_rounded, color: AppColors.grey700),
                         rightChevronIcon: Icon(Icons.chevron_right_rounded, color: AppColors.grey700),
                       ),
@@ -177,21 +177,21 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
                           color: AppColors.primary.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
-                        todayTextStyle: const TextStyle(
+                        todayTextStyle: TextStyle(
                           color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
-                        selectedDecoration: const BoxDecoration(
+                        selectedDecoration: BoxDecoration(
                           color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
-                        selectedTextStyle: const TextStyle(
+                        selectedTextStyle: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                         markerSize: 5,
                         markersMaxCount: 1,
-                        markerDecoration: const BoxDecoration(
+                        markerDecoration: BoxDecoration(
                           color: Color(0xFFEAB308),
                           shape: BoxShape.circle,
                         ),
@@ -203,16 +203,16 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
 
                   // ── Section Header ──
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: EdgeInsets.symmetric(horizontal: 4),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           '${DateFormat('MMMM yyyy').format(_focusedDay)} Holidays',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.grey900,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                         Container(
@@ -234,17 +234,17 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
 
                   // ── Month Holidays List ──
                   if (monthHolidays.isEmpty)
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(28),
+                      padding: EdgeInsets.all(28),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.textPrimary(context),
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+                        border: Border.all(color: AppColors.border(context)),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -316,18 +316,18 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
         border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
+            color: Color(0xFFF59E0B).withValues(alpha: 0.08),
             blurRadius: 10,
-            offset: const Offset(0, 3),
+            offset: Offset(0, 3),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.textPrimary(context),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
@@ -350,7 +350,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'NEXT UPCOMING HOLIDAY',
                       style: TextStyle(
                         fontSize: 10,
@@ -360,9 +360,9 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.textPrimary(context),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -406,11 +406,11 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
     final countdown = _getCountdownText(date);
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -451,7 +451,7 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
 
           // Title & Type
           Expanded(
@@ -460,10 +460,10 @@ class _HolidayCalendarScreenState extends ConsumerState<HolidayCalendarScreen> {
               children: [
                 Text(
                   holiday.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 3),

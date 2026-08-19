@@ -7,6 +7,7 @@ import 'package:mpg_hr_mobile_app/components/app_logo.dart';
 import 'package:mpg_hr_mobile_app/components/custom_text_field.dart';
 import 'package:mpg_hr_mobile_app/components/primary_button.dart';
 import 'package:mpg_hr_mobile_app/components/language_switch_button.dart';
+import 'package:mpg_hr_mobile_app/components/theme_switch_button.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class RegisterCompanyScreen extends ConsumerStatefulWidget {
@@ -166,7 +167,7 @@ class _RegisterCompanyScreenState
           // ── Layer 1: Tech Gradient Background ──
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -222,14 +223,21 @@ class _RegisterCompanyScreenState
                           width: 1,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back_rounded,
-                        color: Colors.white,
+                        color: AppColors.textPrimary(context),
                         size: 20,
                       ),
                     ),
                   ),
-                  const LanguageSwitchButton(isDark: true),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      ThemeSwitchButton(isDarkHeader: true),
+                      SizedBox(width: 8),
+                      LanguageSwitchButton(isDark: true),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -238,89 +246,103 @@ class _RegisterCompanyScreenState
           // ── Layer 4: Main Content Layout ──
           SafeArea(
             bottom: false,
-            child: Column(
-              children: [
-                const SizedBox(height: 48),
-
-                // Top Header Branding
-                FadeTransition(
-                  opacity: _fadeAnim,
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withAlpha(120),
-                                blurRadius: 24,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: const AppLogo(size: 72),
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'AttendKH',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          l10n.smartAttendanceSystem,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white.withAlpha(190),
-                          ),
-                        ),
-                      ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
                     ),
-                  ),
-                ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 48),
 
-                const SizedBox(height: 20),
+                          // Top Header Branding
+                          FadeTransition(
+                            opacity: _fadeAnim,
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.primary.withAlpha(120),
+                                          blurRadius: 24,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                    child: AppLogo(size: 72),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Text(
+                                    'AttendKH',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    l10n.smartAttendanceSystem,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.white.withAlpha(190),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
 
-                // Bottom Form Card
-                Expanded(
-                  child: SlideTransition(
-                    position: _slideAnim,
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.surfaceDark
-                            : AppColors.surfaceLight,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(36),
-                          topRight: Radius.circular(36),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(70),
-                            blurRadius: 30,
-                            offset: const Offset(0, -10),
+                          const SizedBox(height: 20),
+
+                          // Bottom Form Card
+                          Expanded(
+                            child: SlideTransition(
+                              position: _slideAnim,
+                              child: Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? AppColors.surfaceDark
+                                      : AppColors.surfaceLight,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(36),
+                                    topRight: Radius.circular(36),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withAlpha(70),
+                                      blurRadius: 30,
+                                      offset: const Offset(0, -10),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(36),
+                                    topRight: Radius.circular(36),
+                                  ),
+                                  child: _buildCardContent(l10n, isDark),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(36),
-                          topRight: Radius.circular(36),
-                        ),
-                        child: _buildCardContent(l10n, isDark),
-                      ),
                     ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ),
         ],
@@ -657,11 +679,11 @@ class _RegisterCompanyScreenState
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.grey200),
+                borderSide: BorderSide(color: AppColors.border(context)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.grey200),
+                borderSide: BorderSide(color: AppColors.border(context)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),

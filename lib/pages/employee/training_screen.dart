@@ -37,18 +37,18 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.school_rounded, color: AppColors.primary, size: 20),
+              child: Icon(Icons.school_rounded, color: AppColors.primary, size: 20),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 l10n.enrollInTraining,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
               ),
             ),
           ],
@@ -116,15 +116,15 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen> with SingleTick
     final availableCount = asyncAvailable.maybeWhen(data: (l) => l.length, orElse: () => 0);
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.myTraining,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -320,9 +320,9 @@ class _CourseCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -408,10 +408,10 @@ class _CourseCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(
                   training.title,
-                  style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                  style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                 ),
                 if (training.description != null && training.description!.isNotEmpty) ...[
                   const SizedBox(height: 4),
@@ -513,7 +513,7 @@ class _MyEnrollmentCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.textPrimary(context),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isCompleted ? AppColors.success.withValues(alpha: 0.4) : AppColors.grey200.withValues(alpha: 0.8),
@@ -558,7 +558,7 @@ class _MyEnrollmentCard extends StatelessWidget {
                 : _buildPlaceholder(),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -568,7 +568,7 @@ class _MyEnrollmentCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         training.title,
-                        style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                        style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),

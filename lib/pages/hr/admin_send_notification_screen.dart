@@ -60,7 +60,7 @@ class _AdminSendNotificationScreenState extends ConsumerState<AdminSendNotificat
     final employeesAsync = ref.watch(allEmployeesProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
         title: Text(l10n.sendNotificationTitle, style: const TextStyle(color: AppColors.primary)),
         backgroundColor: AppColors.surfaceLight,

@@ -41,15 +41,15 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.companyPolicies,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -105,24 +105,24 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.textPrimary(context),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.02),
                         blurRadius: 6,
-                        offset: const Offset(0, 2),
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
                   child: TextField(
                     controller: _searchCtrl,
                     onChanged: (val) => setState(() => _search = val.trim()),
-                    style: const TextStyle(fontSize: 14, color: AppColors.grey900),
+                    style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
                     decoration: InputDecoration(
                       hintText: l10n.searchPoliciesHint,
                       hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
@@ -199,15 +199,15 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
     }
 
     return ListView.separated(
-      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+      physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, 40),
       itemCount: policies.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      separatorBuilder: (context, index) => SizedBox(height: 12),
       itemBuilder: (context, index) {
         final policy = policies[index];
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.textPrimary(context),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: policy.isAcknowledged
@@ -244,17 +244,17 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen> with SingleTick
                       size: 22,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           policy.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14.5,
-                            color: AppColors.grey900,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -375,15 +375,15 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           widget.l10n.policyDocument,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -393,22 +393,22 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.textPrimary(context),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+                      border: Border.all(color: AppColors.border(context)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.02),
                           blurRadius: 8,
-                          offset: const Offset(0, 2),
+                          offset: Offset(0, 2),
                         ),
                       ],
                     ),
@@ -417,10 +417,10 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
                       children: [
                         Text(
                           widget.policy.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.grey900,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -461,30 +461,30 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
                             ],
                           ],
                         ),
-                        const SizedBox(height: 20),
-                        const Divider(height: 1, color: AppColors.grey200),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
+                        Divider(height: 1, color: AppColors.grey200),
+                        SizedBox(height: 20),
                         Text(
                           widget.policy.content,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14.5,
                             height: 1.65,
-                            color: AppColors.grey800,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                 ],
               ),
             ),
           ),
           if (widget.policy.isAcknowledged)
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.textPrimary(context),
                 border: Border(top: BorderSide(color: AppColors.grey200)),
               ),
               child: SafeArea(
@@ -518,9 +518,9 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
             )
           else
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.textPrimary(context),
                 border: Border(top: BorderSide(color: AppColors.grey200)),
                 boxShadow: [
                   BoxShadow(
@@ -546,7 +546,7 @@ class _PolicyDetailScreenState extends State<PolicyDetailScreen> {
                       ),
                     ),
                     child: _submitting
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(

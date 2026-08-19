@@ -33,14 +33,14 @@ class _AdminPayrollDetailScreenState extends ConsumerState<AdminPayrollDetailScr
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.payrollDetailTitle(widget.period),
-          style: const TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700),
+          style: TextStyle(color: AppColors.textPrimary(context), fontSize: 18, fontWeight: FontWeight.w700),
         ),
         actions: [
           IconButton(
@@ -206,11 +206,15 @@ class _PayslipCardState extends State<_PayslipCard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final p = widget.payslip;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: AppColors.grey200)),
-      color: AppColors.surfaceLight,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: isDark ? AppColors.borderDark : AppColors.grey200),
+      ),
+      color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () => setState(() => _expanded = !_expanded),
@@ -233,18 +237,25 @@ class _PayslipCardState extends State<_PayslipCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(p.employeeName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                        Text(p.department, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                        Text(
+                          p.employeeName,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: isDark ? Colors.white : AppColors.grey900,
+                          ),
+                        ),
+                        Text(p.department, style: TextStyle(fontSize: 12, color: isDark ? AppColors.grey400 : AppColors.grey500)),
                       ],
                     ),
                   ),
                   Text('\$${p.netSalary.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.success)),
                   const SizedBox(width: 4),
-                  Icon(_expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: AppColors.grey400),
+                  Icon(_expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: isDark ? AppColors.grey400 : AppColors.grey400),
                 ],
               ),
               if (_expanded) ...[
-                const Divider(height: 20),
+                Divider(height: 20, color: isDark ? AppColors.borderDark : AppColors.grey200),
                 _detailRow(l10n.basicSalaryLabel, '\$${p.basicSalary.toStringAsFixed(2)}'),
                 if (p.overtimePay > 0) _detailRow(l10n.overtimePayLabel, '\$${p.overtimePay.toStringAsFixed(2)}', color: AppColors.info),
                 if (p.allowances > 0) _detailRow(l10n.allowancesLabel, '\$${p.allowances.toStringAsFixed(2)}'),
@@ -259,7 +270,7 @@ class _PayslipCardState extends State<_PayslipCard> {
                 if (p.otherDeductions > 0) _detailRow(l10n.otherDeductionsLabel, '-\$${p.otherDeductions.toStringAsFixed(2)}', color: AppColors.danger),
                 const SizedBox(height: 4),
                 _detailRow(l10n.totalDeductionsLabel, '-\$${p.totalDeductions.toStringAsFixed(2)}', color: AppColors.danger, bold: true),
-                const Divider(height: 16),
+                Divider(height: 16, color: isDark ? AppColors.borderDark : AppColors.grey200),
                 _detailRow(l10n.netSalaryLabel, '\$${p.netSalary.toStringAsFixed(2)}', bold: true, netRow: true),
                 const SizedBox(height: 10),
                 Row(
@@ -280,18 +291,19 @@ class _PayslipCardState extends State<_PayslipCard> {
   }
 
   Widget _detailRow(String label, String value, {Color? color, bool bold = false, bool netRow = false}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: 13, color: AppColors.grey500, fontWeight: bold ? FontWeight.w600 : FontWeight.normal)),
+          Text(label, style: TextStyle(fontSize: 13, color: isDark ? AppColors.grey400 : AppColors.grey500, fontWeight: bold ? FontWeight.w600 : FontWeight.normal)),
           Text(
             value,
             style: TextStyle(
               fontSize: netRow ? 16 : 13,
               fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
-              color: color ?? AppColors.grey800,
+              color: color ?? (isDark ? Colors.white : AppColors.grey800),
             ),
           ),
         ],

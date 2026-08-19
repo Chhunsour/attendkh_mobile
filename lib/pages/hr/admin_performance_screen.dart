@@ -41,15 +41,15 @@ class _AdminPerformanceScreenState extends State<AdminPerformanceScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.performanceTrainingTitle,
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -329,7 +329,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
           bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
         ),
         height: MediaQuery.of(context).size.height * 0.85,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.surfaceLight,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -339,12 +339,12 @@ class _ReviewsTabState extends State<_ReviewsTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Review Details',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 IconButton(
@@ -426,10 +426,10 @@ class _ReviewsTabState extends State<_ReviewsTab> {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.grey900,
+                color: AppColors.textPrimary(context),
               ),
             ),
           ),
@@ -440,16 +440,16 @@ class _ReviewsTabState extends State<_ReviewsTab> {
 
   Widget _buildViewSection(String title, String? content) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: AppColors.grey900,
+              color: AppColors.textPrimary(context),
               letterSpacing: 0.5,
             ),
           ),
@@ -525,7 +525,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
             child: Container(
               padding: const EdgeInsets.all(24),
               height: MediaQuery.of(context).size.height * 0.85,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -536,10 +536,10 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                   children: [
                     Text(
                       isEdit ? l10n.editReviewTitle : l10n.createReviewTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -641,14 +641,14 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding: EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.grey300),
+                                border: Border.all(color: AppColors.border(context)),
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -719,14 +719,14 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding: EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.grey300),
+                                border: Border.all(color: AppColors.border(context)),
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -814,14 +814,14 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.backgroundLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.grey300),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -988,10 +988,10 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                         },
                         child: Text(
                           isEdit ? l10n.saveChangesBtn : l10n.createReviewTitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                       ),
@@ -1019,17 +1019,17 @@ class _ReviewsTabState extends State<_ReviewsTab> {
       body: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             color: AppColors.surfaceLight,
             child: Column(
               children: [
                 TextField(
                   decoration: InputDecoration(
                     hintText: l10n.searchEmployeesHint,
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.grey300),
+                      borderSide: BorderSide(color: AppColors.border(context)),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -1138,7 +1138,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     itemCount: _reviews.length + (_lastPage > 1 ? 1 : 0),
                     separatorBuilder: (_, i) => i == _reviews.length - 1
                         ? const SizedBox.shrink()
-                        : const SizedBox(height: 12),
+                        : SizedBox(height: 12),
                     itemBuilder: (context, i) {
                       if (i == _reviews.length) return _buildPagination();
                       final r = _reviews[i];
@@ -1148,7 +1148,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                         decoration: BoxDecoration(
                           color: AppColors.surfaceLight,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -1392,11 +1392,11 @@ class _StarRatingPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey300),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1746,7 +1746,7 @@ class _TrainingTabState extends State<_TrainingTab> {
             child: Container(
               padding: const EdgeInsets.all(24),
               height: MediaQuery.of(context).size.height * 0.85,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -1759,10 +1759,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                       isEdit
                           ? l10n.editTrainingTitle
                           : l10n.createTrainingTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -2033,14 +2033,14 @@ class _TrainingTabState extends State<_TrainingTab> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding: EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.grey300),
+                                border: Border.all(color: AppColors.border(context)),
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -2114,14 +2114,14 @@ class _TrainingTabState extends State<_TrainingTab> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding: EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.grey300),
+                                border: Border.all(color: AppColors.border(context)),
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -2286,10 +2286,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                           isEdit
                               ? l10n.saveChangesBtn
                               : l10n.createTrainingTitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                       ),
@@ -2317,17 +2317,17 @@ class _TrainingTabState extends State<_TrainingTab> {
       body: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             color: AppColors.surfaceLight,
             child: Column(
               children: [
                 TextField(
                   decoration: InputDecoration(
                     hintText: l10n.searchTrainingsHint,
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.grey300),
+                      borderSide: BorderSide(color: AppColors.border(context)),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -2389,19 +2389,19 @@ class _TrainingTabState extends State<_TrainingTab> {
                     ),
                   )
                 : ListView.separated(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16),
                     itemCount: _trainings.length + (_lastPage > 1 ? 1 : 0),
                     separatorBuilder: (_, i) => i == _trainings.length - 1
                         ? const SizedBox.shrink()
-                        : const SizedBox(height: 12),
+                        : SizedBox(height: 12),
                     itemBuilder: (context, i) {
                       if (i == _trainings.length) return _buildPagination();
                       final t = _trainings[i];
                       return Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.textPrimary(context),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -2635,7 +2635,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                 bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
               ),
               height: MediaQuery.of(context).size.height * 0.8,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -2648,10 +2648,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                       Expanded(
                         child: Text(
                           '${l10n.enrollmentsTitle}: ${t.title}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.grey900,
+                            color: AppColors.textPrimary(context),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -2741,8 +2741,8 @@ class _TrainingTabState extends State<_TrainingTab> {
                               },
                         child: Text(
                           l10n.enrollBtn,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppColors.textPrimary(context),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -2786,11 +2786,11 @@ class _TrainingTabState extends State<_TrainingTab> {
                               final progress = en['progress_percentage'] ?? 0;
 
                               return Container(
-                                padding: const EdgeInsets.all(12),
+                                padding: EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   color: AppColors.backgroundLight,
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: AppColors.grey200),
+                                  border: Border.all(color: AppColors.border(context)),
                                 ),
                                 child: Row(
                                   children: [

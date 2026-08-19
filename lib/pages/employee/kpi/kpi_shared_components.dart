@@ -80,14 +80,14 @@ class KpiSharedComponents {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
                         '$score',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 38,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -202,11 +202,11 @@ class KpiSharedComponents {
         }
 
         return Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.textPrimary(context),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+            border: Border.all(color: AppColors.border(context)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
@@ -228,10 +228,10 @@ class KpiSharedComponents {
                       children: [
                         Text(
                           kpi.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.grey900,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                         if (kpi.description.isNotEmpty) ...[
@@ -260,7 +260,7 @@ class KpiSharedComponents {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -271,7 +271,7 @@ class KpiSharedComponents {
                         children: [
                           Text(
                             '${kpi.unit == '\$' ? '\$' : ''}${kpi.actual}',
-                            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                           ),
                           Text(
                             ' / ${kpi.unit == '\$' ? '\$' : ''}${kpi.target} ${kpi.unit != '\$' ? kpi.unit : ''}',

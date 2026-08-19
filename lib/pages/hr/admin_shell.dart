@@ -71,7 +71,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
           appBar: _buildAppBar(context, unreadCount, l10n),
           body: IndexedStack(
             index: _selectedIndex,
@@ -94,7 +94,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   PreferredSizeWidget _buildAppBar(BuildContext context, int unreadCount, AppLocalizations l10n) {
     final titles = _getTitles(l10n);
     return AppBar(
-      backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       title: Row(
@@ -106,13 +106,13 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               shape: BoxShape.circle,
               color: AppColors.primary.withAlpha(20),
             ),
-            child: const Icon(Icons.business_center_rounded, color: AppColors.primary, size: 18),
+            child: Icon(Icons.business_center_rounded, color: AppColors.primary, size: 18),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Text(
             titles[_selectedIndex],
-            style: const TextStyle(
-              color: AppColors.grey800,
+            style: TextStyle(
+              color: AppColors.textPrimary(context),
               fontSize: 18,
               fontWeight: FontWeight.w700,
               
@@ -123,12 +123,12 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       actions: [
         // ── Notification Bell with Badge ──
         Padding(
-          padding: const EdgeInsets.only(right: 4),
+          padding: EdgeInsets.only(right: 4),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications_outlined, color: AppColors.grey800, size: 26),
+                icon: Icon(Icons.notifications_outlined, color: AppColors.textPrimary(context), size: 26),
                 onPressed: () async {
                   context.push(AppRoutes.notifications);
                   // Reset count after viewing
@@ -141,8 +141,8 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                   top: 6,
                   right: 6,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    constraints: BoxConstraints(minWidth: 18, minHeight: 18),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(10),
@@ -151,7 +151,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                     child: Text(
                       unreadCount > 99 ? '99+' : '$unreadCount',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
@@ -214,22 +214,22 @@ class _AdminShellState extends ConsumerState<AdminShell> {
         color: Colors.black.withAlpha(100),
         child: Center(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 28),
+            padding: EdgeInsets.symmetric(horizontal: 36, vertical: 28),
             decoration: BoxDecoration(
               color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(24),
-              boxShadow: [BoxShadow(color: AppColors.grey900.withAlpha(30), blurRadius: 30, offset: const Offset(0, 10))],
+              boxShadow: [BoxShadow(color: AppColors.textPrimary(context).withAlpha(30), blurRadius: 30, offset: Offset(0, 10))],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 48,
                   height: 48,
                   child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 4),
                 ),
-                const SizedBox(height: 16),
-                Text(l10n.switchingBranchView, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.grey800)),
+                SizedBox(height: 16),
+                Text(l10n.switchingBranchView, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context))),
               ],
             ),
           ),

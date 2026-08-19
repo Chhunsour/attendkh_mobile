@@ -16,10 +16,12 @@ class RequestOvertimeScreen extends ConsumerStatefulWidget {
   const RequestOvertimeScreen({super.key});
 
   @override
-  ConsumerState<RequestOvertimeScreen> createState() => _RequestOvertimeScreenState();
+  ConsumerState<RequestOvertimeScreen> createState() =>
+      _RequestOvertimeScreenState();
 }
 
-class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> with SingleTickerProviderStateMixin {
+class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _startTime = const TimeOfDay(hour: 18, minute: 0);
@@ -47,14 +49,24 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
     try {
       final repo = ref.read(overtimeRepositoryProvider);
       final dateFormatter = DateFormat('yyyy-MM-dd');
-      final data = await repo.getShiftForDate(dateFormatter.format(_selectedDate));
+      final data = await repo.getShiftForDate(
+        dateFormatter.format(_selectedDate),
+      );
 
-      if (data['is_working'] == true && data['start_time'] != null && data['end_time'] != null) {
+      if (data['is_working'] == true &&
+          data['start_time'] != null &&
+          data['end_time'] != null) {
         final startParts = (data['start_time'] as String).split(':');
         final endParts = (data['end_time'] as String).split(':');
         setState(() {
-          _shiftStart = TimeOfDay(hour: int.parse(startParts[0]), minute: int.parse(startParts[1]));
-          _shiftEnd = TimeOfDay(hour: int.parse(endParts[0]), minute: int.parse(endParts[1]));
+          _shiftStart = TimeOfDay(
+            hour: int.parse(startParts[0]),
+            minute: int.parse(startParts[1]),
+          );
+          _shiftEnd = TimeOfDay(
+            hour: int.parse(endParts[0]),
+            minute: int.parse(endParts[1]),
+          );
         });
       } else {
         setState(() {
@@ -148,8 +160,10 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
       final repo = ref.read(overtimeRepositoryProvider);
       final dateFormatter = DateFormat('yyyy-MM-dd');
 
-      final startStr = '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}';
-      final endStr = '${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}';
+      final startStr =
+          '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}';
+      final endStr =
+          '${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}';
 
       await repo.submitOvertimeRequest(
         date: dateFormatter.format(_selectedDate),
@@ -201,15 +215,15 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
     final requestsAsync = ref.watch(overtimeRequestsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
-        title: const Text(
+        title: Text(
           'Overtime Management',
           style: TextStyle(
-            color: AppColors.grey900,
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -220,8 +234,14 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
           unselectedLabelColor: AppColors.grey500,
           indicatorColor: AppColors.primary,
           indicatorWeight: 3,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+          ),
           tabs: const [
             Tab(text: 'Request OT'),
             Tab(text: 'My History'),
@@ -232,7 +252,7 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
         controller: _tabController,
         children: [
           // ── TAB 1: Request OT Form ──
-          _buildRequestForm(l10n),
+          _buildRequestForm(context, l10n),
 
           // ── TAB 2: OT History List ──
           _buildHistoryList(requestsAsync),
@@ -241,7 +261,8 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
     );
   }
 
-  Widget _buildRequestForm(AppLocalizations l10n) {
+  Widget _buildRequestForm(BuildContext context, AppLocalizations l10n) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (_isSubmitting) {
       return LoadingIndicator(message: 'Submitting request...');
     }
@@ -262,7 +283,9 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
             decoration: BoxDecoration(
               color: const Color(0xFF8B5CF6).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.2)),
+              border: Border.all(
+                color: const Color(0xFF8B5CF6).withValues(alpha: 0.2),
+              ),
             ),
             child: Row(
               children: [
@@ -272,7 +295,11 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                     color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.info_outline_rounded, color: Color(0xFF8B5CF6), size: 18),
+                  child: const Icon(
+                    Icons.info_outline_rounded,
+                    color: Color(0xFF8B5CF6),
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -287,25 +314,32 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                           color: Color(0xFF8B5CF6),
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       if (_isLoadingShift)
-                        const Text(
+                        Text(
                           'Checking assigned schedule...',
-                          style: TextStyle(fontSize: 13, color: AppColors.grey700),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.grey700,
+                          ),
                         )
                       else if (_shiftStart != null && _shiftEnd != null)
                         Text(
                           'Regular Shift: ${_shiftStart!.format(context)} - ${_shiftEnd!.format(context)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.grey900,
+                            color: AppColors.textPrimary(context),
                           ),
                         )
                       else
                         const Text(
                           'No scheduled shift (Day off or flexible)',
-                          style: TextStyle(fontSize: 13, color: AppColors.grey700, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.grey700,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                     ],
                   ),
@@ -314,12 +348,16 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
             ),
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
-          // ── Date Selector ──
-          const Text(
+          // ── Date Picker Card ──
+          Text(
             'Date of Overtime',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary(context),
+            ),
           ),
           const SizedBox(height: 8),
           InkWell(
@@ -328,12 +366,14 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? AppColors.surfaceDark : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.grey200),
+                border: Border.all(
+                  color: isDark ? AppColors.borderDark : AppColors.grey200,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
+                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -347,7 +387,11 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 18),
+                    child: const Icon(
+                      Icons.calendar_today_rounded,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -356,14 +400,29 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                       children: [
                         Text(
                           DateFormat('EEEE, MMM d, yyyy').format(_selectedDate),
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary(context),
+                          ),
                         ),
                         const SizedBox(height: 2),
-                        const Text('Tap to change date', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                        Text(
+                          'Tap to change date',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark
+                                ? AppColors.grey400
+                                : AppColors.grey500,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_drop_down_rounded, color: AppColors.grey400),
+                  Icon(
+                    Icons.arrow_drop_down_rounded,
+                    color: isDark ? AppColors.grey400 : AppColors.grey400,
+                  ),
                 ],
               ),
             ),
@@ -378,9 +437,13 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Start Time',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary(context),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     InkWell(
@@ -389,12 +452,18 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? AppColors.surfaceDark : Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(
+                            color: isDark
+                                ? AppColors.borderDark
+                                : AppColors.grey200,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.02),
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.2 : 0.02,
+                              ),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -402,11 +471,25 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 18),
+                            const Icon(
+                              Icons.access_time_rounded,
+                              color: AppColors.primary,
+                              size: 18,
+                            ),
                             const SizedBox(width: 8),
-                            Text(
-                              _startTime.format(context),
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _startTime.format(context),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary(context),
+                                  ),
+                                  maxLines: 1,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -420,9 +503,13 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'End Time',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary(context),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     InkWell(
@@ -431,12 +518,18 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? AppColors.surfaceDark : Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(
+                            color: isDark
+                                ? AppColors.borderDark
+                                : AppColors.grey200,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.02),
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.2 : 0.02,
+                              ),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -444,11 +537,25 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.access_time_filled_rounded, color: Color(0xFF8B5CF6), size: 18),
+                            const Icon(
+                              Icons.access_time_filled_rounded,
+                              color: Color(0xFF8B5CF6),
+                              size: 18,
+                            ),
                             const SizedBox(width: 8),
-                            Text(
-                              _endTime.format(context),
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _endTime.format(context),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.textPrimary(context),
+                                  ),
+                                  maxLines: 1,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -468,11 +575,17 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
               decoration: BoxDecoration(
                 color: AppColors.success.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: AppColors.success.withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.timer_outlined, size: 16, color: AppColors.success),
+                  const Icon(
+                    Icons.timer_outlined,
+                    size: 16,
+                    color: AppColors.success,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Estimated Overtime: ${hours.toStringAsFixed(1)} hours',
@@ -490,31 +603,49 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
           const SizedBox(height: 18),
 
           // ── Reason Field ──
-          const Text(
+          Text(
             'Reason & Description',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary(context),
+            ),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _reasonController,
             maxLines: 4,
-            style: const TextStyle(fontSize: 14, color: AppColors.grey900),
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textPrimary(context),
+            ),
             decoration: InputDecoration(
-              hintText: 'Describe task objectives and why overtime is required...',
-              hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
+              hintText:
+                  'Describe task objectives and why overtime is required...',
+              hintStyle: const TextStyle(
+                color: AppColors.grey400,
+                fontSize: 13,
+              ),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: isDark ? AppColors.surfaceDark : Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.grey200),
+                borderSide: BorderSide(
+                  color: isDark ? AppColors.borderDark : AppColors.grey200,
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.grey200),
+                borderSide: BorderSide(
+                  color: isDark ? AppColors.borderDark : AppColors.grey200,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 1.5,
+                ),
               ),
               contentPadding: const EdgeInsets.all(16),
             ),
@@ -530,7 +661,9 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 elevation: 2,
               ),
               child: const Row(
@@ -571,11 +704,23 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                   children: [
                     _buildFilterChip('All', 'all', requests.length),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Pending', 'pending', requests.where((r) => r.status == 'pending').length),
+                    _buildFilterChip(
+                      'Pending',
+                      'pending',
+                      requests.where((r) => r.status == 'pending').length,
+                    ),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Approved', 'approved', requests.where((r) => r.status == 'approved').length),
+                    _buildFilterChip(
+                      'Approved',
+                      'approved',
+                      requests.where((r) => r.status == 'approved').length,
+                    ),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Rejected', 'rejected', requests.where((r) => r.status == 'rejected').length),
+                    _buildFilterChip(
+                      'Rejected',
+                      'rejected',
+                      requests.where((r) => r.status == 'rejected').length,
+                    ),
                   ],
                 ),
               ),
@@ -587,11 +732,18 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.timer_off_outlined, size: 48, color: AppColors.grey300),
+                            const Icon(
+                              Icons.timer_off_outlined,
+                              size: 48,
+                              color: AppColors.grey400,
+                            ),
                             const SizedBox(height: 12),
-                            const Text(
+                            Text(
                               'No overtime requests found',
-                              style: TextStyle(fontSize: 14, color: AppColors.grey500, fontWeight: FontWeight.w500),
+                              style: TextStyle(
+                                color: AppColors.grey500,
+                                fontSize: 14,
+                              ),
                             ),
                           ],
                         ),
@@ -600,28 +752,28 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                         physics: const AlwaysScrollableScrollPhysics(
                           parent: BouncingScrollPhysics(),
                         ),
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                         itemCount: filtered.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 10),
-                        itemBuilder: (context, i) => _buildHistoryCard(filtered[i]),
+                        separatorBuilder: (_, _) => const SizedBox(height: 12),
+                        itemBuilder: (ctx, i) => _buildHistoryCard(filtered[i]),
                       ),
               ),
             ],
           ),
         );
       },
-      loading: () => const Center(child: LoadingIndicator(message: 'Loading history...')),
-      error: (e, _) => Center(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      ),
+      error: (err, _) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 40, color: AppColors.grey400),
-            const SizedBox(height: 8),
-            Text('Failed to load overtime requests: $e', style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
+            const Icon(Icons.cloud_off, size: 48, color: AppColors.grey400),
             const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: () => ref.invalidate(overtimeRequestsProvider),
-              child: const Text('Retry'),
+            Text(
+              'Failed to load overtime history: $err',
+              style: const TextStyle(color: AppColors.grey600),
             ),
           ],
         ),
@@ -630,6 +782,7 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
   }
 
   Widget _buildFilterChip(String label, String value, int count) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = _statusFilter == value;
     return InkWell(
       onTap: () => setState(() => _statusFilter = value),
@@ -637,9 +790,15 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: isSelected
+              ? AppColors.primary
+              : (isDark ? AppColors.surfaceDark : Colors.white),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.grey200),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.primary
+                : (isDark ? AppColors.borderDark : AppColors.grey200),
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -649,7 +808,9 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.grey700,
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? AppColors.grey300 : AppColors.grey700),
               ),
             ),
             if (count > 0) ...[
@@ -657,7 +818,11 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white.withValues(alpha: 0.25) : AppColors.grey100,
+                  color: isSelected
+                      ? Colors.white.withValues(alpha: 0.25)
+                      : (isDark
+                            ? AppColors.surfaceDarkElevated
+                            : AppColors.grey100),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -665,7 +830,9 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : AppColors.grey600,
+                    color: isSelected
+                        ? Colors.white
+                        : (isDark ? AppColors.grey400 : AppColors.grey600),
                   ),
                 ),
               ),
@@ -677,6 +844,7 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
   }
 
   Widget _buildHistoryCard(OvertimeRequest req) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     Color statusColor;
     switch (req.status.toLowerCase()) {
       case 'approved':
@@ -693,12 +861,14 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.grey200,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -718,18 +888,22 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                       color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.timer_outlined, color: Color(0xFF8B5CF6), size: 18),
+                    child: Icon(
+                      Icons.timer_outlined,
+                      color: Color(0xFF8B5CF6),
+                      size: 18,
+                    ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         req.date,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -746,7 +920,10 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),

@@ -15,14 +15,14 @@ Future<void> showLogoutConfirmation(BuildContext context, WidgetRef ref) async {
       elevation: 0,
       backgroundColor: Colors.transparent,
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: AppColors.surfaceLight,
           shape: BoxShape.rectangle,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppColors.grey900.withAlpha(30),
+              color: AppColors.textPrimary(context).withAlpha(30),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
@@ -33,19 +33,19 @@ Future<void> showLogoutConfirmation(BuildContext context, WidgetRef ref) async {
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.dangerLight,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.logout_rounded, color: AppColors.danger, size: 36),
+              child: Icon(Icons.logout_rounded, color: AppColors.danger, size: 36),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Text(
               l10n.logOut,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey800,
+                color: AppColors.textPrimary(context),
               ),
             ),
             const SizedBox(height: 12),

@@ -240,7 +240,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                         }
 
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 16),
+                          margin: EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
@@ -311,7 +311,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              SizedBox(width: 16),
                               
                               // Name
                               Expanded(
@@ -320,10 +320,10 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                                   children: [
                                     Text(
                                       emp.name,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w900,
                                         fontSize: 16,
-                                        color: Colors.black87,
+                                        color: AppColors.textPrimary(context),
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,

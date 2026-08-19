@@ -1926,5 +1926,10 @@
   "companyDocuments": "ឯកសារក្រុមហ៊ុន",
   "viewCompanyDocuments": "ចូលប្រើប្រាស់គ្រឿងសម្គាល់និងទម្រង់របស់ក្រុមហ៊ុន",
   "readAndAcknowledge": "អាននិងទទួលស្គាល់គោលការណ៍",
-  "payrollAttendanceRules": "ច្បាប់ប្រាក់ខែ ការចូលធ្វើការ និង OT"
+  "payrollAttendanceRules": "ច្បាប់ប្រាក់ខែ ការចូលធ្វើការ និង OT",
+  "overtime": "ធ្វើការបន្ថែមម៉ោង",
+  "companyServices": "សេវាកម្មក្រុមហ៊ុន",
+  "moveCloserToBranch": "សូមចូលមកជិតសាខា ដើម្បីចុះឈ្មោះចូល។",
+  "locationNeedsAttention": "ទីតាំងត្រូវការការពិនិត្យ",
+  "noPayslipsYet": "មិនទាន់មានប័ណ្ណប្រាក់ខែ"
 }

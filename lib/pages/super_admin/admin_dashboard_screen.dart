@@ -44,11 +44,13 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     final profileAsync = ref.watch(profileProvider);
     final unreadCountAsync = ref.watch(unreadCountProvider);
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
         elevation: 0,
         centerTitle: false,
         title: Row(
@@ -66,14 +68,14 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                 size: 20,
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   l10n.platformAdminTitle,
-                  style: const TextStyle(
-                    color: AppColors.grey900,
+                  style: TextStyle(
+                    color: AppColors.textPrimary(context),
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -95,21 +97,24 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.notifications_outlined, color: AppColors.grey700),
+                Icon(
+                  Icons.notifications_outlined,
+                  color: isDark ? AppColors.grey300 : AppColors.grey700,
+                ),
                 if (unreadCountAsync.valueOrNull != null && unreadCountAsync.valueOrNull! > 0)
                   Positioned(
                     right: -2,
                     top: -2,
                     child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
                         color: AppColors.danger,
                         shape: BoxShape.circle,
                       ),
                       child: Text(
                         '${unreadCountAsync.valueOrNull}',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: AppColors.textPrimary(context),
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
                         ),
@@ -135,7 +140,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                 ),
                 child: CircleAvatar(
                   radius: 17,
-                  backgroundColor: AppColors.grey100,
+                  backgroundColor:
+                      isDark ? AppColors.surfaceDarkElevated : AppColors.grey100,
                   backgroundImage: profileAsync.value?.photoUrl != null
                       ? CachedNetworkImageProvider(
                           profileAsync.value!.photoUrl!,
@@ -159,7 +165,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           ref.invalidate(unreadCountProvider);
         },
         child: dashAsync.when(
-          loading: () => _buildLoading(),
+          loading: () => _buildLoading(context),
           error: (err, _) => _buildError(err, ref, l10n),
           data: (data) => _buildContent(context, data, authState, l10n),
         ),
@@ -168,39 +174,43 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   }
 
   // ── Loading ────────────────────────────────────────────────────────────────
-  Widget _buildLoading() {
+  Widget _buildLoading(BuildContext context) {
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(16),
       children: [
-        _shimmerBox(height: 120, radius: 22),
+        _shimmerBox(context, height: 120, radius: 22),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _shimmerBox(height: 110, radius: 18)),
+            Expanded(child: _shimmerBox(context, height: 110, radius: 18)),
             const SizedBox(width: 12),
-            Expanded(child: _shimmerBox(height: 110, radius: 18)),
+            Expanded(child: _shimmerBox(context, height: 110, radius: 18)),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _shimmerBox(height: 110, radius: 18)),
+            Expanded(child: _shimmerBox(context, height: 110, radius: 18)),
             const SizedBox(width: 12),
-            Expanded(child: _shimmerBox(height: 110, radius: 18)),
+            Expanded(child: _shimmerBox(context, height: 110, radius: 18)),
           ],
         ),
         const SizedBox(height: 20),
-        _shimmerBox(height: 180, radius: 18),
+        _shimmerBox(context, height: 180, radius: 18),
       ],
     );
   }
 
-  Widget _shimmerBox({required double height, double radius = 12}) {
+  Widget _shimmerBox(
+    BuildContext context, {
+    required double height,
+    double radius = 12,
+  }) {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(radius),
       ),
       child: const _ShimmerEffect(),
@@ -222,12 +232,12 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                 color: AppColors.danger.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 32),
+              child: Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 32),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               l10n.failedToLoadDashboard,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.grey900),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
             ),
             const SizedBox(height: 6),
             Text(
@@ -272,17 +282,17 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         // ── Quick Platform Shortcuts ──
         _buildQuickActionsBar(context),
 
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
 
         // ── Statistics Section Header ──
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: EdgeInsets.symmetric(horizontal: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 l10n.platformStatistics,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -445,10 +455,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -538,11 +548,11 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+          border: Border.all(color: AppColors.border(context)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.02),
@@ -561,13 +571,13 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               ),
               child: Icon(icon, color: color, size: 18),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey800,
+                color: AppColors.textPrimary(context),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -580,17 +590,17 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
 
   Widget _buildSectionHeader(String title, IconData icon, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: EdgeInsets.symmetric(horizontal: 4),
       child: Row(
         children: [
           Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.bold,
-              color: AppColors.grey900,
+              color: AppColors.textPrimary(context),
             ),
           ),
         ],
@@ -629,9 +639,9 @@ class _KpiCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -668,13 +678,13 @@ class _KpiCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: AppColors.grey900,
+              color: AppColors.textPrimary(context),
             ),
           ),
           const SizedBox(height: 2),
@@ -709,12 +719,12 @@ class _ActivityTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -734,17 +744,17 @@ class _ActivityTile extends StatelessWidget {
             ),
             child: Icon(icon, color: iconColor, size: 18),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   item.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 2),

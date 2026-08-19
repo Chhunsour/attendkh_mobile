@@ -2205,5 +2205,10 @@
   "companyDocuments": "Company Documents",
   "viewCompanyDocuments": "Access company guidelines and forms",
   "readAndAcknowledge": "Read and acknowledge policies",
-  "payrollAttendanceRules": "Payroll, attendance & OT rules"
+  "payrollAttendanceRules": "Payroll, attendance & OT rules",
+  "overtime": "Overtime",
+  "companyServices": "Company Services",
+  "moveCloserToBranch": "Move closer to the branch to clock in.",
+  "locationNeedsAttention": "Location needs attention",
+  "noPayslipsYet": "No payslips yet"
 }

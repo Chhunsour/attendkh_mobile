@@ -190,9 +190,9 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
     final dayLabels = [l10n.dayMo, l10n.dayTu, l10n.dayWe, l10n.dayTh, l10n.dayFr, l10n.daySa, l10n.daySu];
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         bottom: PreferredSize(
@@ -200,7 +200,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
           child: Container(height: 1, color: AppColors.grey100),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.grey700),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.grey700),
           onPressed: () => context.pop(),
         ),
         title: Column(
@@ -208,8 +208,8 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
           children: [
             Text(
               isEdit ? l10n.editScheduleTitle : l10n.newScheduleTitle,
-              style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.grey800),
+              style: TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context)),
             ),
             Text(
               isEdit ? l10n.editScheduleSubtitle : l10n.newScheduleSubtitle,
@@ -325,7 +325,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                         }).toList(),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -336,7 +336,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
               padding: EdgeInsets.fromLTRB(
                   16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.textPrimary(context),
                 border: const Border(top: BorderSide(color: AppColors.grey100)),
                 boxShadow: [
                   BoxShadow(
@@ -386,19 +386,19 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
       labelText: label,
       hintText: hint,
       prefixIcon: Icon(icon, size: 18, color: AppColors.grey400),
-      hintStyle: const TextStyle(fontSize: 13, color: AppColors.grey400),
+      hintStyle: TextStyle(fontSize: 13, color: AppColors.grey400),
       labelStyle:
-          const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.grey600),
+          TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.grey600),
       filled: true,
       fillColor: AppColors.grey50,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -451,13 +451,13 @@ class _SectionCard extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.grey700),
             ),
-            if (trailing != null) ...[const Spacer(), trailing!],
+            if (trailing != null) ...[Spacer(), trailing!],
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         Container(
           width: double.infinity,
           decoration: BoxDecoration(

@@ -19,16 +19,18 @@ class MoreScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
         elevation: 0,
         centerTitle: false,
         title: Text(
           title,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: isDark ? Colors.white : AppColors.grey900,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -38,101 +40,117 @@ class MoreScreen extends ConsumerWidget {
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
-          // ── Section Header ──
+          // ── Section Header with Feature Count Badge ──
           Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 14),
+            padding: const EdgeInsets.only(left: 2, right: 2, bottom: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Company Services & Tools',
                   style: TextStyle(
-                    fontSize: 15,
+                    fontSize: 14.5,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey800,
+                    color: isDark ? Colors.white : AppColors.grey800,
+                    letterSpacing: -0.2,
                   ),
                 ),
-                Text(
-                  '${items.length} Features',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.grey500,
-                    fontWeight: FontWeight.w500,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.surfaceDarkElevated
+                        : AppColors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.borderDark
+                          : AppColors.primary.withValues(alpha: 0.15),
+                    ),
+                  ),
+                  child: Text(
+                    '${items.length} Features',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? AppColors.grey300 : AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
 
-          // ── 2-Column Action Cards Grid ──
+          // ── Compact 2-Column Action Cards Grid ──
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.18,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 2.15,
             ),
             itemCount: items.length,
-            itemBuilder: (context, index) => _buildGridCard(context, items[index]),
+            itemBuilder: (context, index) =>
+                _buildGridCard(context, items[index], isDark),
           ),
 
           // ── Logout Tile (if enabled) ──
           if (showLogout) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
             InkWell(
               onTap: () => showLogoutConfirmation(context, ref),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(16),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: AppColors.danger.withValues(alpha: 0.2)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.danger.withValues(alpha: 0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
+                  color: isDark
+                      ? AppColors.danger.withValues(alpha: 0.12)
+                      : AppColors.dangerLight,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.danger.withValues(alpha: isDark ? 0.35 : 0.25),
+                  ),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
-                        color: AppColors.danger.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        color: AppColors.danger.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
                         Icons.logout_rounded,
                         color: AppColors.danger,
-                        size: 20,
+                        size: 18,
                       ),
                     ),
-                    const SizedBox(width: 14),
-                    const Expanded(
+                    const SizedBox(width: 12),
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Sign Out',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 13.5,
                               fontWeight: FontWeight.bold,
                               color: AppColors.danger,
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 1),
                           Text(
                             'Log out from your employee account',
                             style: TextStyle(
                               fontSize: 11,
-                              color: AppColors.grey500,
+                              color: isDark
+                                  ? AppColors.danger.withValues(alpha: 0.75)
+                                  : AppColors.danger.withValues(alpha: 0.85),
                             ),
                           ),
                         ],
@@ -141,7 +159,7 @@ class MoreScreen extends ConsumerWidget {
                     const Icon(
                       Icons.chevron_right_rounded,
                       color: AppColors.danger,
-                      size: 20,
+                      size: 18,
                     ),
                   ],
                 ),
@@ -153,74 +171,72 @@ class MoreScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGridCard(BuildContext context, MoreItem item) {
+  Widget _buildGridCard(BuildContext context, MoreItem item, bool isDark) {
     return InkWell(
       onTap: item.onTap ?? () => context.push(item.routePath!),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark
+                ? AppColors.borderDark
+                : AppColors.grey200.withValues(alpha: 0.8),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Row(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: item.color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(item.icon, color: item.color, size: 22),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 13,
-                  color: AppColors.grey300,
-                ),
-              ],
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: item.color.withValues(alpha: isDark ? 0.18 : 0.10),
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Icon(item.icon, color: item.color, size: 19),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (item.subtitle != null && item.subtitle!.isNotEmpty) ...[
-                  const SizedBox(height: 2),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   Text(
-                    item.subtitle!,
-                    style: const TextStyle(
-                      fontSize: 10.5,
-                      color: AppColors.grey500,
-                      fontWeight: FontWeight.w500,
+                    item.title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : AppColors.grey900,
+                      letterSpacing: -0.2,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (item.subtitle != null && item.subtitle!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      item.subtitle!,
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: isDark ? AppColors.grey400 : AppColors.grey500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ],
         ),

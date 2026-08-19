@@ -83,9 +83,9 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
           return Padding(
             padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
             child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.textPrimary(context),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SingleChildScrollView(
@@ -95,7 +95,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                   children: [
                     Text(
                       isEdit ? 'Edit Announcement' : 'New Announcement',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                     ),
                     const SizedBox(height: 24),
 
@@ -167,11 +167,11 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                         }
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           color: AppColors.backgroundLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.grey300),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -284,22 +284,22 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         height: MediaQuery.of(ctx).size.height * 0.85,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.campaign_rounded, color: AppColors.primary, size: 22),
-                      const SizedBox(width: 8),
-                      const Text('Announcement Preview', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                      Icon(Icons.campaign_rounded, color: AppColors.primary, size: 22),
+                      SizedBox(width: 8),
+                      Text('Announcement Preview', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
                     ],
                   ),
                   IconButton(
@@ -339,18 +339,18 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    Text(a.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 16),
+                    Text(a.title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
+                    SizedBox(height: 12),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: AppColors.backgroundLight,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey200),
+                        border: Border.all(color: AppColors.border(context)),
                       ),
-                      child: Text(a.content, style: const TextStyle(fontSize: 14, color: AppColors.grey800, height: 1.5)),
+                      child: Text(a.content, style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context), height: 1.5)),
                     ),
                     const SizedBox(height: 16),
                     _infoRow('Author', a.authorName ?? 'Unknown'),
@@ -431,12 +431,12 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
 
   Widget _infoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 100, child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey500))),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 14, color: AppColors.grey800))),
+          SizedBox(width: 100, child: Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey500))),
+          Expanded(child: Text(value, style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)))),
         ],
       ),
     );
@@ -506,7 +506,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                 }
               }
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.danger)),
+            child: Text('Delete', style: TextStyle(color: AppColors.danger)),
           ),
         ],
       ),
@@ -516,20 +516,20 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Announcements', style: TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text('Announcements', style: TextStyle(color: AppColors.textPrimary(context), fontSize: 18, fontWeight: FontWeight.w700)),
         actions: [
-          IconButton(icon: const Icon(Icons.add, color: AppColors.primary), onPressed: () => _showForm()),
+          IconButton(icon: Icon(Icons.add, color: AppColors.primary), onPressed: () => _showForm()),
         ],
       ),
       body: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             color: Colors.white,
             child: Column(
               children: [
@@ -574,20 +574,20 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
           ),
           Expanded(
             child: _loading
-                ? const LoadingIndicator(message: 'Loading Announcements...')
+                ? LoadingIndicator(message: 'Loading Announcements...')
                 : _announcements.isEmpty
-                    ? const Center(child: Text('No announcements found.', style: TextStyle(color: AppColors.grey500)))
+                    ? Center(child: Text('No announcements found.', style: TextStyle(color: AppColors.grey500)))
                     : ListView.separated(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(16),
                         itemCount: _announcements.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 12),
+                        separatorBuilder: (_, _) => SizedBox(height: 12),
                         itemBuilder: (context, i) {
                           final a = _announcements[i];
                           return Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.grey200),
+                              border: Border.all(color: AppColors.border(context)),
                             ),
                             padding: const EdgeInsets.all(16),
                             child: Column(
@@ -682,7 +682,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                                 const SizedBox(height: 8),
                                 Text(
                                   '${a.authorName ?? 'Unknown'} · ${a.createdAt?.substring(0, 10) ?? ''}',
-                                  style: const TextStyle(fontSize: 12, color: AppColors.grey400),
+                                  style: TextStyle(fontSize: 12, color: AppColors.grey400),
                                 ),
                               ],
                             ),
@@ -692,19 +692,19 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
           ),
           if (_lastPage > 1)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              color: AppColors.textPrimary(context),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Showing $_from-$_to of $_total', style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
+                  Text('Showing $_from-$_to of $_total', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.chevron_left, color: AppColors.grey600),
+                        icon: Icon(Icons.chevron_left, color: AppColors.grey600),
                         onPressed: _currentPage > 1 ? () => _changePage(_currentPage - 1) : null,
                       ),
-                      Text('$_currentPage / $_lastPage', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                      Text('$_currentPage / $_lastPage', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
                       IconButton(
                         icon: const Icon(Icons.chevron_right, color: AppColors.grey600),
                         onPressed: _currentPage < _lastPage ? () => _changePage(_currentPage + 1) : null,

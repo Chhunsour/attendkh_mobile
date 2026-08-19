@@ -10,20 +10,19 @@ class AdminRolesScreen extends ConsumerWidget {
   const AdminRolesScreen({super.key});
 
   @override
-  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final rolesAsync = ref.watch(rolesProvider);
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.rolesPermissionsTitle,
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -33,16 +32,16 @@ class AdminRolesScreen extends ConsumerWidget {
         children: [
           rolesAsync.when(
             data: (items) => items.isEmpty
-                ? Center(child: Text(l10n.noCustomRoles, style: const TextStyle(color: AppColors.grey400)))
+                ? Center(child: Text(l10n.noCustomRoles, style: TextStyle(color: AppColors.grey400)))
                 : ListView.separated(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16),
                     itemCount: items.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    separatorBuilder: (_, _) => SizedBox(height: 8),
                     itemBuilder: (context, i) {
                       final r = items[i];
                       return Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                        padding: EdgeInsets.all(14),
+                        decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
                         child: Row(
                           children: [
                             Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.infoLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.shield, color: AppColors.info, size: 22)),

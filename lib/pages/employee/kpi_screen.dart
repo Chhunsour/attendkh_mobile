@@ -51,7 +51,7 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       body: kpisAsync.when(
         data: (data) {
           _initTabs(data);
@@ -61,14 +61,14 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
           final isManager = data.userRole == 'branch_manager';
 
           return Scaffold(
-            backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
             appBar: AppBar(
-              backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
               elevation: 0,
               centerTitle: false,
               title: Text(
                 isSuperAdmin ? l10n.platformHealth : l10n.performanceKpis,
-                style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold, fontSize: 18),
+                style: TextStyle(color: AppColors.textPrimary(context), fontWeight: FontWeight.bold, fontSize: 18),
               ),
               actions: [
                 IconButton(
@@ -107,20 +107,20 @@ class _KpiScreenState extends ConsumerState<KpiScreen> with SingleTickerProvider
           );
         },
         loading: () => Scaffold(
-          backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
           appBar: AppBar(
-            backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
             elevation: 0,
-            title: Text(l10n.performanceKpis, style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold, fontSize: 18)),
+            title: Text(l10n.performanceKpis, style: TextStyle(color: AppColors.textPrimary(context), fontWeight: FontWeight.bold, fontSize: 18)),
           ),
-          body: const Center(child: LoadingIndicator(message: 'Loading KPIs...')),
+          body: Center(child: LoadingIndicator(message: 'Loading KPIs...')),
         ),
         error: (error, stack) => Scaffold(
-          backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
           appBar: AppBar(
-            backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
             elevation: 0,
-            title: Text(l10n.performanceKpis, style: const TextStyle(color: AppColors.grey900, fontWeight: FontWeight.bold, fontSize: 18)),
+            title: Text(l10n.performanceKpis, style: TextStyle(color: AppColors.textPrimary(context), fontWeight: FontWeight.bold, fontSize: 18)),
           ),
           body: Center(
             child: Column(
