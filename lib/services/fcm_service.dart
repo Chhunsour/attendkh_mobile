@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 
@@ -429,13 +430,19 @@ class FcmService {
     if (status.isDenied || status.isPermanentlyDenied) {
       if (!context.mounted) return;
 
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
+          backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+          surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
+            side: BorderSide(
+              color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0),
+              width: 1,
+            ),
           ),
           contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
           content: Column(
@@ -445,35 +452,42 @@ class FcmService {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
+                  color: isDark
+                      ? AppColors.primary.withValues(alpha: 0.18)
+                      : const Color(0xFFEFF6FF),
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFDBEAFE), width: 2),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.primary.withValues(alpha: 0.35)
+                        : const Color(0xFFDBEAFE),
+                    width: 2,
+                  ),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.notifications_active_rounded,
-                  color: Color(0xFF0052FF),
+                  color: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
                   size: 32,
                 ),
               ),
               const SizedBox(height: 18),
-              const Text(
+              Text(
                 'Enable Notifications',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2937),
+                  color: isDark ? Colors.white : AppColors.grey900,
                   letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 'It looks like notifications are disabled. Please enable them in your phone settings to receive important attendance and leave updates.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.45,
-                  color: Color(0xFF6B7280),
+                  color: isDark ? AppColors.grey400 : AppColors.grey600,
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -485,15 +499,21 @@ class FcmService {
                       onPressed: () => Navigator.pop(ctx),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        side: const BorderSide(color: Color(0xFFE5E7EB)),
+                        side: BorderSide(
+                          color: isDark
+                              ? AppColors.borderDark
+                              : const Color(0xFFE5E7EB),
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Dismiss',
                         style: TextStyle(
-                          color: Color(0xFF4B5563),
+                          color: isDark
+                              ? AppColors.grey300
+                              : const Color(0xFF4B5563),
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                         ),
@@ -508,7 +528,7 @@ class FcmService {
                         openAppSettings();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0052FF),
+                        backgroundColor: AppColors.primary,
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(

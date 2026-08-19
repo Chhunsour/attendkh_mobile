@@ -115,6 +115,11 @@ class AuthRepository {
     await _api.post('/logout');
   }
 
+  /// DELETE /api/v1/account — permanent account deletion (Guideline 5.1.1(v))
+  Future<void> deleteAccount() async {
+    await _api.delete('/account');
+  }
+
   /// GET /api/v1/user
   Future<CurrentUser> getCurrentUser() async {
     final response = await _api.get('/user');

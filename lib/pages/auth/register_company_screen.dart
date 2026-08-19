@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/components/custom_text_field.dart';
 import 'package:mpg_hr_mobile_app/components/primary_button.dart';
 import 'package:mpg_hr_mobile_app/components/language_switch_button.dart';
 import 'package:mpg_hr_mobile_app/components/theme_switch_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class RegisterCompanyScreen extends ConsumerStatefulWidget {
@@ -476,6 +477,31 @@ class _RegisterCompanyScreenState
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+
+          // Privacy Policy Link (Apple Guideline 5.1.1)
+          Center(
+            child: TextButton(
+              onPressed: () => launchUrl(
+                Uri.parse('https://attendkh.com/privacy-policy'),
+                mode: LaunchMode.inAppBrowserView,
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                'Privacy Policy',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
+                  decoration: TextDecoration.underline,
                 ),
               ),
             ),

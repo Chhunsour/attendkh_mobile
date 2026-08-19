@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -7,7 +9,8 @@ import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
-final employeeDocumentsProvider = FutureProvider.autoDispose<List<DocumentData>>((ref) async {
+final employeeDocumentsProvider =
+    FutureProvider.autoDispose<List<DocumentData>>((ref) async {
   final repo = DocumentsRepository();
   return repo.getEmployeeDocuments();
 });
@@ -34,28 +37,40 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     if (mimeType == null) return Icons.insert_drive_file_rounded;
     if (mimeType.contains('image/')) return Icons.image_rounded;
     if (mimeType.contains('pdf')) return Icons.picture_as_pdf_rounded;
-    if (mimeType.contains('spreadsheet') || mimeType.contains('excel') || mimeType.contains('csv')) {
+    if (mimeType.contains('spreadsheet') ||
+        mimeType.contains('excel') ||
+        mimeType.contains('csv')) {
       return Icons.table_chart_rounded;
     }
-    if (mimeType.contains('word') || mimeType.contains('document')) return Icons.description_rounded;
-    if (mimeType.contains('zip') || mimeType.contains('archive') || mimeType.contains('rar')) {
+    if (mimeType.contains('word') || mimeType.contains('document')) {
+      return Icons.description_rounded;
+    }
+    if (mimeType.contains('zip') ||
+        mimeType.contains('archive') ||
+        mimeType.contains('rar')) {
       return Icons.folder_zip_rounded;
     }
     return Icons.insert_drive_file_rounded;
   }
 
   Color _getIconColor(String? mimeType) {
-    if (mimeType == null) return const Color(0xFF14B8A6);
+    if (mimeType == null) return AppColors.primary;
     if (mimeType.contains('image/')) return const Color(0xFF8B5CF6);
     if (mimeType.contains('pdf')) return const Color(0xFFEF4444);
-    if (mimeType.contains('spreadsheet') || mimeType.contains('excel') || mimeType.contains('csv')) {
+    if (mimeType.contains('spreadsheet') ||
+        mimeType.contains('excel') ||
+        mimeType.contains('csv')) {
       return const Color(0xFF10B981);
     }
-    if (mimeType.contains('word') || mimeType.contains('document')) return const Color(0xFF2563EB);
-    if (mimeType.contains('zip') || mimeType.contains('archive') || mimeType.contains('rar')) {
+    if (mimeType.contains('word') || mimeType.contains('document')) {
+      return const Color(0xFF2563EB);
+    }
+    if (mimeType.contains('zip') ||
+        mimeType.contains('archive') ||
+        mimeType.contains('rar')) {
       return const Color(0xFFF59E0B);
     }
-    return const Color(0xFF14B8A6);
+    return AppColors.primary;
   }
 
   String _formatBytes(int? bytes) {
@@ -71,7 +86,12 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     return '${size.toStringAsFixed(1)} ${sizes[i]}';
   }
 
-  Future<void> _downloadFile(BuildContext context, DocumentData doc, AppLocalizations l10n) async {
+  Future<void> _downloadFile(
+    BuildContext context,
+    DocumentData doc,
+    AppLocalizations l10n,
+  ) async {
+    HapticFeedback.lightImpact();
     if (doc.downloadUrl == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -107,414 +127,669 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
   Widget build(BuildContext context) {
     final docsAsync = ref.watch(employeeDocumentsProvider);
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.bg(context),
-      appBar: AppBar(
-        backgroundColor: AppColors.surface(context),
-        elevation: 0,
-        centerTitle: false,
-        title: Text(
-          l10n.companyDocuments,
-          style: TextStyle(
-            color: AppColors.textPrimary(context),
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
-            tooltip: 'Refresh',
-            onPressed: () => ref.invalidate(employeeDocumentsProvider),
-          ),
-        ],
-      ),
-      body: docsAsync.when(
-        loading: () => LoadingIndicator(message: l10n.loading),
-        error: (err, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: AppColors.grey400),
-              const SizedBox(height: 12),
-              Text(
-                '${l10n.errorPrefix}: $err',
-                style: const TextStyle(fontSize: 12, color: AppColors.grey500),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => ref.invalidate(employeeDocumentsProvider),
-                icon: const Icon(Icons.refresh),
-                label: Text(l10n.retry),
-              ),
-            ],
-          ),
-        ),
-        data: (documents) {
-          final filtered = documents.where((d) {
-            if (_filterType != 'all') {
-              final mime = d.mimeType?.toLowerCase() ?? '';
-              if (_filterType == 'pdf' && !mime.contains('pdf')) return false;
-              if (_filterType == 'sheets' && !(mime.contains('spreadsheet') || mime.contains('excel') || mime.contains('csv'))) return false;
-              if (_filterType == 'docs' && !(mime.contains('word') || mime.contains('document'))) return false;
-              if (_filterType == 'images' && !mime.contains('image/')) return false;
-            }
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : const Color(0xFFF8FAFC),
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Column(
+          children: [
+            // ── AttendKH Gradient Hero Header ──
+            _buildHeroHeader(context, isDark, l10n),
 
-            if (_search.isNotEmpty) {
-              final q = _search.toLowerCase();
-              final matchesTitle = d.title.toLowerCase().contains(q);
-              final matchesDesc = d.description?.toLowerCase().contains(q) ?? false;
-              return matchesTitle || matchesDesc;
-            }
-            return true;
-          }).toList();
-
-          return RefreshIndicator(
-            onRefresh: () async => ref.invalidate(employeeDocumentsProvider),
-            color: AppColors.primary,
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 40),
-              children: [
-                // ── Hero Document Vault Banner ──
-                _buildHeroBanner(documents.length),
-
-                SizedBox(height: 14),
-
-                // ── Search Bar ──
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border(context)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.02),
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _searchCtrl,
-                    onChanged: (val) => setState(() => _search = val.trim()),
-                    style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
-                    decoration: InputDecoration(
-                      hintText: 'Search files, forms, templates...',
-                      hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
-                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 20),
-                      suffixIcon: _search.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear_rounded, color: AppColors.grey400, size: 18),
-                              onPressed: () {
-                                _searchCtrl.clear();
-                                setState(() => _search = '');
-                              },
-                            )
-                          : null,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    ),
-                  ),
+            // ── Documents Body ──
+            Expanded(
+              child: docsAsync.when(
+                loading: () => Center(
+                  child: LoadingIndicator(message: l10n.loading),
                 ),
-
-                const SizedBox(height: 12),
-
-                // ── File Filter Chips ──
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
+                error: (err, _) => Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildFilterChip('All Files', 'all'),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('PDFs', 'pdf'),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('Word Documents', 'docs'),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('Spreadsheets', 'sheets'),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('Images', 'images'),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // ── Section Header ──
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Available Files',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary(context),
-                        ),
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        size: 48,
+                        color: AppColors.grey400,
                       ),
+                      const SizedBox(height: 12),
                       Text(
-                        '${filtered.length} Documents',
+                        'Failed to load documents: $err',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.grey500,
-                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton.icon(
+                        onPressed: () =>
+                            ref.invalidate(employeeDocumentsProvider),
+                        icon: const Icon(Icons.refresh),
+                        label: Text(l10n.retry),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
+                data: (documents) {
+                  final filtered = documents.where((d) {
+                    if (_search.isNotEmpty) {
+                      final q = _search.toLowerCase();
+                      final matchesTitle = d.title.toLowerCase().contains(q);
+                      final matchesDesc =
+                          d.description?.toLowerCase().contains(q) ?? false;
+                      if (!matchesTitle && !matchesDesc) return false;
+                    }
 
-                SizedBox(height: 10),
+                    if (_filterType == 'pdf') {
+                      return d.mimeType?.contains('pdf') ?? false;
+                    }
+                    if (_filterType == 'docs') {
+                      return (d.mimeType?.contains('word') ?? false) ||
+                          (d.mimeType?.contains('document') ?? false);
+                    }
+                    if (_filterType == 'sheets') {
+                      return (d.mimeType?.contains('sheet') ?? false) ||
+                          (d.mimeType?.contains('excel') ?? false);
+                    }
+                    if (_filterType == 'images') {
+                      return d.mimeType?.contains('image/') ?? false;
+                    }
+                    return true;
+                  }).toList();
 
-                // ── Documents List ──
-                if (filtered.isEmpty)
-                  Container(
-                    padding: EdgeInsets.all(32),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: AppColors.textPrimary(context),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.border(context)),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  final Color cardBg =
+                      isDark ? const Color(0xFF242424) : Colors.white;
+                  final Color cardBorder = isDark
+                      ? const Color(0xFF333333)
+                      : const Color(0xFFE2E8F0);
+
+                  return RefreshIndicator(
+                    onRefresh: () async =>
+                        ref.invalidate(employeeDocumentsProvider),
+                    color: AppColors.primary,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
                       children: [
-                        const Icon(Icons.folder_off_rounded, size: 48, color: AppColors.grey300),
-                        const SizedBox(height: 12),
-                        Text(
-                          _search.isNotEmpty ? 'No files matching "$_search"' : l10n.noDocumentsAvailable,
-                          style: const TextStyle(color: AppColors.grey600, fontSize: 13.5, fontWeight: FontWeight.w500),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  ...filtered.map((doc) {
-                    final color = _getIconColor(doc.mimeType);
-                    final icon = _getFileIcon(doc.mimeType);
-
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: Container(
-                        padding: EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: AppColors.textPrimary(context),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: AppColors.border(context)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.02),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(14),
+                        // ── Search Bar ──
+                        Container(
+                          decoration: BoxDecoration(
+                            color: cardBg,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: cardBorder),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(
+                                  alpha: isDark ? 0.2 : 0.02,
+                                ),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
                               ),
-                              child: Icon(icon, color: color, size: 22),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: _searchCtrl,
+                            onChanged: (val) =>
+                                setState(() => _search = val.trim()),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDark ? Colors.white : AppColors.grey900,
                             ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    doc.title,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14.5,
-                                      color: AppColors.textPrimary(context),
-                                    ),
+                            decoration: InputDecoration(
+                              hintText: 'Search files, forms, templates...',
+                              hintStyle: TextStyle(
+                                color: isDark
+                                    ? AppColors.grey500
+                                    : AppColors.grey400,
+                                fontSize: 13,
+                              ),
+                              prefixIcon: Icon(
+                                Icons.search_rounded,
+                                color: isDark
+                                    ? AppColors.grey400
+                                    : AppColors.grey400,
+                                size: 20,
+                              ),
+                              suffixIcon: _search.isNotEmpty
+                                  ? IconButton(
+                                      icon: Icon(
+                                        Icons.clear_rounded,
+                                        color: isDark
+                                            ? AppColors.grey400
+                                            : AppColors.grey400,
+                                        size: 18,
+                                      ),
+                                      onPressed: () {
+                                        _searchCtrl.clear();
+                                        setState(() => _search = '');
+                                      },
+                                    )
+                                  : null,
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // ── Senior File Filter Chips ──
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            children: [
+                              _buildSeniorFilterChip('All Files', 'all', isDark),
+                              const SizedBox(width: 8),
+                              _buildSeniorFilterChip('PDFs', 'pdf', isDark),
+                              const SizedBox(width: 8),
+                              _buildSeniorFilterChip(
+                                'Word Documents',
+                                'docs',
+                                isDark,
+                              ),
+                              const SizedBox(width: 8),
+                              _buildSeniorFilterChip(
+                                'Spreadsheets',
+                                'sheets',
+                                isDark,
+                              ),
+                              const SizedBox(width: 8),
+                              _buildSeniorFilterChip('Images', 'images', isDark),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        // ── Section Header ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Available Files',
+                                style: TextStyle(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark
+                                      ? Colors.white
+                                      : AppColors.grey900,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(0xFF1E293B)
+                                      : const Color(0xFFEFF6FF),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? const Color(0xFF3B82F6)
+                                            .withValues(alpha: 0.3)
+                                        : const Color(0xFFBFDBFE),
+                                    width: 0.8,
                                   ),
-                                  if (doc.description != null && doc.description!.isNotEmpty) ...[
-                                    const SizedBox(height: 3),
-                                    Text(
-                                      doc.description!,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(color: AppColors.grey500, fontSize: 12, height: 1.3),
+                                ),
+                                child: Text(
+                                  '${filtered.length} Documents',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark
+                                        ? const Color(0xFF93C5FD)
+                                        : AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // ── Documents List ──
+                        if (filtered.isEmpty)
+                          Container(
+                            padding: const EdgeInsets.all(32),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: cardBg,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: cardBorder),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.folder_off_rounded,
+                                  size: 48,
+                                  color: AppColors.grey300,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  _search.isNotEmpty
+                                      ? 'No files matching "$_search"'
+                                      : l10n.noDocumentsAvailable,
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? AppColors.grey400
+                                        : AppColors.grey600,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          ...filtered.map((doc) {
+                            final color = _getIconColor(doc.mimeType);
+                            final icon = _getFileIcon(doc.mimeType);
+
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: cardBg,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(color: cardBorder),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: isDark ? 0.2 : 0.02,
+                                      ),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
                                     ),
                                   ],
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.grey100,
-                                          borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: 44,
+                                      height: 44,
+                                      decoration: BoxDecoration(
+                                        color: color.withValues(
+                                          alpha: isDark ? 0.18 : 0.10,
                                         ),
-                                        child: Text(
-                                          _formatBytes(doc.fileSize),
-                                          style: const TextStyle(fontSize: 10.5, color: AppColors.grey700, fontWeight: FontWeight.bold),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: color.withValues(
+                                            alpha: isDark ? 0.35 : 0.20,
+                                          ),
+                                          width: 0.8,
                                         ),
                                       ),
-                                      if (doc.department != null) ...[
-                                        const SizedBox(width: 6),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF14B8A6).withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(6),
-                                          ),
-                                          child: Text(
-                                            doc.department!.name,
-                                            style: const TextStyle(
-                                              fontSize: 10.5,
-                                              fontWeight: FontWeight.bold,
-                                              color: Color(0xFF0F766E),
+                                      child: Icon(icon, color: color, size: 22),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            doc.title,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 14,
+                                              color: isDark
+                                                  ? Colors.white
+                                                  : AppColors.grey900,
+                                              letterSpacing: -0.1,
                                             ),
                                           ),
+                                          if (doc.description != null &&
+                                              doc.description!.isNotEmpty) ...[
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              doc.description!,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: isDark
+                                                    ? AppColors.grey400
+                                                    : AppColors.grey500,
+                                                fontSize: 12,
+                                                height: 1.3,
+                                              ),
+                                            ),
+                                          ],
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 7,
+                                                  vertical: 2,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: isDark
+                                                      ? const Color(0xFF1E1E1E)
+                                                      : const Color(0xFFF1F5F9),
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                  border: Border.all(
+                                                    color: isDark
+                                                        ? const Color(0xFF333333)
+                                                        : const Color(0xFFE2E8F0),
+                                                    width: 0.8,
+                                                  ),
+                                                ),
+                                                child: Text(
+                                                  _formatBytes(doc.fileSize),
+                                                  style: TextStyle(
+                                                    fontSize: 10.5,
+                                                    color: isDark
+                                                        ? AppColors.grey300
+                                                        : AppColors.grey700,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                              if (doc.department != null) ...[
+                                                const SizedBox(width: 6),
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                    horizontal: 7,
+                                                    vertical: 2,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: isDark
+                                                        ? const Color(0xFF1E293B)
+                                                        : const Color(0xFFEFF6FF),
+                                                    borderRadius:
+                                                        BorderRadius.circular(6),
+                                                    border: Border.all(
+                                                      color: isDark
+                                                          ? const Color(0xFF3B82F6)
+                                                              .withValues(
+                                                                alpha: 0.3,
+                                                              )
+                                                          : const Color(0xFFBFDBFE),
+                                                      width: 0.8,
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    doc.department!.name,
+                                                    style: TextStyle(
+                                                      fontSize: 10.5,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: isDark
+                                                          ? const Color(0xFF93C5FD)
+                                                          : AppColors.primary,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    InkWell(
+                                      onTap: () =>
+                                          _downloadFile(context, doc, l10n),
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Container(
+                                        width: 38,
+                                        height: 38,
+                                        decoration: BoxDecoration(
+                                          color: isDark
+                                              ? const Color(0xFF1E293B)
+                                              : const Color(0xFFEFF6FF),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: isDark
+                                                ? const Color(0xFF3B82F6)
+                                                    .withValues(alpha: 0.3)
+                                                : const Color(0xFFBFDBFE),
+                                            width: 0.8,
+                                          ),
                                         ),
-                                      ],
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            InkWell(
-                              onTap: () => _downloadFile(context, doc, l10n),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF14B8A6).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.download_rounded,
-                                  color: Color(0xFF0F766E),
-                                  size: 20,
+                                        child: Icon(
+                                          Icons.download_rounded,
+                                          color: isDark
+                                              ? const Color(0xFF93C5FD)
+                                              : AppColors.primary,
+                                          size: 19,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildHeroBanner(int totalDocs) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
-        ),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF14B8A6).withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(Icons.folder_shared_rounded, color: Colors.white, size: 22),
+                            );
+                          }),
+                      ],
+                    ),
+                  );
+                },
               ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  '$totalDocs Files Available',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary(context),
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 14),
-          Text(
-            'Corporate Document Vault',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary(context),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Access official templates, onboarding materials, handbook PDFs, and departmental resources.',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.white.withValues(alpha: 0.85),
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, String type) {
-    final isSelected = _filterType == type;
-    return InkWell(
-      onTap: () => setState(() => _filterType = type),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0F766E) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? const Color(0xFF0F766E) : AppColors.grey200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeroHeader(
+    BuildContext context,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
+    final baseColor = isDark
+        ? const Color(0xFF0A2472)
+        : const Color(0xFF0B2A80);
+
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [baseColor, Color.lerp(baseColor, AppColors.primary, 0.6)!],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: isDark ? 0.34 : 0.28),
+            blurRadius: 30,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Background ambient rings
+          Positioned(
+            top: -100,
+            right: -80,
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -30,
+            right: -30,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              MediaQuery.paddingOf(context).top + 6,
+              16,
+              22,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top App Bar Row
+                Row(
+                  children: [
+                    _heroIconButton(
+                      Icons.arrow_back_ios_new_rounded,
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        }
+                      },
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.companyDocuments,
+                            style: const TextStyle(
+                              fontSize: 18.5,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Corporate Document Vault & Resources',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xB3FFFFFF),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _heroIconButton(
+                      Icons.refresh_rounded,
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        ref.invalidate(employeeDocumentsProvider);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _heroIconButton(IconData icon, {required VoidCallback onTap}) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.12),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          width: 38,
+          height: 38,
+          child: Icon(icon, color: Colors.white, size: 17),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSeniorFilterChip(String label, String type, bool isDark) {
+    final isSelected = _filterType == type;
+
+    final Color chipBg = isSelected
+        ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF))
+        : (isDark ? const Color(0xFF242424) : Colors.white);
+
+    final Color chipBorder = isSelected
+        ? (isDark ? const Color(0xFF3B82F6) : AppColors.primary)
+        : (isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0));
+
+    final Color chipTextColor = isSelected
+        ? (isDark ? const Color(0xFF93C5FD) : AppColors.primary)
+        : (isDark ? AppColors.grey400 : AppColors.grey600);
+
+    return InkWell(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _filterType = type);
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
+        decoration: BoxDecoration(
+          color: chipBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: chipBorder,
+            width: isSelected ? 1.2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(
+                      alpha: isDark ? 0.20 : 0.08,
+                    ),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-            color: isSelected ? Colors.white : AppColors.grey700,
+            fontSize: 12.5,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            color: chipTextColor,
           ),
         ),
       ),

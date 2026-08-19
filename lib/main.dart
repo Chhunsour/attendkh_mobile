@@ -27,7 +27,7 @@ void main() async {
         details.exception.toString().toLowerCase().contains('connection');
 
     return Material(
-      color: const Color(0xFF0F172A),
+      color: AppColors.backgroundDark,
       child: SafeArea(
         child: Center(
           child: Padding(
@@ -35,10 +35,10 @@ void main() async {
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: AppColors.surfaceDark,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: AppColors.borderDark,
                   width: 1,
                 ),
                 boxShadow: [

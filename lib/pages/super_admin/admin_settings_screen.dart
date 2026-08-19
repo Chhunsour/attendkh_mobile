@@ -250,8 +250,8 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF0F172A),
-                Color(0xFF1E293B),
+                Color(0xFF1E1E1E),
+                Color(0xFF282828),
               ],
             ),
             borderRadius: BorderRadius.circular(22),

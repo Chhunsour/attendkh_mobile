@@ -10,6 +10,8 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
+import 'package:mpg_hr_mobile_app/components/dialogs/delete_account_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
@@ -808,16 +810,36 @@ class _CompanyOwnerProfileScreenState
                             ),
                           ),
                         ),
+                        Divider(height: 1, color: AppColors.border(context)),
+                        _buildSettingsTile(
+                          icon: Icons.privacy_tip_outlined,
+                          title: 'Privacy Policy',
+                          onTap: () => launchUrl(
+                            Uri.parse('https://attendkh.com/privacy-policy'),
+                            mode: LaunchMode.inAppBrowserView,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // ── Logout Tile ──
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: AppColors.dangerLight,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.surfaceDark
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.danger.withAlpha(30)),
+                      border: Border.all(color: AppColors.border(context)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Material(
                       color: Colors.transparent,
@@ -826,8 +848,8 @@ class _CompanyOwnerProfileScreenState
                         borderRadius: BorderRadius.circular(16),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 20,
+                            vertical: 14,
+                            horizontal: 16,
                           ),
                           child: Row(
                             children: [
@@ -835,12 +857,12 @@ class _CompanyOwnerProfileScreenState
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: AppColors.danger.withAlpha(15),
+                                  color: AppColors.primary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Icon(
                                   Icons.logout_rounded,
-                                  color: AppColors.danger,
+                                  color: AppColors.primary,
                                   size: 20,
                                 ),
                               ),
@@ -848,10 +870,88 @@ class _CompanyOwnerProfileScreenState
                               Text(
                                 l10n.logOut,
                                 style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.danger,
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
                                 ),
+                              ),
+                              const Spacer(),
+                              const Icon(
+                                Icons.chevron_right_rounded,
+                                color: AppColors.grey400,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // ── Delete Account Tile (Guideline 5.1.1 v) ──
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.surfaceDark
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.danger.withValues(alpha: 0.35)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.danger.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => showDeleteAccountConfirmation(context, ref),
+                        borderRadius: BorderRadius.circular(16),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                            horizontal: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: AppColors.danger.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  Icons.delete_forever_rounded,
+                                  color: AppColors.danger,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Delete Account',
+                                    style: TextStyle(
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.danger,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Permanently delete account and data',
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      color: AppColors.grey500,
+                                    ),
+                                  ),
+                                ],
                               ),
                               const Spacer(),
                               const Icon(

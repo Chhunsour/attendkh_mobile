@@ -9340,6 +9340,654 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No payslips yet'**
   String get noPayslipsYet;
+
+  /// No description provided for @preferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get preferences;
+
+  /// No description provided for @themeAndAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme & Appearance'**
+  String get themeAndAppearance;
+
+  /// No description provided for @themeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark, light or system theme'**
+  String get themeSubtitle;
+
+  /// No description provided for @languageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'English • ខ្មែរ'**
+  String get languageSubtitle;
+
+  /// No description provided for @accountAndInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Account & Info'**
+  String get accountAndInfo;
+
+  /// No description provided for @accountActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Actions'**
+  String get accountActions;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @privacyPolicySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review how we protect and process your data'**
+  String get privacyPolicySubtitle;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently remove your account and personal data'**
+  String get deleteAccountSubtitle;
+
+  /// No description provided for @signOutSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out from this device'**
+  String get signOutSubtitle;
+
+  /// No description provided for @returnToAdminSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to HR Admin dashboard'**
+  String get returnToAdminSubtitle;
+
+  /// No description provided for @editProfileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your contact and bank details'**
+  String get editProfileSubtitle;
+
+  /// No description provided for @companyServicesAndTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Services & Tools'**
+  String get companyServicesAndTools;
+
+  /// No description provided for @featuresCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Features'**
+  String featuresCount(int count);
+
+  /// No description provided for @selectTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Theme'**
+  String get selectTheme;
+
+  /// No description provided for @selectLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Language'**
+  String get selectLanguage;
+
+  /// No description provided for @lightTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Theme'**
+  String get lightTheme;
+
+  /// No description provided for @darkTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Theme'**
+  String get darkTheme;
+
+  /// No description provided for @systemTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'System Theme'**
+  String get systemTheme;
+
+  /// No description provided for @lightThemeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Crisp clean interface with high contrast'**
+  String get lightThemeDesc;
+
+  /// No description provided for @darkThemeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep dark interface, easier on the eyes in low light'**
+  String get darkThemeDesc;
+
+  /// No description provided for @systemThemeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically matches your device display mode'**
+  String get systemThemeDesc;
+
+  /// No description provided for @englishDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Default language for international operations'**
+  String get englishDesc;
+
+  /// No description provided for @khmerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'ភាសាជាតិកម្ពុជា'**
+  String get khmerDesc;
+
+  /// No description provided for @attendkhAppVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version 1.0.0 • Production Release'**
+  String get attendkhAppVersion;
+
+  /// No description provided for @filterUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get filterUnread;
+
+  /// No description provided for @filterAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance'**
+  String get filterAttendance;
+
+  /// No description provided for @filterAnnouncements.
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements'**
+  String get filterAnnouncements;
+
+  /// No description provided for @filterPolicies.
+  ///
+  /// In en, this message translates to:
+  /// **'Policies'**
+  String get filterPolicies;
+
+  /// No description provided for @filterRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests'**
+  String get filterRequests;
+
+  /// No description provided for @filterRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get filterRead;
+
+  /// No description provided for @timelineToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get timelineToday;
+
+  /// No description provided for @timelineYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get timelineYesterday;
+
+  /// No description provided for @timelineThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get timelineThisWeek;
+
+  /// No description provided for @timelineEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get timelineEarlier;
+
+  /// No description provided for @searchNotificationsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search notifications by title or message...'**
+  String get searchNotificationsHint;
+
+  /// No description provided for @markAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Read'**
+  String get markAsRead;
+
+  /// No description provided for @markAsUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Unread'**
+  String get markAsUnread;
+
+  /// No description provided for @noMatchingNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching notifications'**
+  String get noMatchingNotifications;
+
+  /// No description provided for @allCaughtUp.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up!'**
+  String get allCaughtUp;
+
+  /// No description provided for @noFilterNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications in this filter'**
+  String get noFilterNotifications;
+
+  /// No description provided for @searchSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Try searching with different keywords or clearing your query.'**
+  String get searchSuggestions;
+
+  /// No description provided for @checkOtherTabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Check other tabs or swipe down to refresh for new updates.'**
+  String get checkOtherTabs;
+
+  /// No description provided for @emptyNotificationsPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Company announcements, policy updates, and attendance alerts will appear here.'**
+  String get emptyNotificationsPrompt;
+
+  /// No description provided for @moreServices.
+  ///
+  /// In en, this message translates to:
+  /// **'More Services'**
+  String get moreServices;
+
+  /// No description provided for @hrOperations.
+  ///
+  /// In en, this message translates to:
+  /// **'HR Operations'**
+  String get hrOperations;
+
+  /// No description provided for @financeAndAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance & Assets'**
+  String get financeAndAssets;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get navLeave;
+
+  /// No description provided for @navPayslip.
+  ///
+  /// In en, this message translates to:
+  /// **'Payslip'**
+  String get navPayslip;
+
+  /// No description provided for @navMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get navMore;
+
+  /// No description provided for @navHR.
+  ///
+  /// In en, this message translates to:
+  /// **'HR'**
+  String get navHR;
+
+  /// No description provided for @navPayroll.
+  ///
+  /// In en, this message translates to:
+  /// **'Payroll'**
+  String get navPayroll;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @navCompanies.
+  ///
+  /// In en, this message translates to:
+  /// **'Companies'**
+  String get navCompanies;
+
+  /// No description provided for @itemAttendanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'History & clock logs'**
+  String get itemAttendanceSubtitle;
+
+  /// No description provided for @itemOvertimeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request & track OT'**
+  String get itemOvertimeSubtitle;
+
+  /// No description provided for @itemExpensesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Claims & receipts'**
+  String get itemExpensesSubtitle;
+
+  /// No description provided for @itemTrainingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Courses & skills'**
+  String get itemTrainingSubtitle;
+
+  /// No description provided for @itemKpisSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance goals'**
+  String get itemKpisSubtitle;
+
+  /// No description provided for @itemHolidaysSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company calendar'**
+  String get itemHolidaysSubtitle;
+
+  /// No description provided for @itemRulesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Regulations & guide'**
+  String get itemRulesSubtitle;
+
+  /// No description provided for @itemPoliciesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & conditions'**
+  String get itemPoliciesSubtitle;
+
+  /// No description provided for @itemEmployees.
+  ///
+  /// In en, this message translates to:
+  /// **'Employees'**
+  String get itemEmployees;
+
+  /// No description provided for @itemEmployeesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Directory & staff profiles'**
+  String get itemEmployeesSubtitle;
+
+  /// No description provided for @itemHrStructure.
+  ///
+  /// In en, this message translates to:
+  /// **'HR Structure'**
+  String get itemHrStructure;
+
+  /// No description provided for @itemHrStructureSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Departments & designations'**
+  String get itemHrStructureSubtitle;
+
+  /// No description provided for @itemAdminAttendanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily check-in logs & scans'**
+  String get itemAdminAttendanceSubtitle;
+
+  /// No description provided for @itemAdminLeaveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time-off approvals & balance'**
+  String get itemAdminLeaveSubtitle;
+
+  /// No description provided for @itemAdminOvertimeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra hours review & claims'**
+  String get itemAdminOvertimeSubtitle;
+
+  /// No description provided for @itemAdminShiftsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rosters & timing schedules'**
+  String get itemAdminShiftsSubtitle;
+
+  /// No description provided for @itemAdminPayrollSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Salaries & payslip generation'**
+  String get itemAdminPayrollSubtitle;
+
+  /// No description provided for @itemAdminExpensesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt review & payouts'**
+  String get itemAdminExpensesSubtitle;
+
+  /// No description provided for @itemBranchLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch Locations'**
+  String get itemBranchLocations;
+
+  /// No description provided for @itemBranchLocationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS geofences & Wi-Fi'**
+  String get itemBranchLocationsSubtitle;
+
+  /// No description provided for @itemKpiPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'KPI & Performance'**
+  String get itemKpiPerformance;
+
+  /// No description provided for @itemKpiPerformanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarterly reviews'**
+  String get itemKpiPerformanceSubtitle;
+
+  /// No description provided for @itemAuditLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit Logs'**
+  String get itemAuditLogs;
+
+  /// No description provided for @itemAuditLogsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'System activity logs'**
+  String get itemAuditLogsSubtitle;
+
+  /// No description provided for @itemHolidayCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Holiday Calendar'**
+  String get itemHolidayCalendar;
+
+  /// No description provided for @itemHolidayCalendarSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Public & company days off'**
+  String get itemHolidayCalendarSubtitle;
+
+  /// No description provided for @itemAnnouncements.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Announcements'**
+  String get itemAnnouncements;
+
+  /// No description provided for @itemAnnouncementsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcasts & notices'**
+  String get itemAnnouncementsSubtitle;
+
+  /// No description provided for @itemCompanyPolicies.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Policies'**
+  String get itemCompanyPolicies;
+
+  /// No description provided for @itemCompanyPoliciesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'HR handbook & docs'**
+  String get itemCompanyPoliciesSubtitle;
+
+  /// No description provided for @itemRolesPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Roles & Permissions'**
+  String get itemRolesPermissions;
+
+  /// No description provided for @itemRolesPermissionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Access controls'**
+  String get itemRolesPermissionsSubtitle;
+
+  /// No description provided for @itemSupportTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Support Tickets'**
+  String get itemSupportTickets;
+
+  /// No description provided for @itemSupportTicketsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Client helpdesk'**
+  String get itemSupportTicketsSubtitle;
+
+  /// No description provided for @itemPlatformHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Health'**
+  String get itemPlatformHealth;
+
+  /// No description provided for @itemPlatformHealthSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'KPIs & uptime'**
+  String get itemPlatformHealthSubtitle;
+
+  /// No description provided for @itemGlobalAnnouncementsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Global broadcasts'**
+  String get itemGlobalAnnouncementsSubtitle;
+
+  /// No description provided for @itemPlatformSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Settings'**
+  String get itemPlatformSettings;
+
+  /// No description provided for @itemPlatformSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App configuration'**
+  String get itemPlatformSettingsSubtitle;
+
+  /// No description provided for @workShifts.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Shifts'**
+  String get workShifts;
+
+  /// No description provided for @companyAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Assets'**
+  String get companyAssets;
+
+  /// No description provided for @manageAssignedAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Track & manage equipment'**
+  String get manageAssignedAssets;
+
+  /// No description provided for @recruitmentJobsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Open positions & applicants'**
+  String get recruitmentJobsDesc;
+
+  /// No description provided for @performanceReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance Reviews'**
+  String get performanceReviews;
+
+  /// No description provided for @performanceReviewsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff KPI & appraisals'**
+  String get performanceReviewsDesc;
+
+  /// No description provided for @summaryReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary Reports'**
+  String get summaryReports;
+
+  /// No description provided for @summaryReportsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance & payroll overview'**
+  String get summaryReportsDesc;
+
+  /// No description provided for @analyticsReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics & Trends'**
+  String get analyticsReports;
+
+  /// No description provided for @analyticsReportsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'HR insights & statistics'**
+  String get analyticsReportsDesc;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @rejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get rejected;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'total'**
+  String get total;
 }
 
 class _AppLocalizationsDelegate

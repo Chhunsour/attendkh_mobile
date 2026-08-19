@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/company_rules_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
@@ -26,239 +28,361 @@ class _CompanyRulesScreenState extends ConsumerState<CompanyRulesScreen> {
   Widget build(BuildContext context) {
     final rulesAsync = ref.watch(companyRulesProvider);
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.bg(context),
-      appBar: AppBar(
-        backgroundColor: AppColors.surface(context),
-        elevation: 0,
-        centerTitle: false,
-        title: Text(
-          l10n.companyRules,
-          style: TextStyle(
-            color: AppColors.textPrimary(context),
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
-            tooltip: 'Refresh',
-            onPressed: () => ref.invalidate(companyRulesProvider),
-          ),
-        ],
-      ),
-      body: rulesAsync.when(
-        data: (rules) {
-          final filtered = rules.where((r) {
-            if (_searchQuery.isEmpty) return true;
-            final q = _searchQuery.toLowerCase();
-            return r.title.toLowerCase().contains(q) || r.description.toLowerCase().contains(q);
-          }).toList();
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : const Color(0xFFF8FAFC),
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Column(
+          children: [
+            // ── AttendKH Gradient Hero Header ──
+            _buildHeroHeader(context, isDark, l10n, rulesAsync.value?.length ?? 0),
 
-          return RefreshIndicator(
-            onRefresh: () async => ref.invalidate(companyRulesProvider),
-            color: AppColors.primary,
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 40),
-              children: [
-                // ── Hero Handbook Banner ──
-                _buildHeaderCard(rules.length),
+            // ── Rules Body ──
+            Expanded(
+              child: rulesAsync.when(
+                data: (rules) {
+                  final filtered = rules.where((r) {
+                    if (_searchQuery.isEmpty) return true;
+                    final q = _searchQuery.toLowerCase();
+                    return r.title.toLowerCase().contains(q) ||
+                        r.description.toLowerCase().contains(q);
+                  }).toList();
 
-                SizedBox(height: 16),
+                  final Color cardBg =
+                      isDark ? const Color(0xFF242424) : Colors.white;
+                  final Color cardBorder = isDark
+                      ? const Color(0xFF333333)
+                      : const Color(0xFFE2E8F0);
 
-                // ── Search Bar ──
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border(context)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.02),
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
+                  return RefreshIndicator(
+                    onRefresh: () async =>
+                        ref.invalidate(companyRulesProvider),
+                    color: AppColors.primary,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
                       ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _searchCtrl,
-                    onChanged: (val) => setState(() => _searchQuery = val.trim()),
-                    style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
-                    decoration: InputDecoration(
-                      hintText: 'Search rules, conduct, guidelines...',
-                      hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
-                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 20),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear_rounded, color: AppColors.grey400, size: 18),
-                              onPressed: () {
-                                _searchCtrl.clear();
-                                setState(() => _searchQuery = '');
-                              },
-                            )
-                          : null,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 18),
-
-                // ── Section Header ──
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Regulations & Policies',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary(context),
-                        ),
-                      ),
-                      Text(
-                        '${filtered.length} Guidelines',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.grey500,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 12),
-
-                // ── Rules List ──
-                if (filtered.isEmpty)
-                  Container(
-                    padding: EdgeInsets.all(32),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: AppColors.textPrimary(context),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.border(context)),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
                       children: [
-                        const Icon(Icons.search_off_rounded, size: 44, color: AppColors.grey300),
-                        const SizedBox(height: 10),
-                        Text(
-                          _searchQuery.isNotEmpty ? 'No rules matching "$_searchQuery"' : l10n.noCompanyRules,
-                          style: const TextStyle(color: AppColors.grey600, fontSize: 13.5, fontWeight: FontWeight.w500),
-                          textAlign: TextAlign.center,
+                        // ── Search Bar ──
+                        Container(
+                          decoration: BoxDecoration(
+                            color: cardBg,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: cardBorder),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(
+                                  alpha: isDark ? 0.2 : 0.02,
+                                ),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: _searchCtrl,
+                            onChanged: (val) =>
+                                setState(() => _searchQuery = val.trim()),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: isDark ? Colors.white : AppColors.grey900,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'Search rules, conduct, guidelines...',
+                              hintStyle: TextStyle(
+                                color: isDark
+                                    ? AppColors.grey500
+                                    : AppColors.grey400,
+                                fontSize: 13,
+                              ),
+                              prefixIcon: Icon(
+                                Icons.search_rounded,
+                                color: isDark
+                                    ? AppColors.grey400
+                                    : AppColors.grey400,
+                                size: 20,
+                              ),
+                              suffixIcon: _searchQuery.isNotEmpty
+                                  ? IconButton(
+                                      icon: Icon(
+                                        Icons.clear_rounded,
+                                        color: isDark
+                                            ? AppColors.grey400
+                                            : AppColors.grey400,
+                                        size: 18,
+                                      ),
+                                      onPressed: () {
+                                        _searchCtrl.clear();
+                                        setState(() => _searchQuery = '');
+                                      },
+                                    )
+                                  : null,
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
+                            ),
+                          ),
                         ),
+
+                        const SizedBox(height: 18),
+
+                        // ── Section Header ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Regulations & Policies',
+                                style: TextStyle(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark
+                                      ? Colors.white
+                                      : AppColors.grey900,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(0xFF1E293B)
+                                      : const Color(0xFFEFF6FF),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? const Color(0xFF3B82F6)
+                                            .withValues(alpha: 0.3)
+                                        : const Color(0xFFBFDBFE),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Text(
+                                  '${filtered.length} Guidelines',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark
+                                        ? const Color(0xFF93C5FD)
+                                        : AppColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // ── Rules List ──
+                        if (filtered.isEmpty)
+                          Container(
+                            padding: const EdgeInsets.all(32),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: cardBg,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: cardBorder),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.search_off_rounded,
+                                  size: 44,
+                                  color: AppColors.grey300,
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  _searchQuery.isNotEmpty
+                                      ? 'No rules matching "$_searchQuery"'
+                                      : l10n.noCompanyRules,
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? AppColors.grey400
+                                        : AppColors.grey600,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          ...filtered.asMap().entries.map((entry) {
+                            final index = entry.key + 1;
+                            final rule = entry.value;
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _buildRuleCard(
+                                index,
+                                rule.title,
+                                rule.description,
+                                isDark,
+                              ),
+                            );
+                          }),
                       ],
                     ),
-                  )
-                else
-                  ...filtered.asMap().entries.map((entry) {
-                    final index = entry.key + 1;
-                    final rule = entry.value;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildRuleCard(index, rule.title, rule.description),
-                    );
-                  }),
-              ],
-            ),
-          );
-        },
-        loading: () => LoadingIndicator(message: l10n.loading),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: AppColors.grey400),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => ref.invalidate(companyRulesProvider),
-                icon: const Icon(Icons.refresh),
-                label: Text(l10n.retry),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeaderCard(int totalRules) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF4338CA), Color(0xFF6366F1)],
-        ),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6366F1).withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(12),
+                  );
+                },
+                loading: () => Center(
+                  child: LoadingIndicator(message: l10n.loading),
                 ),
-                child: const Icon(Icons.gavel_rounded, color: Colors.white, size: 22),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  '$totalRules Active Rules',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary(context),
-                    letterSpacing: 0.3,
+                error: (e, _) => Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: AppColors.grey400,
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: () =>
+                            ref.invalidate(companyRulesProvider),
+                        icon: const Icon(Icons.refresh),
+                        label: Text(l10n.retry),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeroHeader(
+    BuildContext context,
+    bool isDark,
+    AppLocalizations l10n,
+    int totalRules,
+  ) {
+    final baseColor = isDark
+        ? const Color(0xFF0A2472)
+        : const Color(0xFF0B2A80);
+
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [baseColor, Color.lerp(baseColor, AppColors.primary, 0.6)!],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: isDark ? 0.34 : 0.28),
+            blurRadius: 30,
+            offset: const Offset(0, 14),
           ),
-          SizedBox(height: 14),
-          Text(
-            'Employee Code of Conduct',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary(context),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Background ambient rings
+          Positioned(
+            top: -100,
+            right: -80,
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Standard guidelines, office ethics, compliance requirements, and operational workplace rules.',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.white.withValues(alpha: 0.85),
-              height: 1.4,
+          Positioned(
+            top: -30,
+            right: -30,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              MediaQuery.paddingOf(context).top + 6,
+              16,
+              22,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top App Bar Row
+                Row(
+                  children: [
+                    _heroIconButton(
+                      Icons.arrow_back_ios_new_rounded,
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        }
+                      },
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.companyRules,
+                            style: const TextStyle(
+                              fontSize: 18.5,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            'Employee Code of Conduct & Guidelines',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xB3FFFFFF),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _heroIconButton(
+                      Icons.refresh_rounded,
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        ref.invalidate(companyRulesProvider);
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -266,18 +390,44 @@ class _CompanyRulesScreenState extends ConsumerState<CompanyRulesScreen> {
     );
   }
 
-  Widget _buildRuleCard(int index, String title, String description) {
+  Widget _heroIconButton(IconData icon, {required VoidCallback onTap}) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.12),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          width: 38,
+          height: 38,
+          child: Icon(icon, color: Colors.white, size: 17),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRuleCard(
+    int index,
+    String title,
+    String description,
+    bool isDark,
+  ) {
     final indexStr = index.toString().padLeft(2, '0');
 
+    final Color cardBg = isDark ? const Color(0xFF242424) : Colors.white;
+    final Color cardBorder = isDark
+        ? const Color(0xFF333333)
+        : const Color(0xFFE2E8F0);
+
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: cardBg,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border(context)),
+        border: Border.all(color: cardBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -287,31 +437,45 @@ class _CompanyRulesScreenState extends ConsumerState<CompanyRulesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 3.5,
+                ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                  color: isDark
+                      ? const Color(0xFF1E293B)
+                      : const Color(0xFFEFF6FF),
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF3B82F6).withValues(alpha: 0.3)
+                        : const Color(0xFFBFDBFE),
+                    width: 0.8,
+                  ),
                 ),
                 child: Text(
                   '#$indexStr',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF6366F1),
+                    color: isDark
+                        ? const Color(0xFF93C5FD)
+                        : AppColors.primary,
                   ),
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary(context),
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : AppColors.grey900,
+                    letterSpacing: -0.1,
                   ),
                 ),
               ),
@@ -322,10 +486,10 @@ class _CompanyRulesScreenState extends ConsumerState<CompanyRulesScreen> {
             padding: const EdgeInsets.only(left: 2),
             child: Text(
               description,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.grey700,
-                height: 1.5,
+                color: isDark ? AppColors.grey300 : AppColors.grey700,
+                height: 1.45,
               ),
             ),
           ),

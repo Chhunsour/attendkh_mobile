@@ -109,7 +109,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
 
       try {
-        final currentUser = await _authRepo.getCurrentUser();
+        final currentUser = await _authRepo.getCurrentUser().timeout(
+          const Duration(seconds: 8),
+        );
         await _persistUserData(currentUser);
 
         state = state.copyWith(
@@ -242,6 +244,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _authRepo.logout();
     } catch (e) {
       AppLogger.w('Logout API call failed — clearing local data anyway');
+    }
+    await SecureStorageService.instance.clearAll();
+    state = const AuthState();
+  }
+
+  /// Delete Account — Guideline 5.1.1(v) compliance.
+  /// Throws on failure so the caller can keep the user signed in.
+  Future<void> deleteAccount() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await _authRepo.deleteAccount();
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+      rethrow; // caller decides what the user sees; session stays intact
     }
     await SecureStorageService.instance.clearAll();
     state = const AuthState();

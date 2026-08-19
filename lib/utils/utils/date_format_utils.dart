@@ -32,7 +32,12 @@ String formatTime(String? timeStr) {
   }
 }
 
-/// Formats a shift time range or single time into AM/PM format (e.g., "08:00 - 17:00" → "08:00 AM - 05:00 PM")
+/// A shift window is read at a glance, so it drops the padding zero and uses
+/// an en dash: "08:00 - 17:00" → "8:00 AM – 5:00 PM".
+String _shiftRange(String start, String end) =>
+    '$start – $end'.replaceAll(RegExp(r'\b0(?=\d:)'), '');
+
+/// Formats a shift time range or single time into AM/PM format
 String formatShiftTime(String? shiftStr) {
   if (shiftStr == null || shiftStr.trim().isEmpty) return 'No shift today';
   final trimmed = shiftStr.trim();
@@ -44,7 +49,7 @@ String formatShiftTime(String? shiftStr) {
       final start = formatTime(parts[0]);
       final end = formatTime(parts[1]);
       if (start != '—' && end != '—') {
-        return '$start - $end';
+        return _shiftRange(start, end);
       }
     }
   } else if (trimmed.contains('-') && !trimmed.contains('T')) {
@@ -53,7 +58,7 @@ String formatShiftTime(String? shiftStr) {
       final start = formatTime(parts[0]);
       final end = formatTime(parts[1]);
       if (start != '—' && end != '—') {
-        return '$start - $end';
+        return _shiftRange(start, end);
       }
     }
   }
@@ -93,4 +98,19 @@ String formatDurationHours(num? totalHours) {
   if (totalHours == null || totalHours == 0) return '0m';
   final totalMinutes = (totalHours.abs() * 60).round();
   return formatDurationMinutes(totalMinutes);
+}
+
+/// Minutes-from-midnight of the END of a shift range like "08:00 - 17:00".
+/// Returns null when the string is not a range we can read.
+int? shiftEndMinutes(String? shiftStr) {
+  if (shiftStr == null || shiftStr.trim().isEmpty) return null;
+  final parts = shiftStr.trim().split(RegExp(r'\s*-\s*'));
+  // A full ISO date splits into more than two pieces, which is the null case.
+  if (parts.length != 2) return null;
+  final hm = parts[1].split(':');
+  if (hm.length < 2) return null;
+  final h = int.tryParse(hm[0].trim());
+  final m = int.tryParse(hm[1].trim());
+  if (h == null || m == null) return null;
+  return h * 60 + m;
 }

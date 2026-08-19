@@ -17,6 +17,7 @@ class KpiEmployeeView extends StatelessWidget {
       ),
       children: [
         KpiSharedComponents.buildSummaryCard(
+          context: context,
           title: l10n.overallSystemScore,
           score: data.metrics.overallScore,
           subtitle: l10n.basedOnDynamicData,

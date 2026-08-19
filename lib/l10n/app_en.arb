@@ -15,10 +15,10 @@
   "language": "Language",
   "english": "English",
   "khmer": "Khmer",
-  "welcomeBack": "Welcome Back!",
+  "welcomeBack": "Welcome back,",
   "loginIdentityHint": "user@email.com, 010123456, or EMP01",
   "loginIdentityLabel": "Email, Phone, or Employee ID",
-  "fieldRequired": "This field is required",
+  "fieldRequired": "Required",
   "enterYourPassword": "Enter your password",
   "password": "Password",
   "passwordRequired": "Password *",
@@ -46,7 +46,7 @@
   "emailHint": "you@company.com",
   "emailRequired": "Email is required",
   "validEmailRequired": "Enter a valid email",
-  "min8Chars": "Min. 8 characters",
+  "min8Chars": "Min 8 chars",
   "min8CharsRequired": "Must be at least 8 characters",
   "confirmPassword": "Confirm Password",
   "reEnterPassword": "Re-enter your password",
@@ -135,7 +135,7 @@
   "requestCorrection": "Request Correction",
   "requestCorrectionDesc": "Submit a request to correct an anomaly in your attendance log.",
   "dateStr": "Date",
-  "selectDate": "Select date",
+  "selectDate": "Select Date",
   "correctionType": "Correction Type",
   "missedClockIn": "Missed Clock In",
   "missedClockOut": "Missed Clock Out",
@@ -250,7 +250,7 @@
   "no": "No",
   "yesCancel": "Yes, cancel",
   "leaveRequestCancelled": "✅ Leave request cancelled",
-  "noExpenseClaims": "No expense claims found",
+  "noExpenseClaims": "No expense claims",
   "submitFirstExpense": "Submit your first expense claim to get started",
   "loadingExpenses": "Loading expenses...",
   "deleteClaim": "Delete Claim",
@@ -269,14 +269,14 @@
   "category": "Category",
   "amount": "Amount",
   "expenseDate": "Expense Date",
-  "statusLabel": "Status: ",
+  "statusLabel": "Status",
   "description": "Description",
   "rejectionReason": "Rejection Reason",
   "paidAt": "Paid At",
   "receipt": "Receipt",
   "editExpenseClaim": "Edit Expense Claim",
   "newExpenseClaim": "New Expense Claim",
-  "titleRequired": "Title *",
+  "titleRequired": "Title is required",
   "titleHint": "e.g. Client lunch, Taxi fare",
   "titleError": "Title is required",
   "categoryRequired": "Category *",
@@ -336,7 +336,7 @@
   "holidayCalendar": "Holiday Calendar",
   "holidaysThisMonth": "Holidays this month",
   "noHolidaysThisMonth": "No holidays this month",
-  "loadingHolidays": "Loading holidays...",
+  "loadingHolidays": "Loading Holidays...",
   "performanceKpis": "Performance KPIs",
   "platformHealth": "Platform Health",
   "myPerf": "My Perf.",
@@ -408,7 +408,9 @@
   "scoreLabel": "Score: {score}%",
   "@scoreLabel": {
     "placeholders": {
-      "score": {"type": "num"}
+      "score": {
+        "type": "num"
+      }
     }
   },
   "overallSystemScore": "Overall System Score",
@@ -428,7 +430,9 @@
   "kpisTrackedLiveData": "{count} KPIs tracked • Live Data",
   "@kpisTrackedLiveData": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "targetLabel": "Target: ",
@@ -438,10 +442,7 @@
   "noCompanyKpisFound": "No company KPIs found.",
   "noCompanyKpisDesc": "Data will appear once employees,\nattendance and payroll are set up.",
   "platformAdminTitle": "Platform Admin",
-  "failedToLoadDashboard": "Failed to load dashboard",
-  "welcomeBack": "Welcome back,",
   "platformAdministratorBadge": "🛡️  Platform Administrator",
-  "quickOperations": "Quick Operations",
   "menuCompanies": "Companies",
   "menuCompaniesDesc": "Manage registers",
   "menuRoles": "Roles",
@@ -463,7 +464,9 @@
   "statCompaniesActive": "{count} active",
   "@statCompaniesActive": {
     "placeholders": {
-      "count": {"type": "String"}
+      "count": {
+        "type": "String"
+      }
     }
   },
   "statTotalUsers": "Total Users",
@@ -476,11 +479,13 @@
   "recentSupportTickets": "Recent Support Tickets",
   "platformSettingsTitle": "Platform Settings",
   "failedToLoadSettings": "Failed to load settings",
-  "settingsSavedSuccess": "Settings saved successfully",
+  "settingsSavedSuccess": "✅ Settings saved",
   "settingsFailed": "Failed: {error}",
   "@settingsFailed": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "globalSettingsTitle": "Global Settings",
@@ -495,7 +500,9 @@
   "permissionsCount": "{count} permissions",
   "@permissionsCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "loadingRoles": "Loading roles...",
@@ -506,14 +513,16 @@
   "coreSystemRolesWarning": "Core system role names cannot be changed.",
   "permissionsLabel": "Permissions",
   "roleUpdatedSuccess": "Role updated",
-  "roleCreatedSuccess": "Role created",
+  "roleCreatedSuccess": "✅ Role created",
   "saveChanges": "Save Changes",
   "btnCreateRole": "Create Role",
   "deleteRoleTitle": "Delete Role",
-  "deleteRoleConfirm": "Are you sure you want to delete the role \"{roleName}\"?",
+  "deleteRoleConfirm": "Delete role {name}?",
   "@deleteRoleConfirm": {
     "placeholders": {
-      "roleName": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "roleDeletedSuccess": "Role deleted",
@@ -527,8 +536,12 @@
   "ticketMarkedAs": "Ticket #{id} marked as {status}",
   "@ticketMarkedAs": {
     "placeholders": {
-      "id": {"type": "int"},
-      "status": {"type": "String"}
+      "id": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
     }
   },
   "platformAnnouncementsTitle": "Platform Announcements",
@@ -537,10 +550,12 @@
   "statusPublished": "Published",
   "statusDraft": "Draft",
   "deleteAnnouncementTitle": "Delete Announcement",
-  "deleteAnnouncementConfirm": "Are you sure you want to delete \"{title}\"?",
+  "deleteAnnouncementConfirm": "Delete \"{title}\"?",
   "@deleteAnnouncementConfirm": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "btnDelete": "Delete",
@@ -572,16 +587,13 @@
   "maritalDivorced": "Divorced",
   "maritalWidowed": "Widowed",
   "dateOfBirthLabel": "Date of Birth",
-  "selectDate": "Select Date",
   "saveProfileBtn": "Save Profile",
   "profileUpdatedSuccess": "Profile updated successfully",
   "updatePasswordTitle": "Update Password",
   "updatePasswordDesc": "Ensure your account is using a long, random password to stay secure.",
   "currentPasswordLabel": "Current Password",
   "newPasswordLabel": "New Password",
-  "min8Chars": "Min 8 chars",
   "confirmPasswordLabel": "Confirm Password",
-  "passwordsDoNotMatch": "Passwords do not match",
   "btnUpdatePassword": "Update Password",
   "passwordUpdatedSuccess": "Password updated successfully",
   "testingDebuggingTitle": "Testing & Debugging",
@@ -593,7 +605,9 @@
   "byUser": "By {name}",
   "@byUser": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "noDetailsAvailable": "No details available for this log",
@@ -612,39 +626,51 @@
   "suspendCompanyContent": "Are you sure you want to suspend \"{name}\"? This will deactivate their account.",
   "@suspendCompanyContent": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "companySuspendedSuccess": "{name} has been suspended",
   "@companySuspendedSuccess": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "activateCompanyTitle": "Activate Company",
   "activateCompanyContent": "Activate \"{name}\"?",
   "@activateCompanyContent": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "companyActivatedSuccess": "{name} activated",
   "@companyActivatedSuccess": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "deleteCompanyTitle": "Delete Company",
   "deleteCompanyContent": "Permanently delete \"{name}\"? This action cannot be undone.",
   "@deleteCompanyContent": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "companyDeletedSuccess": "{name} deleted",
   "@companyDeletedSuccess": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "companyStatsTitle": "Company Stats",
@@ -652,8 +678,7 @@
   "editCompanyTitle": "Edit Company",
   "createCompanyTitle": "Create Company",
   "companyNameLabel": "Company Name",
-  "fieldRequired": "Required",
-  "emailLabel": "Email",
+  "emailLabel": "Email Address",
   "companyOwnerAccountTitle": "Company Owner Account",
   "companyOwnerEditDesc": "Update owner details or enter a new password to reset account access.",
   "companyOwnerCreateDesc": "Account automatically created for the owner. Leave blank to default to company email and password Password123!.",
@@ -661,13 +686,12 @@
   "ownerLoginEmailLabel": "Owner Login Email",
   "newPasswordOptionalLabel": "New Password (Optional)",
   "ownerPasswordLabel": "Owner Password",
-  "phoneLabel": "Phone",
+  "phoneLabel": "Phone Number",
   "addressLabel": "Address",
   "gettingLocation": "Getting...",
   "getLocation": "Get Location",
   "timezoneLabel": "Timezone",
   "currencyLabel": "Currency",
-  "statusLabel": "Status",
   "socialMediaLinksTitle": "Social Media Links",
   "actionAdd": "Add",
   "noSocialMediaLinks": "No social media links added.",
@@ -684,7 +708,9 @@
   "ownerCredentialsGenerated": "Owner credentials generated for \"{name}\"",
   "@ownerCredentialsGenerated": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "ownerEmailTitle": "OWNER EMAIL",
@@ -835,7 +861,6 @@
   "employeeCreatedSuccess": "Employee created successfully",
   "employeeUpdatedSuccess": "Employee updated successfully",
   "save": "Save",
-  "saving": "Saving...",
   "createEmployee": "Create Employee",
   "updateEmployee": "Update Employee",
   "personalInformation": "Personal Information",
@@ -936,7 +961,7 @@
   "reasonRequired": "Reason *",
   "reasonForLeaveHint": "Reason for leave...",
   "requestSubmitted": "Request submitted",
-  "halfDayLabel": "Half-day",
+  "halfDayLabel": "Half Day",
   "daysShort": "d",
   "requestActioned": "Request {action}d",
   "@requestActioned": {
@@ -960,7 +985,6 @@
   "allocatedDaysRequired": "Allocated Days *",
   "allocatedDays": "Allocated Days",
   "carriedForward": "Carried Forward",
-  "saveChanges": "Save Changes",
   "balanceUpdated": "Balance updated",
   "addLeaveBalance": "Add Leave Balance",
   "addLeaveBalanceSubtitle": "Allocate days to an employee",
@@ -1134,7 +1158,7 @@
   "deleteShiftTitle": "Delete Shift?",
   "deleteShiftConfirmPrefix": "Are you sure you want to delete\n",
   "deleteShiftConfirmSuffix": "?\n\nThis action cannot be undone.",
-  "shiftDeletedSuccess": "✅ {name} deleted successfully",
+  "shiftDeletedSuccess": "✅ Shift deleted",
   "@shiftDeletedSuccess": {
     "placeholders": {
       "name": {
@@ -1234,7 +1258,7 @@
   "weeklyScheduleTitle": "Weekly Schedule",
   "copyMonToAll": "Copy Mon to all",
   "selectOneWorkingDayError": "Select at least one working day",
-  "shiftCreatedSuccess": "Shift created successfully",
+  "shiftCreatedSuccess": "✅ Shift created",
   "shiftUpdatedSuccess": "Shift updated successfully",
   "shiftFailedError": "Failed: {error}",
   "@shiftFailedError": {
@@ -1254,8 +1278,8 @@
   "activeScheduleSubtitle": "Available for employee assignment",
   "saveChangesBtn": "Save Changes",
   "createScheduleBtn": "Create Schedule",
-  "startTimeLabel": "Start",
-  "endTimeLabel": "End",
+  "startTimeLabel": "Start Time",
+  "endTimeLabel": "End Time",
   "scheduledDayOff": "Scheduled Day Off",
   "dayOff": "Day off",
   "payrollManagementTitle": "Payroll Management",
@@ -1268,7 +1292,9 @@
   "payrollRunTitle": "Payroll Run {period}",
   "@payrollRunTitle": {
     "placeholders": {
-      "period": { "type": "String" }
+      "period": {
+        "type": "String"
+      }
     }
   },
   "payrollRunPrompt": "Would you like to mark this Payroll Run as COMPLETED or view Payslips?",
@@ -1281,7 +1307,6 @@
   "payrollStartDayLabel": "Payroll Start Day (1-31)",
   "workingDaysCalcTypeLabel": "Working Days Calculation Type",
   "fixedWorkingDaysLabel": "Fixed Working Days per Period",
-  "currencyLabel": "Currency (e.g. USD)",
   "currencySymbolLabel": "Currency Symbol (e.g. $)",
   "overtimeSettingsTitle": "Overtime Settings",
   "enableOvertimePayLabel": "Enable Overtime Pay",
@@ -1307,7 +1332,6 @@
   "halfDayMinHoursLabel": "Half-Day Minimum Hours",
   "halfDayDeductionPctLabel": "Half-Day Deduction %",
   "saveSettingsBtn": "Save Settings",
-  "settingsSavedSuccess": "✅ Settings saved",
   "loadingSettings": "Loading settings...",
   "periodStartLabel": "Period Start",
   "periodEndLabel": "Period End",
@@ -1330,7 +1354,9 @@
   "payrollDetailTitle": "Payroll {period}",
   "@payrollDetailTitle": {
     "placeholders": {
-      "period": { "type": "String" }
+      "period": {
+        "type": "String"
+      }
     }
   },
   "exportToExcelTooltip": "Export to Excel",
@@ -1338,7 +1364,9 @@
   "payrollDetailError": "Error: {error}",
   "@payrollDetailError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "totalGrossLabel": "Total Gross",
@@ -1347,20 +1375,26 @@
   "employeesCountSuffix": "{count} employees",
   "@employeesCountSuffix": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "noPayslipsFound": "No payslips found",
   "exportedToPath": "✅ Exported to {path}",
   "@exportedToPath": {
     "placeholders": {
-      "path": { "type": "String" }
+      "path": {
+        "type": "String"
+      }
     }
   },
   "exportFailed": "❌ Export failed: {error}",
   "@exportFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "basicSalaryLabel": "Basic Salary",
@@ -1381,7 +1415,9 @@
   "branchPayrollTitle": "{branch} Payroll",
   "@branchPayrollTitle": {
     "placeholders": {
-      "branch": { "type": "String" }
+      "branch": {
+        "type": "String"
+      }
     }
   },
   "branchCustomizationTitle": "Branch Customization",
@@ -1399,7 +1435,9 @@
   "formulasSalaryExample": "{symbol}1,000/month",
   "@formulasSalaryExample": {
     "placeholders": {
-      "symbol": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      }
     }
   },
   "formulasWorkHours": " and works 8 hours per day.",
@@ -1408,23 +1446,35 @@
   "hourlyRateFormulaFixed": "Hourly Rate = (Monthly Salary / {fixedDays} fixed days) / 8 hours",
   "@hourlyRateFormulaFixed": {
     "placeholders": {
-      "fixedDays": { "type": "int" }
+      "fixedDays": {
+        "type": "int"
+      }
     }
   },
   "hourlyRateFormulaActual": "Hourly Rate = (Monthly Salary / Actual working days in month) / 8 hours",
   "hourlyRateExampleFixed": "Example: ({symbol}1,000 ÷ {fixedDays} days) ÷ 8 hrs = {symbol}{rate} per hour.",
   "@hourlyRateExampleFixed": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "fixedDays": { "type": "int" },
-      "rate": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "fixedDays": {
+        "type": "int"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "hourlyRateExampleActual": "Example: ({symbol}1,000 ÷ 22 days) ÷ 8 hrs = {symbol}{rate} per hour.",
   "@hourlyRateExampleActual": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "rate": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "lateDeductionFormulaTitle": "Late Deduction Formula",
@@ -1434,93 +1484,153 @@
   "lateGraceDesc": "Employees have a grace period of {grace} minutes. If an employee is late beyond the grace period, the deduction is calculated as follows:",
   "@lateGraceDesc": {
     "placeholders": {
-      "grace": { "type": "int" }
+      "grace": {
+        "type": "int"
+      }
     }
   },
   "earlyLeaveGraceDesc": "Employees have a grace period of {grace} minutes. If an employee leaves early beyond the grace period, the deduction is calculated as follows:",
   "@earlyLeaveGraceDesc": {
     "placeholders": {
-      "grace": { "type": "int" }
+      "grace": {
+        "type": "int"
+      }
     }
   },
   "lateFormulaPerMinute": "Total Deduction = (Late Minutes - {grace}) * (Hourly Rate / 60) * {rate} (multiplier)",
   "@lateFormulaPerMinute": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "rate": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "lateExamplePerMinute": "Example (30 mins late): (30 - {grace}m grace) * ({symbol}{hourlyRate}/60) * {rate}x = {symbol}{amount} deducted.",
   "@lateExamplePerMinute": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "symbol": { "type": "String" },
-      "hourlyRate": { "type": "String" },
-      "rate": { "type": "String" },
-      "amount": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "hourlyRate": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "lateFormulaFixed": "Total Deduction = {symbol}{rate} (Fixed flat fee)",
   "@lateFormulaFixed": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "rate": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "lateExampleFixed": "Example: Employee is 20 minutes late (past the {grace}m grace). They are deducted exactly {symbol}{rate}.",
   "@lateExampleFixed": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "symbol": { "type": "String" },
-      "rate": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "lateFormulaHalfDay": "Total Deduction = Half-Day Salary (i.e. Daily Rate / 2)",
   "lateExampleHalfDay": "Example: Employee is 20 minutes late (past grace). Half day salary ({symbol}{amount}) is deducted.",
   "@lateExampleHalfDay": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "amount": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "earlyLeaveFormulaPerMinute": "Total Deduction = (Early Leave Minutes - {grace}) * (Hourly Rate / 60) * {rate} (multiplier)",
   "@earlyLeaveFormulaPerMinute": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "rate": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "earlyLeaveExamplePerMinute": "Example (30 mins early): (30 - {grace}m grace) * ({symbol}{hourlyRate}/60) * {rate}x = {symbol}{amount} deducted.",
   "@earlyLeaveExamplePerMinute": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "symbol": { "type": "String" },
-      "hourlyRate": { "type": "String" },
-      "rate": { "type": "String" },
-      "amount": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "hourlyRate": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "earlyLeaveFormulaFixed": "Total Deduction = {symbol}{rate} (Fixed flat fee)",
   "@earlyLeaveFormulaFixed": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "rate": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "earlyLeaveExampleFixed": "Example: Employee leaves 20 minutes early (past the {grace}m grace). They are deducted exactly {symbol}{rate}.",
   "@earlyLeaveExampleFixed": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "symbol": { "type": "String" },
-      "rate": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "earlyLeaveFormulaHalfDay": "Total Deduction = Half-Day Salary (i.e. Daily Rate / 2)",
   "earlyLeaveExampleHalfDay": "Example: Employee leaves 20 minutes early (past grace). Half day salary ({symbol}{amount}) is deducted.",
   "@earlyLeaveExampleHalfDay": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "amount": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "overtimeCalcTitle": "Overtime Calculation",
@@ -1532,25 +1642,43 @@
   "otFormulaRegular": "OT Payout = OT Hours * Hourly Rate * {multiplier}",
   "@otFormulaRegular": {
     "placeholders": {
-      "multiplier": { "type": "String" }
+      "multiplier": {
+        "type": "String"
+      }
     }
   },
   "otExampleRegular": "Example (2 hours OT): 2 hrs * {symbol}{hourlyRate} * {multiplier}x = {symbol}{amount} total pay.",
   "@otExampleRegular": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "hourlyRate": { "type": "String" },
-      "multiplier": { "type": "String" },
-      "amount": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "hourlyRate": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "otExampleFullDay": "Example (8 hours worked): 8 hrs * {symbol}{hourlyRate} * {multiplier}x = {symbol}{amount} total pay.",
   "@otExampleFullDay": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "hourlyRate": { "type": "String" },
-      "multiplier": { "type": "String" },
-      "amount": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "hourlyRate": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "earlyClockInPolicyTitle": "Early Clock-in Policy",
@@ -1558,21 +1686,32 @@
   "earlyClockInOtFormula": "Early clock-ins are treated as OT.\nPayout = Early OT Hours (Max {maxMins} mins) * Hourly Rate * {multiplier}",
   "@earlyClockInOtFormula": {
     "placeholders": {
-      "maxMins": { "type": "int" },
-      "multiplier": { "type": "String" }
+      "maxMins": {
+        "type": "int"
+      },
+      "multiplier": {
+        "type": "String"
+      }
     }
   },
   "earlyClockInOtExample": "Example (1 hr early): 1 hr * {symbol}{hourlyRate} * {multiplier}x = {symbol}{amount} total pay.",
   "@earlyClockInOtExample": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "hourlyRate": { "type": "String" },
-      "multiplier": { "type": "String" },
-      "amount": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "hourlyRate": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "earlyClockInPaidOutsideFormula": "Early clock-ins are paid manually outside of standard payroll.",
-
   "financeSection": "Finance",
   "operationsSection": "Operations",
   "talentSection": "Talent",
@@ -1607,18 +1746,10 @@
   "moreHrStructure": "HR Structure",
   "moreHrStructureDesc": "Depts & branches",
   "logoutBtn": "Logout",
-
   "rolesPermissionsTitle": "Roles & Permissions",
   "noCustomRoles": "No custom roles",
-  "loadingRoles": "Loading roles...",
-  "permissionsCount": "{count} permissions",
-  "@permissionsCount": { "placeholders": { "count": { "type": "int" } } },
   "createRoleTitle": "Create Role",
-  "roleNameLabel": "Role Name",
-  "roleNameHint": "e.g. HR Manager",
   "createBtn": "Create",
-  "roleCreatedSuccess": "✅ Role created",
-
   "sendNotificationTitle": "Send Notification",
   "recipientLabel": "Recipient",
   "selectEmployeeHint": "Select Employee",
@@ -1629,7 +1760,6 @@
   "sendNotificationBtn": "Send Notification",
   "pleaseSelectEmployee": "Please select an employee",
   "notificationSentSuccess": "✅ Notification sent!",
-
   "reportsTitle": "Reports & Analytics",
   "generateReportTitle": "Generate Report",
   "selectReportTypeHint": "Select a report type to generate",
@@ -1647,19 +1777,41 @@
   "reportRecruitment": "Recruitment",
   "reportPerformance": "Performance",
   "reportFoundRecords": "Found {total} records",
-  "@reportFoundRecords": { "placeholders": { "total": { "type": "int" } } },
+  "@reportFoundRecords": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "reportLabelSuffix": "{label} Report",
-  "@reportLabelSuffix": { "placeholders": { "label": { "type": "String" } } },
+  "@reportLabelSuffix": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "exportReportTooltip": "Export Report",
   "noRecordsFound": "No records found for this period.",
   "reportExportSuccess": "✅ Report exported successfully!",
   "reportExportFailed": "❌ Export failed: {error}",
-  "@reportExportFailed": { "placeholders": { "error": { "type": "String" } } },
+  "@reportExportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "couldNotOpenFile": "Could not open file: {message}",
-  "@couldNotOpenFile": { "placeholders": { "message": { "type": "String" } } },
-
+  "@couldNotOpenFile": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "holidaysTitle": "Holidays",
-  "loadingHolidays": "Loading Holidays...",
   "noHolidaysOnDay": "No holidays on this day",
   "addHoliday": "Add Holiday",
   "editHoliday": "Edit Holiday",
@@ -1669,31 +1821,31 @@
   "holidayTypeCompany": "Company",
   "holidayTypeNational": "National (Cambodia)",
   "holidayDescriptionLabel": "Description",
-  "saveChangesBtn": "Save Changes",
   "createHolidayBtn": "Create Holiday",
   "deleteHolidayTitle": "Delete Holiday?",
   "deleteHolidayConfirm": "Are you sure you want to delete\n\"{name}\"?\n\nThis action cannot be undone.",
-  "@deleteHolidayConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@deleteHolidayConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "holidayDeletedSuccess": "✅ Holiday deleted successfully",
   "pleaseFillRequired": "Please fill all required fields",
   "nationalBadge": "National",
   "companyBadge": "Company",
-
   "policiesTitle": "Policies",
   "searchPoliciesHint": "Search policies...",
   "allStatus": "All Status",
-  "statusDraft": "Draft",
-  "statusPublished": "Published",
   "statusArchived": "Archived",
   "allDepts": "All Depts",
-  "companyWide": "Company-Wide",
   "loadingPolicies": "Loading Policies...",
   "noPoliciesFound": "No policies found.",
   "createPolicy": "Create Policy",
   "editPolicy": "Edit Policy",
   "policyTitleLabel": "Title *",
   "departmentLabel": "Department",
-  "statusLabel": "Status",
   "versionLabel": "Version *",
   "effectiveDateLabel": "Effective Date",
   "nextReviewDateLabel": "Next Review Date (Optional)",
@@ -1701,17 +1853,37 @@
   "updatePolicyBtn": "Update Policy",
   "createPolicyBtn": "Create Policy",
   "policyEffectivePrefix": "Effective: {date}",
-  "@policyEffectivePrefix": { "placeholders": { "date": { "type": "String" } } },
+  "@policyEffectivePrefix": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "policyAcknowledged": "Acknowledged: {ack}/{target}",
-  "@policyAcknowledged": { "placeholders": { "ack": { "type": "int" }, "target": { "type": "int" } } },
+  "@policyAcknowledged": {
+    "placeholders": {
+      "ack": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
   "viewBtn": "View",
   "publishBtn": "Publish",
   "archiveBtn": "Archive",
   "editBtn": "Edit",
   "deleteBtn": "Delete",
   "deletePolicyConfirm": "Are you sure you want to delete \"{title}\"?",
-  "@deletePolicyConfirm": { "placeholders": { "title": { "type": "String" } } },
-
+  "@deletePolicyConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "resourceDirectoryTitle": "Resource Directory",
   "tabShifts": "Shifts",
   "tabHolidays": "Holidays",
@@ -1719,7 +1891,6 @@
   "tabPolicies": "Policies",
   "tabDocs": "Docs",
   "noShifts": "No shifts",
-  "loadingShifts": "Loading shifts...",
   "noHolidays": "No holidays",
   "noAnnouncements": "No announcements",
   "noPolicies": "No policies",
@@ -1727,14 +1898,10 @@
   "addShiftTitle": "Add Shift",
   "shiftNameLabel": "Name",
   "shiftNameHint": "e.g. Morning Shift",
-  "startTimeLabel": "Start Time",
-  "endTimeLabel": "End Time",
   "assignShiftTitle": "Assign Shift",
   "employeeIdLabel": "Employee ID",
   "assignBtn": "Assign",
-  "shiftCreatedSuccess": "✅ Shift created",
   "shiftAssignedSuccess": "✅ Shift assigned",
-  "shiftDeletedSuccess": "✅ Shift deleted",
   "holidayCreatedSuccess": "✅ Holiday created",
   "deletedSuccess": "✅ Deleted",
   "documentDeletedSuccess": "✅ Document deleted",
@@ -1742,28 +1909,41 @@
   "addHolidayTitle": "Add Holiday",
   "recurringBadge": "Recurring",
   "fileSizeLabel": "Size: {size} KB",
-  "@fileSizeLabel": { "placeholders": { "size": { "type": "String" } } },
+  "@fileSizeLabel": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "deleteShiftConfirm": "Delete shift \"{name}\"?",
-  "@deleteShiftConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@deleteShiftConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "deleteHolidayConfirmSimple": "Delete holiday \"{name}\"?",
-  "@deleteHolidayConfirmSimple": { "placeholders": { "name": { "type": "String" } } },
-  "deleteAnnouncementConfirm": "Delete \"{title}\"?",
-  "@deleteAnnouncementConfirm": { "placeholders": { "title": { "type": "String" } } },
-  "deleteShiftConfirm": "Delete shift \"{name}\"?",
-  "@deleteShiftConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@deleteHolidayConfirmSimple": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "deleteDocumentConfirm": "Delete document \"{title}\"?",
-  "@deleteDocumentConfirm": { "placeholders": { "title": { "type": "String" } } },
-
+  "@deleteDocumentConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "expenseClaimsTitle": "Expense Claims",
   "newClaimTooltip": "New Claim",
   "refreshTooltip": "Refresh",
-  "filterAll": "All",
-  "filterPending": "Pending",
-  "filterApproved": "Approved",
-  "filterRejected": "Rejected",
   "filterPaid": "Paid",
-  "noExpenseClaims": "No expense claims",
-  "loadingExpenses": "Loading expenses...",
   "expenseApprovedSuccess": "✅ Expense approved",
   "expenseMarkedPaidSuccess": "✅ Expense marked as paid",
   "deleteClaimTitle": "Delete Claim",
@@ -1780,7 +1960,6 @@
   "paidPrefix": "Paid: ",
   "markAsPaidBtn": "Mark as Paid",
   "expenseDetailTitle": "Expense Claim Details",
-  "titleLabel": "Title",
   "employeeLabel": "Employee",
   "categoryLabel": "Category",
   "amountLabel": "Amount",
@@ -1792,8 +1971,6 @@
   "editExpenseClaimTitle": "Edit Expense Claim",
   "newExpenseClaimTitle": "New Expense Claim",
   "titleFieldLabel": "Title *",
-  "titleHint": "e.g. Client lunch, Taxi fare",
-  "titleRequired": "Title is required",
   "categoryFieldLabel": "Category *",
   "catTravel": "Travel",
   "catMeals": "Meals",
@@ -1803,20 +1980,16 @@
   "catAccommodation": "Accommodation",
   "catOther": "Other",
   "amountFieldLabel": "Amount *",
-  "invalidAmount": "Invalid amount",
-  "currencyLabel": "Currency",
   "descriptionOptionalLabel": "Description (optional)",
   "updateClaimBtn": "Update Claim",
   "submitClaimBtn": "Submit Claim",
   "expenseClaimUpdatedSuccess": "✅ Expense claim updated",
   "expenseClaimSubmittedSuccess": "✅ Expense claim submitted",
-
   "performanceTrainingTitle": "Performance & Training",
   "tabReviews": "Reviews",
   "tabTraining": "Training",
   "createReviewTitle": "Create Review",
   "editReviewTitle": "Edit Review",
-  "employeeRequired": "Employee *",
   "reviewerRequired": "Reviewer *",
   "periodRequired": "Period *",
   "periodStartRequired": "Period Start *",
@@ -1831,11 +2004,8 @@
   "areasForImprovementOptional": "Areas for Improvement (optional)",
   "goalsOptional": "Goals (optional)",
   "commentsOptional": "Comments (optional)",
-  "statusLabel": "Status",
-  "statusDraft": "Draft",
   "statusSubmitted": "Submitted",
   "statusAcknowledged": "Acknowledged",
-  "statusCompleted": "Completed",
   "statusCompleted": "Completed",
   "overallRatingPrefix": "Overall Rating: ",
   "periodHint": "e.g. Q1 2024",
@@ -1852,7 +2022,6 @@
   "editTrainingTitle": "Edit Training",
   "replaceCoverImage": "Tap to replace cover image",
   "uploadCoverImage": "Tap to upload cover image",
-  "departmentLabel": "Department",
   "levelLabel": "Level",
   "levelBeginner": "Beginner",
   "levelIntermediate": "Intermediate",
@@ -1926,7 +2095,6 @@
   "stageOffer": "Offer",
   "stageHired": "Hired",
   "stageRejected": "Rejected",
-  
   "companyAssetsTitle": "Company Assets",
   "noAssetsFound": "No assets found",
   "addFirstAssetDesc": "Add your first company asset to get started",
@@ -1936,7 +2104,6 @@
   "fillInDetailsDesc": "Fill in the details below",
   "basicDetailsTitle": "Basic Details",
   "assetCodeRequired": "Asset Code *",
-  "categoryLabel": "Category",
   "conditionLabel": "Condition",
   "conditionNew": "New",
   "conditionGood": "Good",
@@ -1953,30 +2120,33 @@
   "assetCodeAndNameRequired": "Asset Code and Name are required",
   "assetUpdatedSuccess": "Asset updated successfully",
   "assetCreatedSuccess": "Asset created successfully",
-  "saveChangesBtn": "Save Changes",
   "createAssetBtn": "Create Asset",
   "assignAssetTitle": "Assign Asset",
   "transferAssetDesc": "Transfer asset to an employee",
-  "noEmployeesFound": "No employees found",
   "assignToEmployeeRequired": "Assign To Employee *",
   "conditionAtAssignmentLabel": "Condition at Assignment",
   "conditionNoteHint": "Note any scratches or damage...",
-  "pleaseSelectEmployee": "Please select an employee",
   "assetAssignedSuccess": "Asset assigned successfully",
   "confirmAssignmentBtn": "Confirm Assignment",
   "deleteAssetTitle": "Delete Asset",
   "deleteAssetConfirm": "Delete \"{name}\" ({code})?",
   "@deleteAssetConfirm": {
     "placeholders": {
-      "name": {"type": "String"},
-      "code": {"type": "String"}
+      "name": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      }
     }
   },
   "returnAssetTitle": "Return Asset",
   "returnAssetConfirm": "Mark \"{name}\" as returned?",
   "@returnAssetConfirm": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "assetReturnedSuccess": "Asset returned",
@@ -1988,12 +2158,13 @@
   "assignedToLabel": "Assigned to: {name}",
   "@assignedToLabel": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "warrantyExpired": "Warranty Expired",
   "warrantyExpiringSoon": "Warranty Expiring Soon",
-  "assignBtn": "Assign",
   "returnBtn": "Return",
   "assignmentHistoryTitle": "Assignment History",
   "noAssignmentHistory": "No assignment history",
@@ -2001,29 +2172,33 @@
   "assignedDateLabel": "Assigned: {date}",
   "@assignedDateLabel": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "returnedDateLabel": "Returned: {date}",
   "@returnedDateLabel": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "notesLabel": "Notes: {notes}",
   "@notesLabel": {
     "placeholders": {
-      "notes": {"type": "String"}
+      "notes": {
+        "type": "String"
+      }
     }
   },
-
   "hrStructureTitle": "HR Structure",
   "tabBranches": "Branches",
   "tabDepts": "Depts",
   "tabPositions": "Positions",
   "tabTeams": "Teams",
   "tabOrgChart": "Org Chart",
-  
   "searchBranchesHint": "Search branches...",
   "loadingBranches": "Loading branches...",
   "failedToLoadBranches": "Failed to load branches",
@@ -2036,16 +2211,19 @@
   "deleteBranchConfirm": "Are you sure you want to delete {name}?",
   "@deleteBranchConfirm": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
-
   "searchDeptsHint": "Search depts...",
   "loadingDepts": "Loading departments...",
   "errorLoadingDepts": "Error loading depts: {error}",
   "@errorLoadingDepts": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noDeptsFound": "No departments found",
@@ -2056,24 +2234,16 @@
   "deleteDeptConfirm": "Delete department {name}?",
   "@deleteDeptConfirm": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
-
   "searchRolesHint": "Search roles...",
-  "loadingRoles": "Loading roles...",
   "noRolesFound": "No roles found",
   "failedToLoadPositions": "Failed to load positions",
   "addFirstRoleDesc": "Add your first role to get started",
   "addRoleBtn": "Add Role",
-  "deleteRoleTitle": "Delete Role",
-  "deleteRoleConfirm": "Delete role {name}?",
-  "@deleteRoleConfirm": {
-    "placeholders": {
-      "name": {"type": "String"}
-    }
-  },
-
   "searchTeamsHint": "Search teams...",
   "loadingTeams": "Loading teams...",
   "noTeamsFound": "No teams found",
@@ -2084,10 +2254,11 @@
   "deleteTeamConfirm": "Delete team {name}?",
   "@deleteTeamConfirm": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
-
   "searchOrgChartHint": "Search name, position, dept...",
   "loadingOrgChart": "Loading org chart...",
   "failedToLoadOrgChart": "Failed to load org chart",
@@ -2097,8 +2268,12 @@
   "orgChartStats": "{count} people · {levels} levels",
   "@orgChartStats": {
     "placeholders": {
-      "count": {"type": "int"},
-      "levels": {"type": "int"}
+      "count": {
+        "type": "int"
+      },
+      "levels": {
+        "type": "int"
+      }
     }
   },
   "expandAll": "Expand All",
@@ -2107,12 +2282,8 @@
   "showLevel3": "Show 3 Levels",
   "showLevel4": "Show 4 Levels",
   "showLevel5": "Show 5 Levels",
-
   "branchNameLabel": "Branch Name",
   "branchCodeLabel": "Branch Code",
-  "addressLabel": "Address",
-  "phoneLabel": "Phone Number",
-  "emailLabel": "Email Address",
   "branchManagerLabel": "Branch Manager",
   "latitudeLabel": "Latitude",
   "longitudeLabel": "Longitude",
@@ -2122,9 +2293,6 @@
   "customPayrollSettingsDesc": "Override company-wide overtime and late rules",
   "workingDaysCalcTitle": "Working Days Calculation",
   "calcTypeLabel": "Calculation Type",
-  "fixedDaysLabel": "Fixed Days",
-  "calendarDaysLabel": "Calendar Days",
-  "calendarMinusHolidaysLabel": "Calendar Minus Holidays",
   "fixedDaysPerMonthLabel": "Fixed Days per Month",
   "overtimeMultipliersTitle": "Overtime Multipliers",
   "regularOtLabel": "Regular OT",
@@ -2137,17 +2305,12 @@
   "dedTypeLabel": "Deduction Type",
   "perMinuteLabel": "Per Minute",
   "fixedAmountLabel": "Fixed Amount",
-  "halfDayLabel": "Half Day",
-  "earlyLeavePenaltiesTitle": "Early Leave Penalties",
-  "preShiftEarlyClockInTitle": "Pre-Shift & Early Clock-In",
-  "earlyClockInPolicyLabel": "Early Clock-In Policy",
   "ignorePolicyLabel": "Ignore (No extra pay)",
   "treatAsOtPolicyLabel": "Treat as OT",
   "paidOutsidePolicyLabel": "Paid Outside (No OT multiplier)",
   "preShiftOtMultLabel": "Pre-Shift OT Mult.",
   "maxMinsAllowedLabel": "Max Mins Allowed",
   "overrideGracePeriodLabel": "Override Grace Period (minutes)",
-  
   "deptNameLabel": "Department Name",
   "deptCodeLabel": "Department Code",
   "officeBranchLabel": "Office Branch",
@@ -2156,36 +2319,26 @@
   "noParentLabel": "No Parent (Root)",
   "deptManagerLabel": "Department Manager",
   "noManagerLabel": "No Manager",
-
   "roleTitleLabel": "Role Title",
   "roleCodeLabel": "Role Code",
-  "departmentLabel": "Department",
   "noDeptLabel": "No Department (General)",
   "jobSeniorityLevelLabel": "Job Seniority Level",
   "noLevelLabel": "No Level specified",
-
   "teamNameLabel": "Team Name",
-  "descriptionLabel": "Description",
   "teamLeaderLabel": "Team Leader",
   "noLeaderLabel": "No Leader Assigned",
-
   "activeStatusTitle": "Active Status",
   "allowAssignRolesDesc": "Allow assigning employees to this role",
   "allowAssignTeamsDesc": "Allow assigning employees to this team",
-  
   "allDepartmentsLabel": "All Departments",
   "allDeptsLabel": "All Depts",
   "allBranchesLabel": "All Branches",
-
-  "retry": "Retry",
-  "cancel": "Cancel",
   "loadingLabel": "Loading...",
   "unpublishBtn": "Unpublish",
   "deleteTitle": "Delete",
   "announcementPublished": "✅ Announcement published",
   "announcementUnpublished": "✅ Announcement unpublished",
   "operationSuccess": "✅ Operation successful",
-  "fieldRequired": "Required",
   "myShift": "My Shift",
   "recentPayslip": "Recent Payslip",
   "pendingExpenses": "Pending Expenses",
@@ -2202,7 +2355,6 @@
   "companyRulesDesc": "A transparent guide to your branch's configured payroll, attendance, and overtime rules.",
   "viewingRulesFor": "Viewing rules for",
   "noCompanyRules": "No company rules configured.",
-  "companyDocuments": "Company Documents",
   "viewCompanyDocuments": "Access company guidelines and forms",
   "readAndAcknowledge": "Read and acknowledge policies",
   "payrollAttendanceRules": "Payroll, attendance & OT rules",
@@ -2210,5 +2362,120 @@
   "companyServices": "Company Services",
   "moveCloserToBranch": "Move closer to the branch to clock in.",
   "locationNeedsAttention": "Location needs attention",
-  "noPayslipsYet": "No payslips yet"
+  "noPayslipsYet": "No payslips yet",
+  "preferences": "Preferences",
+  "themeAndAppearance": "Theme & Appearance",
+  "themeSubtitle": "Dark, light or system theme",
+  "languageSubtitle": "English • ខ្មែរ",
+  "accountAndInfo": "Account & Info",
+  "accountActions": "Account Actions",
+  "privacyPolicy": "Privacy Policy",
+  "privacyPolicySubtitle": "Review how we protect and process your data",
+  "deleteAccount": "Delete Account",
+  "deleteAccountSubtitle": "Permanently remove your account and personal data",
+  "signOutSubtitle": "Sign out from this device",
+  "returnToAdminSubtitle": "Switch to HR Admin dashboard",
+  "editProfileSubtitle": "Update your contact and bank details",
+  "companyServicesAndTools": "Company Services & Tools",
+  "featuresCount": "{count} Features",
+  "@featuresCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectTheme": "Select Theme",
+  "selectLanguage": "Select Language",
+  "lightTheme": "Light Theme",
+  "darkTheme": "Dark Theme",
+  "systemTheme": "System Theme",
+  "lightThemeDesc": "Crisp clean interface with high contrast",
+  "darkThemeDesc": "Deep dark interface, easier on the eyes in low light",
+  "systemThemeDesc": "Automatically matches your device display mode",
+  "englishDesc": "Default language for international operations",
+  "khmerDesc": "ភាសាជាតិកម្ពុជា",
+  "attendkhAppVersion": "Version 1.0.0 • Production Release",
+  "filterUnread": "Unread",
+  "filterAttendance": "Attendance",
+  "filterAnnouncements": "Announcements",
+  "filterPolicies": "Policies",
+  "filterRequests": "Requests",
+  "filterRead": "Read",
+  "timelineToday": "Today",
+  "timelineYesterday": "Yesterday",
+  "timelineThisWeek": "This Week",
+  "timelineEarlier": "Earlier",
+  "searchNotificationsHint": "Search notifications by title or message...",
+  "markAsRead": "Mark as Read",
+  "markAsUnread": "Mark as Unread",
+  "noMatchingNotifications": "No matching notifications",
+  "allCaughtUp": "You're all caught up!",
+  "noFilterNotifications": "No notifications in this filter",
+  "searchSuggestions": "Try searching with different keywords or clearing your query.",
+  "checkOtherTabs": "Check other tabs or swipe down to refresh for new updates.",
+  "emptyNotificationsPrompt": "Company announcements, policy updates, and attendance alerts will appear here.",
+  "moreServices": "More Services",
+  "hrOperations": "HR Operations",
+  "financeAndAssets": "Finance & Assets",
+  "navHome": "Home",
+  "navLeave": "Leave",
+  "navPayslip": "Payslip",
+  "navMore": "More",
+  "navHR": "HR",
+  "navPayroll": "Payroll",
+  "navProfile": "Profile",
+  "navCompanies": "Companies",
+  "itemAttendanceSubtitle": "History & clock logs",
+  "itemOvertimeSubtitle": "Request & track OT",
+  "itemExpensesSubtitle": "Claims & receipts",
+  "itemTrainingSubtitle": "Courses & skills",
+  "itemKpisSubtitle": "Performance goals",
+  "itemHolidaysSubtitle": "Company calendar",
+  "itemRulesSubtitle": "Regulations & guide",
+  "itemPoliciesSubtitle": "Terms & conditions",
+  "itemEmployees": "Employees",
+  "itemEmployeesSubtitle": "Directory & staff profiles",
+  "itemHrStructure": "HR Structure",
+  "itemHrStructureSubtitle": "Departments & designations",
+  "itemAdminAttendanceSubtitle": "Daily check-in logs & scans",
+  "itemAdminLeaveSubtitle": "Time-off approvals & balance",
+  "itemAdminOvertimeSubtitle": "Extra hours review & claims",
+  "itemAdminShiftsSubtitle": "Rosters & timing schedules",
+  "itemAdminPayrollSubtitle": "Salaries & payslip generation",
+  "itemAdminExpensesSubtitle": "Receipt review & payouts",
+  "itemBranchLocations": "Branch Locations",
+  "itemBranchLocationsSubtitle": "GPS geofences & Wi-Fi",
+  "itemKpiPerformance": "KPI & Performance",
+  "itemKpiPerformanceSubtitle": "Quarterly reviews",
+  "itemAuditLogs": "Audit Logs",
+  "itemAuditLogsSubtitle": "System activity logs",
+  "itemHolidayCalendar": "Holiday Calendar",
+  "itemHolidayCalendarSubtitle": "Public & company days off",
+  "itemAnnouncements": "Company Announcements",
+  "itemAnnouncementsSubtitle": "Broadcasts & notices",
+  "itemCompanyPolicies": "Company Policies",
+  "itemCompanyPoliciesSubtitle": "HR handbook & docs",
+  "itemRolesPermissions": "Roles & Permissions",
+  "itemRolesPermissionsSubtitle": "Access controls",
+  "itemSupportTickets": "Support Tickets",
+  "itemSupportTicketsSubtitle": "Client helpdesk",
+  "itemPlatformHealth": "Platform Health",
+  "itemPlatformHealthSubtitle": "KPIs & uptime",
+  "itemGlobalAnnouncementsSubtitle": "Global broadcasts",
+  "itemPlatformSettings": "Platform Settings",
+  "itemPlatformSettingsSubtitle": "App configuration",
+  "workShifts": "Work Shifts",
+  "companyAssets": "Company Assets",
+  "manageAssignedAssets": "Track & manage equipment",
+  "recruitmentJobsDesc": "Open positions & applicants",
+  "performanceReviews": "Performance Reviews",
+  "performanceReviewsDesc": "Staff KPI & appraisals",
+  "summaryReports": "Summary Reports",
+  "summaryReportsDesc": "Attendance & payroll overview",
+  "analyticsReports": "Analytics & Trends",
+  "analyticsReportsDesc": "HR insights & statistics",
+  "all": "All",
+  "rejected": "Rejected",
+  "total": "total"
 }
