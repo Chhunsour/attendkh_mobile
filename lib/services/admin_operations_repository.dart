@@ -1073,11 +1073,15 @@ class RecentActivity {
   final String type;
   final String message;
   final String time;
+  final String? name;
+  final String? photo;
 
   const RecentActivity({
     required this.type,
     required this.message,
     required this.time,
+    this.name,
+    this.photo,
   });
 
   factory RecentActivity.fromJson(Map<String, dynamic> json) {
@@ -1085,7 +1089,17 @@ class RecentActivity {
       type: json['type'] as String? ?? '',
       message: json['message'] as String? ?? '',
       time: json['time'] as String? ?? '',
+      name: (json['name'] as String?)?.trim(),
+      photo: json['photo'] as String?,
     );
+  }
+
+  /// The message repeats the name as its prefix; drop it when we render the
+  /// name separately. Falls back to the full message if the prefix moves.
+  String get action {
+    final n = name;
+    if (n == null || n.isEmpty || !message.startsWith(n)) return message;
+    return message.substring(n.length).trim();
   }
 }
 

@@ -342,7 +342,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                             ),
                     ),
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -533,17 +533,17 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                 );
               }).toList(),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Month Picker for Attendance
             if (_selectedType == 'attendance') ...[
               Container(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.textPrimary(context),
+                  color: AppColors.surface(context),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.border(context)),
                 ),
@@ -552,7 +552,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                   children: [
                     IconButton(
                       onPressed: () => _changeMonth(-1),
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.chevron_left_rounded,
                         color: AppColors.grey600,
                       ),
@@ -609,7 +609,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                 onChanged: (v) => setState(() => _searchQuery = v),
                 decoration: InputDecoration(
                   hintText: 'Search records...',
-                  prefixIcon: Icon(Icons.search, size: 20),
+                  prefixIcon: const Icon(Icons.search, size: 20),
                   filled: true,
                   fillColor: AppColors.surfaceLight,
                   border: OutlineInputBorder(
@@ -630,13 +630,13 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
               // Record count
               Text(
                 '${_filteredData.length} records',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   color: AppColors.grey500,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               // Horizontal scrollable table
               Container(
                 decoration: BoxDecoration(
@@ -702,9 +702,9 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
 
             // Empty state
             if (!_isLoading && _selectedType != null && _data.isEmpty)
-              Center(
+              const Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(40),
+                  padding: EdgeInsets.all(40),
                   child: Column(
                     children: [
                       Icon(
@@ -712,7 +712,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                         size: 48,
                         color: AppColors.grey300,
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(
                         'No data available',
                         style: TextStyle(
@@ -727,9 +727,9 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
 
             // Initial state
             if (_selectedType == null)
-              Center(
+              const Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(40),
+                  padding: EdgeInsets.all(40),
                   child: Column(
                     children: [
                       Icon(
@@ -737,7 +737,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                         size: 48,
                         color: AppColors.grey300,
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(
                         'Select a summary type above',
                         style: TextStyle(

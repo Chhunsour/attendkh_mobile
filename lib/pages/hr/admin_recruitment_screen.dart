@@ -99,7 +99,7 @@ class _AdminRecruitmentScreenState
                     size: 16,
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   'Post New Job',
                   style: TextStyle(
@@ -149,7 +149,7 @@ class _AdminRecruitmentScreenState
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
+                            const Text(
                               'Try adjusting your search or filters.',
                               style: TextStyle(
                                 fontSize: 12,
@@ -433,8 +433,8 @@ class _AdminRecruitmentScreenState
 
   Widget _buildFilterBar() {
     return Container(
-      margin: EdgeInsets.all(16),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(24),
@@ -455,11 +455,11 @@ class _AdminRecruitmentScreenState
             onChanged: (val) => setState(() => _search = val),
             decoration: InputDecoration(
               hintText: 'Search job titles...',
-              hintStyle: TextStyle(
+              hintStyle: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
-              prefixIcon: Icon(
+              prefixIcon: const Icon(
                 Icons.search,
                 color: AppColors.grey400,
                 size: 18,
@@ -498,7 +498,7 @@ class _AdminRecruitmentScreenState
                   initialValue: _statusFilter.isEmpty ? null : _statusFilter,
                   decoration: InputDecoration(
                     labelText: 'All Statuses',
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -553,7 +553,7 @@ class _AdminRecruitmentScreenState
                   initialValue: _typeFilter.isEmpty ? null : _typeFilter,
                   decoration: InputDecoration(
                     labelText: 'All Types',
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -889,7 +889,7 @@ class _JobFormSheetState extends State<_JobFormSheet> {
   InputDecoration _inputDecor(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(
+      labelStyle: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.bold,
         color: AppColors.grey700,
@@ -967,7 +967,7 @@ class _JobFormSheetState extends State<_JobFormSheet> {
   Widget build(BuildContext context) {
     final isEdit = widget.job != null;
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Color(0xFFF8FAFC),
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -1013,7 +1013,7 @@ class _JobFormSheetState extends State<_JobFormSheet> {
             const SizedBox(height: 8),
             // Tab bar
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(bottom: BorderSide(color: AppColors.grey200)),
               ),
               child: Row(
@@ -1384,7 +1384,7 @@ class _JobFormSheetState extends State<_JobFormSheet> {
                               ? OutlinedButton(
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: AppColors.grey600,
-                                    side: BorderSide(color: AppColors.grey200),
+                                    side: const BorderSide(color: AppColors.grey200),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
@@ -1405,7 +1405,7 @@ class _JobFormSheetState extends State<_JobFormSheet> {
                               : OutlinedButton(
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: AppColors.grey600,
-                                    side: BorderSide(color: AppColors.grey200),
+                                    side: const BorderSide(color: AppColors.grey200),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),
                                     ),
@@ -1793,7 +1793,7 @@ class _JobCandidatesSheet extends ConsumerWidget {
                   initialValue: selType,
                   decoration: InputDecoration(
                     labelText: 'Interview Type',
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: AppColors.grey700,
@@ -1847,7 +1847,7 @@ class _JobCandidatesSheet extends ConsumerWidget {
                   readOnly: true,
                   decoration: InputDecoration(
                     labelText: 'Date *',
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: AppColors.grey700,
@@ -1901,7 +1901,7 @@ class _JobCandidatesSheet extends ConsumerWidget {
                   readOnly: true,
                   decoration: InputDecoration(
                     labelText: 'Time *',
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: AppColors.grey700,
@@ -1952,7 +1952,7 @@ class _JobCandidatesSheet extends ConsumerWidget {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'Duration (minutes)',
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: AppColors.grey700,
@@ -1980,12 +1980,12 @@ class _JobCandidatesSheet extends ConsumerWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 TextField(
                   controller: locationCtrl,
                   decoration: InputDecoration(
                     labelText: 'Location / Link',
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: AppColors.grey700,
@@ -2073,7 +2073,7 @@ class _JobCandidatesSheet extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       height: MediaQuery.of(context).size.height * 0.9,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.backgroundLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -2411,10 +2411,10 @@ class _JobCandidatesSheet extends ConsumerWidget {
                     color: AppColors.grey600,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
                       color: AppColors.grey50,
                       borderRadius: BorderRadius.circular(12),

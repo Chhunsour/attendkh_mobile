@@ -2,22 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/layouts/bottom_nav_shell.dart';
+import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/company_admin_dashboard_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/company_owner_profile_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/profile/profile_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/finance_ops_summary.dart';
+import 'package:mpg_hr_mobile_app/pages/hr/hr_ops_summary.dart';
 import 'package:mpg_hr_mobile_app/pages/shared/more_screen.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 
 /// Bottom navigation shell for Company Admin / Branch Manager.
 ///
-/// Tabs: Home | People | Finance | More | Profile
+/// Tabs: Home | HR | Payroll | More
 class CompanyAdminShell extends ConsumerWidget {
   const CompanyAdminShell({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    // Already loaded for the Home tab — reusing it costs nothing and turns
+    // these menus from a list of links into a list of work.
+    final kpi = ref.watch(dashboardStatsProvider).valueOrNull;
+    String? count(int n) => n > 0 ? '$n' : null;
 
     return BottomNavShell(
       items: [
@@ -33,6 +37,8 @@ class CompanyAdminShell extends ConsumerWidget {
           label: l10n.navHR,
           screen: MoreScreen(
             title: l10n.hrOperations,
+            header: const HrOpsSummary(),
+            footer: const HrUpcomingHolidays(),
             items: [
               MoreItem(
                 title: l10n.itemEmployees,
@@ -40,6 +46,7 @@ class CompanyAdminShell extends ConsumerWidget {
                 icon: Icons.people_alt_outlined,
                 color: const Color(0xFF0EA5E9),
                 routePath: AppRoutes.adminEmployees,
+                badgeText: count(kpi?.totalEmployees ?? 0),
               ),
               MoreItem(
                 title: l10n.itemHrStructure,
@@ -61,6 +68,8 @@ class CompanyAdminShell extends ConsumerWidget {
                 icon: Icons.event_busy_outlined,
                 color: const Color(0xFFEF4444),
                 routePath: AppRoutes.adminLeave,
+                badgeText: count(kpi?.pendingLeaves ?? 0),
+                badgeIsAlert: true,
               ),
               MoreItem(
                 title: l10n.overtime,
@@ -85,6 +94,8 @@ class CompanyAdminShell extends ConsumerWidget {
           label: l10n.navPayroll,
           screen: MoreScreen(
             title: l10n.financeAndAssets,
+            header: const FinanceOpsSummary(),
+            footer: const FinanceRecentRuns(),
             items: [
               MoreItem(
                 title: l10n.payroll,
@@ -99,6 +110,8 @@ class CompanyAdminShell extends ConsumerWidget {
                 icon: Icons.receipt_long_outlined,
                 color: const Color(0xFFEC4899),
                 routePath: AppRoutes.adminExpenses,
+                badgeText: count(kpi?.pendingExpenses ?? 0),
+                badgeIsAlert: true,
               ),
               MoreItem(
                 title: l10n.companyAssets,
@@ -106,6 +119,9 @@ class CompanyAdminShell extends ConsumerWidget {
                 icon: Icons.devices_outlined,
                 color: const Color(0xFF6366F1),
                 routePath: AppRoutes.adminAssets,
+                badgeText: kpi == null || kpi.totalAssets == 0
+                    ? null
+                    : '${kpi.assignedAssets}/${kpi.totalAssets}',
               ),
             ],
           ),
@@ -125,6 +141,7 @@ class CompanyAdminShell extends ConsumerWidget {
                 icon: Icons.work_outline_rounded,
                 color: const Color(0xFF0EA5E9),
                 routePath: AppRoutes.adminRecruitment,
+                badgeText: count(kpi?.openJobs ?? 0),
               ),
               MoreItem(
                 title: l10n.performanceReviews,
@@ -192,21 +209,7 @@ class CompanyAdminShell extends ConsumerWidget {
             ],
           ),
         ),
-        NavItem(
-          outlineIcon: Icons.person_outline,
-          filledIcon: Icons.person,
-          label: l10n.navProfile,
-          screen: _buildProfileScreen(ref),
-        ),
       ],
     );
-  }
-
-  Widget _buildProfileScreen(WidgetRef ref) {
-    final authState = ref.watch(authProvider);
-    if (authState.isCompanyOwner) {
-      return const CompanyOwnerProfileScreen(showBackButton: false);
-    }
-    return const ProfileScreen(showBackButton: false);
   }
 }

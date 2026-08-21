@@ -32,23 +32,23 @@ class AdminRolesScreen extends ConsumerWidget {
         children: [
           rolesAsync.when(
             data: (items) => items.isEmpty
-                ? Center(child: Text(l10n.noCustomRoles, style: TextStyle(color: AppColors.grey400)))
+                ? Center(child: Text(l10n.noCustomRoles, style: const TextStyle(color: AppColors.grey400)))
                 : ListView.separated(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     itemCount: items.length,
-                    separatorBuilder: (_, _) => SizedBox(height: 8),
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, i) {
                       final r = items[i];
                       return Container(
-                        padding: EdgeInsets.all(14),
-                        decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
                         child: Row(
                           children: [
                             Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.infoLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.shield, color: AppColors.info, size: 22)),
                             const SizedBox(width: 14),
                             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               Text(r.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                              if (r.permissionsCount != null) Text(l10n.permissionsCount(r.permissionsCount!), style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                              if (r.permissionsCount != null) Text(l10n.permissionsCount(r.permissionsCount!), style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
                             ])),
                             const Icon(Icons.chevron_right, color: AppColors.grey400),
                           ],

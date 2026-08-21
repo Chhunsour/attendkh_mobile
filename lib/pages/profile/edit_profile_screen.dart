@@ -353,26 +353,26 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   isDark: isDark,
                   children: [
                     _buildInputField(
-                      label: 'Full Name (Latin)',
+                      label: l10n.fullNameLatin,
                       controller: _fullNameCtrl,
                       icon: Icons.person_outline_rounded,
                       isDark: isDark,
                     ),
                     _buildInputField(
-                      label: 'Khmer Name (Optional)',
+                      label: l10n.khmerNameOptional,
                       controller: _khmerNameCtrl,
                       icon: Icons.badge_outlined,
                       isDark: isDark,
                     ),
                     _buildInputField(
-                      label: 'Phone Number',
+                      label: l10n.phoneNumber,
                       controller: _phoneCtrl,
                       icon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       isDark: isDark,
                     ),
                     _buildInputField(
-                      label: 'Email Address',
+                      label: l10n.emailAddress,
                       controller: _emailCtrl,
                       icon: Icons.mail_outline_rounded,
                       keyboardType: TextInputType.emailAddress,
@@ -382,7 +382,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       children: [
                         Expanded(
                           child: _buildDatePickerField(
-                            label: 'Date of Birth',
+                            label: l10n.dateOfBirth,
                             value: _dateOfBirth,
                             icon: Icons.cake_outlined,
                             onTap: _selectDateOfBirth,
@@ -392,14 +392,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildDropdownField<String>(
-                            label: 'Gender',
+                            label: l10n.gender,
                             value: _gender,
                             icon: Icons.wc_rounded,
                             isDark: isDark,
-                            items: const [
-                              DropdownMenuItem(value: 'male', child: Text('Male')),
-                              DropdownMenuItem(value: 'female', child: Text('Female')),
-                              DropdownMenuItem(value: 'other', child: Text('Other')),
+                            items: [
+                              DropdownMenuItem(value: 'male', child: Text(l10n.male)),
+                              DropdownMenuItem(value: 'female', child: Text(l10n.female)),
+                              DropdownMenuItem(value: 'other', child: Text(l10n.otherGender)),
                             ],
                             onChanged: (val) => setState(() => _gender = val),
                           ),

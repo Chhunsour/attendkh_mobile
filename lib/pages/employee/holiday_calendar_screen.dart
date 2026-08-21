@@ -284,22 +284,31 @@ class _HolidayCalendarScreenState
                       if (context.canPop())
                         _frostedHeroButton(
                           icon: Icons.arrow_back_ios_new_rounded,
-                          onTap: () => context.pop(),
+                          onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            }
+                          },
                         )
                       else
                         const SizedBox(width: 40),
-                      Text(
-                        l10n.holidayCalendar,
-                        style: const TextStyle(
-                          fontSize: 18.5,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: -0.2,
+                      Expanded(
+                        child: Text(
+                          l10n.holidayCalendar,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 18.5,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            letterSpacing: -0.2,
+                          ),
                         ),
                       ),
                       _frostedHeroButton(
                         icon: Icons.refresh_rounded,
-                        tooltip: 'Refresh',
+                        tooltip: l10n.refresh,
                         onTap: _refresh,
                       ),
                     ],
@@ -322,6 +331,7 @@ class _HolidayCalendarScreenState
   }
 
   Widget _buildFrostedUpcomingSpotlight(Holiday holiday) {
+    final l10n = AppLocalizations.of(context)!;
     final hDate = DateTime.tryParse(holiday.date) ?? DateTime.now();
     final now = DateTime.now();
     final displayDate = holiday.isRecurring == true
@@ -384,9 +394,9 @@ class _HolidayCalendarScreenState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'NEXT UPCOMING HOLIDAY',
-                      style: TextStyle(
+                    Text(
+                      l10n.nextUpcomingHoliday,
+                      style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFFFEF08A),
@@ -765,7 +775,7 @@ class _HolidayCalendarScreenState
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Enjoy your regular working schedule!',
+                  l10n.regularScheduleEnjoy,
                   style: TextStyle(
                     fontSize: 12.5,
                     color: isDark ? AppColors.grey400 : AppColors.grey500,

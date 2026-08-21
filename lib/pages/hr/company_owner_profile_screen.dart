@@ -9,12 +9,21 @@ import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/delete_account_dialog.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
-import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
+
+/// One cut corner on every card — the motif the admin surfaces share.
+const _cardShape = BorderRadius.only(
+  topLeft: Radius.circular(20),
+  topRight: Radius.circular(20),
+  bottomRight: Radius.circular(20),
+  bottomLeft: Radius.circular(6),
+);
+const _chipShape = BorderRadius.only(
+  topLeft: Radius.circular(14),
+  topRight: Radius.circular(14),
+  bottomRight: Radius.circular(14),
+  bottomLeft: Radius.circular(5),
+);
 
 class CompanyOwnerProfileScreen extends ConsumerStatefulWidget {
   final bool showBackButton;
@@ -200,6 +209,13 @@ class _CompanyOwnerProfileScreenState
     }
   }
 
+  // Closed by default — a change-password form does not belong open on a
+  // page you visit to read your own details.
+  bool _showPasswordForm = false;
+  bool _hideCurrent = true;
+  bool _hideNew = true;
+  bool _hideConfirm = true;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -214,21 +230,22 @@ class _CompanyOwnerProfileScreenState
             expandedHeight: 280,
             pinned: true,
             stretch: true,
-            backgroundColor: AppColors.secondary,
+            centerTitle: true,
+            backgroundColor: AppColors.primary,
             surfaceTintColor: Colors.transparent,
             leading: widget.showBackButton
                 ? IconButton(
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.arrow_back_rounded,
-                      color: AppColors.textPrimary(context),
+                      color: Colors.white,
                     ),
                     onPressed: () => context.pop(),
                   )
                 : null,
             title: Text(
               l10n.profileSettingsTitle,
-              style: TextStyle(
-                color: AppColors.textPrimary(context),
+              style: const TextStyle(
+                color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
               ),
@@ -237,15 +254,15 @@ class _CompanyOwnerProfileScreenState
               if (!_isEditing)
                 TextButton.icon(
                   onPressed: () => setState(() => _isEditing = true),
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.edit_rounded,
-                    color: AppColors.textPrimary(context),
+                    color: Colors.white,
                     size: 18,
                   ),
                   label: Text(
                     l10n.editProfile,
-                    style: TextStyle(
-                      color: AppColors.textPrimary(context),
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -253,102 +270,198 @@ class _CompanyOwnerProfileScreenState
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                color: AppColors.secondary,
-                child: SafeArea(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: _isEditing ? _pickImage : null,
-                        child: Container(
-                          width: 96,
-                          height: 96,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(40),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF0038B8), // Royal Blue Deep
+                      Color(0xFF0052FF), // Royal Blue Main
+                      Color(0xFF1E6BFF), // Royal Blue Light Glow
+                    ],
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: -100,
+                      right: -80,
+                      child: Container(
+                        width: 260,
+                        height: 260,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.06),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -50,
+                      left: -40,
+                      child: Container(
+                        width: 180,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.04),
+                        ),
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: SafeArea(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: _isEditing ? _pickImage : null,
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Container(
+                                    width: 96,
+                                    height: 96,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 3.5,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.25,
+                                          ),
+                                          blurRadius: 16,
+                                          offset: const Offset(0, 6),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ClipOval(
+                                      child: CircleAvatar(
+                                        backgroundColor: Colors.white.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                        backgroundImage: _photo != null
+                                            ? FileImage(_photo!)
+                                            : (profileAsync.value?.photoUrl !=
+                                                          null
+                                                      ? CachedNetworkImageProvider(
+                                                          profileAsync
+                                                              .value!
+                                                              .photoUrl!,
+                                                        )
+                                                      : null)
+                                                  as ImageProvider?,
+                                        child:
+                                            (_photo == null &&
+                                                profileAsync.value?.photoUrl ==
+                                                    null)
+                                            ? Text(
+                                                _initials(
+                                                  authState.userName ?? 'O',
+                                                ),
+                                                style: const TextStyle(
+                                                  fontSize: 32,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  ),
+                                  if (_isEditing)
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: Container(
+                                        width: 32,
+                                        height: 32,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.20,
+                                              ),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.camera_alt_rounded,
+                                          size: 16,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              authState.userName ?? 'Company Owner',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            if (authState.userEmail != null &&
+                                authState.userEmail!.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                authState.userEmail!,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                ),
+                                textAlign: TextAlign.center,
                               ),
                             ],
-                          ),
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white.withAlpha(30),
-                            backgroundImage: _photo != null
-                                ? FileImage(_photo!)
-                                : (profileAsync.value?.photoUrl != null
-                                          ? CachedNetworkImageProvider(
-                                              profileAsync.value!.photoUrl!,
-                                            )
-                                          : null)
-                                      as ImageProvider?,
-                            child:
-                                (_photo == null &&
-                                    profileAsync.value?.photoUrl == null)
-                                ? Text(
-                                    _initials(authState.userName ?? 'O'),
-                                    style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.textPrimary(context),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.18),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.25),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.business_center_rounded,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    l10n.roleCompanyOwner,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
                                     ),
-                                  )
-                                : null,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      Text(
-                        authState.userName ?? 'Company Owner',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary(context),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        authState.userEmail ?? '',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.white.withAlpha(180),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(25),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.business_center_rounded,
-                              color: AppColors.textPrimary(context),
-                              size: 14,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              l10n.roleCompanyOwner,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withAlpha(220),
+                                  ),
+                                ],
                               ),
                             ),
+                            const SizedBox(height: 20),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -460,14 +573,14 @@ class _CompanyOwnerProfileScreenState
                                       return Theme(
                                         data: Theme.of(context).copyWith(
                                           colorScheme: const ColorScheme.light(
-                                            primary: AppColors.secondary,
+                                            primary: AppColors.primary,
                                             onPrimary: Colors.white,
                                             onSurface: AppColors.grey900,
                                           ),
                                           textButtonTheme: TextButtonThemeData(
                                             style: TextButton.styleFrom(
                                               foregroundColor:
-                                                  AppColors.secondary,
+                                                  AppColors.primary,
                                             ),
                                           ),
                                         ),
@@ -522,10 +635,8 @@ class _CompanyOwnerProfileScreenState
                                         side: const BorderSide(
                                           color: AppColors.grey300,
                                         ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: _chipShape,
                                         ),
                                       ),
                                       child: Text(
@@ -547,22 +658,20 @@ class _CompanyOwnerProfileScreenState
                                           ? null
                                           : _saveProfile,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.secondary,
+                                        backgroundColor: AppColors.primary,
                                         foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: _chipShape,
                                         ),
                                         elevation: 0,
                                       ),
                                       child: _isSavingProfile
-                                          ? SizedBox(
+                                          ? const SizedBox(
                                               width: 20,
                                               height: 20,
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
-                                                color: AppColors.textPrimary(context),
+                                                color: Colors.white,
                                               ),
                                             )
                                           : Text(
@@ -637,6 +746,9 @@ class _CompanyOwnerProfileScreenState
                     icon: Icons.lock_outline_rounded,
                     title: l10n.updatePasswordTitle,
                     subtitle: l10n.updatePasswordDesc,
+                    expanded: _showPasswordForm,
+                    onHeaderTap: () =>
+                        setState(() => _showPasswordForm = !_showPasswordForm),
                     child: Form(
                       key: _formKeyPassword,
                       child: Column(
@@ -646,30 +758,38 @@ class _CompanyOwnerProfileScreenState
                             l10n.currentPasswordLabel,
                             TextFormField(
                               controller: _currentPasswordController,
-                              obscureText: true,
+                              obscureText: _hideCurrent,
                               validator: (v) =>
                                   v!.isEmpty ? l10n.fieldRequired : null,
-                              decoration: _inputDecoration(),
+                              decoration: _passwordDecoration(
+                                _hideCurrent,
+                                () => setState(
+                                  () => _hideCurrent = !_hideCurrent,
+                                ),
+                              ),
                             ),
                           ),
                           _buildField(
                             l10n.newPasswordLabel,
                             TextFormField(
                               controller: _passwordController,
-                              obscureText: true,
+                              obscureText: _hideNew,
                               validator: (v) {
                                 if (v!.isEmpty) return l10n.fieldRequired;
                                 if (v.length < 8) return l10n.min8Chars;
                                 return null;
                               },
-                              decoration: _inputDecoration(),
+                              decoration: _passwordDecoration(
+                                _hideNew,
+                                () => setState(() => _hideNew = !_hideNew),
+                              ),
                             ),
                           ),
                           _buildField(
                             l10n.confirmPasswordLabel,
                             TextFormField(
                               controller: _passwordConfirmController,
-                              obscureText: true,
+                              obscureText: _hideConfirm,
                               validator: (v) {
                                 if (v!.isEmpty) return l10n.fieldRequired;
                                 if (v != _passwordController.text) {
@@ -677,7 +797,12 @@ class _CompanyOwnerProfileScreenState
                                 }
                                 return null;
                               },
-                              decoration: _inputDecoration(),
+                              decoration: _passwordDecoration(
+                                _hideConfirm,
+                                () => setState(
+                                  () => _hideConfirm = !_hideConfirm,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -689,7 +814,7 @@ class _CompanyOwnerProfileScreenState
                                   ? null
                                   : _savePassword,
                               icon: _isSavingPassword
-                                  ? SizedBox(
+                                  ? const SizedBox(
                                       width: 20,
                                       height: 20,
                                       child: CircularProgressIndicator(
@@ -709,259 +834,14 @@ class _CompanyOwnerProfileScreenState
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.grey800,
                                 foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: _chipShape,
                                 ),
                                 elevation: 0,
                               ),
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildCard(
-                    icon: Icons.tune_rounded,
-                    title: l10n.accessRoles,
-                    subtitle: 'Language & settings',
-                    child: Column(
-                      children: [
-                        _buildSettingsTile(
-                          icon: Icons.language_rounded,
-                          title: l10n.language,
-                          trailing: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: ref.watch(localeProvider).languageCode,
-                              icon: Icon(
-                                Icons.arrow_drop_down,
-                                color: AppColors.grey500,
-                              ),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.textPrimary(context),
-                              ),
-                              items: [
-                                DropdownMenuItem(
-                                  value: 'en',
-                                  child: Text(l10n.english),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'km',
-                                  child: Text(l10n.khmer),
-                                ),
-                              ],
-                              onChanged: (String? newValue) {
-                                if (newValue != null) {
-                                  ref
-                                      .read(localeProvider.notifier)
-                                      .setLocale(Locale(newValue));
-                                }
-                              },
-                            ),
-                          ),
-                        ),
-                        Divider(
-                          height: 1,
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? AppColors.borderDark
-                              : AppColors.grey100,
-                        ),
-                        _buildSettingsTile(
-                          icon: switch (ref.watch(themeModeProvider)) {
-                            ThemeMode.light => Icons.light_mode_rounded,
-                            ThemeMode.dark => Icons.dark_mode_rounded,
-                            ThemeMode.system => Icons.brightness_auto_rounded,
-                          },
-                          title: 'Appearance',
-                          trailing: DropdownButtonHideUnderline(
-                            child: DropdownButton<ThemeMode>(
-                              value: ref.watch(themeModeProvider),
-                              icon: const Icon(
-                                Icons.arrow_drop_down,
-                                color: AppColors.grey500,
-                              ),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              items: const [
-                                DropdownMenuItem(
-                                  value: ThemeMode.light,
-                                  child: Text('Light'),
-                                ),
-                                DropdownMenuItem(
-                                  value: ThemeMode.dark,
-                                  child: Text('Dark'),
-                                ),
-                                DropdownMenuItem(
-                                  value: ThemeMode.system,
-                                  child: Text('Auto'),
-                                ),
-                              ],
-                              onChanged: (ThemeMode? newMode) {
-                                if (newMode != null) {
-                                  ref
-                                      .read(themeModeProvider.notifier)
-                                      .setThemeMode(newMode);
-                                }
-                              },
-                            ),
-                          ),
-                        ),
-                        Divider(height: 1, color: AppColors.border(context)),
-                        _buildSettingsTile(
-                          icon: Icons.privacy_tip_outlined,
-                          title: 'Privacy Policy',
-                          onTap: () => launchUrl(
-                            Uri.parse('https://attendkh.com/privacy-policy'),
-                            mode: LaunchMode.inAppBrowserView,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ── Logout Tile ──
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? AppColors.surfaceDark
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border(context)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.02),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => showLogoutConfirmation(context, ref),
-                        borderRadius: BorderRadius.circular(16),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 14,
-                            horizontal: 16,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.logout_rounded,
-                                  color: AppColors.primary,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Text(
-                                l10n.logOut,
-                                style: const TextStyle(
-                                  fontSize: 14.5,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                              const Spacer(),
-                              const Icon(
-                                Icons.chevron_right_rounded,
-                                color: AppColors.grey400,
-                                size: 20,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-
-                  // ── Delete Account Tile (Guideline 5.1.1 v) ──
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? AppColors.surfaceDark
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.danger.withValues(alpha: 0.35)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.danger.withValues(alpha: 0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => showDeleteAccountConfirmation(context, ref),
-                        borderRadius: BorderRadius.circular(16),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 14,
-                            horizontal: 16,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: AppColors.danger.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.delete_forever_rounded,
-                                  color: AppColors.danger,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Delete Account',
-                                    style: TextStyle(
-                                      fontSize: 14.5,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.danger,
-                                    ),
-                                  ),
-                                  SizedBox(height: 2),
-                                  Text(
-                                    'Permanently delete account and data',
-                                    style: TextStyle(
-                                      fontSize: 11.5,
-                                      color: AppColors.grey500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              const Icon(
-                                Icons.chevron_right_rounded,
-                                color: AppColors.danger,
-                                size: 20,
-                              ),
-                            ],
-                          ),
-                        ),
                       ),
                     ),
                   ),
@@ -980,71 +860,107 @@ class _CompanyOwnerProfileScreenState
     required String title,
     required String subtitle,
     required Widget child,
+    VoidCallback? onHeaderTap,
+    bool expanded = true,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final header = Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: isDark
+                ? AppColors.primary.withValues(alpha: 0.15)
+                : AppColors.primaryLight,
+            borderRadius: _chipShape,
+          ),
+          child: Icon(
+            icon,
+            color: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                  color: AppColors.textPrimary(context),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  height: 1.3,
+                  color: AppColors.grey500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (onHeaderTap != null)
+          AnimatedRotation(
+            turns: expanded ? 0.5 : 0,
+            duration: const Duration(milliseconds: 180),
+            child: const Icon(
+              Icons.expand_more_rounded,
+              color: AppColors.grey400,
+            ),
+          ),
+      ],
+    );
+
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.surface(context),
+        borderRadius: _cardShape,
         border: Border.all(color: AppColors.border(context)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(5),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (onHeaderTap == null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+              child: header,
+            )
+          else
+            InkWell(
+              onTap: onHeaderTap,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(18, 18, 18, expanded ? 0 : 18),
+                child: header,
+              ),
+            ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: expanded
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+                    child: child,
+                  )
+                : const SizedBox(width: double.infinity),
           ),
         ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryLight,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(icon, color: AppColors.secondary, size: 20),
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary(context),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.grey500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            child,
-          ],
-        ),
       ),
     );
   }
 
   Widget _buildField(String label, Widget field) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -1054,10 +970,10 @@ class _CompanyOwnerProfileScreenState
             padding: const EdgeInsets.only(bottom: 6, left: 4),
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppColors.grey700,
+                color: isDark ? AppColors.grey300 : AppColors.grey700,
               ),
             ),
           ),
@@ -1067,85 +983,55 @@ class _CompanyOwnerProfileScreenState
     );
   }
 
+  /// Label left, value right, hairline between — a grey icon box per row
+  /// added weight without adding meaning.
   Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.grey100,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: AppColors.grey500, size: 18),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.grey500,
-                  ),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 11),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: AppColors.grey400, size: 16),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary(context),
                 ),
-                SizedBox(height: 2),
-                Text(
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
                   value,
+                  textAlign: TextAlign.right,
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary(context),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        Divider(height: 1, thickness: 1, color: AppColors.border(context)),
+      ],
     );
   }
 
-  Widget _buildSettingsTile({
-    required IconData icon,
-    required String title,
-    VoidCallback? onTap,
-    Widget? trailing,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-        child: Row(
-          children: [
-            Icon(icon, size: 22, color: AppColors.grey600),
-            SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary(context),
-                ),
-              ),
-            ),
-            ?trailing,
-            if (onTap != null && trailing == null) ...[
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.chevron_right_rounded,
-                size: 20,
-                color: AppColors.grey400,
-              ),
-            ],
-          ],
+  InputDecoration _passwordDecoration(bool hidden, VoidCallback onToggle) {
+    return _inputDecoration().copyWith(
+      suffixIcon: IconButton(
+        onPressed: onToggle,
+        splashRadius: 18,
+        icon: Icon(
+          hidden ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+          size: 18,
+          color: AppColors.grey500,
         ),
       ),
     );
@@ -1154,23 +1040,25 @@ class _CompanyOwnerProfileScreenState
   InputDecoration _inputDecoration() {
     return InputDecoration(
       isDense: true,
-      contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       filled: true,
-      fillColor: AppColors.backgroundLight,
+      fillColor: Theme.of(context).brightness == Brightness.dark
+          ? AppColors.surfaceDarkElevated
+          : AppColors.backgroundLight,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: AppColors.border(context)),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: AppColors.border(context)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.secondary),
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.danger),
       ),
     );

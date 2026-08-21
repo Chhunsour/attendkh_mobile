@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 // ─── Color helpers ─────────────────────────────────────────────────────────
@@ -74,7 +75,7 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
             tooltip: 'Refresh',
             onPressed: () {
               ref.invalidate(allLeaveRequestsProvider);
@@ -84,9 +85,9 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(48),
+          preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: AppColors.textPrimary(context),
+            color: AppColors.surface(context),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: TabBar(
@@ -327,7 +328,7 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
     final leaveTypesAsync = ref.watch(leaveTypesProvider);
 
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -361,7 +362,7 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                     size: 20,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -679,7 +680,7 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
   }
 
   InputDecoration _dropDec([BuildContext? context]) => InputDecoration(
-    contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     filled: true,
     fillColor: context != null ? (Theme.of(context).brightness == Brightness.dark ? AppColors.surfaceDarkElevated : AppColors.grey50) : AppColors.grey50,
     border: OutlineInputBorder(
@@ -754,10 +755,12 @@ class _RequestCard extends ConsumerWidget {
                                 (request.employeePhoto != null &&
                                     request.employeePhoto!.isNotEmpty)
                                 ? DecorationImage(
-                                    image: NetworkImage(
+                                    image: CachedNetworkImageProvider(
                                       request.employeePhoto!.startsWith('http')
                                           ? request.employeePhoto!
                                           : '${DioClient.storageUrl}/${request.employeePhoto!.startsWith('/') ? request.employeePhoto!.substring(1) : request.employeePhoto!}',
+                                      maxWidth: 120,
+                                      maxHeight: 120,
                                     ),
                                     fit: BoxFit.cover,
                                   )
@@ -780,7 +783,7 @@ class _RequestCard extends ConsumerWidget {
                                 )
                               : null,
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1168,9 +1171,9 @@ class _BalanceCard extends ConsumerWidget {
         : AppColors.danger;
 
     return Container(
-      padding: EdgeInsets.all(14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -1198,14 +1201,23 @@ class _BalanceCard extends ConsumerWidget {
                         balance.employeeAvatar!.isNotEmpty
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          balance.employeeAvatar!.startsWith('http')
+                        child: CachedNetworkImage(
+                          imageUrl: balance.employeeAvatar!.startsWith('http')
                               ? balance.employeeAvatar!
                               : '${DioClient.storageUrl}/${balance.employeeAvatar!.startsWith('/') ? balance.employeeAvatar!.substring(1) : balance.employeeAvatar!}',
                           width: 40,
                           height: 40,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => Center(
+                          memCacheWidth: 120,
+                          memCacheHeight: 120,
+                          placeholder: (_, _) => const Center(
+                            child: SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 1.5, color: AppColors.primary),
+                            ),
+                          ),
+                          errorWidget: (_, _, _) => Center(
                             child: Text(
                               balance.employeeName.isNotEmpty
                                   ? balance.employeeName[0].toUpperCase()
@@ -1232,7 +1244,7 @@ class _BalanceCard extends ConsumerWidget {
                         ),
                       ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1370,10 +1382,10 @@ class _BalanceCard extends ConsumerWidget {
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
         child: Container(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.textPrimary(context),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            color: AppColors.surface(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1389,7 +1401,7 @@ class _BalanceCard extends ConsumerWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 AppLocalizations.of(context)!.editBalanceTitle(b.employeeName),
                 style: TextStyle(
@@ -1570,8 +1582,8 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -1603,7 +1615,7 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                     size: 20,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1783,10 +1795,10 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       employeesAsync.when(
                         data: (emps) => Container(
-                          constraints: BoxConstraints(maxHeight: 200),
+                          constraints: const BoxConstraints(maxHeight: 200),
                           decoration: BoxDecoration(
                             border: Border.all(color: AppColors.border(context)),
                             borderRadius: BorderRadius.circular(12),
@@ -2066,7 +2078,7 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
   }
 
   InputDecoration _dropDec([BuildContext? context]) => InputDecoration(
-    contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     filled: true,
     fillColor: context != null ? (Theme.of(context).brightness == Brightness.dark ? AppColors.surfaceDarkElevated : AppColors.grey50) : AppColors.grey50,
     border: OutlineInputBorder(
@@ -2178,8 +2190,8 @@ class _LeaveTypesTab extends ConsumerWidget {
         expand: false,
         builder: (_, scrollCtrl) => Container(
           decoration: BoxDecoration(
-            color: AppColors.textPrimary(context),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            color: AppColors.surface(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [
@@ -2195,7 +2207,7 @@ class _LeaveTypesTab extends ConsumerWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                 child: Text(
                   isEdit
                       ? AppLocalizations.of(context)!.editLeaveType
@@ -2330,7 +2342,7 @@ class _LeaveTypesTab extends ConsumerWidget {
                             ),
                           ),
 
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
                           // ── Accrual & Balances ───────────────────────────
                           Text(
@@ -2383,10 +2395,10 @@ class _LeaveTypesTab extends ConsumerWidget {
                               )!.maxCarryForwardDays,
                               keyboard: TextInputType.number,
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                           ],
 
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
 
                           // ── Rules & Restrictions ─────────────────────────
                           Text(
@@ -2460,7 +2472,7 @@ class _LeaveTypesTab extends ConsumerWidget {
                             onChanged: (v) => setSt(() => genderSpecific = v!),
                           ),
 
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
 
                           // ── Toggles ──────────────────────────────────────
                           Text(
@@ -2684,7 +2696,7 @@ class _LeaveTypesTab extends ConsumerWidget {
   }
 
   InputDecoration _dropDec([BuildContext? context]) => InputDecoration(
-    contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     filled: true,
     fillColor: context != null ? (Theme.of(context).brightness == Brightness.dark ? AppColors.surfaceDarkElevated : AppColors.grey50) : AppColors.grey50,
     border: OutlineInputBorder(
@@ -2713,7 +2725,7 @@ class _LeaveTypeCard extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -3063,13 +3075,13 @@ class _LeaveTypeCard extends ConsumerWidget {
 
                 Text(
                   AppLocalizations.of(context)!.deleteLeaveType,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
 
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 RichText(
                   textAlign: TextAlign.center,
@@ -3097,8 +3109,8 @@ class _LeaveTypeCard extends ConsumerWidget {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx, false),
                         style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          side: BorderSide(color: Colors.grey),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -3242,11 +3254,11 @@ class _GradientFAB extends StatelessWidget {
               ),
               child: Icon(icon, color: Colors.white, size: 16),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
               label,
-              style: TextStyle(
-                color: AppColors.textPrimary(context),
+              style: const TextStyle(
+                color: Colors.white,
                 fontWeight: FontWeight.w800,
                 fontSize: 13,
               ),
@@ -3283,7 +3295,7 @@ class _SheetField extends StatelessWidget {
         ),
         filled: true,
         fillColor: AppColors.grey50,
-        contentPadding: EdgeInsets.symmetric(
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 12,
         ),

@@ -173,9 +173,9 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Padding(
+        builder: (ctx, setSheetState) => SingleChildScrollView(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
             left: 20,
             right: 20,
             top: 16,
@@ -198,14 +198,19 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    l10n.requestCorrection,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary(context),
+                  Expanded(
+                    child: Text(
+                      l10n.requestCorrection,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary(context),
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   IconButton(
                     icon: Icon(
                       Icons.close_rounded,
@@ -517,7 +522,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                               ? DateFormat(
                                   'EEEE, d MMMM',
                                 ).format(_selectedDay!)
-                              : 'Daily Logs',
+                              : l10n.dailyLogs,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -531,7 +536,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         TextButton.icon(
                           onPressed: () => setState(() => _selectedDay = null),
                           icon: const Icon(Icons.close_rounded, size: 15),
-                          label: const Text('Clear'),
+                          label: Text(l10n.clear),
                           style: TextButton.styleFrom(
                             foregroundColor: AppColors.primary,
                             visualDensity: VisualDensity.compact,

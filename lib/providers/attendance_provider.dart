@@ -6,7 +6,7 @@ final attendanceRepositoryProvider = Provider<AttendanceRepository>((ref) {
   return AttendanceRepository();
 });
 
-final todayAttendanceProvider = FutureProvider.autoDispose<TodayAttendance?>((ref) async {
+final todayAttendanceProvider = FutureProvider<TodayAttendance?>((ref) async {
   final repo = ref.watch(attendanceRepositoryProvider);
   final today = await repo.getToday();
   AppLogger.i('Today attendance: ${today?.status ?? "no record"}');

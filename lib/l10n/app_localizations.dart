@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// No description provided for @logoutConfirmationDesc.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to log out of your account?'**
+  /// **'You\'ll need to sign in again to see your attendance, leave and payslips on this device.'**
   String get logoutConfirmationDesc;
 
   /// No description provided for @language.
@@ -227,8 +227,62 @@ abstract class AppLocalizations {
   /// No description provided for @passwordRequired.
   ///
   /// In en, this message translates to:
-  /// **'Password *'**
+  /// **'Password is required'**
   String get passwordRequired;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @signInSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue to your workspace'**
+  String get signInSubtitle;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
+  /// No description provided for @tooManyAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many failed attempts. Please wait before trying again.'**
+  String get tooManyAttempts;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @resetPasswordDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the email linked to your account and we\'ll send you a link to reset your password.'**
+  String get resetPasswordDesc;
+
+  /// No description provided for @sendResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get sendResetLink;
+
+  /// No description provided for @resetLinkSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If that email is registered, a reset link has been sent.'**
+  String get resetLinkSent;
 
   /// No description provided for @signIn.
   ///
@@ -547,6 +601,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to clock out for the day? Your work hours will be recorded.'**
   String get clockOutConfirm;
+
+  /// No description provided for @earlyClockOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaving Early?'**
+  String get earlyClockOutTitle;
+
+  /// No description provided for @earlyClockOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shift still has {duration} to run. Tell your manager why you are leaving.'**
+  String earlyClockOutBody(String duration);
+
+  /// No description provided for @earlyClockOutReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a reason'**
+  String get earlyClockOutReasonHint;
+
+  /// No description provided for @earlyClockOutDetailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add detail (optional)'**
+  String get earlyClockOutDetailHint;
+
+  /// No description provided for @earlyClockOutOtherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell your manager what came up'**
+  String get earlyClockOutOtherHint;
 
   /// No description provided for @cancel.
   ///
@@ -5624,6 +5708,12 @@ abstract class AppLocalizations {
   /// **'Mark Completed'**
   String get markCompletedBtn;
 
+  /// No description provided for @payrollRuns.
+  ///
+  /// In en, this message translates to:
+  /// **'Payroll Runs'**
+  String get payrollRuns;
+
   /// No description provided for @payrollRunTitle.
   ///
   /// In en, this message translates to:
@@ -9988,6 +10078,540 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'total'**
   String get total;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @allFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'All Files'**
+  String get allFiles;
+
+  /// No description provided for @wordDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Word Documents'**
+  String get wordDocuments;
+
+  /// No description provided for @spreadsheets.
+  ///
+  /// In en, this message translates to:
+  /// **'Spreadsheets'**
+  String get spreadsheets;
+
+  /// No description provided for @images.
+  ///
+  /// In en, this message translates to:
+  /// **'Images'**
+  String get images;
+
+  /// No description provided for @documentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get documentsCount;
+
+  /// No description provided for @availableFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Files'**
+  String get availableFiles;
+
+  /// No description provided for @searchFilesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search files, forms, templates...'**
+  String get searchFilesHint;
+
+  /// No description provided for @corporateDocVaultSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Corporate Document Vault & Resources'**
+  String get corporateDocVaultSubtitle;
+
+  /// No description provided for @noFilesMatching.
+  ///
+  /// In en, this message translates to:
+  /// **'No files matching'**
+  String get noFilesMatching;
+
+  /// No description provided for @companyRulesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee Code of Conduct & Guidelines'**
+  String get companyRulesSubtitle;
+
+  /// No description provided for @searchRulesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search rules, conduct, guidelines...'**
+  String get searchRulesHint;
+
+  /// No description provided for @regulationsAndPolicies.
+  ///
+  /// In en, this message translates to:
+  /// **'Regulations & Policies'**
+  String get regulationsAndPolicies;
+
+  /// No description provided for @guidelinesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Guidelines'**
+  String get guidelinesCount;
+
+  /// No description provided for @noRulesMatching.
+  ///
+  /// In en, this message translates to:
+  /// **'No rules matching'**
+  String get noRulesMatching;
+
+  /// No description provided for @allPoliciesReadSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Great job! You have read and acknowledged all required policies.'**
+  String get allPoliciesReadSuccess;
+
+  /// No description provided for @acknowledgedPoliciesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Policies you have signed and acknowledged will appear here.'**
+  String get acknowledgedPoliciesEmpty;
+
+  /// No description provided for @overtimeManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime Management'**
+  String get overtimeManagement;
+
+  /// No description provided for @overtimeManagementSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request and track extra work hours'**
+  String get overtimeManagementSubtitle;
+
+  /// No description provided for @requestOT.
+  ///
+  /// In en, this message translates to:
+  /// **'Request OT'**
+  String get requestOT;
+
+  /// No description provided for @myHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'My History'**
+  String get myHistory;
+
+  /// No description provided for @shiftPolicyRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift Policy & Rules'**
+  String get shiftPolicyRules;
+
+  /// No description provided for @shiftPolicyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard OT rate applies after regular shift hours. All requests require line manager approval.'**
+  String get shiftPolicyDesc;
+
+  /// No description provided for @selectDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get selectDateLabel;
+
+  /// No description provided for @timeWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Window'**
+  String get timeWindow;
+
+  /// No description provided for @startTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Time'**
+  String get startTime;
+
+  /// No description provided for @endTime.
+  ///
+  /// In en, this message translates to:
+  /// **'End Time'**
+  String get endTime;
+
+  /// No description provided for @calculatedDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculated Duration'**
+  String get calculatedDuration;
+
+  /// No description provided for @overtimeReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for Overtime *'**
+  String get overtimeReasonLabel;
+
+  /// No description provided for @overtimeReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Urgent server maintenance, Monthly financial closing...'**
+  String get overtimeReasonHint;
+
+  /// No description provided for @submitOTRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit OT Request'**
+  String get submitOTRequest;
+
+  /// No description provided for @submittingRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting request...'**
+  String get submittingRequest;
+
+  /// No description provided for @otSubmittedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Overtime request submitted successfully'**
+  String get otSubmittedSuccess;
+
+  /// No description provided for @noEmployeeProfileFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No employee profile found'**
+  String get noEmployeeProfileFound;
+
+  /// No description provided for @failedToSubmitRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit request'**
+  String get failedToSubmitRequest;
+
+  /// No description provided for @overtimeRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime Requests'**
+  String get overtimeRequests;
+
+  /// No description provided for @noOtRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No overtime requests found'**
+  String get noOtRequests;
+
+  /// No description provided for @noOtRequestsFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'No overtime requests with this status'**
+  String get noOtRequestsFilter;
+
+  /// No description provided for @kpiSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track metrics, attendance & milestones'**
+  String get kpiSubtitle;
+
+  /// No description provided for @loadingKpis.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading KPIs...'**
+  String get loadingKpis;
+
+  /// No description provided for @performanceGradeExcellent.
+  ///
+  /// In en, this message translates to:
+  /// **'EXCELLENT'**
+  String get performanceGradeExcellent;
+
+  /// No description provided for @performanceGradeAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'AVERAGE'**
+  String get performanceGradeAverage;
+
+  /// No description provided for @performanceGradeNeedsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'NEEDS ATTENTION'**
+  String get performanceGradeNeedsAttention;
+
+  /// No description provided for @overallScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall Score'**
+  String get overallScore;
+
+  /// No description provided for @multiTenantMetrics.
+  ///
+  /// In en, this message translates to:
+  /// **'MULTI-TENANT METRICS'**
+  String get multiTenantMetrics;
+
+  /// No description provided for @payslipAndSalary.
+  ///
+  /// In en, this message translates to:
+  /// **'Payslips & Salary'**
+  String get payslipAndSalary;
+
+  /// No description provided for @paymentHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment History'**
+  String get paymentHistory;
+
+  /// No description provided for @downloadLatestStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Latest Statement'**
+  String get downloadLatestStatement;
+
+  /// No description provided for @netPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'NET PAID'**
+  String get netPaid;
+
+  /// No description provided for @statementSingular.
+  ///
+  /// In en, this message translates to:
+  /// **'statement'**
+  String get statementSingular;
+
+  /// No description provided for @statementsPlural.
+  ///
+  /// In en, this message translates to:
+  /// **'statements'**
+  String get statementsPlural;
+
+  /// No description provided for @nextUpcomingHoliday.
+  ///
+  /// In en, this message translates to:
+  /// **'NEXT UPCOMING HOLIDAY'**
+  String get nextUpcomingHoliday;
+
+  /// No description provided for @tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get tomorrow;
+
+  /// No description provided for @passed.
+  ///
+  /// In en, this message translates to:
+  /// **'Passed'**
+  String get passed;
+
+  /// No description provided for @regularScheduleEnjoy.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy your regular working schedule!'**
+  String get regularScheduleEnjoy;
+
+  /// No description provided for @refreshCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh Courses'**
+  String get refreshCourses;
+
+  /// No description provided for @browseAvailableCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Available Courses'**
+  String get browseAvailableCourses;
+
+  /// No description provided for @noTrainingsEnrolledDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not enrolled in any training programs yet. Explore available courses to start your learning journey.'**
+  String get noTrainingsEnrolledDesc;
+
+  /// No description provided for @newCoursesPublishedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'New professional skill courses and department workshops published by HR will appear here.'**
+  String get newCoursesPublishedDesc;
+
+  /// No description provided for @claimExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim Expense'**
+  String get claimExpense;
+
+  /// No description provided for @expenseTitleSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Title / Subject *'**
+  String get expenseTitleSubject;
+
+  /// No description provided for @statusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get statusPaid;
+
+  /// No description provided for @personalAndContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal & Contact'**
+  String get personalAndContact;
+
+  /// No description provided for @branchLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch Location'**
+  String get branchLocation;
+
+  /// No description provided for @jobTitleRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Job Title / Role'**
+  String get jobTitleRole;
+
+  /// No description provided for @reportingManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Reporting Manager'**
+  String get reportingManager;
+
+  /// No description provided for @joiningDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Joining Date'**
+  String get joiningDate;
+
+  /// No description provided for @fullNameLatin.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name (Latin)'**
+  String get fullNameLatin;
+
+  /// No description provided for @khmerNameOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Khmer Name (Optional)'**
+  String get khmerNameOptional;
+
+  /// No description provided for @otherGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get otherGender;
+
+  /// No description provided for @dailyLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Logs'**
+  String get dailyLogs;
+
+  /// No description provided for @heavyTraffic.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy Traffic'**
+  String get heavyTraffic;
+
+  /// No description provided for @heavyRain.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy Rain'**
+  String get heavyRain;
+
+  /// No description provided for @vehicleIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Issue'**
+  String get vehicleIssue;
+
+  /// No description provided for @familyEmergency.
+  ///
+  /// In en, this message translates to:
+  /// **'Family Emergency'**
+  String get familyEmergency;
+
+  /// No description provided for @healthIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Issue'**
+  String get healthIssue;
+
+  /// No description provided for @otherReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Reason'**
+  String get otherReason;
+
+  /// No description provided for @daysFreeToBook.
+  ///
+  /// In en, this message translates to:
+  /// **'days free to book'**
+  String get daysFreeToBook;
+
+  /// No description provided for @daysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'days left'**
+  String get daysLeft;
+
+  /// No description provided for @awaitingApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting approval'**
+  String get awaitingApproval;
+
+  /// No description provided for @leavesAndBalancesEmptyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your requested leaves and balances will appear here.'**
+  String get leavesAndBalancesEmptyDesc;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @themeAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get themeAuto;
+
+  /// No description provided for @englishUs.
+  ///
+  /// In en, this message translates to:
+  /// **'English (US)'**
+  String get englishUs;
+
+  /// No description provided for @khmerKm.
+  ///
+  /// In en, this message translates to:
+  /// **'Khmer (ភាសាខ្មែរ)'**
+  String get khmerKm;
+
+  /// No description provided for @descriptionPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Description / Purpose'**
+  String get descriptionPurpose;
+
+  /// No description provided for @attachReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach Receipt (Photo/File)'**
+  String get attachReceipt;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
 }
 
 class _AppLocalizationsDelegate

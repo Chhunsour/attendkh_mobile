@@ -315,7 +315,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
 
   Widget _cellValue(Map<String, dynamic> col, dynamic raw) {
     if (raw == null || raw.toString().isEmpty) {
-      return Text(
+      return const Text(
         '—',
         style: TextStyle(fontSize: 12, color: AppColors.grey400),
       );
@@ -429,7 +429,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     AppLocalizations l10n,
   ) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
@@ -445,7 +445,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
             child: Icon(icon, color: color, size: 24),
           ),
-          SizedBox(width: 14),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,7 +458,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     color: AppColors.textPrimary(context),
                   ),
                 ),
-                Text(
+                const Text(
                   'Comprehensive breakdown by employee, department & branch',
                   style: TextStyle(fontSize: 12, color: AppColors.grey500),
                 ),
@@ -587,12 +587,12 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.filter_list,
                         size: 18,
                         color: AppColors.primary,
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         'Report Filters & Criteria',
                         style: TextStyle(
@@ -614,7 +614,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                           ),
                           child: Text(
                             '$_activeFilterCount active',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: AppColors.primary,
@@ -640,7 +640,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Date presets
-                  Text(
+                  const Text(
                     'Quick Date Range',
                     style: TextStyle(
                       fontSize: 11,
@@ -791,7 +791,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                       if (_activeFilterCount > 0)
                         TextButton(
                           onPressed: _clearFilters,
-                          child: Text(
+                          child: const Text(
                             'Clear All Filters',
                             style: TextStyle(
                               fontSize: 12,
@@ -801,12 +801,12 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                           ),
                         )
                       else
-                        SizedBox(),
+                        const SizedBox(),
                       Flexible(
                         child: ElevatedButton.icon(
                           onPressed: _isLoading ? null : _generate,
                           icon: _isLoading
-                              ? SizedBox(
+                              ? const SizedBox(
                                   width: 14,
                                   height: 14,
                                   child: CircularProgressIndicator(
@@ -856,7 +856,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: AppColors.grey600,
@@ -871,12 +871,12 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   ? DateTime.tryParse(value) ?? DateTime.now()
                   : DateTime.now(),
               firstDate: DateTime(2020),
-              lastDate: DateTime.now().add(Duration(days: 365)),
+              lastDate: DateTime.now().add(const Duration(days: 365)),
             );
             if (d != null) onChanged(d.toString().substring(0, 10));
           },
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.border(context)),
@@ -884,7 +884,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
             child: Row(
               children: [
-                Icon(Icons.calendar_today, size: 14, color: AppColors.grey400),
+                const Icon(Icons.calendar_today, size: 14, color: AppColors.grey400),
                 const SizedBox(width: 8),
                 Text(
                   value.isEmpty ? 'Select date' : value,
@@ -917,15 +917,15 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: AppColors.grey600,
           ),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppColors.border(context)),
@@ -940,7 +940,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   value: '__all__',
                   child: Text(
                     allLabel,
-                    style: TextStyle(fontSize: 12, color: AppColors.grey600),
+                    style: const TextStyle(fontSize: 12, color: AppColors.grey600),
                   ),
                 ),
                 ...items.map(
@@ -948,7 +948,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     value: item[idKey]?.toString() ?? '',
                     child: Text(
                       item[labelKey]?.toString() ?? 'Unknown',
-                      style: TextStyle(fontSize: 12, color: AppColors.grey700),
+                      style: const TextStyle(fontSize: 12, color: AppColors.grey700),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -968,7 +968,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Status',
           style: TextStyle(
             fontSize: 11,
@@ -976,9 +976,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             color: AppColors.grey600,
           ),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppColors.border(context)),
@@ -989,7 +989,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               value: _statusFilter.isEmpty ? '__all__' : _statusFilter,
               isExpanded: true,
               items: [
-                DropdownMenuItem(
+                const DropdownMenuItem(
                   value: '__all__',
                   child: Text(
                     'All Statuses',
@@ -1001,7 +1001,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     value: s,
                     child: Text(
                       s.replaceAll('_', ' '),
-                      style: TextStyle(fontSize: 12, color: AppColors.grey700),
+                      style: const TextStyle(fontSize: 12, color: AppColors.grey700),
                     ),
                   ),
                 ),
@@ -1023,7 +1023,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     AppLocalizations l10n,
   ) {
     return Container(
-      padding: EdgeInsets.all(40),
+      padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
@@ -1053,7 +1053,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
+          const Text(
             'Calculating records and compiling breakdown',
             style: TextStyle(fontSize: 12, color: AppColors.grey400),
           ),
@@ -1069,7 +1069,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     AppLocalizations l10n,
   ) {
     return Container(
-      padding: EdgeInsets.all(40),
+      padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),
@@ -1085,7 +1085,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
             child: Icon(icon, size: 32, color: color),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             '$label Report',
             style: TextStyle(
@@ -1095,7 +1095,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          Text(
+          const Text(
             'Select filters above and tap Generate Report to view detailed analytics.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 13, color: AppColors.grey400),
@@ -1128,7 +1128,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
               },
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
         ],
 
         // ── Results container ──
@@ -1156,7 +1156,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                           ),
                           child: Icon(icon, color: color, size: 16),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Text(
                           '$label Results',
                           style: TextStyle(
@@ -1177,7 +1177,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                           ),
                           child: Text(
                             '$_total records',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                               color: AppColors.primary,
@@ -1197,18 +1197,18 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   onChanged: (v) => setState(() => _searchQuery = v),
                   decoration: InputDecoration(
                     hintText: 'Search results...',
-                    hintStyle: TextStyle(
+                    hintStyle: const TextStyle(
                       fontSize: 12,
                       color: AppColors.grey400,
                     ),
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.search,
                       size: 18,
                       color: AppColors.grey400,
                     ),
                     filled: true,
                     fillColor: AppColors.backgroundLight,
-                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: AppColors.border(context)),
@@ -1219,7 +1219,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.primary),
+                      borderSide: const BorderSide(color: AppColors.primary),
                     ),
                   ),
                 ),
@@ -1229,8 +1229,8 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
 
               // Records list
               if (_filteredRecords.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(40),
+                const Padding(
+                  padding: EdgeInsets.all(40),
                   child: Column(
                     children: [
                       Icon(
@@ -1238,16 +1238,16 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                         size: 36,
                         color: AppColors.grey300,
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(
                         'No records match your filters.',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: AppColors.grey600,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         'Try adjusting the date range, branch, or department filter.',
                         textAlign: TextAlign.center,
@@ -1271,7 +1271,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                   padding: const EdgeInsets.all(12),
                   child: Text(
                     'Showing ${_filteredRecords.length} of ${_records.length} records matching "$_searchQuery"',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: AppColors.grey500,
@@ -1290,11 +1290,11 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     final colorMap = <String, Color>{
       'blue': AppColors.info,
       'green': AppColors.success,
-      'amber': Color(0xFFF59E0B),
+      'amber': const Color(0xFFF59E0B),
       'red': AppColors.danger,
-      'purple': Color(0xFF8B5CF6),
-      'indigo': Color(0xFF6366F1),
-      'teal': Color(0xFF14B8A6),
+      'purple': const Color(0xFF8B5CF6),
+      'indigo': const Color(0xFF6366F1),
+      'teal': const Color(0xFF14B8A6),
       'orange': AppColors.primary,
     };
     final color = colorMap[card['color']?.toString()] ?? AppColors.grey400;
@@ -1347,9 +1347,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
     }).toList();
 
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [
@@ -1403,9 +1403,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             const Divider(height: 1, color: AppColors.grey100),
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.grey50,
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                   bottom: Radius.circular(16),
                 ),
               ),

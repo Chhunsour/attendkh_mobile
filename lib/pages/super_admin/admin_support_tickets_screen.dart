@@ -114,12 +114,12 @@ class _AdminSupportTicketsScreenState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.wifi_off_rounded,
               color: AppColors.danger,
               size: 48,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               l10n.failedToLoadTickets,
               style: TextStyle(
@@ -208,25 +208,25 @@ class _AdminSupportTicketsScreenState
                 title: 'Resolved',
                 value: '$resolvedCount',
                 icon: Icons.check_circle_rounded,
-                color: Color(0xFF10B981),
+                color: const Color(0xFF10B981),
               ),
             ),
           ],
         ),
 
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // ── Search Field ──
         Container(
           decoration: BoxDecoration(
-            color: AppColors.textPrimary(context),
+            color: AppColors.surface(context),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.border(context)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 6,
-                offset: Offset(0, 2),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -273,15 +273,15 @@ class _AdminSupportTicketsScreenState
           ),
         ),
 
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // ── Ticket Cards ──
         if (filtered.isEmpty)
           Container(
-            padding: EdgeInsets.all(32),
+            padding: const EdgeInsets.all(32),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.textPrimary(context),
+              color: AppColors.surface(context),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: AppColors.border(context)),
             ),
@@ -311,9 +311,9 @@ class _AdminSupportTicketsScreenState
     required Color color,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -396,9 +396,9 @@ class _AdminSupportTicketsScreenState
     final statusIcon = _statusIcons[ticket.status] ?? Icons.help_outline_rounded;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [
@@ -503,7 +503,7 @@ class _AdminSupportTicketsScreenState
                           ],
                           if (ticket.companyName != null) ...[
                             const SizedBox(width: 6),
-                            Text('•', style: TextStyle(color: AppColors.grey400, fontSize: 11)),
+                            const Text('•', style: TextStyle(color: AppColors.grey400, fontSize: 11)),
                             const SizedBox(width: 6),
                             const Icon(Icons.business_rounded, size: 12, color: AppColors.grey500),
                             const SizedBox(width: 3),
@@ -613,12 +613,12 @@ class _AdminSupportTicketsScreenState
                         ],
                       ),
                       IconButton(
-                        icon: Icon(Icons.close_rounded, color: AppColors.grey500),
+                        icon: const Icon(Icons.close_rounded, color: AppColors.grey500),
                         onPressed: () => Navigator.pop(ctx),
                       ),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(
                     ticket.subject,
                     style: TextStyle(
@@ -628,10 +628,10 @@ class _AdminSupportTicketsScreenState
                     ),
                   ),
                   if (ticket.message != null && ticket.message!.isNotEmpty) ...[
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: AppColors.grey50,
                         borderRadius: BorderRadius.circular(12),
@@ -647,12 +647,12 @@ class _AdminSupportTicketsScreenState
                       ),
                     ),
                   ],
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   if (ticket.userName != null || ticket.companyName != null)
                     Row(
                       children: [
-                        Icon(Icons.person_pin_rounded, size: 16, color: Color(0xFF6366F1)),
-                        SizedBox(width: 6),
+                        const Icon(Icons.person_pin_rounded, size: 16, color: Color(0xFF6366F1)),
+                        const SizedBox(width: 6),
                         Text(
                           [
                             if (ticket.userName != null) ticket.userName!,
@@ -669,7 +669,7 @@ class _AdminSupportTicketsScreenState
                         ],
                       ],
                     ),
-                  SizedBox(height: 18),
+                  const SizedBox(height: 18),
 
                   // Status dropdown
                   Text(
@@ -680,7 +680,7 @@ class _AdminSupportTicketsScreenState
                       color: AppColors.textPrimary(context),
                     ),
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
                     initialValue: selectedStatus,
                     decoration: InputDecoration(
@@ -702,7 +702,7 @@ class _AdminSupportTicketsScreenState
                       if (v != null) setState(() => selectedStatus = v);
                     },
                   ),
-                  SizedBox(height: 14),
+                  const SizedBox(height: 14),
 
                   // Priority dropdown
                   Text(
@@ -713,7 +713,7 @@ class _AdminSupportTicketsScreenState
                       color: AppColors.textPrimary(context),
                     ),
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
                     initialValue: selectedPriority,
                     decoration: InputDecoration(

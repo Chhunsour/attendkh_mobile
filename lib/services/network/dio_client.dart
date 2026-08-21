@@ -166,18 +166,19 @@ extension DioResponseX on Response {
   bool get isServerError => statusCode != null && statusCode! >= 500;
 
   /// Extract data from standard API envelope {data, message, errors}
-  dynamic get apiData => data?['data'];
+  dynamic get apiData => (data is Map) ? data['data'] : data;
 
-  String? get apiMessage => data?['message'] as String?;
+  String? get apiMessage => (data is Map) ? data['message'] as String? : null;
 
   Map<String, List<String>>? get apiErrors {
-    if (data?['errors'] == null) return null;
-    final errors = data!['errors'] as Map<String, dynamic>;
-    return errors.map((key, value) {
+    if (data is! Map || data['errors'] == null) return null;
+    final rawErrors = data['errors'];
+    if (rawErrors is! Map) return null;
+    return rawErrors.map((key, value) {
       if (value is List) {
-        return MapEntry(key, value.cast<String>());
+        return MapEntry(key.toString(), value.map((e) => e.toString()).toList());
       }
-      return MapEntry(key, [value.toString()]);
+      return MapEntry(key.toString(), [value.toString()]);
     });
   }
 }

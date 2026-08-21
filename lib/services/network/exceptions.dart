@@ -68,7 +68,7 @@ AppException mapDioException(DioException e) {
 
   switch (statusCode) {
     case 400:
-      return AppException(message: 'Bad request', statusCode: 400);
+      return const AppException(message: 'Bad request', statusCode: 400);
     case 401:
       return const UnauthorizedException();
     case 403:
@@ -88,8 +88,8 @@ AppException mapDioException(DioException e) {
         }
       }
       return ValidationException(
-        message: specificMessage ?? (rawData is Map<String, dynamic> ? rawData['message'] : null) ?? 'These credentials do not match our records.',
-        errors: errors?.map((k, v) => MapEntry(k, (v is List ? v : [v]).cast<String>())) ?? {},
+        message: specificMessage ?? (rawData is Map<String, dynamic> ? rawData['message'] : null) ?? 'Validation error occurred.',
+        errors: errors?.map((k, v) => MapEntry(k, (v is List ? v.map((e) => e.toString()).toList() : [v.toString()]))) ?? {},
       );
     case 500:
     case 502:

@@ -62,178 +62,202 @@ class _CompanyRulesScreenState extends ConsumerState<CompanyRulesScreen> {
                     onRefresh: () async =>
                         ref.invalidate(companyRulesProvider),
                     color: AppColors.primary,
-                    child: ListView(
+                    child: CustomScrollView(
                       physics: const AlwaysScrollableScrollPhysics(
                         parent: BouncingScrollPhysics(),
                       ),
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-                      children: [
-                        // ── Search Bar ──
-                        Container(
-                          decoration: BoxDecoration(
-                            color: cardBg,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: cardBorder),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(
-                                  alpha: isDark ? 0.2 : 0.02,
-                                ),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: _searchCtrl,
-                            onChanged: (val) =>
-                                setState(() => _searchQuery = val.trim()),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark ? Colors.white : AppColors.grey900,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'Search rules, conduct, guidelines...',
-                              hintStyle: TextStyle(
-                                color: isDark
-                                    ? AppColors.grey500
-                                    : AppColors.grey400,
-                                fontSize: 13,
-                              ),
-                              prefixIcon: Icon(
-                                Icons.search_rounded,
-                                color: isDark
-                                    ? AppColors.grey400
-                                    : AppColors.grey400,
-                                size: 20,
-                              ),
-                              suffixIcon: _searchQuery.isNotEmpty
-                                  ? IconButton(
-                                      icon: Icon(
-                                        Icons.clear_rounded,
+                      slivers: [
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                          sliver: SliverToBoxAdapter(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // ── Search Bar ──
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: cardBg,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: cardBorder),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: isDark ? 0.2 : 0.02,
+                                        ),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: TextField(
+                                    controller: _searchCtrl,
+                                    onChanged: (val) =>
+                                        setState(() => _searchQuery = val.trim()),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isDark ? Colors.white : AppColors.grey900,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: l10n.searchRulesHint,
+                                      hintStyle: TextStyle(
+                                        color: isDark
+                                            ? AppColors.grey500
+                                            : AppColors.grey400,
+                                        fontSize: 13,
+                                      ),
+                                      prefixIcon: Icon(
+                                        Icons.search_rounded,
                                         color: isDark
                                             ? AppColors.grey400
                                             : AppColors.grey400,
-                                        size: 18,
+                                        size: 20,
                                       ),
-                                      onPressed: () {
-                                        _searchCtrl.clear();
-                                        setState(() => _searchQuery = '');
-                                      },
-                                    )
-                                  : null,
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 18),
-
-                        // ── Section Header ──
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Regulations & Policies',
-                                style: TextStyle(
-                                  fontSize: 14.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: isDark
-                                      ? Colors.white
-                                      : AppColors.grey900,
-                                  letterSpacing: -0.1,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? const Color(0xFF1E293B)
-                                      : const Color(0xFFEFF6FF),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: isDark
-                                        ? const Color(0xFF3B82F6)
-                                            .withValues(alpha: 0.3)
-                                        : const Color(0xFFBFDBFE),
-                                    width: 0.8,
+                                      suffixIcon: _searchQuery.isNotEmpty
+                                          ? IconButton(
+                                              icon: Icon(
+                                                Icons.clear_rounded,
+                                                color: isDark
+                                                    ? AppColors.grey400
+                                                    : AppColors.grey400,
+                                                size: 18,
+                                              ),
+                                              onPressed: () {
+                                                _searchCtrl.clear();
+                                                setState(() => _searchQuery = '');
+                                              },
+                                            )
+                                          : null,
+                                      border: InputBorder.none,
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 14,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                child: Text(
-                                  '${filtered.length} Guidelines',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: isDark
-                                        ? const Color(0xFF93C5FD)
-                                        : AppColors.primary,
-                                    fontWeight: FontWeight.w600,
+
+                                const SizedBox(height: 18),
+
+                                // ── Section Header ──
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          l10n.regulationsAndPolicies,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 14.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: isDark
+                                                ? Colors.white
+                                                : AppColors.grey900,
+                                            letterSpacing: -0.1,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: isDark
+                                              ? const Color(0xFF1E293B)
+                                              : const Color(0xFFEFF6FF),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: isDark
+                                                ? const Color(0xFF3B82F6)
+                                                    .withValues(alpha: 0.3)
+                                                : const Color(0xFFBFDBFE),
+                                            width: 0.8,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '${filtered.length} ${l10n.guidelinesCount}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: isDark
+                                                ? const Color(0xFF93C5FD)
+                                                : AppColors.primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
 
-                        const SizedBox(height: 12),
-
-                        // ── Rules List ──
-                        if (filtered.isEmpty)
-                          Container(
-                            padding: const EdgeInsets.all(32),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: cardBg,
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: cardBorder),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.search_off_rounded,
-                                  size: 44,
-                                  color: AppColors.grey300,
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  _searchQuery.isNotEmpty
-                                      ? 'No rules matching "$_searchQuery"'
-                                      : l10n.noCompanyRules,
-                                  style: TextStyle(
-                                    color: isDark
-                                        ? AppColors.grey400
-                                        : AppColors.grey600,
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
+                                const SizedBox(height: 12),
                               ],
+                            ),
+                          ),
+                        ),
+
+                        // ── Lazy Virtualized Rules List ──
+                        if (filtered.isEmpty)
+                          SliverPadding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+                            sliver: SliverToBoxAdapter(
+                              child: Container(
+                                padding: const EdgeInsets.all(32),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: cardBg,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(color: cardBorder),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.search_off_rounded,
+                                      size: 44,
+                                      color: AppColors.grey300,
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      _searchQuery.isNotEmpty
+                                          ? '${l10n.noRulesMatching} "$_searchQuery"'
+                                          : l10n.noCompanyRules,
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? AppColors.grey400
+                                            : AppColors.grey600,
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           )
                         else
-                          ...filtered.asMap().entries.map((entry) {
-                            final index = entry.key + 1;
-                            final rule = entry.value;
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: _buildRuleCard(
-                                index,
-                                rule.title,
-                                rule.description,
-                                isDark,
-                              ),
-                            );
-                          }),
+                          SliverPadding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+                            sliver: SliverList.builder(
+                              itemCount: filtered.length,
+                              itemBuilder: (context, index) {
+                                final rule = filtered[index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: _buildRuleCard(
+                                    index + 1,
+                                    rule.title,
+                                    rule.description,
+                                    isDark,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                       ],
                     ),
                   );
@@ -362,9 +386,9 @@ class _CompanyRulesScreenState extends ConsumerState<CompanyRulesScreen> {
                             ),
                           ),
                           const SizedBox(height: 2),
-                          const Text(
-                            'Employee Code of Conduct & Guidelines',
-                            style: TextStyle(
+                          Text(
+                            l10n.companyRulesSubtitle,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                               color: Color(0xB3FFFFFF),

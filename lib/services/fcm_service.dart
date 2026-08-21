@@ -321,18 +321,18 @@ class FcmService {
         message.messageId?.hashCode ?? data.hashCode,
         title ?? 'New Notification',
         body ?? 'You have a new message',
-        NotificationDetails(
+        const NotificationDetails(
           android: AndroidNotificationDetails(
             'high_importance_channel', // channel id
             'High Importance Notifications', // channel name
             channelDescription:
                 'This channel is used for important notifications.',
             icon: '@mipmap/ic_launcher',
-            color: const Color(0xFF0052FF),
+            color: Color(0xFF0052FF),
             importance: Importance.max,
             priority: Priority.high,
           ),
-          iOS: const DarwinNotificationDetails(
+          iOS: DarwinNotificationDetails(
             presentAlert: true,
             presentBadge: true,
             presentSound: true,
@@ -352,7 +352,7 @@ class FcmService {
     if (kIsWeb) return;
 
     await _localNotificationsPlugin.show(
-      DateTime.now().millisecond,
+      DateTime.now().millisecondsSinceEpoch.remainder(100000),
       title,
       body,
       const NotificationDetails(
@@ -374,6 +374,20 @@ class FcmService {
       ),
       payload: payload != null ? jsonEncode(payload) : null,
     );
+  }
+
+  /// Invalidates this device's push token on sign-out.
+  ///
+  /// The backend maps the token to the user who registered it, so without this
+  /// a signed-out (or handed-over) device keeps receiving the previous user's
+  /// leave/payslip notifications. Deleting the token client-side makes the
+  /// stored one undeliverable; the next login syncs a fresh one.
+  Future<void> clearToken() async {
+    try {
+      await FirebaseMessaging.instance.deleteToken();
+    } catch (e) {
+      AppLogger.w('Failed to delete FCM token on logout: $e');
+    }
   }
 
   /// Fetches the FCM token and sends it to the backend to link to the logged-in user.

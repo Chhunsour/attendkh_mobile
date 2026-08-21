@@ -162,7 +162,7 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen>
                       unread,
                       emptyTitle: l10n.allPoliciesAcknowledged,
                       emptySubtitle:
-                          'Great job! You have read and acknowledged all required policies.',
+                          l10n.allPoliciesReadSuccess,
                       l10n: l10n,
                       isUnreadList: true,
                       isDark: isDark,
@@ -171,7 +171,7 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen>
                       read,
                       emptyTitle: l10n.noPoliciesAcknowledged,
                       emptySubtitle:
-                          'Policies you have signed and acknowledged will appear here.',
+                          l10n.acknowledgedPoliciesEmpty,
                       l10n: l10n,
                       isUnreadList: false,
                       isDark: isDark,
@@ -256,22 +256,31 @@ class _PoliciesScreenState extends ConsumerState<PoliciesScreen>
                       if (context.canPop())
                         _frostedHeroButton(
                           icon: Icons.arrow_back_ios_new_rounded,
-                          onTap: () => context.pop(),
+                          onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            }
+                          },
                         )
                       else
                         const SizedBox(width: 40),
-                      Text(
-                        l10n.companyPolicies,
-                        style: const TextStyle(
-                          fontSize: 18.5,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: -0.2,
+                      Expanded(
+                        child: Text(
+                          l10n.companyPolicies,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 18.5,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            letterSpacing: -0.2,
+                          ),
                         ),
                       ),
                       _frostedHeroButton(
                         icon: Icons.refresh_rounded,
-                        tooltip: 'Refresh',
+                        tooltip: l10n.refresh,
                         onTap: _refresh,
                       ),
                     ],

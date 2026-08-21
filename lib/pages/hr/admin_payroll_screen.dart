@@ -50,7 +50,7 @@ class _AdminPayrollScreenState extends ConsumerState<AdminPayrollScreen> with Si
       body: Column(
         children: [
           Container(
-            color: AppColors.surfaceLight,
+            color: AppColors.surface(context),
             child: TabBar(
               controller: _tabController,
               labelColor: AppColors.primary,
@@ -133,18 +133,18 @@ class _PayrollRunsTab extends ConsumerWidget {
                           BoxShadow(
                             color: AppColors.primary.withAlpha(40),
                             blurRadius: 6,
-                            offset: Offset(0, 2),
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.add_rounded, size: 18, color: Colors.white),
-                          SizedBox(width: 4),
+                          const Icon(Icons.add_rounded, size: 18, color: Colors.white),
+                          const SizedBox(width: 4),
                           Text(
                             l10n.generatePayrollBtn,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
@@ -202,7 +202,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
+                    color: AppColors.surface(context),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -234,7 +234,7 @@ class _PayrollRunsTab extends ConsumerWidget {
 
                     return Container(
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceLight,
+                        color: AppColors.surface(context),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: AppColors.border(context)),
                         boxShadow: [
@@ -391,8 +391,8 @@ class _PayrollRunsTab extends ConsumerWidget {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('NET TOTAL', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary)),
-                                      SizedBox(height: 2),
+                                      const Text('NET TOTAL', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                                      const SizedBox(height: 2),
                                       Text(
                                         '\$${r.totalNet.toStringAsFixed(2)}',
                                         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context)),
@@ -536,9 +536,9 @@ class _KpiMiniCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border(context)),
       ),
@@ -560,13 +560,13 @@ class _KpiMiniCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.grey500),
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.grey500),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -617,8 +617,8 @@ class _KpiMiniCard extends StatelessWidget {
     barrierDismissible: false,
     builder: (ctx) {
       return Dialog(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
@@ -734,8 +734,8 @@ class _KpiMiniCard extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(ctx),
                       style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        side: BorderSide(
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        side: const BorderSide(
                           color: Colors.grey,
                         ),
                         shape: RoundedRectangleBorder(

@@ -11,13 +11,22 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 
-/// A modern, executive "More" screen that displays secondary navigation items
-/// in a clean grid alongside grouped preference and account management sections.
+/// One calm rounded shape keeps the menu cards visually quiet and easy to scan.
+const moreCardShape = BorderRadius.all(Radius.circular(22));
+
+const _cardShape = moreCardShape;
+
+/// A menu tab built as a focused list of tools with grouped account actions.
 class MoreScreen extends ConsumerWidget {
   final String title;
   final List<MoreItem> items;
   final bool showLogout;
   final bool showPreferences;
+
+  /// Optional live content above / below the tool list, so a menu tab can
+  /// carry state instead of only links.
+  final Widget? header;
+  final Widget? footer;
 
   const MoreScreen({
     super.key,
@@ -25,7 +34,13 @@ class MoreScreen extends ConsumerWidget {
     required this.items,
     this.showLogout = false,
     this.showPreferences = false,
+    this.header,
+    this.footer,
   });
+
+  /// The tab's signature colour. Call sites already lead with their most
+  /// important tool, so its colour is the one that identifies the tab.
+  Color get _accent => items.isEmpty ? AppColors.primary : items.first.color;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,248 +48,145 @@ class MoreScreen extends ConsumerWidget {
     final authState = ref.watch(authProvider);
     final l10n = AppLocalizations.of(context)!;
     final bool displayPreferences = showPreferences || showLogout;
+    final accent = _accent;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
-      appBar: AppBar(
-        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isDark ? Colors.white : AppColors.grey900,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: ListView(
+      backgroundColor: isDark ? AppColors.backgroundDark : Colors.white,
+      body: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),
         ),
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
-        children: [
-          // ── Section 1: Company Services & Tools Launchpad ──
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2, bottom: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.companyServicesAndTools,
-                  style: TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : AppColors.grey800,
-                    letterSpacing: -0.2,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.surfaceDarkElevated
-                        : AppColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isDark
-                          ? AppColors.borderDark
-                          : AppColors.primary.withValues(alpha: 0.15),
-                    ),
-                  ),
-                  child: Text(
-                    l10n.featuresCount(items.length),
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isDark ? AppColors.grey300 : AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        slivers: [
+          _MoreHeaderBar(title: title, isDark: isDark),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                if (header != null) ...[header!, const SizedBox(height: 22)],
 
-          // ── Clean 4-Column Quick Services Card ──
-          Container(
-            clipBehavior: Clip.antiAlias,
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.surfaceDark : Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: isDark
-                    ? AppColors.borderDark
-                    : AppColors.grey200.withValues(alpha: 0.8),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.02),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 14,
-                childAspectRatio: 0.78,
-              ),
-              itemCount: items.length,
-              itemBuilder: (context, index) =>
-                  _buildLaunchpadItem(context, items[index], isDark),
-            ),
-          ),
+                // ── The tools, as one readable list ──
+                ..._buildToolList(context, isDark),
 
-          if (displayPreferences) ...[
-            const SizedBox(height: 24),
+                ?footer,
 
-            // ── Section 2: Preferences & Display ──
-            _buildSectionHeader(l10n.preferences, isDark),
-            const SizedBox(height: 8),
-            _buildGroupCard(
-              context: context,
-              isDark: isDark,
-              children: [
-                _buildThemeTile(context, ref, l10n, isDark),
-                _buildDivider(isDark),
-                _buildLanguageTile(context, ref, l10n, isDark),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            // ── Section 3: Account & Information ──
-            _buildSectionHeader(l10n.accountAndInfo, isDark),
-            const SizedBox(height: 8),
-            _buildGroupCard(
-              context: context,
-              isDark: isDark,
-              children: [
-                if (authState.isSuperAdmin || authState.isCompanyAdmin) ...[
-                  _buildSettingRow(
-                    context: context,
-                    icon: Icons.admin_panel_settings_rounded,
-                    iconColor: const Color(0xFF6366F1),
-                    title: l10n.returnToAdminConsole,
-                    subtitle: l10n.returnToAdminSubtitle,
+                if (displayPreferences) ...[
+                  const SizedBox(height: 26),
+                  MoreSectionHeader(title: l10n.preferences, accent: accent),
+                  const SizedBox(height: 10),
+                  _buildGroupCard(
                     isDark: isDark,
-                    onTap: () {
-                      if (authState.isSuperAdmin) {
-                        context.go(AppRoutes.adminDashboard);
-                      } else {
-                        context.go(AppRoutes.companyAdmin);
-                      }
-                    },
+                    children: [
+                      _buildThemeTile(context, ref, l10n, isDark),
+                      _buildDivider(isDark),
+                      _buildLanguageTile(context, ref, l10n, isDark),
+                    ],
                   ),
-                  _buildDivider(isDark),
+
+                  const SizedBox(height: 26),
+                  MoreSectionHeader(title: l10n.accountAndInfo, accent: accent),
+                  const SizedBox(height: 10),
+                  _buildGroupCard(
+                    isDark: isDark,
+                    children: [
+                      if (authState.isSuperAdmin ||
+                          authState.isCompanyAdmin) ...[
+                        _buildSettingRow(
+                          context: context,
+                          icon: Icons.admin_panel_settings_rounded,
+                          iconColor: const Color(0xFF6366F1),
+                          title: l10n.returnToAdminConsole,
+                          subtitle: l10n.returnToAdminSubtitle,
+                          isDark: isDark,
+                          onTap: () {
+                            if (authState.isSuperAdmin) {
+                              context.go(AppRoutes.adminDashboard);
+                            } else {
+                              context.go(AppRoutes.companyAdmin);
+                            }
+                          },
+                        ),
+                        _buildDivider(isDark),
+                      ],
+                      _buildSettingRow(
+                        context: context,
+                        icon: Icons.edit_note_rounded,
+                        iconColor: AppColors.primary,
+                        title: l10n.editProfile,
+                        subtitle: l10n.editProfileSubtitle,
+                        isDark: isDark,
+                        onTap: () => context.push(AppRoutes.editProfile),
+                      ),
+                      _buildDivider(isDark),
+                      _buildSettingRow(
+                        context: context,
+                        icon: Icons.privacy_tip_outlined,
+                        iconColor: const Color(0xFF0284C7),
+                        title: l10n.privacyPolicy,
+                        subtitle: l10n.privacyPolicySubtitle,
+                        isExternal: true,
+                        isDark: isDark,
+                        onTap: () => launchUrl(
+                          Uri.parse('https://attendkh.com/privacy-policy'),
+                          mode: LaunchMode.inAppBrowserView,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 26),
+                  MoreSectionHeader(
+                    title: l10n.accountActions,
+                    accent: isDark ? const Color(0xFFF87171) : AppColors.danger,
+                  ),
+                  const SizedBox(height: 10),
+                  _buildGroupCard(
+                    isDark: isDark,
+                    children: [
+                      _buildSettingRow(
+                        context: context,
+                        icon: Icons.logout_rounded,
+                        iconColor: isDark
+                            ? const Color(0xFFF87171)
+                            : AppColors.danger,
+                        title: l10n.logOut,
+                        subtitle: l10n.signOutSubtitle,
+                        isDestructive: true,
+                        isDark: isDark,
+                        onTap: () => showLogoutConfirmation(context, ref),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 30),
+                  _buildAppMark(l10n, isDark, accent),
                 ],
-                _buildSettingRow(
-                  context: context,
-                  icon: Icons.edit_note_rounded,
-                  iconColor: AppColors.primary,
-                  title: l10n.editProfile,
-                  subtitle: l10n.editProfileSubtitle,
-                  isDark: isDark,
-                  onTap: () => context.push(AppRoutes.editProfile),
-                ),
-                _buildDivider(isDark),
-                _buildSettingRow(
-                  context: context,
-                  icon: Icons.privacy_tip_outlined,
-                  iconColor: const Color(0xFF0284C7),
-                  title: l10n.privacyPolicy,
-                  subtitle: l10n.privacyPolicySubtitle,
-                  isExternal: true,
-                  isDark: isDark,
-                  onTap: () => launchUrl(
-                    Uri.parse('https://attendkh.com/privacy-policy'),
-                    mode: LaunchMode.inAppBrowserView,
-                  ),
-                ),
-              ],
+              ]),
             ),
-
-            const SizedBox(height: 24),
-
-            // ── Section 4: Account Actions / Security ──
-            _buildSectionHeader(l10n.accountActions, isDark),
-            const SizedBox(height: 8),
-            _buildGroupCard(
-              context: context,
-              isDark: isDark,
-              children: [
-                _buildSettingRow(
-                  context: context,
-                  icon: Icons.logout_rounded,
-                  iconColor: isDark ? const Color(0xFFF87171) : AppColors.danger,
-                  title: l10n.logOut,
-                  subtitle: l10n.signOutSubtitle,
-                  titleColor: isDark ? const Color(0xFFF87171) : AppColors.danger,
-                  isDestructive: true,
-                  isDark: isDark,
-                  onTap: () => showLogoutConfirmation(context, ref),
-                ),
-              ],
-            ),
-
-            // ── App Footer / Version Info ──
-            const SizedBox(height: 28),
-            Center(
-              child: Column(
-                children: [
-                  Text(
-                    'AttendKH Mobile',
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? AppColors.grey400 : AppColors.grey500,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    l10n.attendkhAppVersion,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isDark ? AppColors.grey600 : AppColors.grey400,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ],
       ),
     );
   }
 
-  // ── Grouped Section Header ──
-  Widget _buildSectionHeader(String title, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          color: isDark ? AppColors.grey400 : AppColors.grey500,
-          letterSpacing: 0.8,
-        ),
+  // ── The tools: one focused list with predictable tap targets ──
+  List<Widget> _buildToolList(BuildContext context, bool isDark) {
+    if (items.isEmpty) return const [];
+
+    return [
+      _buildGroupCard(
+        isDark: isDark,
+        children: [
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) _buildDivider(isDark, indent: 88),
+            _ToolListRow(item: items[i], isDark: isDark),
+          ],
+        ],
       ),
-    );
+    ];
   }
 
   // ── Group Card Container ──
   Widget _buildGroupCard({
-    required BuildContext context,
     required bool isDark,
     required List<Widget> children,
   }) {
@@ -282,7 +194,7 @@ class MoreScreen extends ConsumerWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: _cardShape,
         border: Border.all(
           color: isDark
               ? AppColors.borderDark
@@ -297,14 +209,58 @@ class MoreScreen extends ConsumerWidget {
           ),
         ],
       ),
+      child: Column(children: children),
+    );
+  }
+
+  Widget _buildAppMark(AppLocalizations l10n, bool isDark, Color accent) {
+    return Center(
       child: Column(
-        children: children,
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(9),
+                topRight: Radius.circular(9),
+                bottomRight: Radius.circular(9),
+                bottomLeft: Radius.circular(3),
+              ),
+              color: accent.withValues(alpha: isDark ? 0.20 : 0.12),
+            ),
+            child: Icon(Icons.hive_rounded, size: 14, color: accent),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'AttendKH Mobile',
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: isDark ? AppColors.grey400 : AppColors.grey500,
+              letterSpacing: 0.2,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            l10n.attendkhAppVersion,
+            style: TextStyle(
+              fontSize: 11,
+              color: isDark ? AppColors.grey600 : AppColors.grey400,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   // ── Theme Tile with Bottom Sheet Selector ──
-  Widget _buildThemeTile(BuildContext context, WidgetRef ref, AppLocalizations l10n, bool isDark) {
+  Widget _buildThemeTile(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+    bool isDark,
+  ) {
     final themeMode = ref.watch(themeModeProvider);
 
     final String modeLabel = switch (themeMode) {
@@ -314,9 +270,9 @@ class MoreScreen extends ConsumerWidget {
     };
 
     final String badgeLabel = switch (themeMode) {
-      ThemeMode.light => 'Light',
-      ThemeMode.dark => 'Dark',
-      ThemeMode.system => 'Auto',
+      ThemeMode.light => l10n.themeLight,
+      ThemeMode.dark => l10n.themeDark,
+      ThemeMode.system => l10n.themeAuto,
     };
 
     final IconData modeIcon = switch (themeMode) {
@@ -325,14 +281,10 @@ class MoreScreen extends ConsumerWidget {
       ThemeMode.system => Icons.brightness_auto_rounded,
     };
 
-    final Color iconColor = isDark
-        ? const Color(0xFF93C5FD)
-        : AppColors.primary;
-
     return _buildSettingRow(
       context: context,
       icon: modeIcon,
-      iconColor: iconColor,
+      iconColor: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
       title: l10n.themeAndAppearance,
       subtitle: modeLabel,
       badgeText: badgeLabel,
@@ -350,14 +302,11 @@ class MoreScreen extends ConsumerWidget {
   ) {
     final currentLang = ref.watch(localeProvider).languageCode;
     final isKhmer = currentLang == 'km';
-    final Color iconColor = isDark
-        ? const Color(0xFF93C5FD)
-        : AppColors.primary;
 
     return _buildSettingRow(
       context: context,
       icon: Icons.translate_rounded,
-      iconColor: iconColor,
+      iconColor: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
       title: l10n.language,
       subtitle: isKhmer ? 'ភាសាខ្មែរ (Khmer)' : 'English (US)',
       badgeText: isKhmer ? 'ខ្មែរ' : 'EN',
@@ -372,26 +321,17 @@ class MoreScreen extends ConsumerWidget {
     required IconData icon,
     required Color iconColor,
     required String title,
-    required String subtitle,
+    String? subtitle,
     required VoidCallback onTap,
     required bool isDark,
     String? badgeText,
-    Color? titleColor,
+    bool badgeIsAlert = false,
     bool isDestructive = false,
     bool isExternal = false,
   }) {
-    // Senior UX/UI Palette: Cohesive neutral squircle container
-    final Color rowIconBg = isDestructive
-        ? (isDark ? const Color(0xFF2E1818) : const Color(0xFFFEE2E2))
-        : (isDark ? const Color(0xFF242424) : const Color(0xFFF1F5F9));
-
-    final Color rowIconBorder = isDestructive
-        ? (isDark ? const Color(0xFF482020) : const Color(0xFFFECACA))
-        : (isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0));
-
-    final Color finalIconColor = isDestructive
+    final Color color = isDestructive
         ? (isDark ? const Color(0xFFF87171) : AppColors.danger)
-        : (isDark ? const Color(0xFF93C5FD) : AppColors.primary);
+        : iconColor;
 
     return InkWell(
       onTap: () {
@@ -399,23 +339,11 @@ class MoreScreen extends ConsumerWidget {
         onTap();
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         child: Row(
           children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: rowIconBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: rowIconBorder,
-                  width: 1,
-                ),
-              ),
-              child: Icon(icon, size: 19, color: finalIconColor),
-            ),
-            const SizedBox(width: 12),
+            _IconChip(color: color, icon: icon, size: 40),
+            const SizedBox(width: 13),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,61 +351,43 @@ class MoreScreen extends ConsumerWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: titleColor ??
-                          (isDestructive
-                              ? (isDark ? const Color(0xFFF87171) : AppColors.danger)
-                              : (isDark ? Colors.white : AppColors.grey900)),
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w700,
+                      color: isDestructive
+                          ? color
+                          : (isDark ? Colors.white : AppColors.grey900),
                       letterSpacing: -0.2,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      color: isDestructive
-                          ? (isDark
-                              ? const Color(0xFFF87171).withValues(alpha: 0.75)
-                              : AppColors.danger.withValues(alpha: 0.8))
-                          : (isDark ? AppColors.grey400 : AppColors.grey500),
+                  if (subtitle != null && subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        height: 1.3,
+                        color: isDestructive
+                            ? color.withValues(alpha: 0.8)
+                            : (isDark ? AppColors.grey400 : AppColors.grey500),
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
             if (badgeText != null) ...[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.surfaceDarkElevated
-                      : AppColors.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: isDark
-                        ? AppColors.borderDark
-                        : AppColors.primary.withValues(alpha: 0.15),
-                    width: 0.8,
-                  ),
-                ),
-                child: Text(
-                  badgeText,
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
+              _Badge(text: badgeText, color: color, isAlert: badgeIsAlert),
+              const SizedBox(width: 6),
             ],
             Icon(
-              isExternal ? Icons.open_in_new_rounded : Icons.chevron_right_rounded,
+              isExternal
+                  ? Icons.open_in_new_rounded
+                  : Icons.chevron_right_rounded,
               size: isExternal ? 16 : 18,
               color: isDestructive
-                  ? (isDark ? const Color(0xFFF87171).withValues(alpha: 0.7) : AppColors.danger.withValues(alpha: 0.6))
+                  ? color.withValues(alpha: 0.65)
                   : (isDark ? AppColors.grey500 : AppColors.grey400),
             ),
           ],
@@ -487,18 +397,22 @@ class MoreScreen extends ConsumerWidget {
   }
 
   // ── Divider ──
-  Widget _buildDivider(bool isDark) {
+  Widget _buildDivider(bool isDark, {double indent = 62}) {
     return Divider(
       height: 1,
       thickness: 1,
-      indent: 62,
+      indent: indent,
       endIndent: 0,
       color: isDark ? AppColors.borderDark : AppColors.grey100,
     );
   }
 
   // ── Theme Selection Bottom Sheet ──
-  void _showThemeSelectionSheet(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+  void _showThemeSelectionSheet(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) {
     final currentMode = ref.read(themeModeProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -509,85 +423,56 @@ class MoreScreen extends ConsumerWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.grey700 : AppColors.grey300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.selectTheme,
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : AppColors.grey900,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.themeSubtitle,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: isDark ? AppColors.grey400 : AppColors.grey600,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildSheetOption(
-                  icon: Icons.light_mode_rounded,
-                  iconColor: const Color(0xFFF59E0B),
-                  title: l10n.lightTheme,
-                  subtitle: l10n.lightThemeDesc,
-                  isSelected: currentMode == ThemeMode.light,
-                  isDark: isDark,
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light);
-                    Navigator.pop(ctx);
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildSheetOption(
-                  icon: Icons.dark_mode_rounded,
-                  iconColor: const Color(0xFF818CF8),
-                  title: l10n.darkTheme,
-                  subtitle: l10n.darkThemeDesc,
-                  isSelected: currentMode == ThemeMode.dark,
-                  isDark: isDark,
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark);
-                    Navigator.pop(ctx);
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildSheetOption(
-                  icon: Icons.brightness_auto_rounded,
-                  iconColor: AppColors.primary,
-                  title: l10n.systemTheme,
-                  subtitle: l10n.systemThemeDesc,
-                  isSelected: currentMode == ThemeMode.system,
-                  isDark: isDark,
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.system);
-                    Navigator.pop(ctx);
-                  },
-                ),
-              ],
+        return _SheetFrame(
+          title: l10n.selectTheme,
+          subtitle: l10n.themeSubtitle,
+          isDark: isDark,
+          children: [
+            _buildSheetOption(
+              icon: Icons.light_mode_rounded,
+              title: l10n.lightTheme,
+              subtitle: l10n.lightThemeDesc,
+              isSelected: currentMode == ThemeMode.light,
+              isDark: isDark,
+              onTap: () {
+                HapticFeedback.selectionClick();
+                ref
+                    .read(themeModeProvider.notifier)
+                    .setThemeMode(ThemeMode.light);
+                Navigator.pop(ctx);
+              },
             ),
-          ),
+            const SizedBox(height: 8),
+            _buildSheetOption(
+              icon: Icons.dark_mode_rounded,
+              title: l10n.darkTheme,
+              subtitle: l10n.darkThemeDesc,
+              isSelected: currentMode == ThemeMode.dark,
+              isDark: isDark,
+              onTap: () {
+                HapticFeedback.selectionClick();
+                ref
+                    .read(themeModeProvider.notifier)
+                    .setThemeMode(ThemeMode.dark);
+                Navigator.pop(ctx);
+              },
+            ),
+            const SizedBox(height: 8),
+            _buildSheetOption(
+              icon: Icons.brightness_auto_rounded,
+              title: l10n.systemTheme,
+              subtitle: l10n.systemThemeDesc,
+              isSelected: currentMode == ThemeMode.system,
+              isDark: isDark,
+              onTap: () {
+                HapticFeedback.selectionClick();
+                ref
+                    .read(themeModeProvider.notifier)
+                    .setThemeMode(ThemeMode.system);
+                Navigator.pop(ctx);
+              },
+            ),
+          ],
         );
       },
     );
@@ -609,71 +494,37 @@ class MoreScreen extends ConsumerWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.grey700 : AppColors.grey300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.selectLanguage,
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : AppColors.grey900,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.languageSubtitle,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: isDark ? AppColors.grey400 : AppColors.grey600,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildSheetOption(
-                  icon: Icons.translate_rounded,
-                  iconColor: const Color(0xFF0284C7),
-                  title: l10n.english,
-                  subtitle: l10n.englishDesc,
-                  isSelected: currentLang == 'en',
-                  isDark: isDark,
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    ref.read(localeProvider.notifier).setLocale(const Locale('en'));
-                    Navigator.pop(ctx);
-                  },
-                ),
-                const SizedBox(height: 8),
-                _buildSheetOption(
-                  icon: Icons.language_rounded,
-                  iconColor: const Color(0xFF10B981),
-                  title: l10n.khmer,
-                  subtitle: l10n.khmerDesc,
-                  isSelected: currentLang == 'km',
-                  isDark: isDark,
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    ref.read(localeProvider.notifier).setLocale(const Locale('km'));
-                    Navigator.pop(ctx);
-                  },
-                ),
-              ],
+        return _SheetFrame(
+          title: l10n.selectLanguage,
+          subtitle: l10n.languageSubtitle,
+          isDark: isDark,
+          children: [
+            _buildSheetOption(
+              icon: Icons.translate_rounded,
+              title: l10n.english,
+              subtitle: l10n.englishDesc,
+              isSelected: currentLang == 'en',
+              isDark: isDark,
+              onTap: () {
+                HapticFeedback.selectionClick();
+                ref.read(localeProvider.notifier).setLocale(const Locale('en'));
+                Navigator.pop(ctx);
+              },
             ),
-          ),
+            const SizedBox(height: 8),
+            _buildSheetOption(
+              icon: Icons.language_rounded,
+              title: l10n.khmer,
+              subtitle: l10n.khmerDesc,
+              isSelected: currentLang == 'km',
+              isDark: isDark,
+              onTap: () {
+                HapticFeedback.selectionClick();
+                ref.read(localeProvider.notifier).setLocale(const Locale('km'));
+                Navigator.pop(ctx);
+              },
+            ),
+          ],
         );
       },
     );
@@ -682,20 +533,15 @@ class MoreScreen extends ConsumerWidget {
   // ── Bottom Sheet Selection Option ──
   Widget _buildSheetOption({
     required IconData icon,
-    required Color iconColor,
     required String title,
     required String subtitle,
     required bool isSelected,
     required bool isDark,
     required VoidCallback onTap,
   }) {
-    final Color optIconBg = isSelected
-        ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFDBEAFE))
-        : (isDark ? const Color(0xFF242424) : const Color(0xFFF1F5F9));
-    final Color optIconBorder = isSelected
-        ? (isDark ? const Color(0xFF3B82F6) : const Color(0xFF93C5FD))
-        : (isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0));
-    final Color finalIconColor = isDark ? const Color(0xFF93C5FD) : AppColors.primary;
+    final Color iconColor = isDark
+        ? const Color(0xFF93C5FD)
+        : AppColors.primary;
 
     return InkWell(
       onTap: onTap,
@@ -720,11 +566,22 @@ class MoreScreen extends ConsumerWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: optIconBg,
+                color: isSelected
+                    ? (isDark
+                          ? const Color(0xFF1E293B)
+                          : AppColors.primaryLight)
+                    : (isDark ? const Color(0xFF242424) : AppColors.grey100),
                 borderRadius: BorderRadius.circular(11),
-                border: Border.all(color: optIconBorder, width: 1),
+                border: Border.all(
+                  color: isSelected
+                      ? (isDark
+                            ? const Color(0xFF3B82F6)
+                            : const Color(0xFF93C5FD))
+                      : (isDark ? const Color(0xFF333333) : AppColors.grey200),
+                  width: 1,
+                ),
               ),
-              child: Icon(icon, color: finalIconColor, size: 19),
+              child: Icon(icon, color: iconColor, size: 19),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -761,77 +618,338 @@ class MoreScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildLaunchpadItem(BuildContext context, MoreItem item, bool isDark) {
-    // Senior UX/UI Palette: Cohesive, elegant brand styling (no chaotic rainbow colors)
-    final Color iconBg = isDark
-        ? const Color(0xFF242424)
-        : const Color(0xFFF1F5F9);
-    final Color iconBorder = isDark
-        ? const Color(0xFF333333)
-        : const Color(0xFFE2E8F0);
-    final Color iconColor = isDark
-        ? const Color(0xFF93C5FD)
-        : AppColors.primary;
+// ─────────────────────────────────────────────────────────────────────────────
+// Header
+// ─────────────────────────────────────────────────────────────────────────────
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          if (item.onTap != null) {
-            item.onTap!();
-          } else if (item.routePath != null) {
-            context.push(item.routePath!);
-          }
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: iconBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: iconBorder,
-                    width: 1,
-                  ),
-                ),
-                child: Icon(
-                  item.icon,
-                  color: iconColor,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                item.title,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.grey200 : AppColors.grey800,
-                  height: 1.2,
-                  letterSpacing: -0.1,
-                ),
-              ),
-            ],
-          ),
+/// Quiet native app bar that keeps the list as the visual focus.
+class _MoreHeaderBar extends StatelessWidget {
+  final String title;
+  final bool isDark;
+
+  const _MoreHeaderBar({required this.title, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = isDark ? AppColors.surfaceDark : Colors.white;
+
+    return SliverAppBar(
+      pinned: true,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      toolbarHeight: 64,
+      backgroundColor: surface,
+      surfaceTintColor: Colors.transparent,
+      automaticallyImplyLeading: false,
+      title: Text(
+        title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: isDark ? Colors.white : AppColors.grey900,
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.4,
         ),
       ),
     );
   }
 }
 
-/// Describes a single item in the "More" grid.
+/// Editorial section header: accent tick, label, then a hairline rule that
+/// runs out to the margin. Shared with the summary widgets so every menu tab
+/// speaks the same language.
+class MoreSectionHeader extends StatelessWidget {
+  final String title;
+  final Color accent;
+  final VoidCallback? onTap;
+
+  const MoreSectionHeader({
+    super.key,
+    required this.title,
+    this.accent = AppColors.primary,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 2),
+      child: Row(
+        children: [
+          Container(
+            width: 3,
+            height: 13,
+            margin: const EdgeInsets.only(right: 9),
+            decoration: BoxDecoration(
+              color: accent,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Flexible(
+            child: Text(
+              title.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+                color: isDark ? AppColors.grey400 : AppColors.grey500,
+                letterSpacing: 0.9,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              height: 1,
+              margin: const EdgeInsets.only(left: 10),
+              color: isDark ? AppColors.borderDark : AppColors.grey200,
+            ),
+          ),
+          if (onTap != null)
+            GestureDetector(
+              onTap: onTap,
+              child: const Padding(
+                padding: EdgeInsets.only(left: 4),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: AppColors.grey400,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tools
+// ─────────────────────────────────────────────────────────────────────────────
+
+void _openItem(BuildContext context, MoreItem item) {
+  HapticFeedback.lightImpact();
+  if (item.onTap != null) {
+    item.onTap!();
+  } else if (item.routePath != null) {
+    context.push(item.routePath!);
+  }
+}
+
+/// Soft glyph chip — the fastest thing to recognise in a menu.
+class _IconChip extends StatelessWidget {
+  final Color color;
+  final IconData icon;
+  final double size;
+
+  const _IconChip({
+    required this.color,
+    required this.icon,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: isDark ? 0.20 : 0.11),
+        borderRadius: BorderRadius.circular(size * 0.31),
+      ),
+      child: Icon(icon, size: size * 0.48, color: color),
+    );
+  }
+}
+
+/// Full-width tool row matching the reference menu: soft icon tile, strong
+/// label, quiet supporting copy, and a clear forward affordance.
+class _ToolListRow extends StatelessWidget {
+  final MoreItem item;
+  final bool isDark;
+
+  const _ToolListRow({required this.item, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = isDark
+        ? Color.lerp(item.color, Colors.white, 0.16)!
+        : item.color;
+    final textColor = isDark ? Colors.white : AppColors.grey900;
+    final secondaryColor = isDark ? AppColors.grey400 : AppColors.grey500;
+
+    return InkWell(
+      onTap: () => _openItem(context, item),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            _IconChip(color: iconColor, icon: item.icon, size: 56),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    item.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 16.5,
+                      height: 1.2,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                      color: textColor,
+                    ),
+                  ),
+                  if (item.subtitle != null && item.subtitle!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      item.subtitle!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        height: 1.25,
+                        color: secondaryColor,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (item.badgeText != null) ...[
+              const SizedBox(width: 8),
+              _Badge(
+                text: item.badgeText!,
+                color: iconColor,
+                isAlert: item.badgeIsAlert,
+              ),
+            ],
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 24,
+              color: isDark ? AppColors.grey500 : AppColors.grey400,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  final String text;
+  final Color color;
+  final bool isAlert;
+
+  const _Badge({required this.text, required this.color, this.isAlert = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      constraints: const BoxConstraints(minWidth: 26),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+      decoration: BoxDecoration(
+        color: isAlert
+            ? color
+            : (isDark
+                  ? Colors.white.withValues(alpha: 0.07)
+                  : Colors.white.withValues(alpha: 0.85)),
+        borderRadius: BorderRadius.circular(20),
+        border: isAlert
+            ? null
+            : Border.all(color: color.withValues(alpha: 0.3), width: 0.9),
+      ),
+      child: Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 11.5,
+          fontWeight: FontWeight.w800,
+          color: isAlert
+              ? Colors.white
+              : (isDark
+                    ? Colors.white
+                    : Color.alphaBlend(Colors.black26, color)),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shared chrome for the two selection sheets — grabber, title, subtitle.
+class _SheetFrame extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool isDark;
+  final List<Widget> children;
+
+  const _SheetFrame({
+    required this.title,
+    required this.subtitle,
+    required this.isDark,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.grey700 : AppColors.grey300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : AppColors.grey900,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 12.5,
+                color: isDark ? AppColors.grey400 : AppColors.grey600,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Describes a single item in the "More" list.
 class MoreItem {
   final String title;
   final String? subtitle;
@@ -840,6 +958,11 @@ class MoreItem {
   final String? routePath;
   final VoidCallback? onTap;
 
+  /// Live count shown on the tile. [badgeIsAlert] fills it with the item's
+  /// colour — reserve that for things that are actually waiting on someone.
+  final String? badgeText;
+  final bool badgeIsAlert;
+
   const MoreItem({
     required this.title,
     this.subtitle,
@@ -847,5 +970,7 @@ class MoreItem {
     required this.color,
     this.routePath,
     this.onTap,
+    this.badgeText,
+    this.badgeIsAlert = false,
   });
 }

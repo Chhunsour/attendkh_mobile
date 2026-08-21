@@ -12,19 +12,19 @@ final recruitmentRepositoryProvider = Provider<RecruitmentRepository>((ref) => R
 final assetsRepositoryProvider = Provider<AssetsRepository>((ref) => AssetsRepository());
 
 // ── HR Structure Providers ──────────────────────────────────────────────────
-final branchesProvider = FutureProvider.autoDispose<List<BranchData>>((ref) {
+final branchesProvider = FutureProvider<List<BranchData>>((ref) {
   return ref.watch(hrRepositoryProvider).getBranches();
 });
 
-final departmentsProvider = FutureProvider.autoDispose<List<DepartmentData>>((ref) {
+final departmentsProvider = FutureProvider<List<DepartmentData>>((ref) {
   return ref.watch(hrRepositoryProvider).getDepartments();
 });
 
-final positionsProvider = FutureProvider.autoDispose<List<PositionData>>((ref) {
+final positionsProvider = FutureProvider<List<PositionData>>((ref) {
   return ref.watch(hrRepositoryProvider).getPositions();
 });
 
-final teamsProvider = FutureProvider.autoDispose<List<TeamData>>((ref) {
+final teamsProvider = FutureProvider<List<TeamData>>((ref) {
   return ref.watch(hrRepositoryProvider).getTeams();
 });
 
@@ -101,7 +101,7 @@ final adminEmployeesProvider = FutureProvider.autoDispose.family<List<EmployeeDa
   );
 });
 
-final rolesProvider = FutureProvider.autoDispose<List<RoleData>>((ref) {
+final rolesProvider = FutureProvider<List<RoleData>>((ref) {
   return ref.watch(hrRepositoryProvider).getRoles();
 });
 
@@ -126,7 +126,7 @@ final allLeaveRequestsProvider = FutureProvider.autoDispose<List<AdminLeaveReque
   return ref.watch(adminOpsRepositoryProvider).getAllLeaveRequests(branchId: activeBranchId);
 });
 
-final leaveTypesProvider = FutureProvider.autoDispose<List<LeaveTypeData>>((ref) {
+final leaveTypesProvider = FutureProvider<List<LeaveTypeData>>((ref) {
   return ref.watch(adminOpsRepositoryProvider).getLeaveTypes();
 });
 

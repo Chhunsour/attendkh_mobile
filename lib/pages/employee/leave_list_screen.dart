@@ -10,6 +10,9 @@ import 'package:mpg_hr_mobile_app/services/leave_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/leave_provider.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
+/// Leave-state accents, shared by the hero bar and its caption chip.
+const Color _kPendingColor = Color(0xFF7DD3FC);
+
 class LeaveListScreen extends ConsumerStatefulWidget {
   const LeaveListScreen({super.key});
 
@@ -196,7 +199,11 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
                     if (context.canPop()) ...[
                       _heroIconButton(
                         Icons.arrow_back_ios_new_rounded,
-                        onTap: () => context.pop(),
+                        onTap: () {
+                          if (context.canPop()) {
+                            context.pop();
+                          }
+                        },
                       ),
                       const SizedBox(width: 12),
                     ],
@@ -260,6 +267,10 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
 
   // Headline: one type shows its own numbers, many types show the pooled
   // total with the per-type breakdown left to the carousel below.
+  //
+  // Every line has to earn its place: the headline is the bookable number, the
+  // bar is the same number in shape, and the caption is the only place the
+  // used/allocated split is spelled out. Nothing is stated twice.
   Widget _heroBalance(List<LeaveBalance> balances) {
     final single = balances.length == 1 ? balances.first : null;
     final total = balances.fold<double>(
@@ -268,24 +279,25 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
     );
     final used = balances.fold<double>(0, (sum, b) => sum + b.used);
     final pending = balances.fold<double>(0, (sum, b) => sum + b.pending);
+    final carried = balances.fold<double>(0, (sum, b) => sum + b.carriedForward);
+    // remaining already excludes pending — it is what can still be booked.
     final remaining = balances.fold<double>(0, (sum, b) => sum + b.remaining);
-    final progress = total > 0 ? (used / total).clamp(0.0, 1.0) : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           single != null && single.typeName.isNotEmpty
-              ? single.typeName.toUpperCase()
+              ? '${single.typeName.toUpperCase()} · ${_currentYear()}'
               : '${_currentYear()} · ${balances.length} LEAVE TYPES',
           style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.1,
-            color: Colors.white.withValues(alpha: 0.65),
+            color: Colors.white.withValues(alpha: 0.6),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 10),
         Row(
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
@@ -293,65 +305,54 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
             Text(
               _formatDays(remaining),
               style: const TextStyle(
-                fontSize: 46,
+                fontSize: 52,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
                 height: 1.0,
-                letterSpacing: -1.5,
+                letterSpacing: -2,
               ),
             ),
-            const SizedBox(width: 8),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                'days left of ${_formatDays(total)}',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white.withValues(alpha: 0.75),
+            const SizedBox(width: 9),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(
+                  'days available',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white.withValues(alpha: 0.8),
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: SizedBox(
-            height: 6,
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.white.withValues(alpha: 0.18),
-              color: Colors.white,
-            ),
-          ),
-        ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 18),
+        // One stacked track: taken, awaiting approval, then what is left.
+        _heroTrack(total: total, remaining: remaining),
+        const SizedBox(height: 11),
         Row(
           children: [
             Expanded(
-              child: _heroStat(
-                'Allocated',
-                '${_formatDays(total)}d',
-                const Color(0xFF93C5FD),
+              child: Text(
+                carried > 0
+                    ? '${_formatDays(used)} of ${_formatDays(total)} days used · incl. ${_formatDays(carried)}d carried over'
+                    : '${_formatDays(used)} of ${_formatDays(total)} days used',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w500,
+                  height: 1.3,
+                  color: Colors.white.withValues(alpha: 0.7),
+                ),
               ),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _heroStat(
-                'Used',
-                '${_formatDays(used)}d',
-                const Color(0xFFFBBF24),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _heroStat(
-                'Pending',
-                '${_formatDays(pending)}d',
-                const Color(0xFF7DD3FC),
-              ),
-            ),
+            if (pending > 0) ...[
+              const SizedBox(width: 10),
+              _heroPendingChip(pending),
+            ],
           ],
         ),
       ],
@@ -360,51 +361,50 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
 
   String _currentYear() => DateTime.now().year.toString();
 
-  Widget _heroStat(String label, String value, Color dotColor) {
+  Widget _heroPendingChip(double pending) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      padding: const EdgeInsets.fromLTRB(8, 4, 10, 4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+        color: Colors.white.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: dotColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 5),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 0.7),
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+          Container(
+            width: 6,
+            height: 6,
+            decoration: const BoxDecoration(
+              color: _kPendingColor,
+              shape: BoxShape.circle,
+            ),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(width: 6),
           Text(
-            value,
+            '${_formatDays(pending)}d awaiting',
             style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Available-vs-allocated in one native bar (e.g. 16 of 18 filled).
+  // ponytail: LinearProgressIndicator instead of hand-rolled flex segments —
+  // the old ColoredBox segments collapsed to zero height under a Row's loose
+  // cross-axis constraints, so the track always rendered empty.
+  Widget _heroTrack({required double total, required double remaining}) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: LinearProgressIndicator(
+        value: total <= 0 ? 0 : (remaining / total).clamp(0.0, 1.0),
+        minHeight: 8,
+        backgroundColor: Colors.white.withValues(alpha: 0.16),
+        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
       ),
     );
   }
@@ -640,7 +640,7 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
           const SizedBox(height: 4),
           Text(
             _selectedFilter == 'all'
-                ? 'Your requested leaves and balances will appear here.'
+                ? l10n.leavesAndBalancesEmptyDesc
                 : 'There are no leave requests under this filter status.',
             textAlign: TextAlign.center,
             style: TextStyle(

@@ -1,5 +1,8 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -9,12 +12,53 @@ import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
+/// Shoulder-surfing guard: the phone gets passed around the garage, so the
+/// salary figures can be blurred out with one tap. Remembered across launches.
+class _HideMoney extends StateNotifier<bool> {
+  static const _key = 'payslip_hide_money';
+
+  _HideMoney() : super(false) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      state = (await SharedPreferences.getInstance()).getBool(_key) ?? false;
+    } catch (_) {}
+  }
+
+  Future<void> toggle() async {
+    state = !state;
+    try {
+      await (await SharedPreferences.getInstance()).setBool(_key, state);
+    } catch (_) {}
+  }
+}
+
+final _hideMoneyProvider = StateNotifierProvider<_HideMoney, bool>(
+  (ref) => _HideMoney(),
+);
+
+/// ponytail: blur the figure in place rather than swapping in bullet strings —
+/// one wrapper, and every amount keeps its existing formatting and layout.
+Widget _blurMoney(Widget child, bool hide) => hide
+    ? ImageFiltered(
+        imageFilter: ImageFilter.blur(
+          sigmaX: 9,
+          sigmaY: 9,
+          tileMode: TileMode.decal,
+        ),
+        child: child,
+      )
+    : child;
+
 class PayslipScreen extends ConsumerWidget {
   const PayslipScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final payslipsAsync = ref.watch(payslipsProvider);
+    final hideMoney = ref.watch(_hideMoneyProvider);
     final l10n = AppLocalizations.of(context)!;
     final payslips = payslipsAsync.valueOrNull ?? const <PayslipData>[];
     final latest = payslips.isNotEmpty ? payslips.first : null;
@@ -62,18 +106,23 @@ class PayslipScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Payment History',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.1,
-                            color: AppColors.textPrimary(context),
+                        Expanded(
+                          child: Text(
+                            l10n.paymentHistory,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.1,
+                              color: AppColors.textPrimary(context),
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         if (payslips.isNotEmpty)
                           Text(
-                            '${payslips.length} ${payslips.length == 1 ? 'statement' : 'statements'}',
+                            '${payslips.length} ${payslips.length == 1 ? l10n.statementSingular : l10n.statementsPlural}',
                             style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.grey500,
@@ -96,6 +145,7 @@ class PayslipScreen extends ConsumerWidget {
                       itemBuilder: (context, i) => _StatementCard(
                         payslip: payslips[i],
                         isLatest: i == 0,
+                        hideMoney: hideMoney,
                         onDownload: () =>
                             _handleDownload(context, payslips[i], l10n),
                       ),
@@ -119,6 +169,7 @@ class PayslipScreen extends ConsumerWidget {
     required bool loading,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final hideMoney = ref.watch(_hideMoneyProvider);
     final authState = ref.watch(authProvider);
     final employeeName = authState.userName ?? l10n.employee;
     final companyName = authState.companyName ?? 'MPG HR';
@@ -195,7 +246,11 @@ class PayslipScreen extends ConsumerWidget {
                         shape: const CircleBorder(),
                         clipBehavior: Clip.antiAlias,
                         child: InkWell(
-                          onTap: () => context.pop(),
+                          onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            }
+                          },
                           child: const SizedBox(
                             width: 38,
                             height: 38,
@@ -211,7 +266,7 @@ class PayslipScreen extends ConsumerWidget {
                     ],
                     Expanded(
                       child: Text(
-                        'Payslips & Salary',
+                        l10n.payslipAndSalary,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -220,6 +275,27 @@ class PayslipScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
+                    Material(
+                      color: Colors.white.withValues(alpha: 0.14),
+                      shape: const CircleBorder(),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () =>
+                            ref.read(_hideMoneyProvider.notifier).toggle(),
+                        child: SizedBox(
+                          width: 38,
+                          height: 38,
+                          child: Icon(
+                            hideMoney
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                            size: 19,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Material(
                       color: Colors.white.withValues(alpha: 0.14),
                       shape: const CircleBorder(),
@@ -331,15 +407,18 @@ class PayslipScreen extends ConsumerWidget {
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
-                          child: Text(
-                            money(latest?.netPay),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 42,
-                              fontWeight: FontWeight.w800,
-                              height: 1.0,
-                              letterSpacing: -1.2,
+                          child: _blurMoney(
+                            Text(
+                              money(latest?.netPay),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 42,
+                                fontWeight: FontWeight.w800,
+                                height: 1.0,
+                                letterSpacing: -1.2,
+                              ),
                             ),
+                            hideMoney,
                           ),
                         ),
                       ),
@@ -357,9 +436,9 @@ class PayslipScreen extends ConsumerWidget {
                             ).withValues(alpha: 0.22),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
-                            'NET PAID',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.netPaid,
+                            style: const TextStyle(
                               color: Color(0xFF6EE7B7),
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
@@ -377,25 +456,28 @@ class PayslipScreen extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: _heroMetric(
-                          'Gross Pay',
+                          l10n.grossPay,
                           money(latest?.grossPay),
                           const Color(0xFF93C5FD),
+                          hideMoney,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _heroMetric(
-                          'Deductions',
+                          l10n.totalDeductions,
                           '-${money(latest?.totalDeductions)}',
                           const Color(0xFFFCA5A5),
+                          hideMoney,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _heroMetric(
-                          'Overtime',
+                          l10n.overtime,
                           '+${money(latest?.overtimePay)}',
                           const Color(0xFF7DD3FC),
+                          hideMoney,
                         ),
                       ),
                     ],
@@ -408,7 +490,7 @@ class PayslipScreen extends ConsumerWidget {
                       child: ElevatedButton.icon(
                         onPressed: () => _handleDownload(context, latest, l10n),
                         icon: const Icon(Icons.download_rounded, size: 18),
-                        label: const Text('Download Latest Statement'),
+                        label: Text(l10n.downloadLatestStatement),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: baseColor,
@@ -436,7 +518,12 @@ class PayslipScreen extends ConsumerWidget {
 
   // Glass tile: the label sits above the figure so three of them fit the width
   // without the dividers the old single-row layout needed.
-  Widget _heroMetric(String label, String value, Color valueColor) {
+  Widget _heroMetric(
+    String label,
+    String value,
+    Color valueColor,
+    bool hideMoney,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
@@ -460,13 +547,16 @@ class PayslipScreen extends ConsumerWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
-            child: Text(
-              value,
-              style: TextStyle(
-                color: valueColor,
-                fontWeight: FontWeight.w800,
-                fontSize: 14.5,
+            child: _blurMoney(
+              Text(
+                value,
+                style: TextStyle(
+                  color: valueColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14.5,
+                ),
               ),
+              hideMoney,
             ),
           ),
         ],
@@ -563,11 +653,13 @@ class PayslipScreen extends ConsumerWidget {
 class _StatementCard extends StatefulWidget {
   final PayslipData payslip;
   final bool isLatest;
+  final bool hideMoney;
   final VoidCallback onDownload;
 
   const _StatementCard({
     required this.payslip,
     required this.isLatest,
+    required this.hideMoney,
     required this.onDownload,
   });
 
@@ -630,7 +722,7 @@ class _StatementCardState extends State<_StatementCard> {
                     ),
                     child: const Icon(Icons.receipt_long_rounded, color: AppColors.primary, size: 22),
                   ),
-                  SizedBox(width: 14),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -676,13 +768,16 @@ class _StatementCardState extends State<_StatementCard> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        '\$${p.netPay.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 16,
-                          color: AppColors.success,
+                      _blurMoney(
+                        Text(
+                          '\$${p.netPay.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                            color: AppColors.success,
+                          ),
                         ),
+                        widget.hideMoney,
                       ),
                       const SizedBox(height: 4),
                       Row(
@@ -826,13 +921,16 @@ class _StatementCardState extends State<_StatementCard> {
               color: isNet ? (isDark ? Colors.white : AppColors.grey900) : (isDark ? AppColors.grey300 : AppColors.grey600),
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: isNet ? 15 : 12.5,
-              fontWeight: (isBold || isNet) ? FontWeight.bold : FontWeight.w600,
-              color: isNet ? AppColors.success : (color ?? (isDark ? Colors.white : AppColors.grey800)),
+          _blurMoney(
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: isNet ? 15 : 12.5,
+                fontWeight: (isBold || isNet) ? FontWeight.bold : FontWeight.w600,
+                color: isNet ? AppColors.success : (color ?? (isDark ? Colors.white : AppColors.grey800)),
+              ),
             ),
+            widget.hideMoney,
           ),
         ],
       ),

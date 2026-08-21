@@ -127,12 +127,8 @@ class AppColors {
 class AppTheme {
   static const List<String> fontFallbacks = [
     'KantumruyPro',
-    'Kantumruy Pro',
     'NotoSansKhmer',
-    'Noto Sans Khmer',
-    'Google Sans Flex',
     'GoogleSans',
-    'Google Sans',
     'sans-serif',
   ];
 
@@ -254,7 +250,7 @@ class AppTheme {
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 0,
-            minimumSize: const Size(double.infinity, 54),
+            minimumSize: const Size(64, 48),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -270,7 +266,7 @@ class AppTheme {
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primary,
             side: const BorderSide(color: AppColors.primary, width: 1.5),
-            minimumSize: const Size(double.infinity, 54),
+            minimumSize: const Size(64, 48),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -453,7 +449,7 @@ class AppTheme {
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 0,
-            minimumSize: const Size(double.infinity, 54),
+            minimumSize: const Size(64, 48),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -469,7 +465,7 @@ class AppTheme {
           style: OutlinedButton.styleFrom(
             foregroundColor: const Color(0xFF93C5FD),
             side: const BorderSide(color: Color(0xFF3B82F6), width: 1.5),
-            minimumSize: const Size(double.infinity, 54),
+            minimumSize: const Size(64, 48),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),

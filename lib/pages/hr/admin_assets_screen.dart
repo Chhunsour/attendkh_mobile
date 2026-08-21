@@ -202,8 +202,8 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
             height: MediaQuery.of(ctx).size.height * 0.85,
             padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
             decoration: BoxDecoration(
-              color: AppColors.textPrimary(context),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              color: AppColors.surface(context),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: Column(
               children: [
@@ -214,7 +214,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                   decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2)),
                 ),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(24, 20, 24, 16),
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -320,7 +320,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                                   },
                                   borderRadius: BorderRadius.circular(12),
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                     decoration: BoxDecoration(
                                       color: AppColors.backgroundLight,
                                       borderRadius: BorderRadius.circular(12),
@@ -401,7 +401,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
                                 color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
@@ -563,12 +563,12 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
           return Container(
             height: MediaQuery.of(ctx).size.height * 0.7,
             padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+            decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
             child: Column(
               children: [
-                Container(margin: EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2))),
+                Container(margin: const EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2))),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(24, 20, 24, 16),
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -597,16 +597,16 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                           ),
                           child: Row(children: [
                             Container(
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: AppColors.primary.withAlpha(15), blurRadius: 8, offset: Offset(0, 2))]),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: AppColors.primary.withAlpha(15), blurRadius: 8, offset: const Offset(0, 2))]),
                               child: Icon(_categoryIcon(asset.category), color: AppColors.primary, size: 24),
                             ),
-                            SizedBox(width: 16),
+                            const SizedBox(width: 16),
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                 Text(asset.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.textPrimary(context))),
                                 const SizedBox(height: 2),
-                                Text(asset.assetCode, style: TextStyle(fontSize: 13, color: AppColors.grey500, fontFamily: 'monospace')),
+                                Text(asset.assetCode, style: const TextStyle(fontSize: 13, color: AppColors.grey500, fontFamily: 'monospace')),
                               ]),
                             ),
                           ]),
@@ -720,7 +720,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
         content: Text(l10n.deleteAssetConfirm(asset.name, asset.assetCode)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('Delete', style: TextStyle(color: AppColors.danger))),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: AppColors.danger))),
         ],
       ),
     );
@@ -814,23 +814,23 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
           return items.isEmpty
               ? Center(
                   child: Container(
-                    margin: EdgeInsets.all(24),
-                    padding: EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+                    margin: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
                     decoration: BoxDecoration(
-                      color: AppColors.textPrimary(context),
+                      color: AppColors.surface(context),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: AppColors.border(context)),
-                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 10, offset: Offset(0, 4))],
+                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 10, offset: const Offset(0, 4))],
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(color: AppColors.grey50, shape: BoxShape.circle),
-                          child: Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.grey400),
+                          padding: const EdgeInsets.all(16),
+                          decoration: const BoxDecoration(color: AppColors.grey50, shape: BoxShape.circle),
+                          child: const Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.grey400),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(l10n.noAssetsFound, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context))),
                         const SizedBox(height: 8),
                         Text(l10n.addFirstAssetDesc, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: AppColors.grey500)),
@@ -892,7 +892,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                               prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.grey400),
                               suffixIcon: _searchQuery.isNotEmpty
                                   ? IconButton(
-                                      icon: Icon(Icons.clear_rounded, size: 18),
+                                      icon: const Icon(Icons.clear_rounded, size: 18),
                                       onPressed: () {
                                         _searchCtrl.clear();
                                         setState(() => _searchQuery = '');
@@ -901,7 +901,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                                   : null,
                               filled: true,
                               fillColor: AppColors.surfaceLight,
-                              contentPadding: EdgeInsets.symmetric(vertical: 10),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 10),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(color: AppColors.border(context)),
@@ -1040,18 +1040,18 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
   Widget _summaryCard(IconData icon, Color color, String value, String label) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 8, offset: Offset(0, 2))]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 8, offset: const Offset(0, 2))]),
       child: Row(children: [
         Container(
           width: 44, height: 44,
           decoration: BoxDecoration(color: color.withAlpha(26), borderRadius: BorderRadius.circular(12)),
           child: Icon(icon, color: color, size: 22),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-            Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.grey500)),
-            SizedBox(height: 2),
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.grey500)),
+            const SizedBox(height: 2),
             Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
           ]),
         ),
@@ -1076,7 +1076,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [BoxShadow(color: Colors.black.withAlpha(8), blurRadius: 4, offset: const Offset(0, 1))],
@@ -1098,12 +1098,12 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                       decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey100)),
                       child: Icon(_categoryIcon(asset.category), color: AppColors.grey600, size: 20),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Text(asset.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.textPrimary(context)), maxLines: 1, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 2),
-                        Text(asset.assetCode, style: TextStyle(fontSize: 12, color: AppColors.grey500, fontFamily: 'monospace')),
+                        Text(asset.assetCode, style: const TextStyle(fontSize: 12, color: AppColors.grey500, fontFamily: 'monospace')),
                       ]),
                     ),
                   ],
@@ -1121,15 +1121,15 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(l10n.conditionLabel, style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                    Text(l10n.conditionLabel, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                     _buildConditionBadge(asset.condition),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(l10n.valueLabel, style: TextStyle(fontSize: 13, color: AppColors.grey500)),
+                    Text(l10n.valueLabel, style: const TextStyle(fontSize: 13, color: AppColors.grey500)),
                     Text(
                       '\$${asset.displayValue.toStringAsFixed(asset.displayValue == asset.displayValue.roundToDouble() ? 0 : 2)}',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context)),
@@ -1139,7 +1139,7 @@ class _AdminAssetsScreenState extends ConsumerState<AdminAssetsScreen> {
                 if (asset.assignedTo != null) ...[
                   const SizedBox(height: 12),
                   Row(children: [
-                    Icon(Icons.person, size: 14, color: AppColors.grey400),
+                    const Icon(Icons.person, size: 14, color: AppColors.grey400),
                     const SizedBox(width: 6),
                     Expanded(child: Text(l10n.assignedToLabel(asset.assignedTo!), style: const TextStyle(fontSize: 12, color: AppColors.grey600), maxLines: 1, overflow: TextOverflow.ellipsis)),
                   ]),
@@ -1273,12 +1273,12 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       child: Column(
         children: [
-          Container(margin: EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2))),
+          Container(margin: const EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2))),
           Padding(
-            padding: EdgeInsets.fromLTRB(20, 16, 20, 16),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1286,14 +1286,14 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(l10n.assignmentHistoryTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
                     const SizedBox(height: 2),
-                    Text(widget.assetName, style: TextStyle(fontSize: 13, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(widget.assetName, style: const TextStyle(fontSize: 13, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ]),
                 ),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
               ],
             ),
           ),
-          Divider(height: 1, color: AppColors.grey200),
+          const Divider(height: 1, color: AppColors.grey200),
           Expanded(
             child: _isLoading
                 ? const LoadingIndicator(message: 'Loading history...')
@@ -1301,7 +1301,7 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.history, size: 48, color: AppColors.grey300),
+                          const Icon(Icons.history, size: 48, color: AppColors.grey300),
                           const SizedBox(height: 12),
                           Text(l10n.noAssignmentHistory, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.grey600)),
                           const SizedBox(height: 4),
@@ -1343,14 +1343,14 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
                                 // Content
                                 Expanded(
                                   child: Padding(
-                                    padding: EdgeInsets.only(bottom: 24),
+                                    padding: const EdgeInsets.only(bottom: 24),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
-                                            Icon(Icons.person, size: 14, color: AppColors.grey400),
-                                            SizedBox(width: 4),
+                                            const Icon(Icons.person, size: 14, color: AppColors.grey400),
+                                            const SizedBox(width: 4),
                                             Expanded(
                                               child: Text(
                                                 h.employeeName,
@@ -1382,25 +1382,25 @@ class _AssetHistorySheetState extends State<_AssetHistorySheet> {
                                             Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                Icon(Icons.calendar_today, size: 12, color: AppColors.grey500),
+                                                const Icon(Icons.calendar_today, size: 12, color: AppColors.grey500),
                                                 const SizedBox(width: 4),
-                                                Text(l10n.assignedDateLabel(h.assignedDate), style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                                                Text(l10n.assignedDateLabel(h.assignedDate), style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
                                               ],
                                             ),
                                             if (isReturned)
                                               Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Icon(Icons.keyboard_return, size: 12, color: AppColors.grey500),
+                                                  const Icon(Icons.keyboard_return, size: 12, color: AppColors.grey500),
                                                   const SizedBox(width: 4),
-                                                  Text(l10n.returnedDateLabel(h.returnedDate!), style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                                                  Text(l10n.returnedDateLabel(h.returnedDate!), style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
                                                 ],
                                               ),
                                           ],
                                         ),
                                         if (h.notes != null && h.notes!.isNotEmpty) ...[
                                           const SizedBox(height: 8),
-                                          Text(l10n.notesLabel(h.notes!), style: TextStyle(fontSize: 11, color: AppColors.grey500, fontStyle: FontStyle.italic)),
+                                          Text(l10n.notesLabel(h.notes!), style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontStyle: FontStyle.italic)),
                                         ],
                                       ],
                                     ),

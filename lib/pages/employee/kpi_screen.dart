@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/providers/kpi_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/models/kpi_model.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 import 'kpi/kpi_employee_view.dart';
@@ -13,45 +12,11 @@ import 'kpi/kpi_manager_view.dart';
 import 'kpi/kpi_owner_view.dart';
 import 'kpi/kpi_super_admin_view.dart';
 
-class KpiScreen extends ConsumerStatefulWidget {
+class KpiScreen extends ConsumerWidget {
   const KpiScreen({super.key});
 
   @override
-  ConsumerState<KpiScreen> createState() => _KpiScreenState();
-}
-
-class _KpiScreenState extends ConsumerState<KpiScreen>
-    with SingleTickerProviderStateMixin {
-  TabController? _tabController;
-  int _tabCount = 1;
-
-  void _initTabs(KpiData data) {
-    final isSuperAdmin = data.userRole == 'super_admin';
-    final isOwner =
-        data.userRole == 'company_owner' || data.userRole == 'company_admin';
-    final isManager = data.userRole == 'branch_manager';
-
-    int newTabCount = 1;
-    if (!isSuperAdmin && !isOwner) {
-      if (isManager) newTabCount = 2;
-    }
-
-    if (_tabController == null || _tabCount != newTabCount) {
-      _tabCount = newTabCount;
-      _tabController?.dispose();
-      _tabController =
-          TabController(length: _tabCount, vsync: this, initialIndex: 0);
-    }
-  }
-
-  @override
-  void dispose() {
-    _tabController?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final kpisAsync = ref.watch(systemKpisProvider);
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -62,8 +27,6 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
           : const Color(0xFFF8FAFC),
       body: kpisAsync.when(
         data: (data) {
-          _initTabs(data);
-
           final isSuperAdmin = data.userRole == 'super_admin';
           final isOwner =
               data.userRole == 'company_owner' || data.userRole == 'company_admin';
@@ -72,13 +35,14 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
 
           final title = isSuperAdmin ? l10n.platformHealth : l10n.performanceKpis;
 
-          return AnnotatedRegion<SystemUiOverlayStyle>(
+          final content = AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle.light,
             child: Column(
               children: [
                 // ── AttendKH Gradient Hero Header ──
                 _buildHeroHeader(
                   context,
+                  ref,
                   isDark,
                   title: title,
                   showTabs: showTabs,
@@ -93,7 +57,6 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
                           ? KpiOwnerView(data: data)
                           : showTabs
                               ? TabBarView(
-                                  controller: _tabController,
                                   children: [
                                     KpiEmployeeView(data: data),
                                     KpiManagerView(data: data),
@@ -104,6 +67,15 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
               ],
             ),
           );
+
+          if (showTabs) {
+            return DefaultTabController(
+              length: 2,
+              child: content,
+            );
+          }
+
+          return content;
         },
         loading: () => AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle.light,
@@ -111,14 +83,15 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
             children: [
               _buildHeroHeader(
                 context,
+                ref,
                 isDark,
                 title: l10n.performanceKpis,
                 showTabs: false,
                 l10n: l10n,
               ),
-              const Expanded(
+              Expanded(
                 child: Center(
-                  child: LoadingIndicator(message: 'Loading KPIs...'),
+                  child: LoadingIndicator(message: l10n.loadingKpis),
                 ),
               ),
             ],
@@ -130,6 +103,7 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
             children: [
               _buildHeroHeader(
                 context,
+                ref,
                 isDark,
                 title: l10n.performanceKpis,
                 showTabs: false,
@@ -164,7 +138,7 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text('Retry'),
+                        child: Text(l10n.retry),
                       ),
                     ],
                   ),
@@ -180,6 +154,7 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
   // ── Gradient Hero Header matching Dashboard & Leave Page ──
   Widget _buildHeroHeader(
     BuildContext context,
+    WidgetRef ref,
     bool isDark, {
     required String title,
     required bool showTabs,
@@ -273,9 +248,9 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
                             ),
                           ),
                           const SizedBox(height: 2),
-                          const Text(
-                            'Track metrics, attendance & milestones',
-                            style: TextStyle(
+                          Text(
+                            l10n.kpiSubtitle,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                               color: Color(0xB3FFFFFF),
@@ -295,7 +270,7 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
                 ),
 
                 // Glass Segmented Tab Switcher (only if multiple tabs)
-                if (showTabs && _tabController != null) ...[
+                if (showTabs) ...[
                   const SizedBox(height: 18),
                   Container(
                     padding: const EdgeInsets.all(4),
@@ -307,7 +282,6 @@ class _KpiScreenState extends ConsumerState<KpiScreen>
                       ),
                     ),
                     child: TabBar(
-                      controller: _tabController,
                       indicator: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),

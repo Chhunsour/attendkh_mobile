@@ -250,7 +250,7 @@ class _BranchSwitcherTile extends ConsumerWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [
-          BoxShadow(color: AppColors.textPrimary(context).withAlpha(5), blurRadius: 8, offset: Offset(0, 3)),
+          BoxShadow(color: AppColors.textPrimary(context).withAlpha(5), blurRadius: 8, offset: const Offset(0, 3)),
         ],
       ),
       child: Column(

@@ -53,7 +53,7 @@ class _AdminResourcesScreenState extends ConsumerState<AdminResourcesScreen> wit
       body: Column(
         children: [
           Container(
-            color: AppColors.surfaceLight,
+            color: AppColors.surface(context),
             child: TabBar(
               controller: _tabController,
               isScrollable: true,
@@ -98,24 +98,24 @@ class _ShiftsTab extends ConsumerWidget {
       children: [
         shiftsAsync.when(
           data: (items) => items.isEmpty
-              ? Center(child: Text(l10n.noShifts, style: TextStyle(color: AppColors.grey400)))
+              ? Center(child: Text(l10n.noShifts, style: const TextStyle(color: AppColors.grey400)))
               : ListView.separated(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   itemCount: items.length,
-                  separatorBuilder: (_, _) => SizedBox(height: 8),
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (context, i) {
                     final s = items[i];
                     return Container(
-                      padding: EdgeInsets.all(14),
-                      decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
                       child: Row(
                         children: [
                           Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.secondaryLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.schedule, color: AppColors.secondary, size: 22)),
                           const SizedBox(width: 14),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text(s.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                            Text('${s.startTime} – ${s.endTime}', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
-                            if (s.employeesCount != null) Text(l10n.permissionsCount(s.employeesCount!), style: TextStyle(fontSize: 11, color: AppColors.grey400)),
+                            Text('${s.startTime} – ${s.endTime}', style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
+                            if (s.employeesCount != null) Text(l10n.permissionsCount(s.employeesCount!), style: const TextStyle(fontSize: 11, color: AppColors.grey400)),
                           ])),
                           IconButton(icon: const Icon(Icons.person_add, size: 20, color: AppColors.secondary), onPressed: () => _assignShift(context, ref, s.id)),
                           IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger), onPressed: () => _deleteShift(context, ref, s.id, s.name)),
@@ -148,7 +148,7 @@ class _ShiftsTab extends ConsumerWidget {
           TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l10n.shiftNameLabel, hintText: l10n.shiftNameHint)),
           const SizedBox(height: 12),
           TextField(controller: startCtrl, decoration: InputDecoration(labelText: l10n.startTimeLabel, hintText: 'HH:MM')),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           TextField(controller: endCtrl, decoration: InputDecoration(labelText: l10n.endTimeLabel, hintText: 'HH:MM')),
         ]),
         actions: [
@@ -198,7 +198,7 @@ class _ShiftsTab extends ConsumerWidget {
 
   Future<void> _deleteShift(BuildContext context, WidgetRef ref, int id, String name) async {
     final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(title: Text('Delete'), content: Text(l10n.deleteShiftConfirm(name)), actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)), TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.deleteBtn, style: TextStyle(color: AppColors.danger)))]));
+    final confirmed = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(title: const Text('Delete'), content: Text(l10n.deleteShiftConfirm(name)), actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)), TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.deleteBtn, style: const TextStyle(color: AppColors.danger)))]));
     if (confirmed == true) {
       try {
         await AdminOperationsRepository().deleteShift(id);
@@ -221,23 +221,23 @@ class _HolidaysTab extends ConsumerWidget {
       children: [
         holidaysAsync.when(
           data: (items) => items.isEmpty
-              ? Center(child: Text(l10n.noHolidays, style: TextStyle(color: AppColors.grey400)))
+              ? Center(child: Text(l10n.noHolidays, style: const TextStyle(color: AppColors.grey400)))
               : ListView.separated(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   itemCount: items.length,
-                  separatorBuilder: (_, _) => SizedBox(height: 8),
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
                   itemBuilder: (context, i) {
                     final h = items[i];
                     return Container(
-                      padding: EdgeInsets.all(14),
-                      decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
                       child: Row(
                         children: [
                           Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.successLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.celebration, color: AppColors.success, size: 22)),
                           const SizedBox(width: 14),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text(h.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                            Text(h.date, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                            Text(h.date, style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
                             if (h.isRecurring) Container(margin: const EdgeInsets.only(top: 4), padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AppColors.infoLight, borderRadius: BorderRadius.circular(4)), child: Text(l10n.recurringBadge, style: const TextStyle(fontSize: 10, color: AppColors.info))),
                           ])),
                           IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger), onPressed: () => _deleteHoliday(context, ref, h.id, h.name)),
@@ -322,7 +322,7 @@ class _HolidaysTab extends ConsumerWidget {
 
   Future<void> _deleteHoliday(BuildContext context, WidgetRef ref, int id, String name) async {
     final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(title: Text('Delete'), content: Text(l10n.deleteHolidayConfirmSimple(name)), actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)), TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.deleteBtn, style: TextStyle(color: AppColors.danger)))]));
+    final confirmed = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(title: const Text('Delete'), content: Text(l10n.deleteHolidayConfirmSimple(name)), actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)), TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.deleteBtn, style: const TextStyle(color: AppColors.danger)))]));
     if (confirmed == true) {
       try {
         await AdminOperationsRepository().deleteHoliday(id);
@@ -345,18 +345,18 @@ class _AnnouncementsTab extends ConsumerWidget {
       future: repo.getAnnouncements(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) return LoadingIndicator(message: l10n.loadingLabel);
-        if (snapshot.hasError) return Center(child: OutlinedButton.icon(onPressed: () => (context as Element).markNeedsBuild(), icon: Icon(Icons.refresh), label: Text(l10n.retry)));
+        if (snapshot.hasError) return Center(child: OutlinedButton.icon(onPressed: () => (context as Element).markNeedsBuild(), icon: const Icon(Icons.refresh), label: Text(l10n.retry)));
         final items = snapshot.data ?? [];
-        if (items.isEmpty) return Center(child: Text(l10n.noAnnouncements, style: TextStyle(color: AppColors.grey400)));
+        if (items.isEmpty) return Center(child: Text(l10n.noAnnouncements, style: const TextStyle(color: AppColors.grey400)));
         return ListView.separated(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           itemCount: items.length,
-          separatorBuilder: (_, _) => SizedBox(height: 8),
+          separatorBuilder: (_, _) => const SizedBox(height: 8),
           itemBuilder: (context, i) {
             final a = items[i];
             return Container(
-              padding: EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Expanded(child: Text(a.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),
@@ -364,7 +364,7 @@ class _AnnouncementsTab extends ConsumerWidget {
                 ]),
                 if (a.content.isNotEmpty) ...[
                   const SizedBox(height: 4),
-                  Text(a.content, style: TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(a.content, style: const TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 2, overflow: TextOverflow.ellipsis),
                 ],
                 const SizedBox(height: 8),
                 Row(children: [
@@ -392,7 +392,7 @@ class _AnnouncementsTab extends ConsumerWidget {
 
   Future<void> _deleteAnnouncement(BuildContext context, WidgetRef ref, int id, String title) async {
     final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(title: Text(l10n.deleteTitle), content: Text(l10n.deleteAnnouncementConfirm(title)), actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)), TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.deleteBtn, style: TextStyle(color: AppColors.danger)))]));
+    final confirmed = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(title: Text(l10n.deleteTitle), content: Text(l10n.deleteAnnouncementConfirm(title)), actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)), TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.deleteBtn, style: const TextStyle(color: AppColors.danger)))]));
     if (confirmed == true) {
       try {
         await AdminOperationsRepository().deleteDocument(id); // reuse generic delete
@@ -414,28 +414,28 @@ class _PoliciesTab extends ConsumerWidget {
       future: repo.getAll(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) return LoadingIndicator(message: l10n.loadingLabel);
-        if (snapshot.hasError) return Center(child: OutlinedButton.icon(onPressed: () => (context as Element).markNeedsBuild(), icon: Icon(Icons.refresh), label: Text(l10n.retry)));
+        if (snapshot.hasError) return Center(child: OutlinedButton.icon(onPressed: () => (context as Element).markNeedsBuild(), icon: const Icon(Icons.refresh), label: Text(l10n.retry)));
         final items = snapshot.data?.policies ?? [];
-        if (items.isEmpty) return Center(child: Text(l10n.noPolicies, style: TextStyle(color: AppColors.grey400)));
+        if (items.isEmpty) return Center(child: Text(l10n.noPolicies, style: const TextStyle(color: AppColors.grey400)));
         return ListView.separated(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           itemCount: items.length,
-          separatorBuilder: (_, _) => SizedBox(height: 8),
+          separatorBuilder: (_, _) => const SizedBox(height: 8),
           itemBuilder: (context, i) {
             final p = items[i];
             return Container(
-              padding: EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
               child: Row(
                 children: [
-                  Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.infoLight, borderRadius: BorderRadius.circular(10)), child: Icon(Icons.policy, color: AppColors.info, size: 22)),
-                  SizedBox(width: 14),
+                  Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.infoLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.policy, color: AppColors.info, size: 22)),
+                  const SizedBox(width: 14),
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(p.title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                    Text(p.department?.name ?? l10n.companyWide, style: TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(p.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                    Text(p.department?.name ?? l10n.companyWide, style: const TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ])),
                   PopupMenuButton<String>(
-                    icon: Icon(Icons.more_vert, color: AppColors.grey400, size: 20),
+                    icon: const Icon(Icons.more_vert, color: AppColors.grey400, size: 20),
                     onSelected: (action) async {
                       try {
                         if (action == 'publish') { await repo.publishPolicy(p.id); }
@@ -470,18 +470,18 @@ class _DocumentsTab extends ConsumerWidget {
       future: repo.getDocuments(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) return LoadingIndicator(message: l10n.loadingLabel);
-        if (snapshot.hasError) return Center(child: OutlinedButton.icon(onPressed: () => (context as Element).markNeedsBuild(), icon: Icon(Icons.refresh), label: Text(l10n.retry)));
+        if (snapshot.hasError) return Center(child: OutlinedButton.icon(onPressed: () => (context as Element).markNeedsBuild(), icon: const Icon(Icons.refresh), label: Text(l10n.retry)));
         final items = snapshot.data?.documents ?? [];
-        if (items.isEmpty) return Center(child: Text(l10n.noDocuments, style: TextStyle(color: AppColors.grey400)));
+        if (items.isEmpty) return Center(child: Text(l10n.noDocuments, style: const TextStyle(color: AppColors.grey400)));
         return ListView.separated(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           itemCount: items.length,
-          separatorBuilder: (_, _) => SizedBox(height: 8),
+          separatorBuilder: (_, _) => const SizedBox(height: 8),
           itemBuilder: (context, i) {
             final d = items[i];
             return Container(
-              padding: EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
               child: Row(
                 children: [
                   Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.warningLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.description, color: AppColors.warning, size: 22)),
@@ -508,7 +508,7 @@ class _DocumentsTab extends ConsumerWidget {
 
   Future<void> _deleteDoc(BuildContext context, WidgetRef ref, int id, String title) async {
     final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(title: Text('Delete'), content: Text(l10n.deleteDocumentConfirm(title)), actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)), TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.deleteBtn, style: TextStyle(color: AppColors.danger)))]));
+    final confirmed = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(title: const Text('Delete'), content: Text(l10n.deleteDocumentConfirm(title)), actions: [TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)), TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.deleteBtn, style: const TextStyle(color: AppColors.danger)))]));
     if (confirmed == true) {
       try {
         await AdminOperationsRepository().deleteDocument(id);

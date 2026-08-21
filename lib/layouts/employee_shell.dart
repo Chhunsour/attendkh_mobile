@@ -37,7 +37,7 @@ class EmployeeShell extends ConsumerWidget {
           outlineIcon: Icons.receipt_long_outlined,
           filledIcon: Icons.receipt_long,
           label: l10n.navPayslip,
-          screen: PayslipScreen(),
+          screen: const PayslipScreen(),
         ),
         NavItem(
           outlineIcon: Icons.apps_outlined,

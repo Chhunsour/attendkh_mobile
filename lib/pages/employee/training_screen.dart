@@ -70,6 +70,8 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
                   fontWeight: FontWeight.w700,
                   color: isDark ? Colors.white : AppColors.grey900,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -89,6 +91,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
             if (training.durationHours != null || training.startDate != null) ...[
               const SizedBox(height: 14),
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: isDark
@@ -96,41 +99,51 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
                       : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Row(
+                child: Wrap(
+                  spacing: 14,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    if (training.durationHours != null) ...[
-                      const Icon(
-                        Icons.schedule_rounded,
-                        size: 15,
-                        color: AppColors.primary,
+                    if (training.durationHours != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.schedule_rounded,
+                            size: 15,
+                            color: AppColors.primary,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            '${training.durationHours} hrs',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white : AppColors.grey900,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${training.durationHours} hrs',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : AppColors.grey900,
-                        ),
+                    if (training.startDate != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.calendar_today_rounded,
+                            size: 14,
+                            color: AppColors.primary,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            training.startDate!.split(' ')[0],
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white : AppColors.grey900,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 14),
-                    ],
-                    if (training.startDate != null) ...[
-                      const Icon(
-                        Icons.calendar_today_rounded,
-                        size: 14,
-                        color: AppColors.primary,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        training.startDate!.split(' ')[0],
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : AppColors.grey900,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -186,9 +199,13 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
                     size: 18,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    l10n.enrolledSuccess,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  Expanded(
+                    child: Text(
+                      l10n.enrolledSuccess,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -343,33 +360,41 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
                 children: [
                   // ── Top Navigation Bar ──
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       if (context.canPop())
                         _frostedHeroButton(
                           icon: Icons.arrow_back_ios_new_rounded,
-                          onTap: () => context.pop(),
+                          onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            }
+                          },
                         )
                       else
                         const SizedBox(width: 40),
-                      Text(
-                        l10n.myTraining,
-                        style: const TextStyle(
-                          fontSize: 18.5,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: -0.2,
+                      Expanded(
+                        child: Text(
+                          l10n.myTraining,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 18.5,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            letterSpacing: -0.2,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       _frostedHeroButton(
                         icon: Icons.refresh_rounded,
-                        tooltip: 'Refresh',
+                        tooltip: l10n.refresh,
                         onTap: _refresh,
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 16),
 
                   // ── Overview Stat Badges ──
                   Row(
@@ -383,7 +408,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
                           onTap: () => _tabController.animateTo(0),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: _buildHeroStatCard(
                           icon: Icons.workspace_premium_rounded,
@@ -396,7 +421,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
                     ],
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
                   // ── Frosted Capsule Segmented TabBar ──
                   Container(
@@ -427,12 +452,12 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
                       unselectedLabelColor: Colors.white.withValues(alpha: 0.88),
                       labelStyle: const TextStyle(
                         fontWeight: FontWeight.w700,
-                        fontSize: 13,
+                        fontSize: 12.5,
                         letterSpacing: -0.1,
                       ),
                       unselectedLabelStyle: const TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                        fontSize: 12.5,
                         letterSpacing: -0.1,
                       ),
                       dividerHeight: 0,
@@ -441,8 +466,14 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(l10n.availableCourses),
-                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  l10n.availableCourses,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
                               _tabBadge(
                                 availableCount,
                                 isSelected: _tabController.index == 0,
@@ -454,8 +485,14 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(l10n.myEnrollments),
-                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  l10n.myEnrollments,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
                               _tabBadge(
                                 enrolledCount,
                                 isSelected: _tabController.index == 1,
@@ -477,7 +514,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
 
   Widget _tabBadge(int count, {required bool isSelected}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
       decoration: BoxDecoration(
         color: isSelected
             ? AppColors.primary.withValues(alpha: 0.14)
@@ -487,7 +524,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
       child: Text(
         '$count',
         style: TextStyle(
-          fontSize: 11,
+          fontSize: 10.5,
           fontWeight: FontWeight.w800,
           color: isSelected ? AppColors.primary : Colors.white,
         ),
@@ -512,7 +549,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
         borderRadius: BorderRadius.circular(18),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: isSelected ? 0.22 : 0.12),
             borderRadius: BorderRadius.circular(18),
@@ -524,32 +561,37 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 18, color: Colors.white),
+                child: Icon(icon, size: 16, color: Colors.white),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      count,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        height: 1.1,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        count,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          height: 1.1,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 11.5,
+                        fontSize: 11,
                         fontWeight: FontWeight.w500,
                         color: Colors.white.withValues(alpha: 0.85),
                       ),
@@ -583,9 +625,9 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
         child: Tooltip(
           message: tooltip ?? '',
           child: SizedBox(
-            width: 40,
-            height: 40,
-            child: Icon(icon, size: 18, color: Colors.white),
+            width: 38,
+            height: 38,
+            child: Icon(icon, size: 17, color: Colors.white),
           ),
         ),
       ),
@@ -603,9 +645,8 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
           return _buildEmptyState(
             icon: Icons.school_rounded,
             title: l10n.noAvailableTrainings,
-            subtitle:
-                'New professional skill courses and department workshops published by HR will appear here.',
-            actionLabel: 'Refresh Courses',
+            subtitle: l10n.newCoursesPublishedDesc,
+            actionLabel: l10n.refreshCourses,
             onAction: _refresh,
             isDark: isDark,
           );
@@ -659,9 +700,8 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
           return _buildEmptyState(
             icon: Icons.menu_book_rounded,
             title: l10n.noEnrolledTrainings,
-            subtitle:
-                'You have not enrolled in any training programs yet. Explore available courses to start your learning journey.',
-            actionLabel: 'Browse Available Courses',
+            subtitle: l10n.noTrainingsEnrolledDesc,
+            actionLabel: l10n.browseAvailableCourses,
             onAction: () => _tabController.animateTo(0),
             isDark: isDark,
           );
@@ -717,8 +757,8 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 90,
-              height: 90,
+              width: 80,
+              height: 80,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
@@ -743,15 +783,15 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
               ),
               child: Icon(
                 icon,
-                size: 42,
+                size: 38,
                 color: isDark ? const Color(0xFF60A5FA) : AppColors.primary,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
             Text(
               title,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 17,
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white : AppColors.grey900,
                 letterSpacing: -0.2,
@@ -762,19 +802,19 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 13.5,
+                fontSize: 13,
                 color: isDark ? AppColors.grey400 : AppColors.grey600,
-                height: 1.45,
+                height: 1.4,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () {
                 HapticFeedback.lightImpact();
                 onAction();
               },
-              icon: const Icon(Icons.explore_rounded, size: 18),
+              icon: const Icon(Icons.explore_rounded, size: 17),
               label: Text(actionLabel),
               style: ElevatedButton.styleFrom(
                 backgroundColor: isDark
@@ -783,13 +823,13 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
                 foregroundColor: isDark ? const Color(0xFF93C5FD) : AppColors.primaryDark,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   side: BorderSide(
                     color: isDark ? AppColors.borderDark : const Color(0xFFBFDBFE),
                     width: 1,
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
               ),
             ),
           ],
@@ -812,7 +852,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
           children: [
             Icon(
               Icons.error_outline_rounded,
-              size: 44,
+              size: 40,
               color: isDark ? AppColors.grey600 : AppColors.grey400,
             ),
             const SizedBox(height: 12),
@@ -827,7 +867,7 @@ class _TrainingScreenState extends ConsumerState<TrainingScreen>
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
+              icon: const Icon(Icons.refresh_rounded, size: 16),
               label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -915,27 +955,35 @@ class _CourseCard extends StatelessWidget {
                 else
                   _buildPlaceholderIcon(isDark),
 
-                // Category & Level Badges overlaid on top of image
+                // Category Badge (safe from collision with Level badge)
                 Positioned(
                   top: 12,
                   left: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.65),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.20)),
-                    ),
-                    child: Text(
-                      training.department?.name ?? l10n.companyWide,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                  right: training.level != null ? 100 : 12,
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.65),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.20)),
+                      ),
+                      child: Text(
+                        training.department?.name ?? l10n.companyWide,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),
                 ),
+
+                // Level Badge
                 if (training.level != null)
                   Positioned(
                     top: 12,
@@ -960,6 +1008,8 @@ class _CourseCard extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.4,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),
@@ -997,42 +1047,52 @@ class _CourseCard extends StatelessWidget {
                 ],
                 const SizedBox(height: 14),
 
-                // Details strip
-                Row(
+                // Details strip using Wrap to prevent horizontal overflow on narrow screens
+                Wrap(
+                  spacing: 14,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    if (training.durationHours != null) ...[
-                      Icon(
-                        Icons.access_time_rounded,
-                        size: 15,
-                        color: isDark ? const Color(0xFF60A5FA) : AppColors.primary,
+                    if (training.durationHours != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.access_time_rounded,
+                            size: 15,
+                            color: isDark ? const Color(0xFF60A5FA) : AppColors.primary,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            '${training.durationHours} hrs',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: isDark ? AppColors.grey300 : AppColors.grey700,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 5),
-                      Text(
-                        '${training.durationHours} hrs',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          color: isDark ? AppColors.grey300 : AppColors.grey700,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    if (training.startDate != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 14,
+                            color: isDark ? const Color(0xFF60A5FA) : AppColors.primary,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            training.startDate!.split(' ')[0],
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: isDark ? AppColors.grey300 : AppColors.grey700,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 14),
-                    ],
-                    if (training.startDate != null) ...[
-                      Icon(
-                        Icons.calendar_today_rounded,
-                        size: 14,
-                        color: isDark ? const Color(0xFF60A5FA) : AppColors.primary,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        training.startDate!.split(' ')[0],
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          color: isDark ? AppColors.grey300 : AppColors.grey700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
 
@@ -1068,11 +1128,15 @@ class _CourseCard extends StatelessWidget {
                               : Colors.white,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          isEnrolled ? l10n.enrolled : l10n.enrollNow,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.5,
+                        Flexible(
+                          child: Text(
+                            isEnrolled ? l10n.enrolled : l10n.enrollNow,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -1192,7 +1256,8 @@ class _MyEnrollmentCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (isCompleted)
+                    if (isCompleted) ...[
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 9,
@@ -1211,20 +1276,26 @@ class _MyEnrollmentCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      l10n.courseProgress,
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? AppColors.grey400 : AppColors.grey600,
+                    Flexible(
+                      child: Text(
+                        l10n.courseProgress,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.grey400 : AppColors.grey600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       '$progress%',
                       style: TextStyle(

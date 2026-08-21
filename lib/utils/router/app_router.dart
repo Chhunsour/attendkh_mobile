@@ -310,7 +310,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.payslip,
-        builder: (context, state) => PayslipScreen(),
+        builder: (context, state) => const PayslipScreen(),
       ),
       GoRoute(
         path: AppRoutes.expense,
@@ -380,7 +380,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.adminSettings,
-        builder: (context, state) => AdminSettingsScreen(),
+        builder: (context, state) => const AdminSettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.superAdminRoles,
@@ -458,7 +458,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.adminRoles,
-        builder: (context, state) => AdminRolesScreen(),
+        builder: (context, state) => const AdminRolesScreen(),
       ),
       GoRoute(
         path: AppRoutes.adminResources,
@@ -502,7 +502,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.notificationDetail,
         builder: (context, state) {
-          final notification = state.extra as NotificationItem;
+          final notification = state.extra is NotificationItem
+              ? (state.extra as NotificationItem)
+              : NotificationItem(
+                  id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+                  type: 'general',
+                  title: 'Notification Details',
+                  body: '',
+                  isRead: true,
+                  createdAt: '',
+                );
           return NotificationDetailScreen(notification: notification);
         },
       ),

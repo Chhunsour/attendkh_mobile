@@ -12,6 +12,7 @@ import 'package:mpg_hr_mobile_app/services/directory_repository.dart'
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 class AdminPerformanceScreen extends StatefulWidget {
@@ -329,7 +330,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
           bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
         ),
         height: MediaQuery.of(context).size.height * 0.85,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.surfaceLight,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -440,7 +441,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
 
   Widget _buildViewSection(String title, String? content) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -525,7 +526,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
             child: Container(
               padding: const EdgeInsets.all(24),
               height: MediaQuery.of(context).size.height * 0.85,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -641,7 +642,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 12,
                               ),
@@ -719,7 +720,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 12,
                               ),
@@ -814,7 +815,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 14,
                           vertical: 12,
                         ),
@@ -1019,14 +1020,14 @@ class _ReviewsTabState extends State<_ReviewsTab> {
       body: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             color: AppColors.surfaceLight,
             child: Column(
               children: [
                 TextField(
                   decoration: InputDecoration(
                     hintText: l10n.searchEmployeesHint,
-                    prefixIcon: Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: AppColors.border(context)),
@@ -1138,7 +1139,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     itemCount: _reviews.length + (_lastPage > 1 ? 1 : 0),
                     separatorBuilder: (_, i) => i == _reviews.length - 1
                         ? const SizedBox.shrink()
-                        : SizedBox(height: 12),
+                        : const SizedBox(height: 12),
                     itemBuilder: (context, i) {
                       if (i == _reviews.length) return _buildPagination();
                       final r = _reviews[i];
@@ -1392,7 +1393,7 @@ class _StarRatingPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(12),
@@ -1746,7 +1747,7 @@ class _TrainingTabState extends State<_TrainingTab> {
             child: Container(
               padding: const EdgeInsets.all(24),
               height: MediaQuery.of(context).size.height * 0.85,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -1791,10 +1792,15 @@ class _TrainingTabState extends State<_TrainingTab> {
                                 ? Image.file(coverImageFile!, fit: BoxFit.cover)
                                 : (item?.coverImage != null &&
                                       item!.coverImage!.isNotEmpty)
-                                ? Image.network(
-                                    item.coverImage!,
+                                ? CachedNetworkImage(
+                                    imageUrl: item.coverImage!,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (ctx, err, stack) => Column(
+                                    memCacheWidth: 600,
+                                    memCacheHeight: 400,
+                                    placeholder: (ctx, url) => const Center(
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                                    ),
+                                    errorWidget: (ctx, url, err) => Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
@@ -2033,7 +2039,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 12,
                               ),
@@ -2114,7 +2120,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 12,
                               ),
@@ -2317,14 +2323,14 @@ class _TrainingTabState extends State<_TrainingTab> {
       body: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             color: AppColors.surfaceLight,
             child: Column(
               children: [
                 TextField(
                   decoration: InputDecoration(
                     hintText: l10n.searchTrainingsHint,
-                    prefixIcon: Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: AppColors.border(context)),
@@ -2389,17 +2395,17 @@ class _TrainingTabState extends State<_TrainingTab> {
                     ),
                   )
                 : ListView.separated(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     itemCount: _trainings.length + (_lastPage > 1 ? 1 : 0),
                     separatorBuilder: (_, i) => i == _trainings.length - 1
                         ? const SizedBox.shrink()
-                        : SizedBox(height: 12),
+                        : const SizedBox(height: 12),
                     itemBuilder: (context, i) {
                       if (i == _trainings.length) return _buildPagination();
                       final t = _trainings[i];
                       return Container(
                         decoration: BoxDecoration(
-                          color: AppColors.textPrimary(context),
+                          color: AppColors.cardBg(context),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppColors.border(context)),
                         ),
@@ -2417,12 +2423,17 @@ class _TrainingTabState extends State<_TrainingTab> {
                                 child:
                                     t.coverImage != null &&
                                         t.coverImage!.isNotEmpty
-                                    ? Image.network(
-                                        t.coverImage!.startsWith('http')
+                                    ? CachedNetworkImage(
+                                        imageUrl: t.coverImage!.startsWith('http')
                                             ? t.coverImage!
                                             : '${DioClient.storageUrl}/${t.coverImage!.startsWith('/') ? t.coverImage!.substring(1) : t.coverImage!}',
                                         fit: BoxFit.cover,
-                                        errorBuilder: (ctx, err, stack) =>
+                                        memCacheWidth: 600,
+                                        memCacheHeight: 300,
+                                        placeholder: (ctx, url) => const Center(
+                                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                                        ),
+                                        errorWidget: (ctx, url, err) =>
                                             const Center(
                                               child: Icon(
                                                 Icons.menu_book,
@@ -2483,7 +2494,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                             const SizedBox(height: 8),
                             Text(
                               t.description ?? '',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.grey500,
                               ),
@@ -2635,7 +2646,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                 bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
               ),
               height: MediaQuery.of(context).size.height * 0.8,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -2786,7 +2797,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                               final progress = en['progress_percentage'] ?? 0;
 
                               return Container(
-                                padding: EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   color: AppColors.backgroundLight,
                                   borderRadius: BorderRadius.circular(12),

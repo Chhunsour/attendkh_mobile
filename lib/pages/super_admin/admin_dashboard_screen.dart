@@ -69,7 +69,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                 size: 20,
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -107,8 +107,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                     right: -2,
                     top: -2,
                     child: Container(
-                      padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
                         color: AppColors.danger,
                         shape: BoxShape.circle,
                       ),
@@ -233,9 +233,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                 color: AppColors.danger.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 32),
+              child: const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 32),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               l10n.failedToLoadDashboard,
               style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
@@ -283,11 +283,11 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         // ── Quick Platform Shortcuts ──
         _buildQuickActionsBar(context),
 
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         // ── Statistics Section Header ──
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -456,10 +456,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   name,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -467,10 +467,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
+                const Text(
                   'Multi-Company HR Tenant & Global System Administration',
                   style: TextStyle(
-                    color: const Color(0xFF94A3B8),
+                    color: Color(0xFF94A3B8),
                     fontSize: 11.5,
                     height: 1.3,
                   ),
@@ -607,11 +607,11 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
 
   Widget _buildSectionHeader(String title, IconData icon, Color color) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
         children: [
           Icon(icon, size: 16, color: color),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Text(
             title,
             style: TextStyle(
@@ -656,7 +656,7 @@ class _KpiCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
@@ -695,7 +695,7 @@ class _KpiCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             title,
             style: TextStyle(
@@ -736,8 +736,8 @@ class _ActivityTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
@@ -761,7 +761,7 @@ class _ActivityTile extends StatelessWidget {
             ),
             child: Icon(icon, color: iconColor, size: 18),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

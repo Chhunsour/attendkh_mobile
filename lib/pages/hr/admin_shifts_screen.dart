@@ -7,8 +7,8 @@ import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
+import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 // ─── Accent colors (work on white backgrounds) ───────────────────────────────
 const _cardAccents = [
@@ -112,9 +112,9 @@ class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen>
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(48),
+          preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: AppColors.textPrimary(context),
+            color: AppColors.surface(context),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: TabBar(
@@ -323,7 +323,7 @@ class _ShiftCard extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -432,8 +432,8 @@ class _ShiftCard extends ConsumerWidget {
                                     const SizedBox(width: 5),
                                     _Badge(
                                       label: l10n.overnightBadge,
-                                      color: Color(0xFF4F46E5),
-                                      bg: Color(0xFFEEF2FF),
+                                      color: const Color(0xFF4F46E5),
+                                      bg: const Color(0xFFEEF2FF),
                                     ),
                                   ],
                                 ],
@@ -468,8 +468,8 @@ class _ShiftCard extends ConsumerWidget {
                   ),
 
                   // ── Divider ──────────────────────────────────────────
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14),
                     child: Divider(height: 1, color: AppColors.grey100),
                   ),
 
@@ -524,7 +524,7 @@ class _ShiftCard extends ConsumerWidget {
                                     // Time range
                                     Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.schedule_rounded,
                                           size: 11,
                                           color: AppColors.grey500,
@@ -546,7 +546,7 @@ class _ShiftCard extends ConsumerWidget {
                                   const SizedBox(height: 3),
                                   Row(
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.coffee_rounded,
                                         size: 10,
                                         color: AppColors.grey400,
@@ -603,7 +603,7 @@ class _ShiftCard extends ConsumerWidget {
                                   color: AppColors.textPrimary(context),
                                   size: 13,
                                 ),
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Text(
                                   l10n.assign,
                                   style: TextStyle(
@@ -664,10 +664,10 @@ class _ShiftCard extends ConsumerWidget {
 
                 Text(
                   l10n.deleteShiftTitle,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
 
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 RichText(
                   textAlign: TextAlign.center,
@@ -701,8 +701,8 @@ class _ShiftCard extends ConsumerWidget {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx, false),
                         style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          side: BorderSide(color: Colors.grey),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -970,8 +970,8 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -1006,7 +1006,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                     size: 22,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1152,11 +1152,11 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
             ),
           ),
 
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
 
           // Search
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
               height: 42,
               decoration: BoxDecoration(
@@ -1407,7 +1407,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                                 ),
                                                 child: Text(
                                                   l10n.assignedBadge,
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.w700,
                                                     color: AppColors.success,
@@ -1494,7 +1494,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
               MediaQuery.of(context).padding.bottom + 12,
             ),
             decoration: BoxDecoration(
-              color: AppColors.textPrimary(context),
+              color: AppColors.surface(context),
               border: const Border(top: BorderSide(color: AppColors.grey100)),
               boxShadow: [
                 BoxShadow(
@@ -1520,7 +1520,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                     ),
                     child: Text(
                       l10n.cancel,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -1535,14 +1535,14 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                         : _assign,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       minimumSize: Size.zero,
                     ),
                     child: _isLoading
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
@@ -1680,11 +1680,11 @@ class _GradientFAB extends StatelessWidget {
               ),
               child: Icon(icon, color: Colors.white, size: 18),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Text(
               label ?? AppLocalizations.of(context)!.newShift,
-              style: TextStyle(
-                color: AppColors.textPrimary(context),
+              style: const TextStyle(
+                color: Colors.white,
                 fontWeight: FontWeight.w800,
                 fontSize: 14,
                 letterSpacing: 0.3,
@@ -1717,13 +1717,13 @@ class _EmptyState extends StatelessWidget {
                 color: AppColors.primaryLight,
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.schedule_rounded,
                 color: AppColors.primary,
                 size: 40,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               AppLocalizations.of(context)!.noShiftsYet,
               style: TextStyle(
@@ -1736,7 +1736,7 @@ class _EmptyState extends StatelessWidget {
             Text(
               AppLocalizations.of(context)!.createFirstShiftDesc,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.grey500, fontSize: 14),
+              style: const TextStyle(color: AppColors.grey500, fontSize: 14),
             ),
             const SizedBox(height: 24),
             FilledButton.icon(
@@ -1755,7 +1755,7 @@ class _EmptyState extends StatelessWidget {
               icon: const Icon(Icons.add_rounded),
               label: Text(
                 AppLocalizations.of(context)!.createFirstShiftBtn,
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -1791,7 +1791,7 @@ class _ErrorState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context)!.failedToLoadShifts,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 16,
               color: AppColors.grey700,
@@ -1800,7 +1800,7 @@ class _ErrorState extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             AppLocalizations.of(context)!.checkConnectionRetry,
-            style: TextStyle(color: AppColors.grey500, fontSize: 13),
+            style: const TextStyle(color: AppColors.grey500, fontSize: 13),
           ),
           const SizedBox(height: 20),
           OutlinedButton.icon(
@@ -1817,7 +1817,7 @@ class _ErrorState extends StatelessWidget {
             icon: const Icon(Icons.refresh_rounded),
             label: Text(
               AppLocalizations.of(context)!.tryAgain,
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -1858,7 +1858,7 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
         final end = _fmtTime(sched['end']?.toString());
         badges.add(
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(4),
@@ -1921,7 +1921,7 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                     color: AppColors.grey500,
                   ),
                   isDense: true,
-                  contentPadding: EdgeInsets.symmetric(
+                  contentPadding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 10,
                   ),
@@ -1951,13 +1951,13 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                       onRefresh: () async =>
                           ref.invalidate(shiftAssignmentsProvider),
                       child: ListView.separated(
-                        padding: EdgeInsets.fromLTRB(16, 16, 16, 100),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
                         itemCount: filtered.length,
-                        separatorBuilder: (_, _) => SizedBox(height: 10),
+                        separatorBuilder: (_, _) => const SizedBox(height: 10),
                         itemBuilder: (context, i) {
                           final item = filtered[i];
                           return Container(
-                            padding: EdgeInsets.all(14),
+                            padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               color: AppColors.surfaceLight,
                               borderRadius: BorderRadius.circular(12),
@@ -2011,7 +2011,7 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                                             )
                                           : null,
                                     ),
-                                    SizedBox(width: 12),
+                                    const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -2257,7 +2257,7 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
     final shiftsAsync = ref.watch(shiftsProvider);
 
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -2349,8 +2349,8 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
                     backgroundColor: AppColors.primary,
                   ),
                   child: _isSaving
-                      ? CircularProgressIndicator(color: Colors.white)
-                      : Text(
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                           'Assign Shift',
                           style: TextStyle(
                             fontSize: 16,

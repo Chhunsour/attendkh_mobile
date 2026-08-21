@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
@@ -26,6 +28,8 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
   String _search = '';
   String _filterType = 'all';
   final TextEditingController _searchCtrl = TextEditingController();
+  final Set<int> _downloadingIds = <int>{};
+  final DocumentsRepository _repo = DocumentsRepository();
 
   @override
   void dispose() {
@@ -86,41 +90,432 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     return '${size.toStringAsFixed(1)} ${sizes[i]}';
   }
 
-  Future<void> _downloadFile(
+  Future<void> _downloadAndOpenFile(
     BuildContext context,
     DocumentData doc,
     AppLocalizations l10n,
   ) async {
+    if (_downloadingIds.contains(doc.id)) return;
+
     HapticFeedback.lightImpact();
-    if (doc.downloadUrl == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.downloadUrlNotAvailable),
-          backgroundColor: AppColors.warning,
-          behavior: SnackBarBehavior.floating,
+    setState(() => _downloadingIds.add(doc.id));
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '${l10n.downloadStarted}: ${doc.fileName ?? doc.title}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
-      );
-      return;
-    }
+        duration: const Duration(seconds: 3),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+
     try {
-      final uri = Uri.parse(doc.downloadUrl!);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        throw l10n.couldNotLaunchUrl;
+      final tempDir = await getTemporaryDirectory();
+      final rawName = doc.fileName ?? doc.title;
+      // Sanitize filename to avoid path issues
+      final safeName = rawName.replaceAll(RegExp(r'[^\w\.\-]'), '_');
+      final savePath = '${tempDir.path}/$safeName';
+
+      await _repo.downloadDocument(
+        doc.id,
+        savePath,
+        downloadUrl: doc.downloadUrl,
+      );
+
+      if (mounted) {
+        final result = await OpenFilex.open(savePath);
+        if (result.type != ResultType.done &&
+            result.type != ResultType.noAppToOpen &&
+            context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Cannot open file: ${result.message}'),
+              backgroundColor: AppColors.warning,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+        }
       }
     } catch (e) {
       AppLogger.e('Failed to download document', e);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.failedToDownloadDoc}: $e'),
+            content: Text('${l10n.failedToDownloadDoc}$e'),
             backgroundColor: AppColors.danger,
             behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
+    } finally {
+      if (mounted) {
+        setState(() => _downloadingIds.remove(doc.id));
+      }
     }
+  }
+
+  void _showPreviewSheet(
+    BuildContext context,
+    DocumentData doc,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
+    HapticFeedback.selectionClick();
+    final isImage = doc.mimeType?.contains('image/') ?? false;
+    final color = _getIconColor(doc.mimeType);
+    final icon = _getFileIcon(doc.mimeType);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (sheetContext, setModalState) {
+            final isDownloading = _downloadingIds.contains(doc.id);
+
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(ctx).height * 0.85,
+              ),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.surfaceDark : Colors.white,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Drag handle
+                  Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 12, bottom: 8),
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.grey700 : AppColors.grey300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 16, 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: color.withValues(
+                              alpha: isDark ? 0.20 : 0.12,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: color.withValues(
+                                alpha: isDark ? 0.40 : 0.25,
+                              ),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: Icon(icon, color: color, size: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                doc.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark
+                                      ? Colors.white
+                                      : AppColors.grey900,
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                              if (doc.fileName != null &&
+                                  doc.fileName != doc.title) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  doc.fileName!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isDark
+                                        ? AppColors.grey400
+                                        : AppColors.grey500,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          icon: Icon(
+                            Icons.close_rounded,
+                            color: isDark
+                                ? AppColors.grey400
+                                : AppColors.grey500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const Divider(height: 1),
+
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Image preview container if image & URL available
+                          if (isImage &&
+                              doc.downloadUrl != null &&
+                              doc.downloadUrl!.isNotEmpty) ...[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: Container(
+                                constraints:
+                                    const BoxConstraints(maxHeight: 260),
+                                width: double.infinity,
+                                color: isDark
+                                    ? const Color(0xFF0F172A)
+                                    : const Color(0xFFF1F5F9),
+                                child: CachedNetworkImage(
+                                  imageUrl: doc.downloadUrl!,
+                                  fit: BoxFit.contain,
+                                  placeholder: (_, _) => const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(32),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  errorWidget: (_, _, _) => Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(32),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.broken_image_rounded,
+                                            size: 40,
+                                            color: isDark
+                                                ? AppColors.grey600
+                                                : AppColors.grey400,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Preview not available',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: isDark
+                                                  ? AppColors.grey500
+                                                  : AppColors.grey400,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                          ],
+
+                          if (doc.description != null &&
+                              doc.description!.isNotEmpty) ...[
+                            Text(
+                              'Description',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? AppColors.grey400
+                                    : AppColors.grey600,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              doc.description!,
+                              style: TextStyle(
+                                fontSize: 14,
+                                height: 1.4,
+                                color: isDark
+                                    ? Colors.white
+                                    : AppColors.grey900,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+
+                          _buildMetadataRow(
+                            'Department',
+                            doc.department?.name ?? 'Company-Wide',
+                            isDark,
+                          ),
+                          _buildMetadataRow(
+                            'File Size',
+                            _formatBytes(doc.fileSize),
+                            isDark,
+                          ),
+                          if (doc.createdAt != null &&
+                              doc.createdAt!.length >= 10)
+                            _buildMetadataRow(
+                              'Uploaded',
+                              doc.createdAt!.substring(0, 10),
+                              isDark,
+                            ),
+                          if (doc.uploaderName != null &&
+                              doc.uploaderName!.isNotEmpty)
+                            _buildMetadataRow(
+                              'Uploaded By',
+                              doc.uploaderName!,
+                              isDark,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Bottom Action Button
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      12,
+                      20,
+                      MediaQuery.paddingOf(ctx).bottom + 16,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: isDownloading
+                            ? null
+                            : () async {
+                                Navigator.pop(ctx);
+                                await _downloadAndOpenFile(
+                                  context,
+                                  doc,
+                                  l10n,
+                                );
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        icon: isDownloading
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Icon(
+                                Icons.file_open_rounded,
+                                size: 20,
+                              ),
+                        label: Text(
+                          isDownloading
+                              ? 'Opening...'
+                              : 'Open & View Document',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildMetadataRow(String label, String value, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 105,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: isDark ? AppColors.grey400 : AppColors.grey500,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w500,
+                color: isDark ? Colors.white : AppColors.grey900,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -130,9 +525,8 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : const Color(0xFFF8FAFC),
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : const Color(0xFFF8FAFC),
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Column(
@@ -208,367 +602,165 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                   }).toList();
 
                   final Color cardBg =
-                      isDark ? const Color(0xFF242424) : Colors.white;
+                      isDark ? const Color(0xFF1E293B) : Colors.white;
                   final Color cardBorder = isDark
-                      ? const Color(0xFF333333)
+                      ? const Color(0xFF334155)
                       : const Color(0xFFE2E8F0);
 
                   return RefreshIndicator(
                     onRefresh: () async =>
                         ref.invalidate(employeeDocumentsProvider),
                     color: AppColors.primary,
-                    child: ListView(
+                    child: CustomScrollView(
                       physics: const AlwaysScrollableScrollPhysics(
                         parent: BouncingScrollPhysics(),
                       ),
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-                      children: [
-                        // ── Search Bar ──
-                        Container(
-                          decoration: BoxDecoration(
-                            color: cardBg,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: cardBorder),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(
-                                  alpha: isDark ? 0.2 : 0.02,
-                                ),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: _searchCtrl,
-                            onChanged: (val) =>
-                                setState(() => _search = val.trim()),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark ? Colors.white : AppColors.grey900,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'Search files, forms, templates...',
-                              hintStyle: TextStyle(
-                                color: isDark
-                                    ? AppColors.grey500
-                                    : AppColors.grey400,
-                                fontSize: 13,
-                              ),
-                              prefixIcon: Icon(
-                                Icons.search_rounded,
-                                color: isDark
-                                    ? AppColors.grey400
-                                    : AppColors.grey400,
-                                size: 20,
-                              ),
-                              suffixIcon: _search.isNotEmpty
-                                  ? IconButton(
-                                      icon: Icon(
-                                        Icons.clear_rounded,
+                      slivers: [
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                          sliver: SliverToBoxAdapter(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // ── Search Bar ──
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: cardBg,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: cardBorder),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: isDark ? 0.2 : 0.02,
+                                        ),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: TextField(
+                                    controller: _searchCtrl,
+                                    onChanged: (val) =>
+                                        setState(() => _search = val.trim()),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isDark
+                                          ? Colors.white
+                                          : AppColors.grey900,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: l10n.searchFilesHint,
+                                      hintStyle: TextStyle(
+                                        color: isDark
+                                            ? AppColors.grey500
+                                            : AppColors.grey400,
+                                        fontSize: 13,
+                                      ),
+                                      prefixIcon: Icon(
+                                        Icons.search_rounded,
                                         color: isDark
                                             ? AppColors.grey400
                                             : AppColors.grey400,
-                                        size: 18,
+                                        size: 20,
                                       ),
-                                      onPressed: () {
-                                        _searchCtrl.clear();
-                                        setState(() => _search = '');
-                                      },
-                                    )
-                                  : null,
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        // ── Senior File Filter Chips ──
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          child: Row(
-                            children: [
-                              _buildSeniorFilterChip('All Files', 'all', isDark),
-                              const SizedBox(width: 8),
-                              _buildSeniorFilterChip('PDFs', 'pdf', isDark),
-                              const SizedBox(width: 8),
-                              _buildSeniorFilterChip(
-                                'Word Documents',
-                                'docs',
-                                isDark,
-                              ),
-                              const SizedBox(width: 8),
-                              _buildSeniorFilterChip(
-                                'Spreadsheets',
-                                'sheets',
-                                isDark,
-                              ),
-                              const SizedBox(width: 8),
-                              _buildSeniorFilterChip('Images', 'images', isDark),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 18),
-
-                        // ── Section Header ──
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Available Files',
-                                style: TextStyle(
-                                  fontSize: 14.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: isDark
-                                      ? Colors.white
-                                      : AppColors.grey900,
-                                  letterSpacing: -0.1,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? const Color(0xFF1E293B)
-                                      : const Color(0xFFEFF6FF),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: isDark
-                                        ? const Color(0xFF3B82F6)
-                                            .withValues(alpha: 0.3)
-                                        : const Color(0xFFBFDBFE),
-                                    width: 0.8,
-                                  ),
-                                ),
-                                child: Text(
-                                  '${filtered.length} Documents',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: isDark
-                                        ? const Color(0xFF93C5FD)
-                                        : AppColors.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        // ── Documents List ──
-                        if (filtered.isEmpty)
-                          Container(
-                            padding: const EdgeInsets.all(32),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: cardBg,
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: cardBorder),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.folder_off_rounded,
-                                  size: 48,
-                                  color: AppColors.grey300,
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  _search.isNotEmpty
-                                      ? 'No files matching "$_search"'
-                                      : l10n.noDocumentsAvailable,
-                                  style: TextStyle(
-                                    color: isDark
-                                        ? AppColors.grey400
-                                        : AppColors.grey600,
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          )
-                        else
-                          ...filtered.map((doc) {
-                            final color = _getIconColor(doc.mimeType);
-                            final icon = _getFileIcon(doc.mimeType);
-
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Container(
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  color: cardBg,
-                                  borderRadius: BorderRadius.circular(18),
-                                  border: Border.all(color: cardBorder),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: isDark ? 0.2 : 0.02,
-                                      ),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      width: 44,
-                                      height: 44,
-                                      decoration: BoxDecoration(
-                                        color: color.withValues(
-                                          alpha: isDark ? 0.18 : 0.10,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: color.withValues(
-                                            alpha: isDark ? 0.35 : 0.20,
-                                          ),
-                                          width: 0.8,
-                                        ),
-                                      ),
-                                      child: Icon(icon, color: color, size: 22),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            doc.title,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 14,
-                                              color: isDark
-                                                  ? Colors.white
-                                                  : AppColors.grey900,
-                                              letterSpacing: -0.1,
-                                            ),
-                                          ),
-                                          if (doc.description != null &&
-                                              doc.description!.isNotEmpty) ...[
-                                            const SizedBox(height: 3),
-                                            Text(
-                                              doc.description!,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
+                                      suffixIcon: _search.isNotEmpty
+                                          ? IconButton(
+                                              icon: Icon(
+                                                Icons.clear_rounded,
                                                 color: isDark
                                                     ? AppColors.grey400
-                                                    : AppColors.grey500,
-                                                fontSize: 12,
-                                                height: 1.3,
+                                                    : AppColors.grey400,
+                                                size: 18,
                                               ),
-                                            ),
-                                          ],
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 7,
-                                                  vertical: 2,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: isDark
-                                                      ? const Color(0xFF1E1E1E)
-                                                      : const Color(0xFFF1F5F9),
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                  border: Border.all(
-                                                    color: isDark
-                                                        ? const Color(0xFF333333)
-                                                        : const Color(0xFFE2E8F0),
-                                                    width: 0.8,
-                                                  ),
-                                                ),
-                                                child: Text(
-                                                  _formatBytes(doc.fileSize),
-                                                  style: TextStyle(
-                                                    fontSize: 10.5,
-                                                    color: isDark
-                                                        ? AppColors.grey300
-                                                        : AppColors.grey700,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                              if (doc.department != null) ...[
-                                                const SizedBox(width: 6),
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                    horizontal: 7,
-                                                    vertical: 2,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: isDark
-                                                        ? const Color(0xFF1E293B)
-                                                        : const Color(0xFFEFF6FF),
-                                                    borderRadius:
-                                                        BorderRadius.circular(6),
-                                                    border: Border.all(
-                                                      color: isDark
-                                                          ? const Color(0xFF3B82F6)
-                                                              .withValues(
-                                                                alpha: 0.3,
-                                                              )
-                                                          : const Color(0xFFBFDBFE),
-                                                      width: 0.8,
-                                                    ),
-                                                  ),
-                                                  child: Text(
-                                                    doc.department!.name,
-                                                    style: TextStyle(
-                                                      fontSize: 10.5,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: isDark
-                                                          ? const Color(0xFF93C5FD)
-                                                          : AppColors.primary,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-                                        ],
+                                              onPressed: () {
+                                                _searchCtrl.clear();
+                                                setState(() => _search = '');
+                                              },
+                                            )
+                                          : null,
+                                      border: InputBorder.none,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 14,
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    InkWell(
-                                      onTap: () =>
-                                          _downloadFile(context, doc, l10n),
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        width: 38,
-                                        height: 38,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 14),
+
+                                // ── Senior File Filter Chips ──
+                                SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  child: Row(
+                                    children: [
+                                      _buildSeniorFilterChip(
+                                        l10n.allFiles,
+                                        'all',
+                                        isDark,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      _buildSeniorFilterChip(
+                                        'PDFs',
+                                        'pdf',
+                                        isDark,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      _buildSeniorFilterChip(
+                                        l10n.wordDocuments,
+                                        'docs',
+                                        isDark,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      _buildSeniorFilterChip(
+                                        l10n.spreadsheets,
+                                        'sheets',
+                                        isDark,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      _buildSeniorFilterChip(
+                                        l10n.images,
+                                        'images',
+                                        isDark,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 18),
+
+                                // ── Section Header ──
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        l10n.availableFiles,
+                                        style: TextStyle(
+                                          fontSize: 14.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark
+                                              ? Colors.white
+                                              : AppColors.grey900,
+                                          letterSpacing: -0.1,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: isDark
                                               ? const Color(0xFF1E293B)
                                               : const Color(0xFFEFF6FF),
                                           borderRadius:
-                                              BorderRadius.circular(12),
+                                              BorderRadius.circular(8),
                                           border: Border.all(
                                             color: isDark
                                                 ? const Color(0xFF3B82F6)
@@ -577,20 +769,350 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                                             width: 0.8,
                                           ),
                                         ),
-                                        child: Icon(
-                                          Icons.download_rounded,
-                                          color: isDark
-                                              ? const Color(0xFF93C5FD)
-                                              : AppColors.primary,
-                                          size: 19,
+                                        child: Text(
+                                          '${filtered.length} ${l10n.documentsCount}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: isDark
+                                                ? const Color(0xFF93C5FD)
+                                                : AppColors.primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 12),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // ── Lazy Virtualized Documents List ──
+                        if (filtered.isEmpty)
+                          SliverPadding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+                            sliver: SliverToBoxAdapter(
+                              child: Container(
+                                padding: const EdgeInsets.all(32),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: cardBg,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(color: cardBorder),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.folder_off_rounded,
+                                      size: 48,
+                                      color: AppColors.grey300,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      _search.isNotEmpty
+                                          ? '${l10n.noFilesMatching} "$_search"'
+                                          : l10n.noDocumentsAvailable,
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? AppColors.grey400
+                                            : AppColors.grey600,
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ],
                                 ),
                               ),
-                            );
-                          }),
+                            ),
+                          )
+                        else
+                          SliverPadding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+                            sliver: SliverList.builder(
+                              itemCount: filtered.length,
+                              itemBuilder: (context, index) {
+                                final doc = filtered[index];
+                                final color = _getIconColor(doc.mimeType);
+                                final icon = _getFileIcon(doc.mimeType);
+                                final isDownloading =
+                                    _downloadingIds.contains(doc.id);
+
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: Material(
+                                    color: cardBg,
+                                    borderRadius: BorderRadius.circular(18),
+                                    child: InkWell(
+                                      onTap: () => _showPreviewSheet(
+                                        context,
+                                        doc,
+                                        isDark,
+                                        l10n,
+                                      ),
+                                      borderRadius: BorderRadius.circular(18),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(14),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(18),
+                                          border:
+                                              Border.all(color: cardBorder),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withValues(
+                                                alpha: isDark ? 0.2 : 0.02,
+                                              ),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: 44,
+                                              height: 44,
+                                              decoration: BoxDecoration(
+                                                color: color.withValues(
+                                                  alpha:
+                                                      isDark ? 0.18 : 0.10,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                border: Border.all(
+                                                  color: color.withValues(
+                                                    alpha:
+                                                        isDark ? 0.35 : 0.20,
+                                                  ),
+                                                  width: 0.8,
+                                                ),
+                                              ),
+                                              child: Icon(
+                                                icon,
+                                                color: color,
+                                                size: 22,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    doc.title,
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    softWrap: true,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      fontSize: 14,
+                                                      color: isDark
+                                                          ? Colors.white
+                                                          : AppColors.grey900,
+                                                      letterSpacing: -0.1,
+                                                    ),
+                                                  ),
+                                                  if (doc.description != null &&
+                                                      doc.description!
+                                                          .isNotEmpty) ...[
+                                                    const SizedBox(height: 3),
+                                                    Text(
+                                                      doc.description!,
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow
+                                                          .ellipsis,
+                                                      style: TextStyle(
+                                                        color: isDark
+                                                            ? AppColors.grey400
+                                                            : AppColors.grey500,
+                                                        fontSize: 12,
+                                                        height: 1.3,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                  const SizedBox(height: 8),
+                                                  Row(
+                                                    children: [
+                                                      Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 7,
+                                                          vertical: 2,
+                                                        ),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: isDark
+                                                              ? const Color(
+                                                                  0xFF0F172A)
+                                                              : const Color(
+                                                                  0xFFF1F5F9),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(6),
+                                                          border: Border.all(
+                                                            color: isDark
+                                                                ? const Color(
+                                                                    0xFF334155)
+                                                                : const Color(
+                                                                    0xFFE2E8F0),
+                                                            width: 0.8,
+                                                          ),
+                                                        ),
+                                                        child: Text(
+                                                          _formatBytes(
+                                                              doc.fileSize),
+                                                          style: TextStyle(
+                                                            fontSize: 10.5,
+                                                            color: isDark
+                                                                ? AppColors
+                                                                    .grey300
+                                                                : AppColors
+                                                                    .grey700,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      if (doc.department !=
+                                                          null) ...[
+                                                        const SizedBox(
+                                                            width: 6),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            horizontal: 7,
+                                                            vertical: 2,
+                                                          ),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: isDark
+                                                                ? const Color(
+                                                                    0xFF1E293B)
+                                                                : const Color(
+                                                                    0xFFEFF6FF),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        6),
+                                                            border: Border.all(
+                                                              color: isDark
+                                                                  ? const Color(
+                                                                          0xFF3B82F6)
+                                                                      .withValues(
+                                                                        alpha:
+                                                                            0.3,
+                                                                      )
+                                                                  : const Color(
+                                                                      0xFFBFDBFE),
+                                                              width: 0.8,
+                                                            ),
+                                                          ),
+                                                          child: Text(
+                                                            doc.department!
+                                                                .name,
+                                                            style: TextStyle(
+                                                              fontSize: 10.5,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: isDark
+                                                                  ? const Color(
+                                                                      0xFF93C5FD)
+                                                                  : AppColors
+                                                                      .primary,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Material(
+                                              color: Colors.transparent,
+                                              child: InkWell(
+                                                onTap: isDownloading
+                                                    ? null
+                                                    : () =>
+                                                        _downloadAndOpenFile(
+                                                          context,
+                                                          doc,
+                                                          l10n,
+                                                        ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                child: Container(
+                                                  width: 38,
+                                                  height: 38,
+                                                  decoration: BoxDecoration(
+                                                    color: isDark
+                                                        ? const Color(
+                                                            0xFF0F172A)
+                                                        : const Color(
+                                                            0xFFEFF6FF),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                    border: Border.all(
+                                                      color: isDark
+                                                          ? const Color(
+                                                                  0xFF3B82F6)
+                                                              .withValues(
+                                                              alpha: 0.3)
+                                                          : const Color(
+                                                              0xFFBFDBFE),
+                                                      width: 0.8,
+                                                    ),
+                                                  ),
+                                                  child: isDownloading
+                                                      ? const Center(
+                                                          child: SizedBox(
+                                                            width: 18,
+                                                            height: 18,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              strokeWidth: 2,
+                                                              color: AppColors
+                                                                  .primary,
+                                                            ),
+                                                          ),
+                                                        )
+                                                      : Icon(
+                                                          Icons
+                                                              .download_rounded,
+                                                          color: isDark
+                                                              ? const Color(
+                                                                  0xFF93C5FD)
+                                                              : AppColors
+                                                                  .primary,
+                                                          size: 19,
+                                                        ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                       ],
                     ),
                   );
@@ -696,9 +1218,9 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
                             ),
                           ),
                           const SizedBox(height: 2),
-                          const Text(
-                            'Corporate Document Vault & Resources',
-                            style: TextStyle(
+                          Text(
+                            l10n.corporateDocVaultSubtitle,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                               color: Color(0xB3FFFFFF),
@@ -745,11 +1267,11 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
 
     final Color chipBg = isSelected
         ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF))
-        : (isDark ? const Color(0xFF242424) : Colors.white);
+        : (isDark ? const Color(0xFF1E293B) : Colors.white);
 
     final Color chipBorder = isSelected
         ? (isDark ? const Color(0xFF3B82F6) : AppColors.primary)
-        : (isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0));
+        : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0));
 
     final Color chipTextColor = isSelected
         ? (isDark ? const Color(0xFF93C5FD) : AppColors.primary)

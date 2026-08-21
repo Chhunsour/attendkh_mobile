@@ -13,6 +13,7 @@ class TodayAttendance {
   final String? date;
   final int? lateMinutes;
   final String? lateReason;
+  final String? earlyLeaveReason;
   final int? breakMinutes;
   final int? earlyClockInMinutes;
   final int? approvedPreShiftOtMinutes;
@@ -31,6 +32,7 @@ class TodayAttendance {
     this.date,
     this.lateMinutes,
     this.lateReason,
+    this.earlyLeaveReason,
     this.breakMinutes,
     this.earlyClockInMinutes,
     this.approvedPreShiftOtMinutes,
@@ -47,10 +49,13 @@ class TodayAttendance {
       clockInPhoto: json['clock_in_photo'] as String?,
       clockOutPhoto: json['clock_out_photo'] as String?,
       status: json['status'] as String?,
-      workHours: json['work_hours'] != null ? double.tryParse(json['work_hours'].toString()) : null,
+      workHours: json['work_hours'] != null
+          ? double.tryParse(json['work_hours'].toString())
+          : null,
       date: json['date'] as String?,
       lateMinutes: json['late_minutes'] as int?,
       lateReason: json['late_reason'] as String? ?? json['notes'] as String?,
+      earlyLeaveReason: json['early_leave_reason'] as String?,
       breakMinutes: json['break_minutes'] as int?,
       earlyClockInMinutes: json['early_clock_in_minutes'] as int?,
       approvedPreShiftOtMinutes: json['approved_pre_shift_ot_minutes'] as int?,
@@ -85,7 +90,9 @@ class AttendanceSummary {
       late: json['late'] as int? ?? 0,
       halfDay: json['half_day'] as int? ?? 0,
       totalDays: json['total_days'] as int? ?? 0,
-      totalHours: json['total_hours'] != null ? (double.tryParse(json['total_hours'].toString()) ?? 0) : 0,
+      totalHours: json['total_hours'] != null
+          ? (double.tryParse(json['total_hours'].toString()) ?? 0)
+          : 0,
     );
   }
 }
@@ -129,8 +136,12 @@ class AttendanceRepository {
         'lng': lng,
         'device_id': deviceId,
         'is_geo_valid': isGeoValid == true ? 1 : 0,
-        if (lateReason != null && lateReason.isNotEmpty) 'late_reason': lateReason,
-        'photo': await MultipartFile.fromFile(photoPath, filename: 'clock_in.jpg'),
+        if (lateReason != null && lateReason.isNotEmpty)
+          'late_reason': lateReason,
+        'photo': await MultipartFile.fromFile(
+          photoPath,
+          filename: 'clock_in.jpg',
+        ),
         'method': 'mobile',
       });
     } else {
@@ -139,7 +150,8 @@ class AttendanceRepository {
         'lng': lng,
         'device_id': deviceId,
         'is_geo_valid': isGeoValid == true ? 1 : 0,
-        if (lateReason != null && lateReason.isNotEmpty) 'late_reason': lateReason,
+        if (lateReason != null && lateReason.isNotEmpty)
+          'late_reason': lateReason,
         'method': 'mobile',
       };
     }
@@ -163,8 +175,10 @@ class AttendanceRepository {
     String? deviceId,
     String? photoPath,
     bool? isGeoValid,
+    String? earlyLeaveReason,
   }) async {
     dynamic payload;
+    final reason = earlyLeaveReason?.trim();
 
     if (photoPath != null) {
       payload = FormData.fromMap({
@@ -172,8 +186,12 @@ class AttendanceRepository {
         'lng': lng,
         'device_id': deviceId,
         'is_geo_valid': isGeoValid == true ? 1 : 0,
-        'photo': await MultipartFile.fromFile(photoPath, filename: 'clock_out.jpg'),
+        'photo': await MultipartFile.fromFile(
+          photoPath,
+          filename: 'clock_out.jpg',
+        ),
         'method': 'mobile',
+        if (reason != null && reason.isNotEmpty) 'early_leave_reason': reason,
       });
     } else {
       payload = {
@@ -182,6 +200,7 @@ class AttendanceRepository {
         'device_id': deviceId,
         'is_geo_valid': isGeoValid == true ? 1 : 0,
         'method': 'mobile',
+        if (reason != null && reason.isNotEmpty) 'early_leave_reason': reason,
       };
     }
 
@@ -258,7 +277,14 @@ class AttendanceRepository {
       }
       return AttendanceSummary.fromJson(raw);
     }
-    return const AttendanceSummary(present: 0, absent: 0, late: 0, halfDay: 0, totalDays: 0, totalHours: 0);
+    return const AttendanceSummary(
+      present: 0,
+      absent: 0,
+      late: 0,
+      halfDay: 0,
+      totalDays: 0,
+      totalHours: 0,
+    );
   }
 
   /// GET /api/v1/company/attendance — history of records
@@ -268,34 +294,43 @@ class AttendanceRepository {
       queryParameters: {'month': month},
     );
     final data = response.data;
-    
+
     if (data is List) {
-      return data.map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
+      return data
+          .map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
-    
+
     if (data is Map) {
-      // The ApiRepository unwraps the { "status": "success", "data": { ... } } envelope.
-      // So data is the inner map which contains 'attendances'.
-      if (data.containsKey('attendances')) {
-        return (data['attendances'] as List).map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
-      } else if (data.containsKey('data')) { // Fallback just in case
-        final innerData = data['data'];
-        if (innerData is Map && innerData.containsKey('attendances')) {
-          return (innerData['attendances'] as List).map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
-        } else if (innerData is List) {
-          return innerData.map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>)).toList();
-        }
+      if (data['attendances'] is List) {
+        return (data['attendances'] as List)
+            .whereType<Map<String, dynamic>>()
+            .map(TodayAttendance.fromJson)
+            .toList();
+      } else if (data['data'] is Map && (data['data'] as Map)['attendances'] is List) {
+        return ((data['data'] as Map)['attendances'] as List)
+            .whereType<Map<String, dynamic>>()
+            .map(TodayAttendance.fromJson)
+            .toList();
+      } else if (data['data'] is List) {
+        return (data['data'] as List)
+            .whereType<Map<String, dynamic>>()
+            .map(TodayAttendance.fromJson)
+            .toList();
       }
     }
     return [];
   }
 
   /// POST /api/v1/company/attendance/corrections
-  Future<void> requestCorrection({required String date, required String type, required String reason}) async {
-    await _api.post('/company/attendance/corrections', data: {
-      'date': date,
-      'type': type,
-      'reason': reason,
-    });
+  Future<void> requestCorrection({
+    required String date,
+    required String type,
+    required String reason,
+  }) async {
+    await _api.post(
+      '/company/attendance/corrections',
+      data: {'date': date, 'type': type, 'reason': reason},
+    );
   }
 }

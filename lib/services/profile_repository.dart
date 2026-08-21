@@ -80,7 +80,7 @@ class ProfileData {
     final user =
         json['user'] as Map<String, dynamic>? ?? json; // handle nested or flat
     if (!user.containsKey('id')) {
-      return ProfileData(id: 0, name: 'Unknown', companyId: 0, roles: []);
+      return const ProfileData(id: 0, name: 'Unknown', companyId: 0, roles: []);
     }
     final company = json['company'] as Map<String, dynamic>?;
     final companyIdRaw = user['company_id'];

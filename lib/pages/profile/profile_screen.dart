@@ -49,8 +49,13 @@ class ProfileScreen extends ConsumerWidget {
     AppLocalizations l10n,
     bool isDark,
   ) {
-    return Center(
-      child: Padding(
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        alignment: Alignment.center,
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -111,14 +116,14 @@ class ProfileScreen extends ConsumerWidget {
                 // ── Section 1: Employment & Work Details ──
                 _buildSectionCard(
                   context: context,
-                  title: 'Employment Details',
+                  title: l10n.employmentDetails,
                   icon: Icons.business_center_rounded,
                   iconColor: AppColors.primary,
                   isDark: isDark,
                   children: [
                     _buildInfoRow(
                       context: context,
-                      label: 'Company',
+                      label: l10n.company,
                       value: data.companyName ??
                           (data.companyId > 0 ? 'Company #${data.companyId}' : '—'),
                       icon: Icons.domain_rounded,
@@ -127,7 +132,7 @@ class ProfileScreen extends ConsumerWidget {
                     if (data.branchName != null && data.branchName!.isNotEmpty)
                       _buildInfoRow(
                         context: context,
-                        label: 'Branch Location',
+                        label: l10n.branchLocation,
                         value: data.branchName!,
                         icon: Icons.storefront_rounded,
                         isDark: isDark,
@@ -135,7 +140,7 @@ class ProfileScreen extends ConsumerWidget {
                     if (data.department != null && data.department!.isNotEmpty)
                       _buildInfoRow(
                         context: context,
-                        label: 'Department',
+                        label: l10n.department,
                         value: data.department!,
                         icon: Icons.account_tree_rounded,
                         isDark: isDark,
@@ -143,7 +148,7 @@ class ProfileScreen extends ConsumerWidget {
                     if (data.jobTitle != null && data.jobTitle!.isNotEmpty)
                       _buildInfoRow(
                         context: context,
-                        label: 'Job Title / Role',
+                        label: l10n.jobTitleRole,
                         value: data.jobTitle!,
                         icon: Icons.work_outline_rounded,
                         isDark: isDark,
@@ -151,7 +156,7 @@ class ProfileScreen extends ConsumerWidget {
                     if (data.team != null && data.team!.isNotEmpty)
                       _buildInfoRow(
                         context: context,
-                        label: 'Team',
+                        label: l10n.team,
                         value: data.team!,
                         icon: Icons.groups_rounded,
                         isDark: isDark,
@@ -159,7 +164,7 @@ class ProfileScreen extends ConsumerWidget {
                     if (data.manager != null && data.manager!.trim().isNotEmpty)
                       _buildInfoRow(
                         context: context,
-                        label: 'Reporting Manager',
+                        label: l10n.reportingManager,
                         value: data.manager!.trim(),
                         icon: Icons.person_pin_rounded,
                         isDark: isDark,
@@ -167,7 +172,7 @@ class ProfileScreen extends ConsumerWidget {
                     if (data.hireDate != null && data.hireDate!.isNotEmpty)
                       _buildInfoRow(
                         context: context,
-                        label: 'Joining Date',
+                        label: l10n.joiningDate,
                         value: formatDate(data.hireDate),
                         icon: Icons.calendar_today_rounded,
                         isDark: isDark,
@@ -176,7 +181,7 @@ class ProfileScreen extends ConsumerWidget {
                         data.probationEndDate!.isNotEmpty)
                       _buildInfoRow(
                         context: context,
-                        label: 'Probation End',
+                        label: l10n.probationEnd,
                         value: formatDate(data.probationEndDate),
                         icon: Icons.event_available_rounded,
                         isDark: isDark,
@@ -189,7 +194,7 @@ class ProfileScreen extends ConsumerWidget {
                 // ── Section 2: Personal & Contact Information ──
                 _buildSectionCard(
                   context: context,
-                  title: 'Personal & Contact',
+                  title: l10n.personalAndContact,
                   icon: Icons.contact_page_rounded,
                   iconColor: const Color(0xFF0284C7),
                   isDark: isDark,
@@ -197,7 +202,7 @@ class ProfileScreen extends ConsumerWidget {
                     if (data.phone != null && data.phone!.isNotEmpty)
                       _buildInfoRow(
                         context: context,
-                        label: 'Phone Number',
+                        label: l10n.phoneNumber,
                         value: data.phone!,
                         icon: Icons.phone_outlined,
                         isDark: isDark,
@@ -206,7 +211,7 @@ class ProfileScreen extends ConsumerWidget {
                     if (data.email != null && data.email!.isNotEmpty)
                       _buildInfoRow(
                         context: context,
-                        label: 'Email Address',
+                        label: l10n.emailAddress,
                         value: data.email!,
                         icon: Icons.mail_outline_rounded,
                         isDark: isDark,
@@ -215,7 +220,7 @@ class ProfileScreen extends ConsumerWidget {
                     if (data.gender != null && data.gender!.isNotEmpty)
                       _buildInfoRow(
                         context: context,
-                        label: 'Gender',
+                        label: l10n.gender,
                         value: _capitalize(data.gender!),
                         icon: Icons.person_outline_rounded,
                         isDark: isDark,
@@ -445,7 +450,11 @@ class ProfileScreen extends ConsumerWidget {
                       if (showBackButton)
                         _frostedHeroButton(
                           icon: Icons.arrow_back_ios_new_rounded,
-                          onTap: () => context.pop(),
+                          onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            }
+                          },
                         )
                       else
                         const SizedBox(width: 40),
@@ -878,12 +887,16 @@ class ProfileScreen extends ConsumerWidget {
                   child: Icon(icon, size: 18, color: iconColor),
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : AppColors.grey900,
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : AppColors.grey900,
+                    ),
                   ),
                 ),
               ],

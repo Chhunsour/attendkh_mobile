@@ -27,10 +27,17 @@ class ShiftsRepository {
   ShiftsRepository({ApiRepository? api}) : _api = api ?? ApiRepository();
 
   Future<List<AssignedShift>> getMine({String? month}) async {
-    final response = await _api.get('/company/shifts', queryParameters: {'month': ?month});
+    final response = await _api.get(
+      '/company/shifts',
+      queryParameters: {'month': ?month},
+    );
     final data = response.data;
-    if (data is List) return data.map((e) => AssignedShift.fromJson(e as Map<String, dynamic>)).toList();
-    if (data is Map && data['data'] != null) return (data['data'] as List).map((e) => AssignedShift.fromJson(e as Map<String, dynamic>)).toList();
+    if (data is List) {
+      return data.whereType<Map<String, dynamic>>().map(AssignedShift.fromJson).toList();
+    }
+    if (data is Map && data['data'] is List) {
+      return (data['data'] as List).whereType<Map<String, dynamic>>().map(AssignedShift.fromJson).toList();
+    }
     return [];
   }
 }

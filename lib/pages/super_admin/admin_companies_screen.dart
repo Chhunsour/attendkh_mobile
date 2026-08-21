@@ -205,12 +205,12 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.wifi_off_rounded,
               color: AppColors.danger,
               size: 48,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               l10n.failedToLoadCompanies,
               style: TextStyle(
@@ -267,123 +267,146 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
       return true;
     }).toList();
 
-    return ListView(
+    return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(
         parent: BouncingScrollPhysics(),
       ),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-      children: [
-        // ── Overview Summary Cards ──
-        Row(
-          children: [
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Total Tenants',
-                value: '${companies.length}',
-                icon: Icons.business_rounded,
-                color: const Color(0xFF6366F1),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Active',
-                value: '$activeCount',
-                icon: Icons.check_circle_rounded,
-                color: AppColors.success,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Suspended',
-                value: '$suspendedCount',
-                icon: Icons.pause_circle_filled_rounded,
-                color: AppColors.danger,
-              ),
-            ),
-          ],
-        ),
-
-        SizedBox(height: 16),
-
-        // ── Search Field ──
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.textPrimary(context),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border(context)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 6,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: TextField(
-            controller: _searchCtrl,
-            onChanged: (val) => setState(() => _searchQuery = val.trim()),
-            style: TextStyle(fontSize: 13.5, color: AppColors.textPrimary(context)),
-            decoration: InputDecoration(
-              hintText: 'Search companies by name or email...',
-              hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
-              prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 18),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear_rounded, color: AppColors.grey400, size: 16),
-                      onPressed: () {
-                        _searchCtrl.clear();
-                        setState(() => _searchQuery = '');
-                      },
-                    )
-                  : null,
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // ── Status Filter Chips ──
-        Row(
-          children: [
-            _buildFilterChip('All (${companies.length})', 'all'),
-            const SizedBox(width: 8),
-            _buildFilterChip('Active ($activeCount)', 'active'),
-            const SizedBox(width: 8),
-            _buildFilterChip('Suspended ($suspendedCount)', 'suspended'),
-          ],
-        ),
-
-        SizedBox(height: 16),
-
-        // ── Company List ──
-        if (filtered.isEmpty)
-          Container(
-            padding: EdgeInsets.all(32),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.textPrimary(context),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.border(context)),
-            ),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          sliver: SliverToBoxAdapter(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.business_center_outlined, size: 48, color: AppColors.grey300),
-                const SizedBox(height: 12),
-                Text(
-                  _searchQuery.isNotEmpty ? 'No companies matching "$_searchQuery"' : l10n.noCompaniesYet,
-                  style: const TextStyle(color: AppColors.grey600, fontSize: 14, fontWeight: FontWeight.w500),
-                  textAlign: TextAlign.center,
+                // ── Overview Summary Cards ──
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Total Tenants',
+                        value: '${companies.length}',
+                        icon: Icons.business_rounded,
+                        color: const Color(0xFF6366F1),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Active',
+                        value: '$activeCount',
+                        icon: Icons.check_circle_rounded,
+                        color: AppColors.success,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Suspended',
+                        value: '$suspendedCount',
+                        icon: Icons.pause_circle_filled_rounded,
+                        color: AppColors.danger,
+                      ),
+                    ),
+                  ],
                 ),
+
+                const SizedBox(height: 16),
+
+                // ── Search Field ──
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface(context),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border(context)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (val) => setState(() => _searchQuery = val.trim()),
+                    style: TextStyle(fontSize: 13.5, color: AppColors.textPrimary(context)),
+                    decoration: InputDecoration(
+                      hintText: 'Search companies by name or email...',
+                      hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
+                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 18),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear_rounded, color: AppColors.grey400, size: 16),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // ── Status Filter Chips ──
+                Row(
+                  children: [
+                    _buildFilterChip('All (${companies.length})', 'all'),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Active ($activeCount)', 'active'),
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Suspended ($suspendedCount)', 'suspended'),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
               ],
+            ),
+          ),
+        ),
+
+        // ── Lazy Virtualized Company List ──
+        if (filtered.isEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 90),
+            sliver: SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.surface(context),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.border(context)),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.business_center_outlined, size: 48, color: AppColors.grey300),
+                    const SizedBox(height: 12),
+                    Text(
+                      _searchQuery.isNotEmpty ? 'No companies matching "$_searchQuery"' : l10n.noCompaniesYet,
+                      style: const TextStyle(color: AppColors.grey600, fontSize: 14, fontWeight: FontWeight.w500),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
           )
         else
-          ...filtered.map((company) => _buildCompanyCard(context, ref, company, l10n)),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 90),
+            sliver: SliverList.builder(
+              itemCount: filtered.length,
+              itemBuilder: (context, index) {
+                final company = filtered[index];
+                return _buildCompanyCard(context, ref, company, l10n);
+              },
+            ),
+          ),
       ],
     );
   }
@@ -395,9 +418,9 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
     required Color color,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -479,10 +502,10 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
     final isActive = company.status == 'active';
 
     return Container(
-      margin: EdgeInsets.only(bottom: 10),
-      padding: EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [
@@ -504,7 +527,7 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                 height: 46,
                 clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
-                  color: isActive ? Color(0xFFEEF2FF) : AppColors.danger.withValues(alpha: 0.08),
+                  color: isActive ? const Color(0xFFEEF2FF) : AppColors.danger.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: AppColors.border(context)),
                 ),
@@ -524,7 +547,7 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                         size: 22,
                       ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -579,7 +602,7 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                   ],
                 ),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               PopupMenuButton<String>(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -588,9 +611,9 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                 surfaceTintColor: Colors.transparent,
                 elevation: 8,
                 position: PopupMenuPosition.under,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
                 child: Container(
-                  padding: EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: AppColors.grey50,
                     borderRadius: BorderRadius.circular(8),
@@ -1223,7 +1246,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -1241,7 +1264,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
           ),
           // Header
           Padding(
-            padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1404,22 +1427,22 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
+                              const Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'VAT Taxpayer Status',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
                                         color: Color(0xFF856404),
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
+                                    SizedBox(height: 2),
                                     Text(
                                       'Is this company registered for VAT?',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11,
                                         color: Color(0xFF856404),
                                       ),
@@ -1449,20 +1472,20 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Google Maps URL',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.grey600,
                           ),
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         TextFormField(
                           controller: _mapUrlCtrl,
                           onChanged: _parseMapUrl,
                           decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                               horizontal: 14,
                               vertical: 12,
                             ),
@@ -1476,7 +1499,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.primary),
+                              borderSide: const BorderSide(color: AppColors.primary),
                             ),
                             filled: true,
                             fillColor: AppColors.backgroundLight,
@@ -1548,7 +1571,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         TextFormField(
                           controller: _addressCtrl,
                           maxLines: 2,
@@ -1638,13 +1661,13 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
+                                    borderSide: const BorderSide(
                                       color: AppColors.grey200,
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
+                                    borderSide: const BorderSide(
                                       color: AppColors.grey200,
                                     ),
                                   ),
@@ -1733,13 +1756,13 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
+                                    borderSide: const BorderSide(
                                       color: AppColors.grey200,
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
+                                    borderSide: const BorderSide(
                                       color: AppColors.grey200,
                                     ),
                                   ),
@@ -1787,11 +1810,11 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 14),
+                    const SizedBox(height: 14),
                     // Social Media section
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         border: Border.all(color: AppColors.border(context)),
                         borderRadius: BorderRadius.circular(12),
@@ -1859,7 +1882,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                           borderRadius: BorderRadius.circular(
                                             8,
                                           ),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: AppColors.grey200,
                                           ),
                                         ),
@@ -1886,7 +1909,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                           borderRadius: BorderRadius.circular(
                                             8,
                                           ),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: AppColors.grey200,
                                           ),
                                         ),
@@ -2016,7 +2039,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                                   color: AppColors.textPrimary(context),
                                                   size: 12,
                                                 ),
-                                                SizedBox(width: 4),
+                                                const SizedBox(width: 4),
                                                 Text(
                                                   l10n.tapToChangeLogo,
                                                   style: TextStyle(
@@ -2076,7 +2099,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                       width: 32,
                                       height: 32,
                                       decoration: BoxDecoration(
-                                        color: Color(0xFF0EA5E9),
+                                        color: const Color(0xFF0EA5E9),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Icon(
@@ -2086,23 +2109,23 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    Expanded(
+                                    const Expanded(
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'Telegram Bot Notifications',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w700,
                                               color: Color(0xFF0C4A6E),
                                             ),
                                           ),
-                                          const SizedBox(height: 2),
+                                          SizedBox(height: 2),
                                           Text(
                                             'Configure bot for attendance & alerts',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 11,
                                               color: Color(0xFF0EA5E9),
                                             ),
@@ -2127,7 +2150,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                             const SizedBox(height: 12),
                             _buildField('Bot Token', _telegramBotTokenCtrl),
                             const SizedBox(height: 4),
-                            Text(
+                            const Text(
                               'Obtain from @BotFather on Telegram',
                               style: TextStyle(
                                 fontSize: 10,
@@ -2137,7 +2160,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                             const SizedBox(height: 10),
                             _buildField('Chat ID', _telegramChatIdCtrl),
                             const SizedBox(height: 4),
-                            Text(
+                            const Text(
                               'Target group or channel ID where bot is an Admin',
                               style: TextStyle(
                                 fontSize: 10,
@@ -2170,7 +2193,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                               color: AppColors.textPrimary(context),
                                             ),
                                           )
-                                        : Icon(
+                                        : const Icon(
                                             Icons.send_rounded,
                                             size: 14,
                                             color: Colors.white,
@@ -2179,7 +2202,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                       _isTestingTelegram
                                           ? 'Testing...'
                                           : 'Test Connection',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,
@@ -2201,7 +2224,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                Flexible(
+                                const Flexible(
                                   child: Text(
                                     'Will send a test message to the Chat ID',
                                     style: TextStyle(
@@ -2267,15 +2290,15 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                       children: [
                         Text(
                           l10n.statusLabel,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.grey600,
                           ),
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 14),
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
                           decoration: BoxDecoration(
                             border: Border.all(color: AppColors.border(context)),
                             borderRadius: BorderRadius.circular(12),
@@ -2317,7 +2340,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                           elevation: 0,
                         ),
                         child: _isSaving
-                            ? SizedBox(
+                            ? const SizedBox(
                                 width: 22,
                                 height: 22,
                                 child: CircularProgressIndicator(
@@ -2371,7 +2394,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
           maxLines: maxLines,
           validator: validator,
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(
+            contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 12,
             ),
@@ -2385,11 +2408,11 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.primary),
+              borderSide: const BorderSide(color: AppColors.primary),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.danger),
+              borderSide: const BorderSide(color: AppColors.danger),
             ),
             filled: true,
             fillColor: AppColors.backgroundLight,
@@ -2415,11 +2438,11 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
             color: AppColors.grey600,
           ),
         ),
-        SizedBox(height: 6),
+        const SizedBox(height: 6),
         TextFormField(
           controller: ctrl,
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(
+            contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 12,
             ),
@@ -2433,7 +2456,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.primary),
+              borderSide: const BorderSide(color: AppColors.primary),
             ),
             filled: true,
             fillColor: AppColors.backgroundLight,
@@ -2451,7 +2474,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Padding(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Text(
                             label,
                             style: TextStyle(
@@ -2547,7 +2570,7 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.6,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.surfaceLight,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -2563,7 +2586,7 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(20, 16, 20, 0),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -2605,7 +2628,7 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.error_outline,
                           size: 48,
                           color: AppColors.grey400,
@@ -2613,7 +2636,7 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
                         const SizedBox(height: 12),
                         Text(
                           _error!,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppColors.grey500,
                             fontSize: 12,
                           ),
@@ -2654,7 +2677,7 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
                             .join(' ');
                         return Container(
                           width: (MediaQuery.of(context).size.width - 52) / 2,
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: AppColors.grey50,
                             borderRadius: BorderRadius.circular(14),
@@ -2674,7 +2697,7 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
                               const SizedBox(height: 4),
                               Text(
                                 label,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: AppColors.grey500,
                                   fontWeight: FontWeight.w500,
@@ -2769,13 +2792,13 @@ class _CompanyCreatedSuccessDialogState
                 color: AppColors.success.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.check_circle_rounded,
                 color: AppColors.success,
                 size: 38,
               ),
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
             Text(
               l10n.companyCreatedAlertTitle,
               style: TextStyle(
@@ -2795,11 +2818,11 @@ class _CompanyCreatedSuccessDialogState
                 height: 1.3,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Credentials Card Container
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.backgroundLight,
                 borderRadius: BorderRadius.circular(16),
@@ -2855,7 +2878,7 @@ class _CompanyCreatedSuccessDialogState
                       ),
                     ],
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   SelectableText(
                     widget.email,
                     style: TextStyle(
@@ -2915,7 +2938,7 @@ class _CompanyCreatedSuccessDialogState
                       ),
                     ],
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   SelectableText(
                     widget.password,
                     style: TextStyle(

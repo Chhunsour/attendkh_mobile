@@ -160,9 +160,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         turns: _sweep,
                         child: FadeTransition(
                           opacity: _rings,
-                          child: CustomPaint(
-                            size: const Size.square(320),
-                            painter: const _SweepPainter(),
+                          child: const CustomPaint(
+                            size: Size.square(320),
+                            painter: _SweepPainter(),
                           ),
                         ),
                       ),
@@ -261,6 +261,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         child: Image.asset(
           'assets/images/attendkh_logo.png',
           fit: BoxFit.cover,
+          cacheWidth: 312,
+          cacheHeight: 312,
           errorBuilder: (_, _, _) => const ColoredBox(
             color: AppColors.primary,
             child: Center(

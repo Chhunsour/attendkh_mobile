@@ -80,12 +80,12 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.mark_email_unread_outlined,
                 size: 80,
                 color: AppColors.primary,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Text(
                 l10n.verifyYourEmailAddress,
                 style: TextStyle(

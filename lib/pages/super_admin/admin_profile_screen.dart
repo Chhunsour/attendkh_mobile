@@ -232,7 +232,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -265,7 +265,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 ],
                               ),
                               child: CircleAvatar(
-                                backgroundColor: Color(0xFF334155),
+                                backgroundColor: const Color(0xFF334155),
                                 backgroundImage: _photo != null
                                     ? FileImage(_photo!)
                                     : (profileAsync.value?.photoUrl != null
@@ -289,17 +289,17 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 right: 0,
                                 child: Container(
                                   padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: Color(0xFF6366F1),
                                     shape: BoxShape.circle,
                                   ),
-                                  child: Icon(Icons.camera_alt_rounded, color: Colors.white, size: 14),
+                                  child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 14),
                                 ),
                               ),
                           ],
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
                         authState.userName ?? 'Super Admin',
                         style: TextStyle(
@@ -622,7 +622,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     icon: Icons.tune_rounded,
                     title: 'App Preferences',
                     subtitle: 'Language & regional settings',
-                    iconColor: Color(0xFF10B981),
+                    iconColor: const Color(0xFF10B981),
                     child: Column(
                       children: [
                         _buildSettingsTile(
@@ -631,7 +631,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                           trailing: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               value: ref.watch(localeProvider).languageCode,
-                              icon: Icon(Icons.arrow_drop_down_rounded, color: AppColors.grey500),
+                              icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.grey500),
                               style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                               items: [
                                 DropdownMenuItem(value: 'en', child: Text(l10n.english)),
@@ -664,7 +664,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: AppColors.textPrimary(context),
+                      color: AppColors.surface(context),
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(color: AppColors.border(context)),
                       boxShadow: [
@@ -717,7 +717,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: AppColors.textPrimary(context),
+                      color: AppColors.surface(context),
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(color: AppColors.danger.withValues(alpha: 0.35)),
                       boxShadow: [
@@ -794,7 +794,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [
@@ -821,7 +821,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                   ),
                   child: Icon(icon, color: iconColor, size: 20),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -899,13 +899,13 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: AppColors.grey500,
                   ),
                 ),
-                SizedBox(height: 1),
+                const SizedBox(height: 1),
                 Text(
                   value,
                   style: TextStyle(
@@ -938,12 +938,12 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Color(0xFF10B981).withValues(alpha: 0.1),
+                color: const Color(0xFF10B981).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, size: 18, color: Color(0xFF10B981)),
+              child: Icon(icon, size: 18, color: const Color(0xFF10B981)),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
@@ -968,7 +968,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
   InputDecoration _inputDecoration() {
     return InputDecoration(
       isDense: true,
-      contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       filled: true,
       fillColor: AppColors.grey50,
       border: OutlineInputBorder(

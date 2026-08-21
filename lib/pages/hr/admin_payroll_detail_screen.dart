@@ -114,7 +114,7 @@ class _AdminPayrollDetailScreenState extends ConsumerState<AdminPayrollDetailScr
                       ),
                     ),
                     const Spacer(),
-                    Text(l10n.employeesCountSuffix(run.totalEmployees), style: TextStyle(color: AppColors.grey500, fontSize: 13)),
+                    Text(l10n.employeesCountSuffix(run.totalEmployees), style: const TextStyle(color: AppColors.grey500, fontSize: 13)),
                   ],
                 ),
               ),
@@ -182,7 +182,7 @@ class _SummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 11, color: AppColors.grey500, fontWeight: FontWeight.w500)),
+          Text(label, style: const TextStyle(fontSize: 11, color: AppColors.grey500, fontWeight: FontWeight.w500)),
           const SizedBox(height: 4),
           Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
         ],
@@ -316,7 +316,7 @@ class _PayslipCardState extends State<_PayslipCard> {
       children: [
         Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: color)),
         const SizedBox(height: 2),
-        Text(label, style: TextStyle(fontSize: 10, color: AppColors.grey500)),
+        Text(label, style: const TextStyle(fontSize: 10, color: AppColors.grey500)),
       ],
     );
   }

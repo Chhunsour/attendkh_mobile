@@ -479,7 +479,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
             FilledButton.icon(
               onPressed: () => _showAddExpenseSheet(context, ref),
               icon: const Icon(Icons.add_rounded, size: 19),
-              label: const Text('Claim Expense'),
+              label: Text(l10n.claimExpense),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(
@@ -723,34 +723,51 @@ class _ExpenseCard extends StatelessWidget {
                     ),
                     child: Icon(_categoryIcon(expense.category), color: statusColor, size: 22),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           expense.title,
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary(context)),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: AppColors.textPrimary(context),
+                          ),
                         ),
                         const SizedBox(height: 3),
                         Row(
                           children: [
-                            Text(expense.date, style: const TextStyle(fontSize: 11.5, color: AppColors.grey500)),
+                            Text(
+                              expense.date,
+                              style: const TextStyle(fontSize: 11.5, color: AppColors.grey500),
+                            ),
                             const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                color: AppColors.grey100,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                _getCategoryL10n(expense.category, l10n),
-                                style: const TextStyle(fontSize: 10, color: AppColors.grey600, fontWeight: FontWeight.w500),
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: isDark ? AppColors.surfaceDarkElevated : AppColors.grey100,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  _getCategoryL10n(expense.category, l10n),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: isDark ? AppColors.grey400 : AppColors.grey600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
                             ),
                             if (expense.receiptPath != null && expense.receiptPath!.isNotEmpty) ...[
                               const SizedBox(width: 6),
-                              Icon(Icons.attach_file_rounded, size: 13, color: AppColors.primary),
+                              const Icon(Icons.attach_file_rounded, size: 13, color: AppColors.primary),
                             ],
                           ],
                         ),
@@ -902,7 +919,7 @@ class _ExpenseDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
-      padding: EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -977,12 +994,12 @@ class _ExpenseDetailSheet extends StatelessWidget {
 
   Widget _detailRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.grey500)),
-          SizedBox(height: 2),
+          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.grey500)),
+          const SizedBox(height: 2),
           Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary(context))),
         ],
       ),
@@ -1192,7 +1209,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
               TextFormField(
                 controller: _titleCtrl,
                 decoration: InputDecoration(
-                  labelText: 'Title / Subject *',
+                  labelText: l10n.expenseTitleSubject,
                   filled: true,
                   fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
@@ -1211,20 +1228,20 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                       initialValue: _category,
                       dropdownColor: isDark ? AppColors.surfaceDarkElevated : Colors.white,
                       decoration: InputDecoration(
-                        labelText: 'Category',
+                        labelText: l10n.category,
                         filled: true,
                         fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                       ),
-                      items: const [
-                        DropdownMenuItem(value: 'Travel', child: Text('Travel')),
-                        DropdownMenuItem(value: 'Meals', child: Text('Meals')),
-                        DropdownMenuItem(value: 'Transport', child: Text('Transport')),
-                        DropdownMenuItem(value: 'Supplies', child: Text('Supplies')),
-                        DropdownMenuItem(value: 'Software', child: Text('Software')),
-                        DropdownMenuItem(value: 'Accommodation', child: Text('Accommodation')),
-                        DropdownMenuItem(value: 'Other', child: Text('Other')),
+                      items: [
+                        DropdownMenuItem(value: 'Travel', child: Text(l10n.catTravel)),
+                        DropdownMenuItem(value: 'Meals', child: Text(l10n.catMeals)),
+                        DropdownMenuItem(value: 'Transport', child: Text(l10n.catTransport)),
+                        DropdownMenuItem(value: 'Supplies', child: Text(l10n.catSupplies)),
+                        DropdownMenuItem(value: 'Software', child: Text(l10n.catSoftware)),
+                        DropdownMenuItem(value: 'Accommodation', child: Text(l10n.catAccommodation)),
+                        DropdownMenuItem(value: 'Other', child: Text(l10n.catOther)),
                       ],
                       onChanged: (v) => setState(() => _category = v!),
                     ),
@@ -1236,7 +1253,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                       initialValue: _currency,
                       dropdownColor: isDark ? AppColors.surfaceDarkElevated : Colors.white,
                       decoration: InputDecoration(
-                        labelText: 'Currency',
+                        labelText: l10n.currency,
                         filled: true,
                         fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
@@ -1262,7 +1279,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                       controller: _amountCtrl,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
-                        labelText: 'Amount *',
+                        labelText: l10n.amount,
                         prefixIcon: const Icon(Icons.attach_money_rounded, size: 18),
                         filled: true,
                         fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
@@ -1310,7 +1327,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                 controller: _descCtrl,
                 maxLines: 2,
                 decoration: InputDecoration(
-                  labelText: 'Description / Purpose',
+                  labelText: l10n.descriptionPurpose,
                   filled: true,
                   fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
@@ -1353,7 +1370,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                   OutlinedButton.icon(
                     onPressed: _pickReceipt,
                     icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
-                    label: const Text('Attach Receipt (Photo/File)'),
+                    label: Text(l10n.attachReceipt),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,
                       side: const BorderSide(color: AppColors.primary),

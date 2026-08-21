@@ -86,8 +86,8 @@ class _CompanyScoreBanner extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [const Color(0xFF7C3AED), const Color(0xFF4F46E5)],
+        gradient: const LinearGradient(
+          colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -113,7 +113,7 @@ class _CompanyScoreBanner extends StatelessWidget {
                   value: (average.clamp(0, 100)) / 100.0,
                   strokeWidth: 7,
                   backgroundColor: Colors.white.withValues(alpha: 0.25),
-                  valueColor: AlwaysStoppedAnimation<Color>(
+                  valueColor: const AlwaysStoppedAnimation<Color>(
                     Colors.white,
                   ),
                 ),
@@ -123,10 +123,10 @@ class _CompanyScoreBanner extends StatelessWidget {
                 children: [
                   Text(
                     '$average',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary(context),
+                      color: Colors.white,
                     ),
                   ),
                   Text(
@@ -147,33 +147,33 @@ class _CompanyScoreBanner extends StatelessWidget {
               children: [
                 Text(
                   l10n.companyHealthScore,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     color: Colors.white70,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   _scoreLabel(context),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
-                    color: AppColors.textPrimary(context),
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     l10n.kpisTrackedLiveData(totalKpis),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
-                      color: AppColors.textPrimary(context),
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -234,7 +234,7 @@ class _OwnerKpiCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
@@ -264,7 +264,7 @@ class _OwnerKpiCard extends StatelessWidget {
                     ),
                     child: Icon(icon, color: color, size: 22),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   // Title + description
                   Expanded(
                     child: Column(
@@ -320,12 +320,16 @@ class _OwnerKpiCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _formatValue(kpi.actual, kpi.unit),
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: color,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _formatValue(kpi.actual, kpi.unit),
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: color,
+                          ),
                         ),
                       ),
                       if (kpi.target != 0)

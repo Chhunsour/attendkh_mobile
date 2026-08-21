@@ -29,6 +29,8 @@ class ClockInArgs {
   final double distance;
   final int? radius;
   final bool isLateNow;
+  final bool isEarlyLeaveNow;
+  final String? earlyLeaveReason;
 
   ClockInArgs({
     required this.isClockIn,
@@ -39,6 +41,8 @@ class ClockInArgs {
     required this.distance,
     this.radius,
     this.isLateNow = false,
+    this.isEarlyLeaveNow = false,
+    this.earlyLeaveReason,
   });
 }
 
@@ -75,32 +79,32 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen>
     {
       'icon': '🚗',
       'en': 'Heavy Traffic',
-      'km': 'ស្ទះចរាចរណ៍',
+      'km': 'ស្ទះចរាចរណ៍ (Traffic)',
     },
     {
       'icon': '🌧️',
       'en': 'Heavy Rain',
-      'km': 'ភ្លៀងធ្លាក់ខ្លាំង',
+      'km': 'ភ្លៀងធ្លាក់ខ្លាំង (Heavy Rain)',
     },
     {
       'icon': '🛵',
       'en': 'Vehicle Issue',
-      'km': 'យានយន្តខូច/មានបញ្ហា',
+      'km': 'យានជំនិះមានបញ្ហា (Vehicle)',
     },
     {
       'icon': '🏥',
       'en': 'Medical Clinic',
-      'km': 'ទៅជួបគ្រូពេទ្យ',
+      'km': 'ពិនិត្យសុខភាព (Medical)',
     },
     {
       'icon': '👨‍👩‍👧',
       'en': 'Family Emergency',
-      'km': 'ការងារបន្ទាន់គ្រួសារ',
+      'km': 'ការងារគ្រួសារបន្ទាន់ (Emergency)',
     },
     {
       'icon': '✏️',
       'en': 'Other (Custom)',
-      'km': 'ផ្សេងៗ',
+      'km': 'មូលហេតុផ្សេងទៀត (Other)',
     },
   ];
 
@@ -133,7 +137,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen>
           _photoPath = file.path;
         });
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.simMockSelfie), backgroundColor: AppColors.info, duration: Duration(seconds: 2)));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.simMockSelfie), backgroundColor: AppColors.info, duration: const Duration(seconds: 2)));
         }
       } catch (e) {
         // Handle error
@@ -295,6 +299,10 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen>
             photoPath: _photoPath!,
             deviceId: deviceName,
             isGeoValid: isGeoValid,
+            earlyLeaveReason: widget.args.earlyLeaveReason ??
+                (_lateReasonController.text.trim().isNotEmpty
+                    ? _lateReasonController.text.trim()
+                    : null),
           );
         }
       }
@@ -797,7 +805,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen>
                   // Reticle: spins while it waits for a face, locks on capture.
                   SizedBox.expand(
                     child: hasPhoto
-                        ? CustomPaint(
+                        ? const CustomPaint(
                             painter: _ReticlePainter(
                               color: AppColors.success,
                               sweep: 84,
@@ -805,7 +813,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen>
                           )
                         : RotationTransition(
                             turns: _scan,
-                            child: CustomPaint(
+                            child: const CustomPaint(
                               painter: _ReticlePainter(
                                 color: AppColors.primary,
                                 sweep: 52,

@@ -17,17 +17,18 @@ class KpiSharedComponents {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     String ratingLabel;
     Color ratingColor;
+    final l10n = AppLocalizations.of(context)!;
     if (score >= 85) {
-      ratingLabel = 'EXCELLENT';
+      ratingLabel = l10n.performanceGradeExcellent;
       ratingColor = AppColors.success;
     } else if (score >= 70) {
-      ratingLabel = 'GOOD';
+      ratingLabel = l10n.scoreGood;
       ratingColor = const Color(0xFF3B82F6);
     } else if (score >= 50) {
-      ratingLabel = 'AVERAGE';
+      ratingLabel = l10n.performanceGradeAverage;
       ratingColor = AppColors.warning;
     } else {
-      ratingLabel = 'NEEDS ATTENTION';
+      ratingLabel = l10n.performanceGradeNeedsAttention;
       ratingColor = AppColors.danger;
     }
 
@@ -153,15 +154,20 @@ class KpiSharedComponents {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 11.5,
-                  color: isDark ? AppColors.grey400 : AppColors.grey600,
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    color: isDark ? AppColors.grey400 : AppColors.grey600,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
-              if (branchAverage != null && branchAverage > 0)
+              if (branchAverage != null && branchAverage > 0) ...[
+                const SizedBox(width: 8),
                 Row(
                   children: [
                     Icon(
@@ -180,6 +186,7 @@ class KpiSharedComponents {
                     ),
                   ],
                 ),
+              ],
             ],
           ),
         ],

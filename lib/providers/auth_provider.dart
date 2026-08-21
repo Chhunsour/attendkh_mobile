@@ -84,9 +84,9 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepo;
 
-  AuthNotifier({AuthRepository? authRepo})
+  AuthNotifier({AuthRepository? authRepo, AuthState? initialState})
     : _authRepo = authRepo ?? AuthRepository(),
-      super(const AuthState(isLoading: true));
+      super(initialState ?? const AuthState(isLoading: true));
 
   /// Check if user is already logged in from stored token.
   ///
@@ -238,13 +238,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Logout — calls POST /logout, clears all stored data
+  /// Logout — revokes the token server-side, then clears everything locally.
+  ///
+  /// The revoke is time-boxed so a dead network can never leave the user stuck
+  /// on a screen they asked to leave; local data is cleared either way.
   Future<void> logout() async {
     try {
-      await _authRepo.logout();
+      await _authRepo.logout().timeout(const Duration(seconds: 5));
     } catch (e) {
       AppLogger.w('Logout API call failed — clearing local data anyway');
     }
+    await FcmService.instance.clearToken();
     await SecureStorageService.instance.clearAll();
     state = const AuthState();
   }

@@ -200,7 +200,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
           child: Container(height: 1, color: AppColors.grey100),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.grey700),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.grey700),
           onPressed: () => context.pop(),
         ),
         title: Column(
@@ -325,7 +325,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                         }).toList(),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -336,7 +336,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
               padding: EdgeInsets.fromLTRB(
                   16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
               decoration: BoxDecoration(
-                color: AppColors.textPrimary(context),
+                color: AppColors.surface(context),
                 border: const Border(top: BorderSide(color: AppColors.grey100)),
                 boxShadow: [
                   BoxShadow(
@@ -386,12 +386,12 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
       labelText: label,
       hintText: hint,
       prefixIcon: Icon(icon, size: 18, color: AppColors.grey400),
-      hintStyle: TextStyle(fontSize: 13, color: AppColors.grey400),
+      hintStyle: const TextStyle(fontSize: 13, color: AppColors.grey400),
       labelStyle:
-          TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.grey600),
+          const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.grey600),
       filled: true,
       fillColor: AppColors.grey50,
-      contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: AppColors.border(context)),
@@ -451,13 +451,13 @@ class _SectionCard extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.grey700),
             ),
-            if (trailing != null) ...[Spacer(), trailing!],
+            if (trailing != null) ...[const Spacer(), trailing!],
           ],
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
@@ -553,8 +553,8 @@ class _DayRow extends StatelessWidget {
                         children: [
                           _TimeChip(
                               time: fmtDisplay(startTime), onTap: onTapStart, color: accent),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 5),
                             child: Icon(Icons.arrow_forward_rounded,
                                 size: 11, color: AppColors.grey400),
                           ),
@@ -566,7 +566,7 @@ class _DayRow extends StatelessWidget {
                       // Break row
                       Row(
                         children: [
-                          Icon(Icons.coffee_rounded, size: 11, color: AppColors.grey400),
+                          const Icon(Icons.coffee_rounded, size: 11, color: AppColors.grey400),
                           const SizedBox(width: 4),
                           _TimeChip(
                             time: breakStart != null ? fmtDisplay(breakStart!) : AppLocalizations.of(context)!.startTimeLabel,
@@ -575,8 +575,8 @@ class _DayRow extends StatelessWidget {
                             small: true,
                             placeholder: breakStart == null,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 3),
                             child:
                                 Text('–', style: TextStyle(fontSize: 10, color: AppColors.grey400)),
                           ),

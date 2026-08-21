@@ -41,6 +41,22 @@ enum _ClockPhase {
   done,
 }
 
+const double _kActionTileHeight = 92;
+
+class _QuickAction {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickAction({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+}
+
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
@@ -62,7 +78,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _startLocationTracking();
-    _minuteTicker = Timer.periodic(const Duration(minutes: 1), (_) {
+    _minuteTicker = Timer.periodic(const Duration(seconds: 30), (_) {
       if (mounted) setState(() {});
     });
 
@@ -77,8 +93,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Re-check permissions when returning from settings
-      _startLocationTracking();
+      if (_positionStreamSubscription != null &&
+          _positionStreamSubscription!.isPaused) {
+        _positionStreamSubscription!.resume();
+      } else {
+        _startLocationTracking();
+      }
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      _positionStreamSubscription?.pause();
     }
   }
 
@@ -164,126 +187,326 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     );
   }
 
+  /// Reasons people actually leave a Cambodian shift early. Picking one fills
+  /// the note box, so the common cases cost a single tap. Mirrors the late
+  /// reason picker on the clock-in screen.
+  static const List<Map<String, String>> _earlyLeaveReasons = [
+    {'icon': '🏥', 'en': 'Sick / Medical', 'km': 'ឈឺ / ពិនិត្យសុខភាព'},
+    {
+      'icon': '👨‍👩‍👧',
+      'en': 'Family Emergency',
+      'km': 'ការងារគ្រួសារបន្ទាន់',
+    },
+    {'icon': '📋', 'en': 'Personal Errand', 'km': 'កិច្ចការផ្ទាល់ខ្លួន'},
+    {'icon': '✅', 'en': 'Approved by Manager', 'km': 'ប្រធានអនុញ្ញាត'},
+    {'icon': '✏️', 'en': 'Other', 'km': 'ផ្សេងទៀត'},
+  ];
+
   Future<void> _handleSimpleClockOut({
     required AppLocalizations l10n,
     bool isOvertime = false,
   }) async {
+    final isKhmerLocale = Localizations.localeOf(context).languageCode == 'km';
+
+    // Overtime has no scheduled end to be early for.
+    final earlyMinutes = isOvertime
+        ? null
+        : minutesUntilShiftEnd(
+            ref
+                .read(employeeDashboardSummaryProvider)
+                .valueOrNull?['next_shift']
+                ?.toString(),
+          );
+    final isEarly = earlyMinutes != null;
+    final reasonController = TextEditingController();
+    int? selectedReason;
+
+    bool isOtherReason() =>
+        selectedReason != null &&
+        _earlyLeaveReasons[selectedReason!]['en'] == 'Other';
+    // "Other" only counts as a reason once they have written one.
+    bool earlyReasonGiven() =>
+        selectedReason != null &&
+        (!isOtherReason() || reasonController.text.trim().isNotEmpty);
+    // What the manager sees: the picked reason, plus any detail they added.
+    String earlyReasonText() {
+      if (selectedReason == null) return '';
+      final detail = reasonController.text.trim();
+      if (isOtherReason()) return detail;
+      final label = (isKhmerLocale
+          ? _earlyLeaveReasons[selectedReason!]['km']
+          : _earlyLeaveReasons[selectedReason!]['en'])!;
+      return detail.isEmpty ? label : '$label — $detail';
+    }
+
     bool proceed = false;
     await showDialog(
       context: context,
       builder: (ctx) {
         final isDark = Theme.of(ctx).brightness == Brightness.dark;
-        return Dialog(
-          backgroundColor: isDark
-              ? AppColors.surfaceDark
-              : AppColors.surfaceLight,
-          surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isOvertime
-                        ? Colors.deepPurple.withValues(alpha: 0.1)
-                        : AppColors.primary.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.logout_rounded,
-                    size: 40,
-                    color: isOvertime ? Colors.deepPurple : AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  isOvertime
-                      ? l10n.confirmOvertimeClockOut
-                      : l10n.confirmClockOut,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : AppColors.grey900,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  isOvertime ? l10n.endOvertimeConfirm : l10n.clockOutConfirm,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: isDark ? AppColors.grey400 : AppColors.grey600,
-                    fontSize: 14,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 28),
-                Row(
+        final isKhmer = isKhmerLocale;
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) => Dialog(
+            backgroundColor: isDark
+                ? AppColors.surfaceDark
+                : AppColors.surfaceLight,
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            // The reason block plus a raised keyboard can outgrow a short screen.
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          proceed = false;
-                          Navigator.pop(ctx);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          side: BorderSide(
-                            color: isDark
-                                ? AppColors.borderDark
-                                : AppColors.grey300,
-                          ),
-                        ),
-                        child: Text(
-                          l10n.cancel,
-                          style: TextStyle(
-                            color: isDark ? Colors.white : AppColors.grey700,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color:
+                            (isOvertime
+                                    ? Colors.deepPurple
+                                    : isEarly
+                                    ? AppColors.warning
+                                    : AppColors.primary)
+                                .withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isEarly ? Icons.schedule_rounded : Icons.logout_rounded,
+                        size: 40,
+                        color: isOvertime
+                            ? Colors.deepPurple
+                            : isEarly
+                            ? AppColors.warning
+                            : AppColors.primary,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          proceed = true;
-                          Navigator.pop(ctx);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isOvertime
-                              ? Colors.deepPurple
-                              : AppColors.primary,
-                          padding: EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          l10n.clockOutBtn,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                    const SizedBox(height: 20),
+                    Text(
+                      isOvertime
+                          ? l10n.confirmOvertimeClockOut
+                          : isEarly
+                          ? l10n.earlyClockOutTitle
+                          : l10n.confirmClockOut,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : AppColors.grey900,
                       ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      isOvertime
+                          ? l10n.endOvertimeConfirm
+                          : isEarly
+                          ? l10n.earlyClockOutBody(
+                              formatDurationMinutes(earlyMinutes),
+                            )
+                          : l10n.clockOutConfirm,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: isDark ? AppColors.grey400 : AppColors.grey600,
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                    ),
+                    if (isEarly) ...[
+                      const SizedBox(height: 20),
+                      // Same reason picker shape as the clock-in screen, so the
+                      // control is already familiar by the time they hit it.
+                      DropdownButtonFormField<int>(
+                        initialValue: selectedReason,
+                        isExpanded: true,
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                        hint: Text(
+                          l10n.earlyClockOutReasonHint,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDark
+                                ? AppColors.grey500
+                                : AppColors.grey500,
+                          ),
+                        ),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: isDark
+                              ? AppColors.backgroundDark
+                              : AppColors.grey100,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 4,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        items: List.generate(_earlyLeaveReasons.length, (i) {
+                          final r = _earlyLeaveReasons[i];
+                          return DropdownMenuItem<int>(
+                            value: i,
+                            child: Row(
+                              children: [
+                                Text(
+                                  r['icon']!,
+                                  style: const TextStyle(fontSize: 15),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    (isKhmer ? r['km'] : r['en'])!,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.textPrimary(ctx),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                        onChanged: (i) {
+                          if (i == null) return;
+                          // The box carries extra detail, not a copy of the
+                          // label — a stale note from an earlier pick would
+                          // contradict the new one.
+                          setDialogState(() {
+                            selectedReason = i;
+                            reasonController.clear();
+                          });
+                        },
+                      ),
+
+                      // The note box only earns its space once a reason is
+                      // picked — and it is the whole point of picking "Other".
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOut,
+                        alignment: Alignment.topCenter,
+                        child: selectedReason == null
+                            ? const SizedBox(width: double.infinity)
+                            : Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: TextField(
+                                  controller: reasonController,
+                                  minLines: 2,
+                                  maxLines: 3,
+                                  maxLength: 250,
+                                  autofocus: isOtherReason(),
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  // The Clock Out button keys off this text.
+                                  onChanged: (_) => setDialogState(() {}),
+                                  style: TextStyle(
+                                    fontSize: 13.5,
+                                    color: AppColors.textPrimary(ctx),
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: isOtherReason()
+                                        ? l10n.earlyClockOutOtherHint
+                                        : l10n.earlyClockOutDetailHint,
+                                    counterText: '',
+                                    hintStyle: TextStyle(
+                                      fontSize: 12.5,
+                                      color: isDark
+                                          ? AppColors.grey500
+                                          : AppColors.grey400,
+                                    ),
+                                    filled: true,
+                                    fillColor: isDark
+                                        ? AppColors.backgroundDark
+                                        : AppColors.grey100,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 12,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ],
+                    const SizedBox(height: 28),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              proceed = false;
+                              Navigator.pop(ctx);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              side: BorderSide(
+                                color: isDark
+                                    ? AppColors.borderDark
+                                    : AppColors.grey300,
+                              ),
+                            ),
+                            child: Text(
+                              l10n.cancel,
+                              style: TextStyle(
+                                color: isDark
+                                    ? Colors.white
+                                    : AppColors.grey700,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            // An early clock-out is only allowed with a reason.
+                            onPressed: isEarly && !earlyReasonGiven()
+                                ? null
+                                : () {
+                                    proceed = true;
+                                    Navigator.pop(ctx);
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isOvertime
+                                  ? Colors.deepPurple
+                                  : isEarly
+                                  ? AppColors.warning
+                                  : AppColors.primary,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              l10n.clockOutBtn,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         );
       },
     );
+
+    final earlyReason = earlyReasonText();
+    reasonController.dispose();
 
     if (!proceed) return;
 
@@ -301,6 +524,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         await repo.clockOut(
           lat: _currentPosition?.latitude ?? 0.0,
           lng: _currentPosition?.longitude ?? 0.0,
+          earlyLeaveReason: isEarly ? earlyReason : null,
         );
       }
       ref.invalidate(todayAttendanceProvider);
@@ -1020,6 +1244,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     required AsyncValue<ProfileData> profileAsync,
   }) {
     final summaryAsync = ref.watch(employeeDashboardSummaryProvider);
+    final summary = summaryAsync.valueOrNull;
+    // The server's is_late_now ignores the branch grace period, so we decide
+    // it here against the shift start + grace and only fall back to the flag
+    // when there is no readable shift window.
+    final lateNow = isLateNow(
+      summary?['next_shift']?.toString(),
+      int.tryParse(
+            '${summary?['late_grace_period_minutes'] ?? summary?['grace_period']}',
+          ) ??
+          15,
+      fallback: summary?['is_late_now'] == true,
+    );
     final isClockedIn = today?.clockIn != null && today?.clockOut == null;
     final isCompleted = today?.clockIn != null && today?.clockOut != null;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -1037,12 +1273,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
               : Icons.wb_sunny_outlined);
     final lateMinutes = today?.lateMinutes ?? 0;
     final isLate = lateMinutes > 0;
-    // The check icon already says "done"; the badge is better spent on how the
-    // day actually went.
-    final statusLabel = isLate
-        ? '${l10n.late} ${formatDurationMinutes(lateMinutes)}'
-        : (isClockedIn ? 'LIVE' : (isCompleted ? 'DONE' : 'READY'));
-    final badgeColor = isLate ? const Color(0xFFFBBF24) : accent;
 
     // Scheduled window, so the big number has something to be measured against.
     final rawShift = summaryAsync.valueOrNull?['next_shift']?.toString();
@@ -1063,14 +1293,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     if (isClockedIn) {
       caption = l10n.clockedInAt.trim();
       headline = _formatTime(today!.clockIn);
-      if (today.workHours != null) {
-        meta = l10n.activeDuration + formatDurationHours(today.workHours);
+      final inDt = _parseDateTime(today.clockIn, today.date);
+      if (inDt != null) {
+        final elapsedSeconds = DateTime.now().difference(inDt).inSeconds;
+        meta = '${l10n.activeDuration}${formatDurationSeconds(elapsedSeconds > 0 ? elapsedSeconds : 0)}';
+      } else if (today.workHours != null) {
+        meta = l10n.activeDuration + formatDurationHoursWithSeconds(today.workHours);
       }
     } else if (isCompleted) {
       caption = l10n.shiftCompleted;
-      headline = today!.workHours != null
-          ? formatDurationHours(today.workHours)
-          : _formatTime(today.clockOut);
+      headline = _formatCompletedDuration(today);
       // ponytail: in/out times live in _completedSummary, not a duplicate pill.
     } else {
       headline = l10n.readyToWork;
@@ -1185,7 +1417,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _statusBadge(statusLabel, badgeColor),
+                    _buildShiftStatusBadge(
+                      isClockedIn: isClockedIn,
+                      isCompleted: isCompleted,
+                      isLate: isLate,
+                      lateMinutes: lateMinutes,
+                      l10n: l10n,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -1262,7 +1500,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                       today,
                       isClockedIn,
                       isCompleted,
-                      summaryAsync.valueOrNull?['is_late_now'] == true,
+                      lateNow,
                     ),
                     orElse: () => _buildClockButton(
                       context,
@@ -1271,7 +1509,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                       isClockedIn,
                       null,
                       today,
-                      summaryAsync.valueOrNull?['is_late_now'] == true,
+                      lateNow,
                     ),
                   ),
                 ],
@@ -1387,7 +1625,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     final distanceLabel = hasUsableDistance && profile.branchRadius != null
         ? '${distance.toStringAsFixed(0)}m / ${profile.branchRadius}m'
         : null;
-    final warnColor = const Color(0xFFFBBF24);
+    const warnColor = Color(0xFFFBBF24);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1700,219 +1938,247 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     );
   }
 
-  Widget _statusBadge(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.28)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 10,
-          letterSpacing: 0.6,
-          fontWeight: FontWeight.w800,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickActionsGrid(
-    BuildContext context,
-    AppLocalizations l10n,
-    bool isBranchManager,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeading(context, title: l10n.quickFeatures),
-        const SizedBox(height: 14),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            const double spacing = 10;
-            const int columns = 3;
-            final double tileWidth =
-                (constraints.maxWidth - spacing * (columns - 1)) / columns;
-
-            Widget tile({
-              required String label,
-              required IconData icon,
-              required Color color,
-              required VoidCallback onTap,
-            }) {
-              return SizedBox(
-                width: tileWidth,
-                child: _buildActionTile(
-                  context,
-                  label: label,
-                  icon: icon,
-                  color: color,
-                  onTap: onTap,
+  Widget _buildShiftStatusBadge({
+    required bool isClockedIn,
+    required bool isCompleted,
+    required bool isLate,
+    required int lateMinutes,
+    required AppLocalizations l10n,
+  }) {
+    if (isLate) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFBBF24),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x99FBBF24),
+                  blurRadius: 5,
+                  spreadRadius: 1,
                 ),
-              );
-            }
-
-            return Wrap(
-              spacing: spacing,
-              runSpacing: spacing,
-              children: [
-                if (isBranchManager) ...[
-                  tile(
-                    label: l10n.managerPortal,
-                    icon: Icons.admin_panel_settings_rounded,
-                    color: const Color(0xFF7C83FD),
-                    onTap: () => context.push(AppRoutes.companyAdmin),
-                  ),
-                  tile(
-                    label: l10n.leaves,
-                    icon: Icons.event_note_rounded,
-                    color: AppColors.secondary,
-                    onTap: () => context.push(AppRoutes.leaveList),
-                  ),
-                  tile(
-                    label: l10n.payslips,
-                    icon: Icons.receipt_long_rounded,
-                    color: AppColors.primary,
-                    onTap: () => context.push(AppRoutes.payslip),
-                  ),
-                  tile(
-                    label: l10n.overtime,
-                    icon: Icons.more_time_rounded,
-                    color: const Color(0xFF7C83FD),
-                    onTap: () => context.push(AppRoutes.requestOvertime),
-                  ),
-                  tile(
-                    label: l10n.expenses,
-                    icon: Icons.account_balance_wallet_rounded,
-                    color: AppColors.warning,
-                    onTap: () => context.push(AppRoutes.expense),
-                  ),
-                  tile(
-                    label: l10n.more,
-                    icon: Icons.grid_view_rounded,
-                    color: AppColors.grey500,
-                    onTap: () =>
-                        _showMoreServicesSheet(context, l10n, isBranchManager),
-                  ),
-                ] else ...[
-                  tile(
-                    label: l10n.leaves,
-                    icon: Icons.event_note_rounded,
-                    color: AppColors.secondary,
-                    onTap: () => context.push(AppRoutes.leaveList),
-                  ),
-                  tile(
-                    label: l10n.payslips,
-                    icon: Icons.receipt_long_rounded,
-                    color: AppColors.primary,
-                    onTap: () => context.push(AppRoutes.payslip),
-                  ),
-                  tile(
-                    label: l10n.overtime,
-                    icon: Icons.more_time_rounded,
-                    color: const Color(0xFF7C83FD),
-                    onTap: () => context.push(AppRoutes.requestOvertime),
-                  ),
-                  tile(
-                    label: l10n.expenses,
-                    icon: Icons.account_balance_wallet_rounded,
-                    color: AppColors.warning,
-                    onTap: () => context.push(AppRoutes.expense),
-                  ),
-                  tile(
-                    label: l10n.holidays,
-                    icon: Icons.celebration_rounded,
-                    color: const Color(0xFFE5B94E),
-                    onTap: () => context.push(AppRoutes.employeeHolidays),
-                  ),
-                  tile(
-                    label: l10n.more,
-                    icon: Icons.grid_view_rounded,
-                    color: AppColors.grey500,
-                    onTap: () =>
-                        _showMoreServicesSheet(context, l10n, isBranchManager),
-                  ),
-                ],
               ],
-            );
-          },
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            '${l10n.late} ${formatDurationMinutes(lateMinutes)}',
+            style: const TextStyle(
+              color: Color(0xFFFDE68A),
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (isClockedIn) {
+      return const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _PulsingStatusDot(color: Color(0xFF34D399), size: 6.5),
+          SizedBox(width: 6),
+          Text(
+            'On Duty',
+            style: TextStyle(
+              color: Color(0xFF6EE7B7),
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (isCompleted) {
+      return const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle_rounded, size: 14, color: Color(0xFF38BDF8)),
+          SizedBox(width: 5),
+          Text(
+            'Completed',
+            style: TextStyle(
+              color: Color(0xFFBAE6FD),
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 6.5,
+          height: 6.5,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.40),
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          'Ready',
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.70),
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.2,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildActionTile(
-    BuildContext context, {
-    required String label,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  // One divided panel instead of six floating cards: fewer borders, and the
+  // per-item accent colour (previously computed then ignored) does the work
+  // of telling the tiles apart.
+  Widget _buildQuickActionsGrid(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isBranchManager,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color iconBg = isDark
-        ? const Color(0xFF242424)
-        : const Color(0xFFF1F5F9);
-    final Color iconBorder = isDark
-        ? const Color(0xFF333333)
-        : const Color(0xFFE2E8F0);
-    final Color iconColor = isDark
-        ? const Color(0xFF93C5FD)
-        : AppColors.primary;
+    final Color line = isDark ? AppColors.borderDark : AppColors.borderLight;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          onTap();
-        },
-        borderRadius: BorderRadius.circular(18),
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: isDark ? AppColors.borderDark : AppColors.borderLight,
-            ),
+    final items = <_QuickAction>[
+      if (isBranchManager)
+        _QuickAction(
+          label: l10n.managerPortal,
+          icon: Icons.admin_panel_settings_rounded,
+          color: const Color(0xFF7C83FD),
+          onTap: () => context.push(AppRoutes.companyAdmin),
+        ),
+      _QuickAction(
+        label: l10n.leaves,
+        icon: Icons.event_note_rounded,
+        color: AppColors.secondary,
+        onTap: () => context.push(AppRoutes.leaveList),
+      ),
+      _QuickAction(
+        label: l10n.payslips,
+        icon: Icons.receipt_long_rounded,
+        color: AppColors.primaryAccent,
+        onTap: () => context.push(AppRoutes.payslip),
+      ),
+      _QuickAction(
+        label: l10n.overtime,
+        icon: Icons.more_time_rounded,
+        color: const Color(0xFF7C83FD),
+        onTap: () => context.push(AppRoutes.requestOvertime),
+      ),
+      _QuickAction(
+        label: l10n.expenses,
+        icon: Icons.account_balance_wallet_rounded,
+        color: AppColors.warning,
+        onTap: () => context.push(AppRoutes.expense),
+      ),
+      if (!isBranchManager)
+        _QuickAction(
+          label: l10n.holidays,
+          icon: Icons.celebration_rounded,
+          color: const Color(0xFFEC4899),
+          onTap: () => context.push(AppRoutes.employeeHolidays),
+        ),
+      _QuickAction(
+        label: l10n.more,
+        icon: Icons.grid_view_rounded,
+        color: isDark ? AppColors.grey400 : AppColors.grey500,
+        onTap: () => _showMoreServicesSheet(context, l10n, isBranchManager),
+      ),
+    ];
+
+    const int columns = 3;
+    final int rows = (items.length + columns - 1) ~/ columns;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeading(context, title: l10n.quickFeatures),
+        const SizedBox(height: 14),
+        Material(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: line),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: iconBg,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: iconBorder, width: 1),
+              for (int r = 0; r < rows; r++) ...[
+                if (r > 0) Container(height: 1, color: line),
+                Row(
+                  children: [
+                    for (int c = 0; c < columns; c++) ...[
+                      if (c > 0)
+                        Container(
+                          width: 1,
+                          height: _kActionTileHeight,
+                          color: line,
+                        ),
+                      Expanded(
+                        child: r * columns + c < items.length
+                            ? _buildActionTile(context, items[r * columns + c])
+                            : const SizedBox(height: _kActionTileHeight),
+                      ),
+                    ],
+                  ],
                 ),
-                child: Icon(icon, size: 24, color: iconColor),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 30,
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionTile(BuildContext context, _QuickAction action) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        action.onTap();
+      },
+      child: SizedBox(
+        height: _kActionTileHeight,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(action.icon, size: 25, color: action.color),
+            const SizedBox(height: 9),
+            SizedBox(
+              height: 30,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
                 child: Center(
                   child: Text(
-                    label,
+                    action.label,
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 11.5,
+                      fontSize: 12,
                       height: 1.25,
                       fontWeight: FontWeight.w600,
+                      letterSpacing: -0.1,
                       color: isDark ? AppColors.grey200 : AppColors.grey700,
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -2232,6 +2498,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     } catch (_) {
       return timeStr;
     }
+  }
+
+  DateTime? _parseDateTime(String? timeStr, String? dateStr) {
+    if (timeStr == null || timeStr.trim().isEmpty) return null;
+    try {
+      return DateTime.parse(timeStr).toLocal();
+    } catch (_) {
+      try {
+        final parts = timeStr.trim().split(':');
+        if (parts.length >= 2) {
+          final now = dateStr != null
+              ? (DateTime.tryParse(dateStr)?.toLocal() ?? DateTime.now())
+              : DateTime.now();
+          final h = int.parse(parts[0]);
+          final m = int.parse(parts[1]);
+          final s = parts.length > 2 ? int.parse(parts[2].split('.').first) : 0;
+          return DateTime(now.year, now.month, now.day, h, m, s);
+        }
+      } catch (_) {}
+      return null;
+    }
+  }
+
+  String _formatCompletedDuration(TodayAttendance? today) {
+    if (today == null) return '0s';
+    if (today.clockIn != null && today.clockOut != null) {
+      final inDt = _parseDateTime(today.clockIn, today.date);
+      final outDt = _parseDateTime(today.clockOut, today.date);
+      if (inDt != null && outDt != null) {
+        final diffSeconds = outDt.difference(inDt).inSeconds;
+        if (diffSeconds >= 0) {
+          return formatDurationSeconds(diffSeconds);
+        }
+      }
+    }
+    if (today.workHours != null) {
+      return formatDurationHoursWithSeconds(today.workHours);
+    }
+    return _formatTime(today.clockOut);
   }
 }
 
@@ -2696,6 +3001,93 @@ class _SwipeToClockButtonState extends State<_SwipeToClockButton>
           },
         );
       },
+    );
+  }
+}
+
+class _PulsingStatusDot extends StatefulWidget {
+  final Color color;
+  final double size;
+
+  const _PulsingStatusDot({required this.color, this.size = 6.0});
+
+  @override
+  State<_PulsingStatusDot> createState() => _PulsingStatusDotState();
+}
+
+class _PulsingStatusDotState extends State<_PulsingStatusDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+  late final Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 2.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _opacityAnimation = Tween<double>(
+      begin: 0.7,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget.size * 2,
+      height: widget.size * 2,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _scaleAnimation.value,
+                child: Container(
+                  width: widget.size,
+                  height: widget.size,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: widget.color.withValues(
+                      alpha: _opacityAnimation.value,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          Container(
+            width: widget.size,
+            height: widget.size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: widget.color,
+              boxShadow: [
+                BoxShadow(
+                  color: widget.color.withValues(alpha: 0.8),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
