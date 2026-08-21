@@ -272,17 +272,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 },
               ),
             ),
-            SafeArea(
+            const SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 13,
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    _buildBackButton(),
-                    const Row(
+                    Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ThemeSwitchButton(isDarkHeader: true),
@@ -338,26 +337,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBackButton() {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).maybePop(),
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.14),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.24)),
-        ),
-        child: const Icon(
-          Icons.arrow_back_rounded,
-          color: Colors.white,
-          size: 22,
-        ),
       ),
     );
   }
