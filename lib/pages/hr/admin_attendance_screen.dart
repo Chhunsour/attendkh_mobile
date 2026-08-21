@@ -23,7 +23,7 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -79,7 +79,7 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
           ),
           IconButton(
             tooltip: 'Refresh',
-            icon: Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
             onPressed: () {
               ref.invalidate(allAttendanceLogsProvider);
               ref.invalidate(attendanceCorrectionsProvider);
@@ -87,9 +87,9 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(48),
+          preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: AppColors.textPrimary(context),
+            color: AppColors.surface(context),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: TabBar(
@@ -129,19 +129,19 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
                       if (pendingCorrections > 0) ...[
                         const SizedBox(width: 6),
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 6,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Color(0xFFEF4444),
+                            color: const Color(0xFFEF4444),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             '$pendingCorrections',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 9.5,
-                              color: AppColors.textPrimary(context),
+                              color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -208,177 +208,198 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
         return RefreshIndicator(
           color: const Color(0xFF10B981),
           onRefresh: () async => ref.invalidate(allAttendanceLogsProvider),
-          child: ListView(
+          child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
             ),
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-            children: [
-              // ── Overview Metric Cards ──
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Total',
-                      value: '$total',
-                      icon: Icons.list_alt_rounded,
-                      color: const Color(0xFF6366F1),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Present',
-                      value: '$present',
-                      icon: Icons.check_circle_rounded,
-                      color: const Color(0xFF10B981),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Late',
-                      value: '$lateCount',
-                      icon: Icons.timer_outlined,
-                      color: const Color(0xFFF59E0B),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Absent',
-                      value: '$absent',
-                      icon: Icons.cancel_outlined,
-                      color: const Color(0xFFEF4444),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'On Leave',
-                      value: '$onLeave',
-                      icon: Icons.beach_access_rounded,
-                      color: Color(0xFF8B5CF6),
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 14),
-
-              // ── Search Field ──
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.textPrimary(context),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border(context)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
-                      blurRadius: 6,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchCtrl,
-                  onChanged: (val) =>
-                      setState(() => _searchQuery = val.trim().toLowerCase()),
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    color: AppColors.textPrimary(context),
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Search employee name...',
-                    hintStyle: const TextStyle(
-                      color: AppColors.grey400,
-                      fontSize: 13,
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.search_rounded,
-                      color: AppColors.grey400,
-                      size: 18,
-                    ),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(
-                              Icons.clear_rounded,
-                              color: AppColors.grey400,
-                              size: 16,
-                            ),
-                            onPressed: () {
-                              _searchCtrl.clear();
-                              setState(() => _searchQuery = '');
-                            },
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // ── Status Filter Chips ──
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterChip('all', 'All ($total)'),
-                    _buildFilterChip('present', 'Present ($present)'),
-                    _buildFilterChip('late', 'Late ($lateCount)'),
-                    _buildFilterChip('absent', 'Absent ($absent)'),
-                    _buildFilterChip('on_leave', 'On Leave ($onLeave)'),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 14),
-
-              // ── List of Records ──
-              if (filteredItems.isEmpty)
-                Container(
-                  padding: EdgeInsets.all(32),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColors.textPrimary(context),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: AppColors.grey200.withValues(alpha: 0.7),
-                    ),
-                  ),
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                sliver: SliverToBoxAdapter(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        Icons.fingerprint_rounded,
-                        size: 48,
-                        color: AppColors.grey300,
+                      // ── Overview Metric Cards ──
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildMetricCard(
+                              title: 'Total',
+                              value: '$total',
+                              icon: Icons.list_alt_rounded,
+                              color: const Color(0xFF6366F1),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildMetricCard(
+                              title: 'Present',
+                              value: '$present',
+                              icon: Icons.check_circle_rounded,
+                              color: const Color(0xFF10B981),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildMetricCard(
+                              title: 'Late',
+                              value: '$lateCount',
+                              icon: Icons.timer_outlined,
+                              color: const Color(0xFFF59E0B),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildMetricCard(
+                              title: 'Absent',
+                              value: '$absent',
+                              icon: Icons.cancel_outlined,
+                              color: const Color(0xFFEF4444),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildMetricCard(
+                              title: 'On Leave',
+                              value: '$onLeave',
+                              icon: Icons.beach_access_rounded,
+                              color: const Color(0xFF8B5CF6),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _searchQuery.isNotEmpty
-                            ? 'No logs matching "$_searchQuery"'
-                            : l10n.noAttendanceRecords,
-                        style: const TextStyle(
-                          color: AppColors.grey600,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+
+                      const SizedBox(height: 14),
+
+                      // ── Search Field ──
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.surface(context),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border(context)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.02),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
+                        child: TextField(
+                          controller: _searchCtrl,
+                          onChanged: (val) =>
+                              setState(() => _searchQuery = val.trim().toLowerCase()),
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            color: AppColors.textPrimary(context),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Search employee name...',
+                            hintStyle: const TextStyle(
+                              color: AppColors.grey400,
+                              fontSize: 13,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search_rounded,
+                              color: AppColors.grey400,
+                              size: 18,
+                            ),
+                            suffixIcon: _searchQuery.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(
+                                      Icons.clear_rounded,
+                                      color: AppColors.grey400,
+                                      size: 16,
+                                    ),
+                                    onPressed: () {
+                                      _searchCtrl.clear();
+                                      setState(() => _searchQuery = '');
+                                    },
+                                  )
+                                : null,
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
                       ),
+
+                      const SizedBox(height: 10),
+
+                      // ── Status Filter Chips ──
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildFilterChip('all', 'All ($total)'),
+                            _buildFilterChip('present', 'Present ($present)'),
+                            _buildFilterChip('late', 'Late ($lateCount)'),
+                            _buildFilterChip('absent', 'Absent ($absent)'),
+                            _buildFilterChip('on_leave', 'On Leave ($onLeave)'),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 14),
                     ],
+                  ),
+                ),
+              ),
+
+              // ── Lazy Virtualized List of Records ──
+              if (filteredItems.isEmpty)
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+                  sliver: SliverToBoxAdapter(
+                    child: Container(
+                      padding: const EdgeInsets.all(32),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface(context),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: AppColors.grey200.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.fingerprint_rounded,
+                            size: 48,
+                            color: AppColors.grey300,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            _searchQuery.isNotEmpty
+                                ? 'No logs matching "$_searchQuery"'
+                                : l10n.noAttendanceRecords,
+                            style: const TextStyle(
+                              color: AppColors.grey600,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 )
               else
-                ...filteredItems.map(
-                  (c) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _buildAttendanceCard(context, ref, c, l10n),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+                  sliver: SliverList.builder(
+                    itemCount: filteredItems.length,
+                    itemBuilder: (context, index) {
+                      final c = filteredItems[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: _buildAttendanceCard(context, ref, c, l10n),
+                      );
+                    },
                   ),
                 ),
             ],
@@ -425,9 +446,9 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
     required Color color,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -506,8 +527,8 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
       'late' => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
       'early_leave' => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
       'on_leave' ||
-      'leave' => (Color(0xFF8B5CF6), Color(0xFFF5F3FF)),
-      _ => (Color(0xFFEF4444), Color(0xFFFEF2F2)),
+      'leave' => (const Color(0xFF8B5CF6), const Color(0xFFF5F3FF)),
+      _ => (const Color(0xFFEF4444), const Color(0xFFFEF2F2)),
     };
 
     final hasUnapprovedEarlyIn =
@@ -517,7 +538,7 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [
@@ -553,7 +574,7 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                         size: 20,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -623,7 +644,7 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                               size: 14,
                               color: Color(0xFF10B981),
                             ),
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Text(
                               c.clockIn != null
                                   ? formatTime(c.clockIn)
@@ -647,7 +668,7 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                               size: 14,
                               color: Color(0xFFEF4444),
                             ),
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Text(
                               c.clockOut != null
                                   ? formatTime(c.clockOut)
@@ -757,7 +778,7 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -794,9 +815,9 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
             ),
             Text(
               'Date: ${c.date}',
-              style: TextStyle(color: AppColors.grey500, fontSize: 12),
+              style: const TextStyle(color: AppColors.grey500, fontSize: 12),
             ),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             if (c.clockInPhoto != null) ...[
               Text(
                 'Clock-In Photo Verification',
@@ -991,19 +1012,19 @@ class _CorrectionsTab extends ConsumerWidget {
                   final (statusColor, statusBg) = switch (c.status) {
                     'approved' => (
                       const Color(0xFF10B981),
-                      Color(0xFFECFDF5),
+                      const Color(0xFFECFDF5),
                     ),
                     'rejected' => (
-                      Color(0xFFEF4444),
-                      Color(0xFFFEF2F2),
+                      const Color(0xFFEF4444),
+                      const Color(0xFFFEF2F2),
                     ),
-                    _ => (Color(0xFFF59E0B), Color(0xFFFFFBEB)),
+                    _ => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
                   };
 
                   return Container(
-                    padding: EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.textPrimary(context),
+                      color: AppColors.surface(context),
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(
                         color: AppColors.grey200.withValues(alpha: 0.8),
@@ -1034,7 +1055,7 @@ class _CorrectionsTab extends ConsumerWidget {
                                 size: 18,
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1338,8 +1359,8 @@ class _ManualAttendanceModalState
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
         top: 16,
@@ -1473,7 +1494,7 @@ class _ManualAttendanceModalState
                     elevation: 2,
                   ),
                   child: _isSaving
-                      ? SizedBox(
+                      ? const SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
@@ -1500,9 +1521,9 @@ class _ManualAttendanceModalState
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(fontSize: 12.5, color: AppColors.grey500),
+      labelStyle: const TextStyle(fontSize: 12.5, color: AppColors.grey500),
       prefixIcon: Icon(icon, size: 18, color: AppColors.grey400),
-      contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: AppColors.border(context)),

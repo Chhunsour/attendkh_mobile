@@ -12,9 +12,9 @@ class AppColors {
   static const Color secondaryLight = Color(0xFFDCFCE7);
   static const Color secondaryDark = Color(0xFF059669);
 
-  // Dark Sidebar/Nav
-  static const Color darkSurface = Color(0xFF131B2E);
-  static const Color darkSurfaceLight = Color(0xFF1E293B);
+  // Dark Sidebar/Nav (Neutral Dark Grey)
+  static const Color darkSurface = Color(0xFF1E1E1E);
+  static const Color darkSurfaceLight = Color(0xFF282828);
 
   // Neutrals
   static const Color grey50 = Color(0xFFF8FAFC);
@@ -40,20 +40,20 @@ class AppColors {
 
   // Background & Surfaces
   static const Color backgroundLight = Color(0xFFF8FAFC);
-  static const Color backgroundDark = Color(0xFF0B0F19);
+  static const Color backgroundDark = Color(0xFF121212);
   static const Color surfaceLight = Colors.white;
-  static const Color surfaceDark = Color(0xFF131B2E);
-  static const Color surfaceDarkElevated = Color(0xFF1E293B);
+  static const Color surfaceDark = Color(0xFF1E1E1E);
+  static const Color surfaceDarkElevated = Color(0xFF282828);
 
   // Borders
   static const Color borderLight = Color(0xFFE2E8F0);
-  static const Color borderDark = Color(0xFF243247);
+  static const Color borderDark = Color(0xFF2E2E2E);
 
   // Text
   static const Color textPrimaryLight = Color(0xFF0F172A);
   static const Color textPrimaryDark = Colors.white;
   static const Color textSecondaryLight = Color(0xFF64748B);
-  static const Color textSecondaryDark = Color(0xFF94A3B8);
+  static const Color textSecondaryDark = Color(0xFFA1A1AA);
 
   // Dynamic Theme Helpers
   static Color textPrimary(BuildContext context) =>
@@ -120,11 +120,18 @@ class AppColors {
   static const LinearGradient darkCardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF182238), Color(0xFF131B2E)],
+    colors: [Color(0xFF282828), Color(0xFF1E1E1E)],
   );
 }
 
 class AppTheme {
+  static const List<String> fontFallbacks = [
+    'KantumruyPro',
+    'NotoSansKhmer',
+    'GoogleSans',
+    'sans-serif',
+  ];
+
   static ThemeData get lightTheme => ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
@@ -140,15 +147,15 @@ class AppTheme {
           error: AppColors.danger,
           outline: AppColors.borderLight,
         ),
-        fontFamily: 'GoogleSans',
-        fontFamilyFallback: const ['Google Sans', 'sans-serif'],
+        fontFamily: 'GoogleSansFlex',
+        fontFamilyFallback: fontFallbacks,
         textTheme: Typography.material2021().black.apply(
-          fontFamily: 'GoogleSans',
-          fontFamilyFallback: const ['Google Sans', 'sans-serif'],
+          fontFamily: 'GoogleSansFlex',
+          fontFamilyFallback: fontFallbacks,
         ),
         primaryTextTheme: Typography.material2021().black.apply(
-          fontFamily: 'GoogleSans',
-          fontFamilyFallback: const ['Google Sans', 'sans-serif'],
+          fontFamily: 'GoogleSansFlex',
+          fontFamilyFallback: fontFallbacks,
         ),
         scaffoldBackgroundColor: AppColors.backgroundLight,
         cardColor: AppColors.surfaceLight,
@@ -160,7 +167,8 @@ class AppTheme {
           backgroundColor: AppColors.surfaceLight,
           foregroundColor: AppColors.grey900,
           titleTextStyle: TextStyle(
-            fontFamily: 'GoogleSans',
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
             color: AppColors.grey900,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -172,12 +180,14 @@ class AppTheme {
           selectedItemColor: AppColors.primary,
           unselectedItemColor: AppColors.grey400,
           selectedLabelStyle: TextStyle(
-            fontFamily: 'GoogleSans',
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
           unselectedLabelStyle: TextStyle(
-            fontFamily: 'GoogleSans',
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
             fontSize: 12,
           ),
           elevation: 0,
@@ -216,20 +226,37 @@ class AppTheme {
             borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: AppColors.danger, width: 2),
           ),
-          hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 14),
-          labelStyle: const TextStyle(color: AppColors.grey600, fontSize: 14),
-          errorStyle: const TextStyle(color: AppColors.danger, fontSize: 12),
+          hintStyle: const TextStyle(
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
+            color: AppColors.grey400,
+            fontSize: 14,
+          ),
+          labelStyle: const TextStyle(
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
+            color: AppColors.grey600,
+            fontSize: 14,
+          ),
+          errorStyle: const TextStyle(
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
+            color: AppColors.danger,
+            fontSize: 12,
+          ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 0,
-            minimumSize: const Size(double.infinity, 54),
+            minimumSize: const Size(64, 48),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
             textStyle: const TextStyle(
+              fontFamily: 'GoogleSansFlex',
+              fontFamilyFallback: fontFallbacks,
               fontSize: 16,
               fontWeight: FontWeight.w700,
             ),
@@ -239,13 +266,26 @@ class AppTheme {
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primary,
             side: const BorderSide(color: AppColors.primary, width: 1.5),
-            minimumSize: const Size(double.infinity, 54),
+            minimumSize: const Size(64, 48),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
             textStyle: const TextStyle(
+              fontFamily: 'GoogleSansFlex',
+              fontFamilyFallback: fontFallbacks,
               fontSize: 16,
               fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.primary,
+            textStyle: const TextStyle(
+              fontFamily: 'GoogleSansFlex',
+              fontFamilyFallback: fontFallbacks,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -265,7 +305,11 @@ class AppTheme {
         ),
         snackBarTheme: SnackBarThemeData(
           backgroundColor: AppColors.grey900,
-          contentTextStyle: const TextStyle(color: Colors.white),
+          contentTextStyle: const TextStyle(
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
+            color: Colors.white,
+          ),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
@@ -302,15 +346,15 @@ class AppTheme {
           error: AppColors.danger,
           outline: AppColors.borderDark,
         ),
-        fontFamily: 'GoogleSans',
-        fontFamilyFallback: const ['Google Sans', 'sans-serif'],
+        fontFamily: 'GoogleSansFlex',
+        fontFamilyFallback: fontFallbacks,
         textTheme: Typography.material2021().white.apply(
-          fontFamily: 'GoogleSans',
-          fontFamilyFallback: const ['Google Sans', 'sans-serif'],
+          fontFamily: 'GoogleSansFlex',
+          fontFamilyFallback: fontFallbacks,
         ),
         primaryTextTheme: Typography.material2021().white.apply(
-          fontFamily: 'GoogleSans',
-          fontFamilyFallback: const ['Google Sans', 'sans-serif'],
+          fontFamily: 'GoogleSansFlex',
+          fontFamilyFallback: fontFallbacks,
         ),
         scaffoldBackgroundColor: AppColors.backgroundDark,
         cardColor: AppColors.surfaceDark,
@@ -322,7 +366,8 @@ class AppTheme {
           backgroundColor: AppColors.surfaceDark,
           foregroundColor: Colors.white,
           titleTextStyle: TextStyle(
-            fontFamily: 'GoogleSans',
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -334,12 +379,14 @@ class AppTheme {
           selectedItemColor: AppColors.primary,
           unselectedItemColor: AppColors.grey500,
           selectedLabelStyle: TextStyle(
-            fontFamily: 'GoogleSans',
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
           unselectedLabelStyle: TextStyle(
-            fontFamily: 'GoogleSans',
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
             fontSize: 12,
           ),
           elevation: 0,
@@ -378,20 +425,37 @@ class AppTheme {
             borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: AppColors.danger, width: 2),
           ),
-          hintStyle: const TextStyle(color: AppColors.grey500, fontSize: 14),
-          labelStyle: const TextStyle(color: AppColors.grey400, fontSize: 14),
-          errorStyle: const TextStyle(color: AppColors.danger, fontSize: 12),
+          hintStyle: const TextStyle(
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
+            color: AppColors.grey500,
+            fontSize: 14,
+          ),
+          labelStyle: const TextStyle(
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
+            color: AppColors.grey400,
+            fontSize: 14,
+          ),
+          errorStyle: const TextStyle(
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
+            color: AppColors.danger,
+            fontSize: 12,
+          ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 0,
-            minimumSize: const Size(double.infinity, 54),
+            minimumSize: const Size(64, 48),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
             textStyle: const TextStyle(
+              fontFamily: 'GoogleSansFlex',
+              fontFamilyFallback: fontFallbacks,
               fontSize: 16,
               fontWeight: FontWeight.w700,
             ),
@@ -399,15 +463,28 @@ class AppTheme {
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            foregroundColor: Color(0xFF93C5FD),
+            foregroundColor: const Color(0xFF93C5FD),
             side: const BorderSide(color: Color(0xFF3B82F6), width: 1.5),
-            minimumSize: const Size(double.infinity, 54),
+            minimumSize: const Size(64, 48),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
             textStyle: const TextStyle(
+              fontFamily: 'GoogleSansFlex',
+              fontFamilyFallback: fontFallbacks,
               fontSize: 16,
               fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: const Color(0xFF93C5FD),
+            textStyle: const TextStyle(
+              fontFamily: 'GoogleSansFlex',
+              fontFamilyFallback: fontFallbacks,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -427,7 +504,11 @@ class AppTheme {
         ),
         snackBarTheme: SnackBarThemeData(
           backgroundColor: AppColors.surfaceDarkElevated,
-          contentTextStyle: const TextStyle(color: Colors.white),
+          contentTextStyle: const TextStyle(
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: fontFallbacks,
+            color: Colors.white,
+          ),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),

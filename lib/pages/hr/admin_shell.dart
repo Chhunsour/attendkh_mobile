@@ -106,9 +106,9 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               shape: BoxShape.circle,
               color: AppColors.primary.withAlpha(20),
             ),
-            child: Icon(Icons.business_center_rounded, color: AppColors.primary, size: 18),
+            child: const Icon(Icons.business_center_rounded, color: AppColors.primary, size: 18),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Text(
             titles[_selectedIndex],
             style: TextStyle(
@@ -123,7 +123,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       actions: [
         // ── Notification Bell with Badge ──
         Padding(
-          padding: EdgeInsets.only(right: 4),
+          padding: const EdgeInsets.only(right: 4),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -141,8 +141,8 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                   top: 6,
                   right: 6,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    constraints: BoxConstraints(minWidth: 18, minHeight: 18),
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(10),
@@ -151,7 +151,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                     child: Text(
                       unreadCount > 99 ? '99+' : '$unreadCount',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
@@ -214,21 +214,27 @@ class _AdminShellState extends ConsumerState<AdminShell> {
         color: Colors.black.withAlpha(100),
         child: Center(
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 36, vertical: 28),
+            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 28),
             decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
+              color: AppColors.surface(context),
               borderRadius: BorderRadius.circular(24),
-              boxShadow: [BoxShadow(color: AppColors.textPrimary(context).withAlpha(30), blurRadius: 30, offset: Offset(0, 10))],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 48,
                   height: 48,
                   child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 4),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(l10n.switchingBranchView, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context))),
               ],
             ),
@@ -285,13 +291,16 @@ class _NavItem extends StatelessWidget {
             ),
             Icon(icon, color: color, size: 22),
             const SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 10,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                ),
               ),
             ),
           ],

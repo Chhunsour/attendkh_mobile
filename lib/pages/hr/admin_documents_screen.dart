@@ -5,8 +5,9 @@ import 'package:open_filex/open_filex.dart';
 import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
+import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 class AdminDocumentsScreen extends StatefulWidget {
   const AdminDocumentsScreen({super.key});
@@ -78,8 +79,8 @@ class _State extends State<AdminDocumentsScreen> {
       builder: (ctx) => Container(
         height: MediaQuery.of(ctx).size.height * 0.85,
         decoration: BoxDecoration(
-          color: AppColors.textPrimary(context),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          color: AppColors.surface(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           children: [
@@ -92,7 +93,7 @@ class _State extends State<AdminDocumentsScreen> {
                     child: Row(
                       children: [
                         _buildFileIcon(doc.mimeType),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,10 +143,17 @@ class _State extends State<AdminDocumentsScreen> {
                         doc.downloadUrl != null)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          doc.downloadUrl!,
+                        child: CachedNetworkImage(
+                          imageUrl: doc.downloadUrl!,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, _, _) => const Center(
+                          memCacheWidth: 800,
+                          placeholder: (_, _) => const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(40),
+                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                            ),
+                          ),
+                          errorWidget: (_, _, _) => const Center(
                             child: Padding(
                               padding: EdgeInsets.all(40),
                               child: Text('Cannot load image preview'),
@@ -194,7 +202,7 @@ class _State extends State<AdminDocumentsScreen> {
                           color: AppColors.grey600,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         doc.description!,
                         style: TextStyle(
@@ -239,15 +247,15 @@ class _State extends State<AdminDocumentsScreen> {
                           Navigator.pop(ctx);
                           _downloadFile(doc);
                         },
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.download,
                           color: Colors.white,
                           size: 18,
                         ),
-                        label: Text(
+                        label: const Text(
                           'Download',
                           style: TextStyle(
-                            color: AppColors.textPrimary(context),
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -273,7 +281,7 @@ class _State extends State<AdminDocumentsScreen> {
             width: 100,
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppColors.grey500,
@@ -303,9 +311,15 @@ class _State extends State<AdminDocumentsScreen> {
       }
 
       final dir = await getApplicationDocumentsDirectory();
-      final savePath = '${dir.path}/${doc.fileName ?? 'document_${doc.id}'}';
+      final rawName = doc.fileName ?? 'document_${doc.id}';
+      final safeName = rawName.replaceAll(RegExp(r'[^\w\.\-]'), '_');
+      final savePath = '${dir.path}/$safeName';
 
-      await _repo.downloadDocument(doc.id, savePath);
+      await _repo.downloadDocument(
+        doc.id,
+        savePath,
+        downloadUrl: doc.downloadUrl,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -361,10 +375,10 @@ class _State extends State<AdminDocumentsScreen> {
               bottom: MediaQuery.of(ctx).viewInsets.bottom,
             ),
             child: Container(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.textPrimary(context),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                color: AppColors.surface(context),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -502,7 +516,7 @@ class _State extends State<AdminDocumentsScreen> {
                         }
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 12,
                         ),
@@ -723,12 +737,12 @@ class _State extends State<AdminDocumentsScreen> {
       return const Icon(Icons.table_chart, color: Colors.green, size: 32);
     }
     if (mimeType.contains('image')) {
-      return Icon(Icons.image, color: Colors.blue, size: 32);
+      return const Icon(Icons.image, color: Colors.blue, size: 32);
     }
     if (mimeType.contains('word') || mimeType.contains('document')) {
-      return Icon(Icons.description, color: Colors.blueAccent, size: 32);
+      return const Icon(Icons.description, color: Colors.blueAccent, size: 32);
     }
-    return Icon(Icons.insert_drive_file, color: Colors.grey, size: 32);
+    return const Icon(Icons.insert_drive_file, color: Colors.grey, size: 32);
   }
 
   @override
@@ -749,7 +763,7 @@ class _State extends State<AdminDocumentsScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.add, color: AppColors.primary),
+            icon: const Icon(Icons.add, color: AppColors.primary),
             onPressed: () => _showForm(),
           ),
         ],
@@ -757,7 +771,7 @@ class _State extends State<AdminDocumentsScreen> {
       body: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             color: Colors.white,
             child: Column(
               children: [
@@ -830,14 +844,14 @@ class _State extends State<AdminDocumentsScreen> {
                     ),
                   )
                 : ListView.separated(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     itemCount: _documents.length,
-                    separatorBuilder: (_, _) => SizedBox(height: 12),
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (context, i) {
                       final doc = _documents[i];
                       return Container(
                         decoration: BoxDecoration(
-                          color: AppColors.textPrimary(context),
+                          color: AppColors.surface(context),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppColors.border(context)),
                         ),
@@ -1052,8 +1066,8 @@ class _State extends State<AdminDocumentsScreen> {
           ),
           if (_lastPage > 1)
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: AppColors.textPrimary(context),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              color: AppColors.surface(context),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

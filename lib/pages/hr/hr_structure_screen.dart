@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:geolocator/geolocator.dart';
@@ -67,7 +68,7 @@ class _HrStructureScreenState extends ConsumerState<HrStructureScreen>
       body: Column(
         children: [
           Container(
-            color: AppColors.textPrimary(context),
+            color: AppColors.surface(context),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: TabBar(
               controller: _tabController,
@@ -160,8 +161,8 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
           children: [
             // Search Input + Sort
             Container(
-              color: AppColors.textPrimary(context),
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+              color: AppColors.surface(context),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
               child: Row(
                 children: [
                   Expanded(
@@ -200,7 +201,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: AppColors.grey200,
                                       shape: BoxShape.circle,
                                     ),
@@ -239,7 +240,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                     },
                     child: Container(
                       height: 46,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: AppColors.grey50,
                         borderRadius: BorderRadius.circular(14),
@@ -266,11 +267,11 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   // Active Filter Dropdown
                   Container(
                     height: 46,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
                       color: AppColors.grey50,
                       borderRadius: BorderRadius.circular(14),
@@ -279,9 +280,9 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String?>(
                         value: _filterActive,
-                        hint: Text(
+                        hint: const Text(
                           'All',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             color: AppColors.grey600,
                             fontWeight: FontWeight.w600,
@@ -291,26 +292,26 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                           Icons.arrow_drop_down_rounded,
                           color: AppColors.grey500,
                         ),
-                        items: [
+                        items: const [
                           DropdownMenuItem<String?>(
                             value: null,
                             child: Text(
                               'All',
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                           DropdownMenuItem<String?>(
                             value: 'true',
                             child: Text(
                               'Active',
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                           DropdownMenuItem<String?>(
                             value: 'false',
                             child: Text(
                               'Inactive',
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                         ],
@@ -321,7 +322,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                 ],
               ),
             ),
-            Divider(height: 1, color: AppColors.grey200),
+            const Divider(height: 1, color: AppColors.grey200),
             // Content
             Expanded(
               child: branchesAsync.when(
@@ -422,7 +423,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                   builder: (_) => const _BranchFormDialog(),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 22,
                     vertical: 14,
                   ),
@@ -434,7 +435,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                         color: AppColors.textPrimary(context),
                         size: 20,
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         l10n.addBranchBtn,
                         style: TextStyle(
@@ -466,17 +467,17 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
             Container(
               width: 72,
               height: 72,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.primaryLight,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.business_rounded,
                 size: 36,
                 color: AppColors.primary,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               isFiltered ? l10n.noBranchesFound : l10n.noBranchesAvailable,
               style: TextStyle(
@@ -488,7 +489,7 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
             const SizedBox(height: 6),
             Text(
               isFiltered ? l10n.noBranchesFoundDesc : l10n.addFirstBranchDesc,
-              style: TextStyle(fontSize: 13, color: AppColors.grey500),
+              style: const TextStyle(fontSize: 13, color: AppColors.grey500),
               textAlign: TextAlign.center,
             ),
           ],
@@ -500,13 +501,13 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
   Widget _buildItem(BuildContext context, WidgetRef ref, BranchData item) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(5),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(color: AppColors.border(context)),
@@ -653,8 +654,8 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
           ),
 
           // Divider
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Divider(height: 1, color: AppColors.grey100),
           ),
 
@@ -781,13 +782,13 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
 
                 Text(
                   l10n.deleteBranchTitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
 
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 RichText(
                   textAlign: TextAlign.center,
@@ -809,8 +810,8 @@ class _BranchesTabState extends ConsumerState<_BranchesTab> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx, false),
                         style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          side: BorderSide(color: Colors.grey),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -1169,8 +1170,8 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -1215,7 +1216,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                     size: 22,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1379,12 +1380,12 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  padding: EdgeInsets.all(6),
+                                  padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
-                                    color: Color(0xFF16A34A),
+                                    color: const Color(0xFF16A34A),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.location_on_rounded,
                                     size: 16,
                                     color: Colors.white,
@@ -1417,7 +1418,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 14),
+                            const SizedBox(height: 14),
 
                             // Option 1: Paste Google Maps URL (Auto-Calculate)
                             Container(
@@ -1435,8 +1436,8 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                                     children: [
                                       Row(
                                         children: [
-                                          Icon(Icons.link_rounded, size: 14, color: AppColors.primary),
-                                          SizedBox(width: 4),
+                                          const Icon(Icons.link_rounded, size: 14, color: AppColors.primary),
+                                          const SizedBox(width: 4),
                                           Text(
                                             'Paste Google Maps Link',
                                             style: TextStyle(
@@ -1611,7 +1612,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                                           color: AppColors.primary,
                                         ),
                                       )
-                                    : Icon(
+                                    : const Icon(
                                         Icons.my_location_rounded,
                                         size: 14,
                                         color: AppColors.primary,
@@ -1646,9 +1647,9 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                             // Show coordinates if set
                             if (_latCtrl.text.isNotEmpty ||
                                 _lngCtrl.text.isNotEmpty) ...[
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 8,
                                 ),
@@ -1790,7 +1791,7 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                             value: _isActive,
                             onChanged: (val) => setState(() => _isActive = val),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1852,14 +1853,14 @@ class _BranchFormDialogState extends ConsumerState<_BranchFormDialog> {
                     onPressed: _isLoading ? null : _save,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       minimumSize: Size.zero,
                     ),
                     child: _isLoading
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
@@ -1925,8 +1926,8 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
           children: [
             // Search and Filters Bar
             Container(
-              color: AppColors.textPrimary(context),
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+              color: AppColors.surface(context),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
               child: Row(
                 children: [
                   // Search
@@ -1966,7 +1967,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: AppColors.grey200,
                                       shape: BoxShape.circle,
                                     ),
@@ -2006,7 +2007,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                     },
                     child: Container(
                       height: 46,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: AppColors.grey50,
                         borderRadius: BorderRadius.circular(14),
@@ -2033,11 +2034,11 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   // Branch Filter Dropdown
                   Container(
                     height: 46,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
                       color: AppColors.grey50,
                       borderRadius: BorderRadius.circular(14),
@@ -2084,11 +2085,11 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   // Active Filter Dropdown
                   Container(
                     height: 46,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
                       color: AppColors.grey50,
                       borderRadius: BorderRadius.circular(14),
@@ -2097,9 +2098,9 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String?>(
                         value: _filterActive,
-                        hint: Text(
+                        hint: const Text(
                           'All',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             color: AppColors.grey600,
                             fontWeight: FontWeight.w600,
@@ -2109,26 +2110,26 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                           Icons.arrow_drop_down_rounded,
                           color: AppColors.grey500,
                         ),
-                        items: [
+                        items: const [
                           DropdownMenuItem<String?>(
                             value: null,
                             child: Text(
                               'All',
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                           DropdownMenuItem<String?>(
                             value: 'true',
                             child: Text(
                               'Active',
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                           DropdownMenuItem<String?>(
                             value: 'false',
                             child: Text(
                               'Inactive',
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                         ],
@@ -2140,7 +2141,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
               ),
             ),
             // Divider
-            Divider(height: 1, color: AppColors.grey200),
+            const Divider(height: 1, color: AppColors.grey200),
             // Content List
             Expanded(
               child: deptsAsync.when(
@@ -2237,15 +2238,15 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                   builder: (_) => const _DepartmentFormDialog(),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 22,
                     vertical: 14,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add_rounded, color: Colors.white, size: 20),
-                      SizedBox(width: 8),
+                      const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
                       Text(
                         l10n.addDeptBtn,
                         style: TextStyle(
@@ -2277,17 +2278,17 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
             Container(
               width: 72,
               height: 72,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.infoLight,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.corporate_fare_rounded,
                 size: 36,
                 color: AppColors.info,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               isFiltered ? l10n.noBranchesFound : l10n.noDeptsFound,
               style: TextStyle(
@@ -2313,13 +2314,13 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(5),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(color: AppColors.border(context)),
@@ -2336,7 +2337,7 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.infoLight,
                     shape: BoxShape.circle,
                   ),
@@ -2426,8 +2427,8 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
           ),
 
           // Divider
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Divider(height: 1, color: AppColors.grey100),
           ),
 
@@ -2549,13 +2550,13 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
 
                 Text(
                   l10n.deleteDeptTitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
 
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 RichText(
                   textAlign: TextAlign.center,
@@ -2577,8 +2578,8 @@ class _DepartmentsTabState extends ConsumerState<_DepartmentsTab> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx, false),
                         style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          side: BorderSide(color: Colors.grey),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -2759,8 +2760,8 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
           children: [
             // Search and Filters Bar
             Container(
-              color: AppColors.textPrimary(context),
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+              color: AppColors.surface(context),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
               child: Row(
                 children: [
                   // Search
@@ -2800,7 +2801,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: AppColors.grey200,
                                       shape: BoxShape.circle,
                                     ),
@@ -2840,7 +2841,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                     },
                     child: Container(
                       height: 46,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: AppColors.grey50,
                         borderRadius: BorderRadius.circular(14),
@@ -2867,11 +2868,11 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   // Dept Filter Dropdown
                   Container(
                     height: 46,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
                       color: AppColors.grey50,
                       borderRadius: BorderRadius.circular(14),
@@ -2922,7 +2923,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
               ),
             ),
             // Divider
-            Divider(height: 1, color: AppColors.grey200),
+            const Divider(height: 1, color: AppColors.grey200),
             // Content
             Expanded(
               child: posAsync.when(
@@ -2998,14 +2999,14 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                   builder: (_) => const _PositionFormDialog(),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 22,
                     vertical: 14,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         l10n.addRoleBtn,
                         style: TextStyle(
@@ -3037,17 +3038,17 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
             Container(
               width: 72,
               height: 72,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.successLight,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.work_outline_rounded,
                 size: 36,
                 color: AppColors.success,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               isFiltered ? l10n.noBranchesFound : l10n.noRolesFound,
               style: TextStyle(
@@ -3073,13 +3074,13 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(5),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(color: AppColors.border(context)),
@@ -3096,7 +3097,7 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.successLight,
                     shape: BoxShape.circle,
                   ),
@@ -3186,8 +3187,8 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
           ),
 
           // Divider
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Divider(height: 1, color: AppColors.grey100),
           ),
 
@@ -3346,13 +3347,13 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
 
                 Text(
                   l10n.deleteRoleTitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
 
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 RichText(
                   textAlign: TextAlign.center,
@@ -3374,8 +3375,8 @@ class _PositionsTabState extends ConsumerState<_PositionsTab> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx, false),
                         style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          side: BorderSide(color: Colors.grey),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -3517,8 +3518,8 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
           children: [
             // Search and Filters Bar
             Container(
-              color: AppColors.textPrimary(context),
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+              color: AppColors.surface(context),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
               child: Row(
                 children: [
                   // Search
@@ -3558,7 +3559,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: AppColors.grey200,
                                       shape: BoxShape.circle,
                                     ),
@@ -3598,7 +3599,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                     },
                     child: Container(
                       height: 46,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: AppColors.grey50,
                         borderRadius: BorderRadius.circular(14),
@@ -3625,11 +3626,11 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   // Dept Filter Dropdown
                   Container(
                     height: 46,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
                       color: AppColors.grey50,
                       borderRadius: BorderRadius.circular(14),
@@ -3676,11 +3677,11 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   // Active Filter Dropdown
                   Container(
                     height: 46,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
                       color: AppColors.grey50,
                       borderRadius: BorderRadius.circular(14),
@@ -3689,9 +3690,9 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String?>(
                         value: _filterActive,
-                        hint: Text(
+                        hint: const Text(
                           'All',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             color: AppColors.grey600,
                             fontWeight: FontWeight.w600,
@@ -3701,26 +3702,26 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                           Icons.arrow_drop_down_rounded,
                           color: AppColors.grey500,
                         ),
-                        items: [
+                        items: const [
                           DropdownMenuItem<String?>(
                             value: null,
                             child: Text(
                               'All',
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                           DropdownMenuItem<String?>(
                             value: 'true',
                             child: Text(
                               'Active',
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                           DropdownMenuItem<String?>(
                             value: 'false',
                             child: Text(
                               'Inactive',
-                              style: const TextStyle(fontSize: 13),
+                              style: TextStyle(fontSize: 13),
                             ),
                           ),
                         ],
@@ -3732,7 +3733,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
               ),
             ),
             // Divider
-            Divider(height: 1, color: AppColors.grey200),
+            const Divider(height: 1, color: AppColors.grey200),
             // Content
             Expanded(
               child: teamsAsync.when(
@@ -3815,15 +3816,15 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                   builder: (_) => const _TeamFormDialog(),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 22,
                     vertical: 14,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add_rounded, color: Colors.white, size: 20),
-                      SizedBox(width: 8),
+                      const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
                       Text(
                         l10n.addTeamBtn,
                         style: TextStyle(
@@ -3854,17 +3855,17 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
             Container(
               width: 72,
               height: 72,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.warningLight,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.group_outlined,
                 size: 36,
                 color: AppColors.warning,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               isFiltered ? 'No Matches Found' : 'No Teams Found',
               style: TextStyle(
@@ -3892,13 +3893,13 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(5),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(color: AppColors.border(context)),
@@ -3915,7 +3916,7 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.warningLight,
                     shape: BoxShape.circle,
                   ),
@@ -4017,8 +4018,8 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
           ),
 
           // Divider
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Divider(height: 1, color: AppColors.grey100),
           ),
 
@@ -4148,13 +4149,13 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
 
                 Text(
                   l10n.deleteTeamTitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
 
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 RichText(
                   textAlign: TextAlign.center,
@@ -4176,8 +4177,8 @@ class _TeamsTabState extends ConsumerState<_TeamsTab> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx, false),
                         style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          side: BorderSide(color: Colors.grey),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -4432,7 +4433,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                 Expanded(
                   child: Text(
                     node.departmentName ?? '—',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: AppColors.grey600,
@@ -4465,10 +4466,12 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                         borderRadius: BorderRadius.circular(12),
                         image: node.photo != null && node.photo!.isNotEmpty
                             ? DecorationImage(
-                                image: NetworkImage(
+                                image: CachedNetworkImageProvider(
                                   node.photo!.startsWith('http')
                                       ? node.photo!
                                       : '${DioClient.storageUrl}/${node.photo!.startsWith('/') ? node.photo!.substring(1) : node.photo!}',
+                                  maxWidth: 120,
+                                  maxHeight: 120,
                                 ),
                                 fit: BoxFit.cover,
                               )
@@ -4502,7 +4505,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                     ),
                   ],
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 // Info
                 Expanded(
                   child: Column(
@@ -4558,8 +4561,8 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                 // Children count
                 if (node.hasSubordinates)
                   Container(
-                    margin: EdgeInsets.only(left: 8),
-                    padding: EdgeInsets.symmetric(
+                    margin: const EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 6,
                     ),
@@ -4591,8 +4594,8 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                       final uri = Uri.parse('mailto:${node.email}');
                       if (await canLaunchUrl(uri)) await launchUrl(uri);
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                    child: const Padding(
+                      padding: EdgeInsets.only(right: 8),
                       child: Icon(
                         Icons.mail_outline_rounded,
                         size: 14,
@@ -4606,8 +4609,8 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                       final uri = Uri.parse('tel:${node.phone}');
                       if (await canLaunchUrl(uri)) await launchUrl(uri);
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                    child: const Padding(
+                      padding: EdgeInsets.only(right: 8),
                       child: Icon(
                         Icons.phone_outlined,
                         size: 14,
@@ -4620,7 +4623,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                   onTap: () {
                     Navigator.pushNamed(context, '/employee/${node.id}');
                   },
-                  child: Row(
+                  child: const Row(
                     children: [
                       Text(
                         'Profile',
@@ -4630,7 +4633,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                           color: AppColors.grey400,
                         ),
                       ),
-                      const SizedBox(width: 2),
+                      SizedBox(width: 2),
                       Icon(
                         Icons.open_in_new_rounded,
                         size: 10,
@@ -4677,7 +4680,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                       const SizedBox(width: 4),
                       Text(
                         '${node.subordinatesCount} ${node.subordinatesCount != 1 ? "reports" : "report"}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                           color: AppColors.grey500,
@@ -4766,7 +4769,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                   children: [
                     Container(
                       width: 24,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         border: Border(
                           left: BorderSide(color: AppColors.grey300, width: 2),
                           bottom: BorderSide(
@@ -4827,17 +4830,17 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                   Container(
                     width: 72,
                     height: 72,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.primaryLight,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.account_tree_rounded,
                       size: 36,
                       color: AppColors.primary,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     l10n.noOrgChartTitle,
                     style: TextStyle(
@@ -4868,8 +4871,8 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
           children: [
             // Search + Depth
             Container(
-              color: AppColors.textPrimary(context),
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
+              color: AppColors.surface(context),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
               child: Column(
                 children: [
                   // Search
@@ -4908,7 +4911,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                                 },
                                 child: Container(
                                   margin: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: AppColors.grey200,
                                     shape: BoxShape.circle,
                                   ),
@@ -4933,7 +4936,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                     children: [
                       // Stats
                       Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 10,
                           vertical: 6,
                         ),
@@ -4951,11 +4954,11 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                           ),
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       // Layout Toggle
                       Container(
                         height: 34,
-                        padding: EdgeInsets.all(2),
+                        padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
                           color: AppColors.grey50,
                           borderRadius: BorderRadius.circular(10),
@@ -5030,11 +5033,11 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                           ],
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       // Depth Dropdown
                       Container(
                         height: 34,
-                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
                           color: AppColors.grey50,
                           borderRadius: BorderRadius.circular(10),
@@ -5097,7 +5100,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                 ],
               ),
             ),
-            Divider(height: 1, color: AppColors.grey200),
+            const Divider(height: 1, color: AppColors.grey200),
             // Tree
             Expanded(
               child: Container(
@@ -5130,7 +5133,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                       left: 16,
                       bottom: 16,
                       child: Container(
-                        padding: EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.white.withAlpha(230),
                           borderRadius: BorderRadius.circular(16),
@@ -5147,7 +5150,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
+                            const Text(
                               'Levels',
                               style: TextStyle(
                                 fontSize: 9,
@@ -5181,7 +5184,7 @@ class _OrgChartTabState extends ConsumerState<_OrgChartTab> {
                                     const SizedBox(width: 6),
                                     Text(
                                       label,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w600,
                                         color: AppColors.grey600,
@@ -5347,8 +5350,8 @@ class _DepartmentFormDialogState extends ConsumerState<_DepartmentFormDialog> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -5383,7 +5386,7 @@ class _DepartmentFormDialogState extends ConsumerState<_DepartmentFormDialog> {
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.infoLight,
                     shape: BoxShape.circle,
                   ),
@@ -5393,7 +5396,7 @@ class _DepartmentFormDialogState extends ConsumerState<_DepartmentFormDialog> {
                     size: 22,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -5644,14 +5647,14 @@ class _DepartmentFormDialogState extends ConsumerState<_DepartmentFormDialog> {
                     onPressed: _isLoading ? null : _save,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       minimumSize: Size.zero,
                     ),
                     child: _isLoading
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
@@ -5764,8 +5767,8 @@ class _PositionFormDialogState extends ConsumerState<_PositionFormDialog> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -5800,7 +5803,7 @@ class _PositionFormDialogState extends ConsumerState<_PositionFormDialog> {
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.successLight,
                     shape: BoxShape.circle,
                   ),
@@ -5810,7 +5813,7 @@ class _PositionFormDialogState extends ConsumerState<_PositionFormDialog> {
                     size: 22,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -5994,14 +5997,14 @@ class _PositionFormDialogState extends ConsumerState<_PositionFormDialog> {
                     onPressed: _isLoading ? null : _save,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       minimumSize: Size.zero,
                     ),
                     child: _isLoading
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(
@@ -6108,8 +6111,8 @@ class _TeamFormDialogState extends ConsumerState<_TeamFormDialog> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -6144,7 +6147,7 @@ class _TeamFormDialogState extends ConsumerState<_TeamFormDialog> {
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.warningLight,
                     shape: BoxShape.circle,
                   ),
@@ -6154,7 +6157,7 @@ class _TeamFormDialogState extends ConsumerState<_TeamFormDialog> {
                     size: 22,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -6368,14 +6371,14 @@ class _TeamFormDialogState extends ConsumerState<_TeamFormDialog> {
                     onPressed: _isLoading ? null : _save,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       minimumSize: Size.zero,
                     ),
                     child: _isLoading
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 18,
                             height: 18,
                             child: CircularProgressIndicator(

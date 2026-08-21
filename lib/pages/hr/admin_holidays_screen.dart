@@ -79,8 +79,8 @@ class _State extends State<AdminHolidaysScreen> {
               bottom: MediaQuery.of(ctx).viewInsets.bottom,
             ),
             child: Container(
-              padding: EdgeInsets.all(24),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
                 color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
@@ -167,7 +167,7 @@ class _State extends State<AdminHolidaysScreen> {
                         }
                       },
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     TextField(
                       controller: descCtrl,
                       decoration: InputDecoration(
@@ -178,7 +178,7 @@ class _State extends State<AdminHolidaysScreen> {
                       ),
                       keyboardType: TextInputType.text,
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -196,7 +196,7 @@ class _State extends State<AdminHolidaysScreen> {
                               SnackBar(
                                 content: Text(
                                   l10n.pleaseFillRequired,
-                                  style: TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: Colors.white),
                                 ),
                                 backgroundColor: AppColors.danger,
                               ),
@@ -297,7 +297,7 @@ class _State extends State<AdminHolidaysScreen> {
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
 
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
 
                 RichText(
                   textAlign: TextAlign.center,
@@ -331,8 +331,8 @@ class _State extends State<AdminHolidaysScreen> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pop(ctx),
                         style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          side: BorderSide(color: Colors.grey),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),

@@ -52,15 +52,15 @@ class _AdminOvertimeScreenState extends ConsumerState<AdminOvertimeScreen>
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh_rounded, color: AppColors.grey700),
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
             tooltip: 'Refresh',
             onPressed: () => ref.invalidate(managerOvertimeRequestsProvider),
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(48),
+          preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: AppColors.textPrimary(context),
+            color: AppColors.surface(context),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: TabBar(
@@ -239,14 +239,14 @@ class _OvertimeListTab extends ConsumerWidget {
                 ],
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               if (requests.isEmpty)
                 Container(
-                  padding: EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(32),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: AppColors.textPrimary(context),
+                    color: AppColors.surface(context),
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(color: AppColors.border(context)),
                   ),
@@ -266,16 +266,16 @@ class _OvertimeListTab extends ConsumerWidget {
               else
                 ...requests.map((request) {
                   final (statusColor, statusBg) = switch (request.status) {
-                    'approved' => (Color(0xFF10B981), Color(0xFFECFDF5)),
-                    'rejected' => (Color(0xFFEF4444), Color(0xFFFEF2F2)),
-                    _ => (Color(0xFFF59E0B), Color(0xFFFFFBEB)),
+                    'approved' => (const Color(0xFF10B981), const Color(0xFFECFDF5)),
+                    'rejected' => (const Color(0xFFEF4444), const Color(0xFFFEF2F2)),
+                    _ => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
                   };
 
                   return Container(
-                    margin: EdgeInsets.only(bottom: 12),
-                    padding: EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.textPrimary(context),
+                      color: AppColors.surface(context),
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(color: AppColors.border(context)),
                       boxShadow: [
@@ -316,11 +316,11 @@ class _OvertimeListTab extends ConsumerWidget {
                                   : Center(
                                       child: Text(
                                         request.employeeName?.substring(0, 1).toUpperCase() ?? '?',
-                                        style: TextStyle(color: Color(0xFFF59E0B), fontWeight: FontWeight.bold, fontSize: 16),
+                                        style: const TextStyle(color: Color(0xFFF59E0B), fontWeight: FontWeight.bold, fontSize: 16),
                                       ),
                                     ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,7 +359,7 @@ class _OvertimeListTab extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.grey50,
+                            color: Theme.of(context).brightness == Brightness.dark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -367,13 +367,13 @@ class _OvertimeListTab extends ConsumerWidget {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.access_time_rounded, size: 16, color: Color(0xFFF59E0B)),
-                                  SizedBox(width: 8),
+                                  const Icon(Icons.access_time_rounded, size: 16, color: Color(0xFFF59E0B)),
+                                  const SizedBox(width: 8),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('Overtime Window', style: TextStyle(color: AppColors.grey500, fontSize: 10.5, fontWeight: FontWeight.w600)),
-                                      SizedBox(height: 2),
+                                      const Text('Overtime Window', style: TextStyle(color: AppColors.grey500, fontSize: 10.5, fontWeight: FontWeight.w600)),
+                                      const SizedBox(height: 2),
                                       Text(
                                         '${request.startTime} - ${request.endTime}',
                                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary(context)),
@@ -485,9 +485,9 @@ class _OvertimeListTab extends ConsumerWidget {
     required Color color,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [

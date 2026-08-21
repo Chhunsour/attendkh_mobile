@@ -91,12 +91,12 @@ class _AdminAnnouncementsScreenState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.wifi_off_rounded,
               color: AppColors.danger,
               size: 48,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               l10n.failedToLoadAnnouncements,
               style: TextStyle(
@@ -178,25 +178,25 @@ class _AdminAnnouncementsScreenState
                 title: 'Drafts',
                 value: '$draftCount',
                 icon: Icons.edit_note_rounded,
-                color: Color(0xFFF59E0B),
+                color: const Color(0xFFF59E0B),
               ),
             ),
           ],
         ),
 
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // ── Search Field ──
         Container(
           decoration: BoxDecoration(
-            color: AppColors.textPrimary(context),
+            color: AppColors.surface(context),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.border(context)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 6,
-                offset: Offset(0, 2),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -236,15 +236,15 @@ class _AdminAnnouncementsScreenState
           ],
         ),
 
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // ── List of Announcements ──
         if (filtered.isEmpty)
           Container(
-            padding: EdgeInsets.all(32),
+            padding: const EdgeInsets.all(32),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.textPrimary(context),
+              color: AppColors.surface(context),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: AppColors.border(context)),
             ),
@@ -274,9 +274,9 @@ class _AdminAnnouncementsScreenState
     required Color color,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -354,10 +354,10 @@ class _AdminAnnouncementsScreenState
     AppLocalizations l10n,
   ) {
     return Container(
-      margin: EdgeInsets.only(bottom: 10),
-      padding: EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [
@@ -407,13 +407,13 @@ class _AdminAnnouncementsScreenState
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.bold,
-                        color: a.isPublished ? Color(0xFF047857) : Color(0xFFD97706),
+                        color: a.isPublished ? const Color(0xFF047857) : const Color(0xFFD97706),
                       ),
                     ),
                   ],
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               PopupMenuButton<String>(
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -460,7 +460,7 @@ class _AdminAnnouncementsScreenState
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             a.title,
             style: TextStyle(
@@ -633,8 +633,8 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
     final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
         top: 14,
@@ -653,7 +653,7 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -688,9 +688,9 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
                   validator: (v) => v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
                   decoration: _inputDecoration(l10n.bodyLabel),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.grey50,
                     borderRadius: BorderRadius.circular(12),
@@ -764,8 +764,8 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: AppColors.grey500, fontSize: 13),
-      contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      labelStyle: const TextStyle(color: AppColors.grey500, fontSize: 13),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: AppColors.border(context)),

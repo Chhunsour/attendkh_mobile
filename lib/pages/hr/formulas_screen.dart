@@ -144,12 +144,12 @@ class FormulasScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(description, style: TextStyle(color: isDark ? AppColors.grey400 : Colors.grey.shade600, fontSize: 13)),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isDark ? AppColors.surfaceDarkElevated : Colors.grey.shade50,
               borderRadius: BorderRadius.circular(8),
@@ -182,7 +182,7 @@ class FormulasScreen extends StatelessWidget {
     
     if (settings.lateDeductionType == 'per_minute') {
       formula = l10n.lateFormulaPerMinute(grace, rate.toString());
-      final lateMins = 30;
+      const lateMins = 30;
       final ded = (lateMins - grace) * (hourlyRate / 60) * rate;
       example = l10n.lateExamplePerMinute(grace, symbol, hourlyRate.toStringAsFixed(2), rate.toString(), ded.toStringAsFixed(2));
     } else if (settings.lateDeductionType == 'fixed_amount') {
@@ -217,7 +217,7 @@ class FormulasScreen extends StatelessWidget {
     
     if (settings.earlyLeaveDeductionType == 'per_minute') {
       formula = l10n.earlyLeaveFormulaPerMinute(grace, rate.toString());
-      final earlyMins = 30;
+      const earlyMins = 30;
       final ded = (earlyMins - grace) * (hourlyRate / 60) * rate;
       example = l10n.earlyLeaveExamplePerMinute(grace, symbol, hourlyRate.toStringAsFixed(2), rate.toString(), ded.toStringAsFixed(2));
     } else if (settings.earlyLeaveDeductionType == 'fixed_amount') {
@@ -246,7 +246,7 @@ class FormulasScreen extends StatelessWidget {
     }
 
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),

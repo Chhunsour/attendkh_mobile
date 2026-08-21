@@ -65,12 +65,12 @@ class AdminSettingsScreen extends ConsumerWidget {
   Widget _buildError(BuildContext context, Object err, WidgetRef ref, AppLocalizations l10n) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
-            SizedBox(height: 16),
+            const Icon(Icons.wifi_off_rounded, color: AppColors.danger, size: 48),
+            const SizedBox(height: 16),
             Text(
               l10n.failedToLoadSettings,
               style: TextStyle(
@@ -212,8 +212,8 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
             ),
             decoration: InputDecoration(
               isDense: true,
-              prefixIcon: Icon(icon, color: Color(0xFF64748B), size: 18),
-              contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              prefixIcon: Icon(icon, color: const Color(0xFF64748B), size: 18),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: AppColors.border(context)),
@@ -250,8 +250,8 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF0F172A),
-                Color(0xFF1E293B),
+                Color(0xFF1E1E1E),
+                Color(0xFF282828),
               ],
             ),
             borderRadius: BorderRadius.circular(22),
@@ -285,7 +285,7 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       'System Parameters',
                       style: TextStyle(
@@ -359,7 +359,7 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
           child: ElevatedButton.icon(
             onPressed: _isSaving ? null : _save,
             icon: _isSaving
-                ? SizedBox(
+                ? const SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
@@ -397,9 +397,9 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
     required Widget child,
   }) {
     return Container(
-      padding: EdgeInsets.all(18),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [
@@ -424,7 +424,7 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
                 ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

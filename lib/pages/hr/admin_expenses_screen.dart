@@ -8,8 +8,9 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/expense_provider.dart';
 import 'package:mpg_hr_mobile_app/services/expense_repository.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
+import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 class AdminExpensesScreen extends ConsumerStatefulWidget {
   const AdminExpensesScreen({super.key});
@@ -125,7 +126,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
                         prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.grey400),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
-                                icon: Icon(Icons.clear_rounded, size: 18),
+                                icon: const Icon(Icons.clear_rounded, size: 18),
                                 onPressed: () {
                                   _searchCtrl.clear();
                                   setState(() => _searchQuery = '');
@@ -134,7 +135,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
                             : null,
                         filled: true,
                         fillColor: AppColors.surfaceLight,
-                        contentPadding: EdgeInsets.symmetric(vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: AppColors.border(context)),
@@ -242,9 +243,9 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
 
   Widget _kpiCard({required IconData icon, required Color color, required String value, required String label}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border(context)),
       ),
@@ -266,13 +267,13 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.grey500),
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.grey500),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -406,7 +407,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.surface(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _AdminExpenseDetailSheet(
         expense: e,
@@ -420,7 +421,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.surface(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _AdminExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider)),
     );
@@ -430,7 +431,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.surface(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _AdminExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider), initial: e),
     );
@@ -474,9 +475,9 @@ class _AdminExpenseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      padding: EdgeInsets.all(14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border(context)),
       ),
@@ -515,7 +516,11 @@ class _AdminExpenseCard extends StatelessWidget {
                               radius: 10,
                               backgroundColor: AppColors.primary.withAlpha(26),
                               backgroundImage: expense.employeePhoto != null && expense.employeePhoto!.isNotEmpty
-                                  ? NetworkImage(expense.employeePhoto!)
+                                  ? CachedNetworkImageProvider(
+                                      expense.employeePhoto!,
+                                      maxWidth: 60,
+                                      maxHeight: 60,
+                                    )
                                   : null,
                               child: expense.employeePhoto == null || expense.employeePhoto!.isEmpty
                                   ? Text(
@@ -527,13 +532,13 @@ class _AdminExpenseCard extends StatelessWidget {
                             const SizedBox(width: 6),
                             Text(
                               expense.employeeName!,
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700),
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700),
                               overflow: TextOverflow.ellipsis,
                             ),
                             if (expense.employeeCode != null && expense.employeeCode!.isNotEmpty) ...[
-                              SizedBox(width: 6),
+                              const SizedBox(width: 6),
                               Container(
-                                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                                 decoration: BoxDecoration(
                                   color: AppColors.grey100,
                                   borderRadius: BorderRadius.circular(4),
@@ -710,7 +715,7 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
-      padding: EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -804,12 +809,12 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
 
   Widget _detailRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
-          SizedBox(height: 2),
+          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+          const SizedBox(height: 2),
           Text(value, style: TextStyle(fontSize: 13, color: AppColors.textPrimary(context))),
         ],
       ),
@@ -1049,12 +1054,12 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               InkWell(
                 onTap: _pickDate,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: AppColors.backgroundLight,
                     borderRadius: BorderRadius.circular(12),
@@ -1068,9 +1073,9 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
                         children: [
                           Text(
                             l10n.expenseDateLabel,
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             DateFormat('EEE, dd MMM yyyy').format(_expenseDate),
                             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context)),

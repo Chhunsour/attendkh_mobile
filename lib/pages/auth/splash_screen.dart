@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
+import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/components/app_logo.dart';
 import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
@@ -14,11 +17,32 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-  late Animation<double> _fadeAnim;
-  late Animation<double> _scaleAnim;
-  late Animation<double> _badgeAnim;
+    with TickerProviderStateMixin {
+  /// Staggered entrance, played once.
+  late final AnimationController _intro = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1500),
+  );
+
+  /// The radar sweep. It is also the loading indicator — there is no second
+  /// spinner, because two things saying "wait" is one thing too many.
+  late final AnimationController _sweep = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2800),
+  )..repeat();
+
+  late final Animation<double> _rings = _curve(0.00, 0.75, Curves.easeOutCubic);
+  late final Animation<double> _mark = _curve(0.05, 0.60, Curves.easeOutCubic);
+  late final Animation<double> _word = _curve(0.30, 0.75, Curves.easeOutCubic);
+  late final Animation<double> _tag = _curve(0.42, 0.85, Curves.easeOutCubic);
+  late final Animation<double> _foot = _curve(0.60, 1.00, Curves.easeOut);
+
+  Animation<double> _curve(double begin, double end, Curve curve) {
+    return CurvedAnimation(
+      parent: _intro,
+      curve: Interval(begin, end, curve: curve),
+    );
+  }
 
   @override
   void initState() {
@@ -26,266 +50,191 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FcmService.instance.init();
     });
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-    _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _animController,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-      ),
-    );
-    _scaleAnim = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animController,
-        curve: const Interval(0.0, 0.7, curve: Curves.easeOutBack),
-      ),
-    );
-    _badgeAnim = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _animController,
-        curve: const Interval(0.4, 1.0, curve: Curves.easeOut),
-      ),
-    );
-    _animController.forward();
+    _intro.forward();
     _navigateAfterDelay();
   }
 
   Future<void> _navigateAfterDelay() async {
     await Future.delayed(const Duration(milliseconds: 2200));
     if (!mounted) return;
-    // Trigger auth check — the GoRouter redirect will navigate automatically
-    // when isLoading flips to false (see app_router.dart refreshListenable).
-    await ref.read(authProvider.notifier).checkAuthStatus();
+
+    try {
+      await ref.read(authProvider.notifier).checkAuthStatus();
+    } catch (_) {}
+
+    if (!mounted) return;
+
+    final authState = ref.read(authProvider);
+    if (authState.isAuthenticated) {
+      if (authState.isSuperAdmin) {
+        context.go(AppRoutes.adminDashboard);
+      } else if (authState.isCompanyAdmin) {
+        context.go(AppRoutes.companyAdmin);
+      } else {
+        context.go(AppRoutes.main);
+      }
+    } else {
+      context.go(AppRoutes.login);
+    }
   }
 
   @override
   void dispose() {
-    _animController.dispose();
+    _intro.dispose();
+    _sweep.dispose();
     super.dispose();
+  }
+
+  /// Fade plus a short rise. Splash copy that slides up a few pixels settles;
+  /// copy that scales or bounces draws attention to itself.
+  Widget _rise(Animation<double> anim, Widget child, {double from = 14}) {
+    return AnimatedBuilder(
+      animation: anim,
+      builder: (context, child) => Opacity(
+        opacity: anim.value.clamp(0.0, 1.0),
+        child: Transform.translate(
+          offset: Offset(0, from * (1 - anim.value)),
+          child: child,
+        ),
+      ),
+      child: child,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final size = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: const Color(0xFF061634),
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // ── Modern Deep Tech & Attendance Gradient ──
-          Container(
+          // A single light source: brand blue at the upper left falling away
+          // to near-black. No second hue, no floating colour blobs.
+          const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
+                colors: [Color(0xFF0B2A80), Color(0xFF07143A), Color(0xFF050F2A)],
+                stops: [0.0, 0.62, 1.0],
+              ),
+            ),
+          ),
+          // Vignette, so the eye lands on the mark rather than the corners.
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: const Alignment(0, -0.28),
+                radius: 1.0,
                 colors: [
-                  Color(0xFF071126),
-                  Color(0xFF0A225C),
-                  Color(0xFF0038B8),
-                  Color(0xFF031633),
+                  AppColors.primary.withValues(alpha: 0.20),
+                  Colors.transparent,
                 ],
-                stops: [0.0, 0.35, 0.75, 1.0],
               ),
             ),
           ),
 
-          // ── Ambient Glow Spheres ──
-          Positioned(
-            top: -size.width * 0.25,
-            right: -size.width * 0.2,
-            child: Container(
-              width: size.width * 0.85,
-              height: size.width * 0.85,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF0052FF).withAlpha(50),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -size.width * 0.3,
-            left: -size.width * 0.2,
-            child: Container(
-              width: size.width * 0.9,
-              height: size.width * 0.9,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF16A34A).withAlpha(35),
-              ),
-            ),
-          ),
-
-          // ── Center Content ──
           SafeArea(
             child: Column(
               children: [
-                const Spacer(),
+                const Spacer(flex: 5),
 
-                // ── Logo & Animated Brand ──
-                FadeTransition(
-                  opacity: _fadeAnim,
-                  child: ScaleTransition(
-                    scale: _scaleAnim,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Animated Logo with Ambient Glow Ring
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withAlpha(140),
-                                blurRadius: 40,
-                                spreadRadius: 10,
-                              ),
-                              BoxShadow(
-                                color: AppColors.secondary.withAlpha(80),
-                                blurRadius: 60,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: AppLogo(size: 110),
+                // The geofence rings are the illustration: this app decides
+                // whether you are inside a radius, so the radius is the image.
+                SizedBox(
+                  width: 320,
+                  height: 320,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      AnimatedBuilder(
+                        animation: _rings,
+                        builder: (context, _) => CustomPaint(
+                          size: const Size.square(320),
+                          painter: _RingsPainter(progress: _rings.value),
                         ),
-
-                        SizedBox(height: 24),
-
-                        // App Title
-                        Text(
-                          'AttendKH',
-                          style: const TextStyle(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: 2.5,
+                      ),
+                      RotationTransition(
+                        turns: _sweep,
+                        child: FadeTransition(
+                          opacity: _rings,
+                          child: const CustomPaint(
+                            size: Size.square(320),
+                            painter: _SweepPainter(),
                           ),
                         ),
-
-                        const SizedBox(height: 10),
-
-                        // Localized Tagline
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32),
-                          child: Text(
-                            l10n.smartAttendanceSystem,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.white.withAlpha(220),
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.3,
-                              height: 1.35,
-                            ),
-                          ),
+                      ),
+                      ScaleTransition(
+                        scale: Tween<double>(
+                          begin: 0.9,
+                          end: 1.0,
+                        ).animate(_mark),
+                        child: FadeTransition(
+                          opacity: _mark,
+                          child: _buildMark(),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
 
-                        const SizedBox(height: 24),
+                const SizedBox(height: 26),
 
-                        // Attendance feature pills
-                        FadeTransition(
-                          opacity: _badgeAnim,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 24),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withAlpha(25),
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(
-                                color: Colors.white.withAlpha(40),
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text('📍', style: TextStyle(fontSize: 12)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'GPS Geofence',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white.withAlpha(220),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  width: 4,
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white.withAlpha(120),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Text('🏢', style: TextStyle(fontSize: 12)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Office Radius',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white.withAlpha(220),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  width: 4,
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white.withAlpha(120),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+                _rise(
+                  _word,
+                  const Text(
+                    'AttendKH',
+                    style: TextStyle(
+                      fontSize: 31,
+                      // Tight and medium-heavy. The old w900 at +2.5 tracking
+                      // was shouting.
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.6,
+                      color: Colors.white,
+                      height: 1.0,
                     ),
                   ),
                 ),
 
-                const Spacer(),
+                const SizedBox(height: 12),
 
-                // ── Loading & Cambodia Branding Footer ──
-                FadeTransition(
-                  opacity: _fadeAnim,
-                  child: Column(
-                    children: [
-                      // Loading indicator
-                      SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.secondaryLight,
-                          ),
-                        ),
+                _rise(
+                  _tag,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 44),
+                    child: Text(
+                      l10n.smartAttendanceSystem,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        // No negative tracking here — the Khmer tagline needs
+                        // its natural spacing.
+                        color: Colors.white.withValues(alpha: 0.60),
+                        height: 1.5,
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        l10n.poweredByAttendKH,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withAlpha(140),
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
+                    ),
                   ),
                 ),
+
+                const Spacer(flex: 6),
+
+                _rise(
+                  _foot,
+                  Text(
+                    l10n.poweredByAttendKH.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 2.0,
+                      color: Colors.white.withValues(alpha: 0.32),
+                    ),
+                  ),
+                  from: 8,
+                ),
+                const SizedBox(height: 30),
               ],
             ),
           ),
@@ -293,4 +242,123 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       ),
     );
   }
+
+  /// The logo in a thin collar. Rendered here rather than via [AppLogo] so the
+  /// splash does not inherit that widget's heavy halo — the rings already do
+  /// the work that halo was attempting.
+  Widget _buildMark() {
+    const double size = 104;
+    return Container(
+      width: size,
+      height: size,
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white.withValues(alpha: 0.06),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+      ),
+      child: ClipOval(
+        child: Image.asset(
+          'assets/images/attendkh_logo.png',
+          fit: BoxFit.cover,
+          cacheWidth: 312,
+          cacheHeight: 312,
+          errorBuilder: (_, _, _) => const ColoredBox(
+            color: AppColors.primary,
+            child: Center(
+              child: Text(
+                'AK',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Concentric geofence rings, drawn from the inside out as the intro plays.
+/// Every second ring is dashed, so the set reads as a measured radius rather
+/// than as decoration.
+class _RingsPainter extends CustomPainter {
+  final double progress;
+
+  const _RingsPainter({required this.progress});
+
+  static const _radii = <double>[66, 96, 124, 150];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+
+    for (int i = 0; i < _radii.length; i++) {
+      // Each ring waits for the one inside it.
+      final t = ((progress - i * 0.12) / 0.55).clamp(0.0, 1.0);
+      if (t <= 0) continue;
+
+      final paint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = Colors.white.withValues(alpha: (0.20 - i * 0.04) * t);
+
+      final r = _radii[i] * (0.94 + 0.06 * t);
+      if (i.isOdd) {
+        _dashedCircle(canvas, center, r, paint);
+      } else {
+        canvas.drawCircle(center, r, paint);
+      }
+    }
+  }
+
+  void _dashedCircle(Canvas canvas, Offset center, double r, Paint paint) {
+    const dash = 0.045; // radians drawn
+    const gap = 0.030; // radians skipped
+    final rect = Rect.fromCircle(center: center, radius: r);
+    for (double a = 0; a < math.pi * 2; a += dash + gap) {
+      canvas.drawArc(rect, a, dash, false, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingsPainter old) => old.progress != progress;
+}
+
+/// The sweep: a comet arc riding the outer ring with a bright head, the way a
+/// radar trace or a second hand reads. Rotated by its parent.
+class _SweepPainter extends CustomPainter {
+  const _SweepPainter();
+
+  static const _radius = 150.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final rect = Rect.fromCircle(center: center, radius: _radius);
+
+    // Tail fades out behind the head, which sits at angle 0.
+    final tail = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round
+      ..shader = SweepGradient(
+        startAngle: -math.pi * 0.5,
+        endAngle: 0,
+        colors: [Colors.transparent, Colors.white.withValues(alpha: 0.85)],
+      ).createShader(rect);
+
+    canvas.drawArc(rect, -math.pi * 0.5, math.pi * 0.5, false, tail);
+
+    // The head: the detail that makes it read as an instrument.
+    final head = Offset(center.dx + _radius, center.dy);
+    canvas.drawCircle(head, 8, Paint()..color = Colors.white.withValues(alpha: 0.14));
+    canvas.drawCircle(head, 3, Paint()..color = Colors.white);
+  }
+
+  @override
+  bool shouldRepaint(_SweepPainter oldDelegate) => false;
 }

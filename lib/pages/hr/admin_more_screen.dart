@@ -22,109 +22,110 @@ class AdminMoreScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.bg(context),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        children: [
-          // ── Finance
-          if (isAdmin) ...[
-            _sectionHeader(l10n.financeSection),
-            const SizedBox(height: 10),
-            _buildGrid(context, [
-              _MoreItem(l10n.morePayroll, l10n.morePayrollDesc, Icons.payments_rounded, const Color(0xFFF59E0B), AppRoutes.adminPayroll),
-              _MoreItem(l10n.moreExpenses, l10n.moreExpensesDesc, Icons.receipt_long_rounded, const Color(0xFFEC4899), AppRoutes.adminExpenses),
-            ]),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          children: [
+            // ── Finance
+            if (isAdmin) ...[
+              _sectionHeader(l10n.financeSection),
+              const SizedBox(height: 10),
+              _buildGrid(context, [
+                _MoreItem(l10n.morePayroll, l10n.morePayrollDesc, Icons.payments_rounded, const Color(0xFFF59E0B), AppRoutes.adminPayroll),
+                _MoreItem(l10n.moreExpenses, l10n.moreExpensesDesc, Icons.receipt_long_rounded, const Color(0xFFEC4899), AppRoutes.adminExpenses),
+              ]),
+              const SizedBox(height: 20),
+            ],
+
+            // ── Operations
+            if (isAdmin || isBranchManager) ...[
+              _sectionHeader(l10n.operationsSection),
+              const SizedBox(height: 10),
+              _buildGrid(context, [
+                if (isAdmin || isBranchManager)
+                  _MoreItem(l10n.moreShifts, l10n.moreShiftsDesc, Icons.schedule_rounded, const Color(0xFF10B981), AppRoutes.adminShifts),
+                if (isAdmin)
+                  _MoreItem(l10n.moreHolidays, l10n.moreHolidaysDesc, Icons.celebration_rounded, const Color(0xFFEAB308), AppRoutes.adminHolidays),
+                if (isAdmin)
+                  _MoreItem(l10n.moreAssets, l10n.moreAssetsDesc, Icons.devices_rounded, const Color(0xFF6B7280), AppRoutes.adminAssets),
+                if (isAdmin)
+                  _MoreItem(l10n.moreAnnouncements, l10n.moreAnnouncementsDesc, Icons.campaign_rounded, const Color(0xFF8B5CF6), AppRoutes.adminSendNotification),
+              ]),
+              const SizedBox(height: 20),
+            ],
+
+            // ── Talent
+            if (isAdmin) ...[
+              _sectionHeader(l10n.talentSection),
+              const SizedBox(height: 10),
+              _buildGrid(context, [
+                _MoreItem(l10n.moreRecruitment, l10n.moreRecruitmentDesc, Icons.work_outline_rounded, const Color(0xFF0052FF), AppRoutes.adminRecruitment),
+                _MoreItem(l10n.morePerformance, l10n.morePerformanceDesc, Icons.trending_up_rounded, const Color(0xFFA855F7), AppRoutes.adminPerformance),
+                _MoreItem(l10n.moreReports, l10n.moreReportsDesc, Icons.assessment_rounded, const Color(0xFF14B8A6), AppRoutes.adminReports),
+                _MoreItem(l10n.moreDocuments, l10n.moreDocumentsDesc, Icons.folder_open_rounded, const Color(0xFFF59E0B), AppRoutes.adminDocuments),
+              ]),
+              const SizedBox(height: 20),
+            ],
+
+            // ── System
+            if (isAdmin) ...[
+              _sectionHeader(l10n.systemSection),
+              const SizedBox(height: 10),
+              _buildGrid(context, [
+                _MoreItem(l10n.moreRoles, l10n.moreRolesDesc, Icons.admin_panel_settings_rounded, const Color(0xFF6366F1), AppRoutes.adminRoles),
+                _MoreItem(l10n.moreNotifications, l10n.moreNotificationsDesc, Icons.notifications_rounded, const Color(0xFFEF4444), AppRoutes.notifications),
+                _MoreItem(l10n.morePolicies, l10n.morePoliciesDesc, Icons.book_rounded, const Color(0xFF3B82F6), AppRoutes.adminPolicies),
+                _MoreItem(l10n.moreHrStructure, l10n.moreHrStructureDesc, Icons.corporate_fare_rounded, const Color(0xFF6366F1), AppRoutes.hrStructure),
+              ]),
+              const SizedBox(height: 20),
+            ],
+
+            // ── Branch Switcher (Company Admin only)
+            if (isAdmin)
+              ref.watch(branchesProvider).when(
+                data: (branches) => branches.isEmpty
+                    ? const SizedBox.shrink()
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _sectionHeader(l10n.branchSection),
+                          const SizedBox(height: 10),
+                          _BranchSwitcherTile(branches: branches),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
+              ),
+
+            // ── Divider before logout
+            const Divider(height: 1, color: AppColors.grey200),
             const SizedBox(height: 20),
-          ],
 
-          // ── Operations
-          if (isAdmin || isBranchManager) ...[
-            _sectionHeader(l10n.operationsSection),
-            const SizedBox(height: 10),
-            _buildGrid(context, [
-              if (isAdmin || isBranchManager)
-                _MoreItem(l10n.moreShifts, l10n.moreShiftsDesc, Icons.schedule_rounded, const Color(0xFF10B981), AppRoutes.adminShifts),
-              if (isAdmin)
-                _MoreItem(l10n.moreHolidays, l10n.moreHolidaysDesc, Icons.celebration_rounded, const Color(0xFFEAB308), AppRoutes.adminHolidays),
-              if (isAdmin)
-                _MoreItem(l10n.moreAssets, l10n.moreAssetsDesc, Icons.devices_rounded, const Color(0xFF6B7280), AppRoutes.adminAssets),
-              if (isAdmin)
-                _MoreItem(l10n.moreAnnouncements, l10n.moreAnnouncementsDesc, Icons.campaign_rounded, const Color(0xFF8B5CF6), AppRoutes.adminSendNotification),
-            ]),
-            const SizedBox(height: 20),
-          ],
-
-          // ── Talent
-          if (isAdmin) ...[
-            _sectionHeader(l10n.talentSection),
-            const SizedBox(height: 10),
-            _buildGrid(context, [
-              _MoreItem(l10n.moreRecruitment, l10n.moreRecruitmentDesc, Icons.work_outline_rounded, const Color(0xFF0052FF), AppRoutes.adminRecruitment),
-              _MoreItem(l10n.morePerformance, l10n.morePerformanceDesc, Icons.trending_up_rounded, const Color(0xFFA855F7), AppRoutes.adminPerformance),
-              _MoreItem(l10n.moreReports, l10n.moreReportsDesc, Icons.assessment_rounded, const Color(0xFF14B8A6), AppRoutes.adminReports),
-              _MoreItem(l10n.moreDocuments, l10n.moreDocumentsDesc, Icons.folder_open_rounded, const Color(0xFFF59E0B), AppRoutes.adminDocuments),
-            ]),
-            const SizedBox(height: 20),
-          ],
-
-          // ── System
-          if (isAdmin) ...[
-            _sectionHeader(l10n.systemSection),
-            const SizedBox(height: 10),
-            _buildGrid(context, [
-              _MoreItem(l10n.moreRoles, l10n.moreRolesDesc, Icons.admin_panel_settings_rounded, const Color(0xFF6366F1), AppRoutes.adminRoles),
-              _MoreItem(l10n.moreNotifications, l10n.moreNotificationsDesc, Icons.notifications_rounded, const Color(0xFFEF4444), AppRoutes.notifications),
-              _MoreItem(l10n.morePolicies, l10n.morePoliciesDesc, Icons.book_rounded, const Color(0xFF3B82F6), AppRoutes.adminPolicies),
-              _MoreItem(l10n.moreHrStructure, l10n.moreHrStructureDesc, Icons.corporate_fare_rounded, const Color(0xFF6366F1), AppRoutes.hrStructure),
-            ]),
-            const SizedBox(height: 20),
-          ],
-
-          // ── Branch Switcher (Company Admin only)
-          if (isAdmin)
-            ref.watch(branchesProvider).when(
-              data: (branches) => branches.isEmpty
-                  ? const SizedBox.shrink()
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _sectionHeader(l10n.branchSection),
-                        const SizedBox(height: 10),
-                        _BranchSwitcherTile(branches: branches),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
-              loading: () => const SizedBox.shrink(),
-              error: (_, _) => const SizedBox.shrink(),
-            ),
-
-          // ── Divider before logout
-          const Divider(height: 1, color: AppColors.grey200),
-          const SizedBox(height: 20),
-
-          // ── Logout Button
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => showLogoutConfirmation(context, ref),
-              icon: const Icon(Icons.logout_rounded, color: AppColors.danger),
-              label: Text(
-                l10n.logoutBtn,
-                style: const TextStyle(
-                  color: AppColors.danger,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                  
+            // ── Logout Button
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => showLogoutConfirmation(context, ref),
+                icon: const Icon(Icons.logout_rounded, color: AppColors.danger),
+                label: Text(
+                  l10n.logoutBtn,
+                  style: const TextStyle(
+                    color: AppColors.danger,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  side: const BorderSide(color: AppColors.danger, width: 1.5),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  backgroundColor: AppColors.dangerLight,
                 ),
               ),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                side: const BorderSide(color: AppColors.danger, width: 1.5),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                backgroundColor: AppColors.dangerLight,
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -249,7 +250,7 @@ class _BranchSwitcherTile extends ConsumerWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [
-          BoxShadow(color: AppColors.textPrimary(context).withAlpha(5), blurRadius: 8, offset: Offset(0, 3)),
+          BoxShadow(color: AppColors.textPrimary(context).withAlpha(5), blurRadius: 8, offset: const Offset(0, 3)),
         ],
       ),
       child: Column(

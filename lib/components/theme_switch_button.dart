@@ -43,9 +43,11 @@ class ThemeSwitchButton extends ConsumerWidget {
         onTap: () => _showThemeSelectionSheet(context, ref),
         borderRadius: BorderRadius.circular(20),
         child: Container(
+          // Apple HIG: minimum 44pt hit target.
+          constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
           padding: EdgeInsets.symmetric(
-            horizontal: compact ? 8 : 10,
-            vertical: 6,
+            horizontal: compact ? 10 : 12,
+            vertical: 8,
           ),
           decoration: BoxDecoration(
             color: isDarkHeader

@@ -37,6 +37,8 @@ class AppLogo extends StatelessWidget {
         child: Image.asset(
           'assets/images/attendkh_logo.png',
           fit: BoxFit.cover,
+          cacheWidth: (size * 3).toInt(),
+          cacheHeight: (size * 3).toInt(),
           errorBuilder: (_, _, _) => Center(
             child: Text(
               'AttendKH',

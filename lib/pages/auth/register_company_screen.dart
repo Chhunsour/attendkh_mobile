@@ -8,6 +8,7 @@ import 'package:mpg_hr_mobile_app/components/custom_text_field.dart';
 import 'package:mpg_hr_mobile_app/components/primary_button.dart';
 import 'package:mpg_hr_mobile_app/components/language_switch_button.dart';
 import 'package:mpg_hr_mobile_app/components/theme_switch_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class RegisterCompanyScreen extends ConsumerStatefulWidget {
@@ -167,7 +168,7 @@ class _RegisterCompanyScreenState
           // ── Layer 1: Tech Gradient Background ──
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -193,52 +194,6 @@ class _RegisterCompanyScreenState
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.primary.withAlpha(50),
-              ),
-            ),
-          ),
-
-          // ── Layer 3: Top Navigation (Back Button + Language Switcher) ──
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (_step == 2) {
-                        _goToStep1();
-                      } else {
-                        context.go('/login');
-                      }
-                    },
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(35),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withAlpha(50),
-                          width: 1,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.arrow_back_rounded,
-                        color: AppColors.textPrimary(context),
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      ThemeSwitchButton(isDarkHeader: true),
-                      SizedBox(width: 8),
-                      LanguageSwitchButton(isDark: true),
-                    ],
-                  ),
-                ],
               ),
             ),
           ),
@@ -277,10 +232,10 @@ class _RegisterCompanyScreenState
                                         ),
                                       ],
                                     ),
-                                    child: AppLogo(size: 72),
+                                    child: const AppLogo(size: 72),
                                   ),
-                                  SizedBox(height: 10),
-                                  Text(
+                                  const SizedBox(height: 10),
+                                  const Text(
                                     'AttendKH',
                                     style: TextStyle(
                                       fontSize: 22,
@@ -345,6 +300,52 @@ class _RegisterCompanyScreenState
               },
             ),
           ),
+
+          // ── Layer 3: Top Navigation (Back Button + Language Switcher) ──
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      if (_step == 2) {
+                        _goToStep1();
+                      } else {
+                        context.go('/login');
+                      }
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(35),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withAlpha(50),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ThemeSwitchButton(isDarkHeader: true),
+                      SizedBox(width: 8),
+                      LanguageSwitchButton(isDark: true),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -354,7 +355,7 @@ class _RegisterCompanyScreenState
   //  CARD CONTENT — stepper + form
   // ────────────────────────────────────────────
   Widget _buildCardContent(AppLocalizations l10n, bool isDark) {
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,6 +477,31 @@ class _RegisterCompanyScreenState
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+
+          // Privacy Policy Link (Apple Guideline 5.1.1)
+          Center(
+            child: TextButton(
+              onPressed: () => launchUrl(
+                Uri.parse('https://attendkh.com/privacy-policy'),
+                mode: LaunchMode.inAppBrowserView,
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                'Privacy Policy',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
+                  decoration: TextDecoration.underline,
                 ),
               ),
             ),

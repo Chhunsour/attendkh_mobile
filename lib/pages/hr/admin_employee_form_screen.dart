@@ -26,7 +26,7 @@ InputDecoration _fieldDecor(
     suffixIcon: suffixIcon,
     filled: true,
     fillColor: context != null ? AppColors.surface(context) : AppColors.surfaceLight,
-    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
@@ -37,10 +37,10 @@ InputDecoration _fieldDecor(
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: AppColors.primary, width: 2),
+      borderSide: const BorderSide(color: AppColors.primary, width: 2),
     ),
-    labelStyle: TextStyle(fontSize: 14, color: AppColors.grey500),
-    floatingLabelStyle: TextStyle(
+    labelStyle: const TextStyle(fontSize: 14, color: AppColors.grey500),
+    floatingLabelStyle: const TextStyle(
       fontSize: 12,
       color: AppColors.primary,
       fontWeight: FontWeight.w600,
@@ -86,7 +86,7 @@ class _Section extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
             color: AppColors.backgroundLight,
@@ -277,7 +277,7 @@ class _AdminEmployeeFormScreenState
       builder: (ctx, child) => Theme(
         data: Theme.of(
           ctx,
-        ).copyWith(colorScheme: ColorScheme.light(primary: AppColors.primary)),
+        ).copyWith(colorScheme: const ColorScheme.light(primary: AppColors.primary)),
         child: child!,
       ),
     );
@@ -295,7 +295,7 @@ class _AdminEmployeeFormScreenState
       builder: (ctx, child) => Theme(
         data: Theme.of(
           ctx,
-        ).copyWith(colorScheme: ColorScheme.light(primary: AppColors.primary)),
+        ).copyWith(colorScheme: const ColorScheme.light(primary: AppColors.primary)),
         child: child!,
       ),
     );
@@ -682,7 +682,7 @@ class _AdminEmployeeFormScreenState
                     }),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.add_rounded,
                           size: 16,
                           color: AppColors.primary,
@@ -690,7 +690,7 @@ class _AdminEmployeeFormScreenState
                         const SizedBox(width: 6),
                         Text(
                           l10n.addPhoneNumber,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.primary,
@@ -785,8 +785,8 @@ class _AdminEmployeeFormScreenState
                                   () => _pickedNationalIdImages.removeAt(i),
                                 ),
                                 child: Container(
-                                  padding: EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
                                     color: AppColors.danger,
                                     shape: BoxShape.circle,
                                   ),
@@ -820,7 +820,7 @@ class _AdminEmployeeFormScreenState
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.upload_outlined,
                             size: 16,
                             color: AppColors.grey500,
@@ -828,7 +828,7 @@ class _AdminEmployeeFormScreenState
                           const SizedBox(width: 8),
                           Text(
                             l10n.uploadIdImages,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: AppColors.grey600,
@@ -1068,7 +1068,7 @@ class _AdminEmployeeFormScreenState
               ElevatedButton.icon(
                 onPressed: _isLoading ? null : _save,
                 icon: _isLoading
-                    ? SizedBox(
+                    ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
@@ -1160,7 +1160,7 @@ class _AdminEmployeeFormScreenState
                       color: AppColors.surfaceLight,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.camera_alt_rounded,
                       size: 14,
                       color: AppColors.primary,
@@ -1170,7 +1170,7 @@ class _AdminEmployeeFormScreenState
               ],
             ),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1270,7 +1270,7 @@ class _AdminEmployeeFormScreenState
           value: null,
           child: Text(
             l10n?.none ?? '— None —',
-            style: TextStyle(color: AppColors.grey400),
+            style: const TextStyle(color: AppColors.grey400),
           ),
         ),
         ...items.entries.map(
@@ -1294,7 +1294,7 @@ class _AdminEmployeeFormScreenState
         items: [
           DropdownMenuItem<int>(
             value: null,
-            child: Text(l10n.none, style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.none, style: const TextStyle(color: AppColors.grey400)),
           ),
           ...depts.map(
             (d) => DropdownMenuItem(value: d.id, child: Text(d.name)),
@@ -1317,7 +1317,7 @@ class _AdminEmployeeFormScreenState
         items: [
           DropdownMenuItem<int>(
             value: null,
-            child: Text(l10n.none, style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.none, style: const TextStyle(color: AppColors.grey400)),
           ),
           ...pos.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))),
         ],
@@ -1338,7 +1338,7 @@ class _AdminEmployeeFormScreenState
         items: [
           DropdownMenuItem<int>(
             value: null,
-            child: Text(l10n.none, style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.none, style: const TextStyle(color: AppColors.grey400)),
           ),
           ...branches.map(
             (b) => DropdownMenuItem(value: b.id, child: Text(b.name)),
@@ -1361,7 +1361,7 @@ class _AdminEmployeeFormScreenState
         items: [
           DropdownMenuItem<int>(
             value: null,
-            child: Text(l10n.none, style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.none, style: const TextStyle(color: AppColors.grey400)),
           ),
           ...teams.map(
             (t) => DropdownMenuItem(value: t.id, child: Text(t.name)),
@@ -1387,7 +1387,7 @@ class _AdminEmployeeFormScreenState
         items: [
           DropdownMenuItem<int>(
             value: null,
-            child: Text(l10n.none, style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.none, style: const TextStyle(color: AppColors.grey400)),
           ),
           ...employees
               .where((e) => e.id != widget.employee?.id)
@@ -1407,7 +1407,7 @@ class _AdminEmployeeFormScreenState
 
   Widget _fieldError(String label) => InputDecorator(
     decoration: _fieldDecor(label),
-    child: Text(
+    child: const Text(
       'Error loading',
       style: TextStyle(color: AppColors.danger, fontSize: 13),
     ),

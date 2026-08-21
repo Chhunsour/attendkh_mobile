@@ -194,7 +194,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                           color: isDark ? AppColors.grey300 : AppColors.grey700,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       DropdownButtonFormField<int>(
                         initialValue: _selectedLeaveTypeId ?? leaveTypes.first.id,
                         dropdownColor: AppColors.surface(context),
@@ -203,7 +203,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                           color: AppColors.textPrimary(context),
                         ),
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.category),
+                          prefixIcon: const Icon(Icons.category),
                           filled: true,
                           fillColor: isDark
                               ? AppColors.surfaceDarkElevated
@@ -288,7 +288,15 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                 children: [
                                   const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.warning),
                                   const SizedBox(width: 8),
-                                  Text(l10n.noBalanceRecord, style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : AppColors.grey700)),
+                                  Expanded(
+                                    child: Text(
+                                      l10n.noBalanceRecord,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: isDark ? Colors.white70 : AppColors.grey700,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             );
@@ -314,11 +322,11 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                     color: isDark ? AppColors.grey300 : AppColors.grey700,
                                   ),
                                 ),
-                                SizedBox(height: 6),
+                                const SizedBox(height: 6),
                                 InkWell(
                                   onTap: () => _pickDate(true),
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                     decoration: BoxDecoration(
                                       color: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                                       border: Border.all(color: AppColors.border(context)),
@@ -356,11 +364,11 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                                     color: isDark ? AppColors.grey300 : AppColors.grey700,
                                   ),
                                 ),
-                                SizedBox(height: 6),
+                                const SizedBox(height: 6),
                                 InkWell(
                                   onTap: () => _pickDate(false),
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                     decoration: BoxDecoration(
                                       color: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                                       border: Border.all(color: AppColors.border(context)),
@@ -387,7 +395,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Half Day Toggle
                       Container(
@@ -536,7 +544,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                           color: isDark ? AppColors.grey300 : AppColors.grey700,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       TextFormField(
                         controller: _reasonController,
                         maxLines: 4,
@@ -578,7 +586,7 @@ class _LeaveRequestScreenState extends ConsumerState<LeaveRequestScreen> {
                           }
                         },
                         child: Container(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                             border: Border.all(

@@ -228,12 +228,27 @@ class DocumentsRepository {
     }
   }
 
-  Future<void> downloadDocument(int id, String savePath) async {
-    await _api.download(
-      '/company/documents/$id/download',
-      savePath,
-      method: 'GET',
-    );
+  Future<void> downloadDocument(
+    int id,
+    String savePath, {
+    String? downloadUrl,
+  }) async {
+    if (downloadUrl != null &&
+        downloadUrl.isNotEmpty &&
+        (downloadUrl.startsWith('http://') ||
+            downloadUrl.startsWith('https://'))) {
+      await _api.download(
+        downloadUrl,
+        savePath,
+        method: 'GET',
+      );
+    } else {
+      await _api.download(
+        '/company/documents/$id/download',
+        savePath,
+        method: 'GET',
+      );
+    }
   }
 
   Future<void> deleteDocument(int id) async =>
@@ -248,11 +263,25 @@ class DocumentsRepository {
           .map((e) => DocumentData.fromJson(e as Map<String, dynamic>))
           .toList();
     }
-    if (data is Map && data['data'] != null) {
-      return (data['data'] as List)
-          .map((e) => DocumentData.fromJson(e as Map<String, dynamic>))
-          .toList();
+    if (data is Map) {
+      if (data['documents']?['data'] != null &&
+          data['documents']['data'] is List) {
+        return (data['documents']['data'] as List)
+            .map((e) => DocumentData.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      if (data['documents'] != null && data['documents'] is List) {
+        return (data['documents'] as List)
+            .map((e) => DocumentData.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      if (data['data'] != null && data['data'] is List) {
+        return (data['data'] as List)
+            .map((e) => DocumentData.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
     }
     return [];
   }
 }
+

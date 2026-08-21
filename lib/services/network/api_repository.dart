@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
@@ -138,23 +140,46 @@ class ApiRepository {
         options: Options(method: method),
       );
     } on DioException catch (e) {
-      final responseData = e.response?.data;
-      String errorDetail = '';
-
-      // If download fails, the response data might be a JSON error even if we expected a file
-      if (responseData is Map && responseData.containsKey('message')) {
-        errorDetail = ": ${responseData['message']}";
-      } else if (responseData is String && responseData.isNotEmpty) {
-        errorDetail = ": $responseData";
-      } else if (e.response != null) {
-        // Sometimes Dio doesn't parse the error body if it expected a stream
-        try {
-          errorDetail = ": ${e.response.toString()}";
-        } catch (_) {}
+      final message = await _readErrorMessage(e.response?.data);
+      AppLogger.e(
+        'DOWNLOAD $path failed [${e.response?.statusCode}]',
+        message ?? e.message,
+      );
+      if (message != null && message.isNotEmpty) {
+        throw AppException(message: message, statusCode: e.response?.statusCode);
       }
-
-      AppLogger.e('DOWNLOAD $path failed$errorDetail', e.message);
       throw mapDioException(e);
     }
+  }
+
+  /// Dio's download() streams the response, so a failed download hands back a
+  /// ResponseBody stream instead of parsed JSON — read it, otherwise the
+  /// server's real message is swallowed into a generic "Server error".
+  Future<String?> _readErrorMessage(dynamic data) async {
+    try {
+      final String raw;
+      if (data is ResponseBody) {
+        final bytes = await data.stream.fold<List<int>>(
+          <int>[],
+          (acc, chunk) => acc..addAll(chunk),
+        );
+        raw = utf8.decode(bytes, allowMalformed: true);
+      } else if (data is List<int>) {
+        raw = utf8.decode(data, allowMalformed: true);
+      } else if (data is String) {
+        raw = data;
+      } else if (data is Map) {
+        return data['message']?.toString();
+      } else {
+        return null;
+      }
+      final decoded = jsonDecode(raw);
+      if (decoded is Map && decoded['message'] != null) {
+        return decoded['message'].toString();
+      }
+    } catch (_) {
+      // Non-JSON body (HTML error page, binary) — fall back to status mapping.
+    }
+    return null;
   }
 }

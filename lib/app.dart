@@ -37,8 +37,8 @@ class MPGHRApp extends ConsumerWidget {
       builder: (context, child) {
         return DefaultTextStyle.merge(
           style: const TextStyle(
-            fontFamily: 'GoogleSans',
-            fontFamilyFallback: ['Google Sans', 'sans-serif'],
+            fontFamily: 'GoogleSansFlex',
+            fontFamilyFallback: AppTheme.fontFallbacks,
           ),
           child: child ?? const SizedBox.shrink(),
         );

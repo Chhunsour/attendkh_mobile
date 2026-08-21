@@ -9,7 +9,7 @@ class AppLocalizationsKm extends AppLocalizations {
   AppLocalizationsKm([String locale = 'km']) : super(locale);
 
   @override
-  String get myProfile => 'ព័ត៌មានរូបខ្ញុំ';
+  String get myProfile => 'គណនីផ្ទាល់ខ្លួន';
 
   @override
   String get loadingProfile => 'កំពុងផ្ទុកប្រវត្តិរូប...';
@@ -21,7 +21,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get retry => 'ព្យាយាមម្ដងទៀត';
 
   @override
-  String get editProfile => 'កែប្រែព័ត៌មាន';
+  String get editProfile => 'កែប្រែព័ត៌មានផ្ទាល់ខ្លួន';
 
   @override
   String get company => 'ក្រុមហ៊ុន';
@@ -36,23 +36,23 @@ class AppLocalizationsKm extends AppLocalizations {
   String get accessRoles => 'សិទ្ធិប្រើប្រាស់';
 
   @override
-  String get returnToAdminConsole => 'ត្រឡប់ទៅកាន់ផ្ទាំងគ្រប់គ្រង';
+  String get returnToAdminConsole => 'ប្តូរទៅកាន់ផ្ទាំងគ្រប់គ្រង HR Admin';
 
   @override
   String get logOut => 'ចាកចេញ';
 
   @override
   String get logoutConfirmationDesc =>
-      'តើអ្នកប្រាកដជាចង់ចាកចេញពីគណនីរបស់អ្នកទេ?';
+      'អ្នកនឹងត្រូវចូលគណនីម្តងទៀត ដើម្បីមើលវត្តមាន ការឈប់សម្រាក និងបញ្ជីប្រាក់ខែរបស់អ្នកនៅលើឧបករណ៍នេះ។';
 
   @override
-  String get language => 'ភាសា';
+  String get language => 'ភាសា (Language)';
 
   @override
-  String get english => 'អង់គ្លេស';
+  String get english => 'អង់គ្លេស (English)';
 
   @override
-  String get khmer => 'ខ្មែរ';
+  String get khmer => 'ភាសាខ្មែរ (Khmer)';
 
   @override
   String get welcomeBack => 'សូមស្វាគមន៍ការត្រលប់មកវិញ,';
@@ -73,7 +73,37 @@ class AppLocalizationsKm extends AppLocalizations {
   String get password => 'ពាក្យសម្ងាត់';
 
   @override
-  String get passwordRequired => 'ពាក្យសម្ងាត់ *';
+  String get passwordRequired => 'សូមបញ្ចូលពាក្យសម្ងាត់';
+
+  @override
+  String get forgotPassword => 'ភ្លេចពាក្យសម្ងាត់?';
+
+  @override
+  String get signInSubtitle => 'ចូលគណនីដើម្បីបន្តទៅកន្លែងធ្វើការរបស់អ្នក';
+
+  @override
+  String get showPassword => 'បង្ហាញពាក្យសម្ងាត់';
+
+  @override
+  String get hidePassword => 'លាក់ពាក្យសម្ងាត់';
+
+  @override
+  String get tooManyAttempts =>
+      'ព្យាយាមចូលច្រើនដងពេក។ សូមរង់ចាំបន្តិចមុននឹងព្យាយាមម្តងទៀត។';
+
+  @override
+  String get resetPasswordTitle => 'កំណត់ពាក្យសម្ងាត់ឡើងវិញ';
+
+  @override
+  String get resetPasswordDesc =>
+      'បញ្ចូលអ៊ីមែលដែលភ្ជាប់ជាមួយគណនីរបស់អ្នក យើងនឹងផ្ញើតំណសម្រាប់កំណត់ពាក្យសម្ងាត់ឡើងវិញ។';
+
+  @override
+  String get sendResetLink => 'ផ្ញើតំណកំណត់ឡើងវិញ';
+
+  @override
+  String get resetLinkSent =>
+      'ប្រសិនបើអ៊ីមែលនេះមានក្នុងប្រព័ន្ធ តំណកំណត់ឡើងវិញត្រូវបានផ្ញើទៅហើយ។';
 
   @override
   String get signIn => 'ចូលគណនី';
@@ -239,6 +269,23 @@ class AppLocalizationsKm extends AppLocalizations {
       'តើអ្នកពិតជាចង់ចេញពីធ្វើការថ្ងៃនេះមែនទេ? ម៉ោងធ្វើការរបស់អ្នកនឹងត្រូវបានកត់ត្រា។';
 
   @override
+  String get earlyClockOutTitle => 'ចេញមុនម៉ោង?';
+
+  @override
+  String earlyClockOutBody(String duration) {
+    return 'វេនរបស់អ្នកនៅសល់ $duration ទៀត។ សូមប្រាប់មូលហេតុ។';
+  }
+
+  @override
+  String get earlyClockOutReasonHint => 'ជ្រើសរើសមូលហេតុ';
+
+  @override
+  String get earlyClockOutDetailHint => 'ព័ត៌មានបន្ថែម (ស្រេចចិត្ត)';
+
+  @override
+  String get earlyClockOutOtherHint => 'សូមប្រាប់ប្រធានពីមូលហេតុ';
+
+  @override
   String get cancel => 'បោះបង់';
 
   @override
@@ -281,19 +328,19 @@ class AppLocalizationsKm extends AppLocalizations {
   String get overview => 'ទិដ្ឋភាពទូទៅ';
 
   @override
-  String get upcomingLeaves => 'ការឈប់សម្រាកបន្ទាប់';
+  String get upcomingLeaves => 'ការឈប់សម្រាកបន្ទាប់ (Upcoming Leaves)';
 
   @override
   String get recentActivity => 'សកម្មភាពថ្មីៗ';
 
   @override
-  String get activeTrainings => 'វគ្គបណ្តុះបណ្តាល';
+  String get activeTrainings => 'វគ្គបណ្តុះបណ្តាលកំពុងរៀន (Trainings)';
 
   @override
-  String get companyAnnouncements => 'សេចក្តីប្រកាស';
+  String get companyAnnouncements => 'សេចក្តីជូនដំណឹងក្រុមហ៊ុន (Announcements)';
 
   @override
-  String get readyToWork => 'ត្រៀមខ្លួនរួចរាល់ឬនៅ?';
+  String get readyToWork => 'ត្រៀមខ្លួនធ្វើការងារ? (Ready to Work)';
 
   @override
   String get overtimeStartedAt => 'ម៉ោងបន្ថែមចាប់ផ្តើមនៅម៉ោង ';
@@ -308,7 +355,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get activeDuration => 'រយៈពេលសកម្ម: ';
 
   @override
-  String get shiftCompleted => 'វេនត្រូវបានបញ្ចប់';
+  String get shiftCompleted => 'បានបញ្ចប់វេនការងារ (Shift Done)';
 
   @override
   String get worked => 'បានធ្វើការ: ';
@@ -375,7 +422,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get checkAttendanceLogs => 'មើលកំណត់ត្រា';
 
   @override
-  String get training => 'វគ្គសិក្សា';
+  String get training => 'បណ្តុះបណ្តាល';
 
   @override
   String get enrollInCourses => 'ចុះឈ្មោះរៀន';
@@ -396,26 +443,26 @@ class AppLocalizationsKm extends AppLocalizations {
   String get failedToLoadDashboard => 'បរាជ័យក្នុងការផ្ទុកផ្ទាំងគ្រប់គ្រង';
 
   @override
-  String get swipeToClockOutOT => 'អូសដើម្បីចេញ (OT)';
+  String get swipeToClockOutOT => 'អូសដើម្បីស្កេនចេញ (Clock Out OT)';
 
   @override
-  String get swipeToClockInOT => 'អូសដើម្បីចូល (OT)';
+  String get swipeToClockInOT => 'អូសដើម្បីស្កេនចូល (Clock In OT)';
 
   @override
-  String get swipeToClockOut => 'អូសដើម្បីចេញ';
+  String get swipeToClockOut => 'អូសដើម្បីស្កេនចេញ (Clock Out)';
 
   @override
-  String get swipeToClockIn => 'អូសដើម្បីចូល';
+  String get swipeToClockIn => 'អូសដើម្បីស្កេនចូល (Clock In)';
 
   @override
   String get quickFeatures => 'មុខងាររហ័ស';
 
   @override
-  String get requestCorrection => 'ស្នើសុំកែតម្រូវ';
+  String get requestCorrection => 'ស្នើសុំកែតម្រូវម៉ោង (Request Correction)';
 
   @override
   String get requestCorrectionDesc =>
-      'ដាក់ពាក្យស្នើសុំដើម្បីកែតម្រូវភាពមិនប្រក្រតីនៅក្នុងកំណត់ត្រារបស់អ្នក។';
+      'ដាក់ពាក្យស្នើសុំដើម្បីកែតម្រូវភាពមិនប្រក្រតីនៃវត្តមានរបស់អ្នក។';
 
   @override
   String get dateStr => 'កាលបរិច្ឆេទ';
@@ -433,7 +480,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get missedClockOut => 'ភ្លេចចេញពីធ្វើការ';
 
   @override
-  String get wrongTime => 'ម៉ោងខុស';
+  String get wrongTime => 'ម៉ោងមិនត្រឹមត្រូវ (Wrong Time)';
 
   @override
   String get reason => 'មូលហេតុ';
@@ -597,7 +644,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get failedToSubmitLeave => 'បរាជ័យក្នុងការបញ្ជូនការស្នើសុំឈប់សម្រាក';
 
   @override
-  String get requestLeave => 'ស្នើសុំឈប់សម្រាក';
+  String get requestLeave => 'ស្នើសុំច្បាប់ឈប់សម្រាក (Leave Request)';
 
   @override
   String get submittingLeave => 'កំពុងបញ្ជូនការស្នើសុំឈប់សម្រាក...';
@@ -804,10 +851,10 @@ class AppLocalizationsKm extends AppLocalizations {
   String get title => 'ចំណងជើង';
 
   @override
-  String get category => 'ប្រភេទ';
+  String get category => 'ប្រភេទចំណាយ (Category)';
 
   @override
-  String get amount => 'ចំនួនទឹកប្រាក់';
+  String get amount => 'ចំនួនទឹកប្រាក់ * (Amount)';
 
   @override
   String get expenseDate => 'កាលបរិច្ឆេទចំណាយ';
@@ -855,7 +902,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get invalidAmount => 'ចំនួនប្រាក់មិនត្រឹមត្រូវ';
 
   @override
-  String get currency => 'រូបិយប័ណ្ណ';
+  String get currency => 'រូបិយប័ណ្ណ (Currency)';
 
   @override
   String get expenseDateRequired => 'កាលបរិច្ឆេទចំណាយ *';
@@ -885,19 +932,19 @@ class AppLocalizationsKm extends AppLocalizations {
   String get failedToSubmit => 'បរាជ័យក្នុងការដាក់ស្នើ';
 
   @override
-  String get travel => 'ការធ្វើដំណើរ';
+  String get travel => 'ការធ្វើដំណើរការងារ (Travel)';
 
   @override
   String get meals => 'អាហារ';
 
   @override
-  String get supplies => 'សម្ភារៈ';
+  String get supplies => 'សម្ភារៈការិយាល័យ (Supplies)';
 
   @override
-  String get software => 'កម្មវិធីកុំព្យូទ័រ';
+  String get software => 'សូហ្វវែរ / កម្មវិធី (Software)';
 
   @override
-  String get transport => 'ការដឹកជញ្ជូន';
+  String get transport => 'មធ្យោបាយធ្វើដំណើរ (Transport)';
 
   @override
   String get accommodation => 'កន្លែងស្នាក់នៅ';
@@ -988,7 +1035,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get iHaveReadAndAcknowledge => 'ខ្ញុំបានអាន និងទទួលស្គាល់';
 
   @override
-  String get holidayCalendar => 'ប្រតិទិនថ្ងៃឈប់សម្រាក';
+  String get holidayCalendar => 'ប្រតិទិនឈប់សម្រាក';
 
   @override
   String get holidaysThisMonth => 'ថ្ងៃឈប់សម្រាកក្នុងខែនេះ';
@@ -1248,7 +1295,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get scoreGood => 'ល្អ';
 
   @override
-  String get scoreNeedsAttention => 'ត្រូវការការយកចិត្តទុកដាក់';
+  String get scoreNeedsAttention => 'ត្រូវកែលម្អ (Needs Attention)';
 
   @override
   String get scoreCritical => 'ធ្ងន់ធ្ងរ';
@@ -2012,7 +2059,7 @@ class AppLocalizationsKm extends AppLocalizations {
       'ចាប់ផ្តើមបង្កើតក្រុមការងាររបស់អ្នកដោយបន្ថែមបុគ្គលិកដំបូងរបស់អ្នក។';
 
   @override
-  String get clearFilters => 'លុបចម្រោះ';
+  String get clearFilters => 'សម្អាតតម្រង';
 
   @override
   String get failedToLoadEmployees => 'បរាជ័យក្នុងការផ្ទុកបុគ្គលិក';
@@ -2055,7 +2102,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get tabContact => 'ទំនាក់ទំនង';
 
   @override
-  String get employmentDetails => 'ព័ត៌មានការងារ';
+  String get employmentDetails => 'ព័ត៌មានការងារ (Employment Details)';
 
   @override
   String get employeeId => 'លេខសម្គាល់បុគ្គលិក';
@@ -2076,7 +2123,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get phone => 'ទូរស័ព្ទ';
 
   @override
-  String get gender => 'ភេទ';
+  String get gender => 'ភេទ (Gender)';
 
   @override
   String get notSpecified => 'មិនបានបញ្ជាក់';
@@ -2190,16 +2237,16 @@ class AppLocalizationsKm extends AppLocalizations {
       'លេខសម្គាល់បុគ្គលិក (ទុកចោលដើម្បីបង្កើតស្វ័យប្រវត្តិ)';
 
   @override
-  String get emailAddress => 'អាសយដ្ឋានអ៊ីមែល';
+  String get emailAddress => 'អាសយដ្ឋានអ៊ីមែល (Email)';
 
   @override
   String get emailAddressRequired => 'អាសយដ្ឋានអ៊ីមែល *';
 
   @override
-  String get male => 'ប្រុស';
+  String get male => 'ប្រុស (Male)';
 
   @override
-  String get female => 'ស្រី';
+  String get female => 'ស្រី (Female)';
 
   @override
   String get single => 'នៅលីវ';
@@ -2214,7 +2261,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get widowed => 'មេម៉ាយ/ពោះម៉ាយ';
 
   @override
-  String get dateOfBirth => 'ថ្ងៃខែឆ្នាំកំណើត';
+  String get dateOfBirth => 'ថ្ងៃខែឆ្នាំកំណើត (DOB)';
 
   @override
   String get tapToSelect => 'ចុចដើម្បីជ្រើសរើស';
@@ -2235,7 +2282,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get hireDateRequired => 'កាលបរិច្ឆេទចូលធ្វើការ *';
 
   @override
-  String get probationEnd => 'កាលបរិច្ឆេទបញ្ចប់ការសាកល្បង';
+  String get probationEnd => 'ថ្ងៃបញ្ចប់ការសាកល្បងការងារ (Probation End)';
 
   @override
   String get terminationDate => 'កាលបរិច្ឆេទបញ្ចប់ការងារ';
@@ -2919,6 +2966,9 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get markCompletedBtn => 'សម្គាល់ថាបានបញ្ចប់';
+
+  @override
+  String get payrollRuns => 'ប្រតិបត្តិការប្រាក់បៀវត្សរ៍';
 
   @override
   String payrollRunTitle(String period) {
@@ -3967,25 +4017,25 @@ class AppLocalizationsKm extends AppLocalizations {
   String get categoryFieldLabel => 'ប្រភេទ *';
 
   @override
-  String get catTravel => 'ការធ្វើដំណើរ';
+  String get catTravel => 'ការធ្វើដំណើរ (Travel)';
 
   @override
-  String get catMeals => 'អាហារ';
+  String get catMeals => 'ថ្លៃអាហារ (Meals)';
 
   @override
-  String get catSupplies => 'សម្ភារៈ';
+  String get catSupplies => 'សម្ភារៈការិយាល័យ (Supplies)';
 
   @override
-  String get catSoftware => 'កម្មវិធី';
+  String get catSoftware => 'សូហ្វវែរ / កម្មវិធី (Software)';
 
   @override
-  String get catTransport => 'ការដឹកជញ្ជូន';
+  String get catTransport => 'មធ្យោបាយធ្វើដំណើរ (Transport)';
 
   @override
-  String get catAccommodation => 'ការស្នាក់នៅ';
+  String get catAccommodation => 'ការស្នាក់នៅ (Accommodation)';
 
   @override
-  String get catOther => 'ផ្សេងៗ';
+  String get catOther => 'ផ្សេងៗ (Other)';
 
   @override
   String get amountFieldLabel => 'ចំនួនប្រាក់ *';
@@ -4856,7 +4906,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get myShift => 'វេនការងារ';
 
   @override
-  String get recentPayslip => 'ប្រកាសប្រាក់ខែថ្មីៗ';
+  String get recentPayslip => 'សន្លឹកបើកប្រាក់ខែថ្មីៗ (Payslip)';
 
   @override
   String get pendingExpenses => 'ការចំណាយរង់ចាំ';
@@ -4889,7 +4939,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get today => 'ថ្ងៃនេះ';
 
   @override
-  String get companyRules => 'ច្បាប់របស់ក្រុមហ៊ុន';
+  String get companyRules => 'បទបញ្ជាផ្ទៃក្នុង';
 
   @override
   String get companyRulesDesc =>
@@ -4902,8 +4952,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get noCompanyRules => 'មិនមានច្បាប់ក្រុមហ៊ុនកំណត់ទេ។';
 
   @override
-  String get viewCompanyDocuments =>
-      'ចូលប្រើប្រាស់គ្រឿងសម្គាល់និងទម្រង់របស់ក្រុមហ៊ុន';
+  String get viewCompanyDocuments => 'ចូលមើលឯកសារ និងទម្រង់បែបបទក្រុមហ៊ុន';
 
   @override
   String get readAndAcknowledge => 'អាននិងទទួលស្គាល់គោលការណ៍';
@@ -4912,7 +4961,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get payrollAttendanceRules => 'ច្បាប់ប្រាក់ខែ ការចូលធ្វើការ និង OT';
 
   @override
-  String get overtime => 'ធ្វើការបន្ថែមម៉ោង';
+  String get overtime => 'ថែមម៉ោង (OT)';
 
   @override
   String get companyServices => 'សេវាកម្មក្រុមហ៊ុន';
@@ -4925,4 +4974,614 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get noPayslipsYet => 'មិនទាន់មានប័ណ្ណប្រាក់ខែ';
+
+  @override
+  String get preferences => 'ការកំណត់ទូទៅ (Preferences)';
+
+  @override
+  String get themeAndAppearance => 'ស្បែក និងរូបរាង (Theme & Appearance)';
+
+  @override
+  String get themeSubtitle => 'Light, Dark ឬតាមប្រព័ន្ធ';
+
+  @override
+  String get languageSubtitle => 'English • ភាសាខ្មែរ';
+
+  @override
+  String get accountAndInfo => 'ព័ត៌មានគណនី';
+
+  @override
+  String get accountActions => 'សកម្មភាពគណនី';
+
+  @override
+  String get privacyPolicy => 'គោលការណ៍ឯកជនភាព (Privacy Policy)';
+
+  @override
+  String get privacyPolicySubtitle => 'ស្វែងយល់ពីរបៀបការពារទិន្នន័យរបស់អ្នក';
+
+  @override
+  String get deleteAccount => 'លុបគណនី (Delete Account)';
+
+  @override
+  String get deleteAccountSubtitle =>
+      'លុបគណនី និងទិន្នន័យរបស់អ្នកជាអចិន្ត្រៃយ៍';
+
+  @override
+  String get signOutSubtitle => 'ចាកចេញពីគណនីលើទូរស័ព្ទនេះ';
+
+  @override
+  String get returnToAdminSubtitle =>
+      'ចូលទៅកាន់ផ្ទាំងគ្រប់គ្រងអ្នកគ្រប់គ្រង (Admin Dashboard)';
+
+  @override
+  String get editProfileSubtitle => 'កែប្រែព័ត៌មានផ្ទាល់ខ្លួន និងធនាគារ';
+
+  @override
+  String get companyServicesAndTools => 'សេវាកម្ម និងមុខងារ';
+
+  @override
+  String featuresCount(int count) {
+    return '$count មុខងារ';
+  }
+
+  @override
+  String get selectTheme => 'ជ្រើសរើស Theme';
+
+  @override
+  String get selectLanguage => 'ជ្រើសរើសភាសា';
+
+  @override
+  String get lightTheme => 'Light Mode (ពន្លឺ)';
+
+  @override
+  String get darkTheme => 'Dark Mode (ងងឹត)';
+
+  @override
+  String get systemTheme => 'System Default (តាមទូរស័ព្ទ)';
+
+  @override
+  String get lightThemeDesc => 'ផ្ទៃភ្លឺច្បាស់ ងាយស្រួលមើល';
+
+  @override
+  String get darkThemeDesc => 'ផ្ទៃងងឹត កាត់បន្ថយពន្លឺ និងសន្សំថ្ម';
+
+  @override
+  String get systemThemeDesc => 'ផ្លាស់ប្តូរស្វ័យប្រវត្តិតាមការកំណត់ទូរស័ព្ទ';
+
+  @override
+  String get englishDesc => 'English (United States)';
+
+  @override
+  String get khmerDesc => 'ភាសាខ្មែរ (Cambodia)';
+
+  @override
+  String get attendkhAppVersion => 'Version 1.0.0 • Production';
+
+  @override
+  String get filterUnread => 'មិនទាន់អាន';
+
+  @override
+  String get filterAttendance => 'វត្តមាន';
+
+  @override
+  String get filterAnnouncements => 'សេចក្តីប្រកាស';
+
+  @override
+  String get filterPolicies => 'គោលការណ៍';
+
+  @override
+  String get filterRequests => 'សំណើ';
+
+  @override
+  String get filterRead => 'បានអាន';
+
+  @override
+  String get timelineToday => 'ថ្ងៃនេះ';
+
+  @override
+  String get timelineYesterday => 'ម្សិលមិញ';
+
+  @override
+  String get timelineThisWeek => 'សប្តាហ៍នេះ';
+
+  @override
+  String get timelineEarlier => 'មុននេះ';
+
+  @override
+  String get searchNotificationsHint => 'ស្វែងរកការជូនដំណឹង...';
+
+  @override
+  String get markAsRead => 'សម្គាល់ថាបានអាន';
+
+  @override
+  String get markAsUnread => 'សម្គាល់ថាមិនទាន់អាន';
+
+  @override
+  String get noMatchingNotifications => 'មិនមានការជូនដំណឹងដែលត្រូវគ្នានោះទេ';
+
+  @override
+  String get allCaughtUp => 'អ្នកបានអានការជូនដំណឹងទាំងអស់រួចរាល់ហើយ!';
+
+  @override
+  String get noFilterNotifications => 'មិនមានការជូនដំណឹងនៅក្នុងប្រអប់នេះទេ';
+
+  @override
+  String get searchSuggestions =>
+      'សូមសាកល្បងស្វែងរកដោយប្រើពាក្យគន្លឹះផ្សេង ឬសម្អាតការស្វែងរក។';
+
+  @override
+  String get checkOtherTabs =>
+      'សូមពិនិត្យមើលផ្ទាំងផ្សេង ឬអូសចុះក្រោមដើម្បី refresh។';
+
+  @override
+  String get emptyNotificationsPrompt =>
+      'សេចក្តីប្រកាសក្រុមហ៊ុន បច្ចុប្បន្នភាពគោលការណ៍ និងដំណឹងវត្តមាន នឹងបង្ហាញនៅទីនេះ។';
+
+  @override
+  String get moreServices => 'សេវាកម្មបន្ថែម';
+
+  @override
+  String get hrOperations => 'ប្រតិបត្តិការ HR';
+
+  @override
+  String get financeAndAssets => 'ហិរញ្ញវត្ថុ & ទ្រព្យសម្បត្តិ';
+
+  @override
+  String get navHome => 'ទំព័រដើម';
+
+  @override
+  String get navLeave => 'ច្បាប់ឈប់សម្រាក';
+
+  @override
+  String get navPayslip => 'ប័ណ្ណប្រាក់ខែ';
+
+  @override
+  String get navMore => 'ផ្សេងៗ';
+
+  @override
+  String get navHR => 'HR រដ្ឋបាល';
+
+  @override
+  String get navPayroll => 'បើកប្រាក់ខែ';
+
+  @override
+  String get navProfile => 'គណនី';
+
+  @override
+  String get navCompanies => 'ក្រុមហ៊ុន';
+
+  @override
+  String get itemAttendanceSubtitle => 'ប្រវត្តិកត់ត្រាវត្តមាន';
+
+  @override
+  String get itemOvertimeSubtitle => 'ស្នើសុំ និងតាមដានម៉ោងបន្ថែម (OT)';
+
+  @override
+  String get itemExpensesSubtitle => 'សំណើសងប្រាក់ និងបង្កាន់ដៃ';
+
+  @override
+  String get itemTrainingSubtitle => 'វគ្គបណ្តុះបណ្តាល និងជំនាញ';
+
+  @override
+  String get itemKpisSubtitle => 'គោលដៅ និងការវាយតម្លៃ KPI';
+
+  @override
+  String get itemHolidaysSubtitle => 'ប្រតិទិនថ្ងៃឈប់សម្រាក';
+
+  @override
+  String get itemRulesSubtitle => 'បទបញ្ជាផ្ទៃក្នុង និងគោលការណ៍';
+
+  @override
+  String get itemPoliciesSubtitle => 'គោលការណ៍ និងលក្ខខណ្ឌ';
+
+  @override
+  String get itemEmployees => 'បុគ្គលិក';
+
+  @override
+  String get itemEmployeesSubtitle => 'បញ្ជីឈ្មោះ និងព័ត៌មានបុគ្គលិក';
+
+  @override
+  String get itemHrStructure => 'រចនាសម្ព័ន្ធ HR';
+
+  @override
+  String get itemHrStructureSubtitle => 'នាយកដ្ឋាន និងមុខតំណែង';
+
+  @override
+  String get itemAdminAttendanceSubtitle => 'កំណត់ត្រាស្កេនវត្តមានប្រចាំថ្ងៃ';
+
+  @override
+  String get itemAdminLeaveSubtitle => 'ការអនុម័តច្បាប់ឈប់សម្រាក & សមតុល្យ';
+
+  @override
+  String get itemAdminOvertimeSubtitle =>
+      'ពិនិត្យ និងអនុម័តសំណើម៉ោងបន្ថែម (OT)';
+
+  @override
+  String get itemAdminShiftsSubtitle => 'កាលវិភាគវេនការងារ និងម៉ោងធ្វើការ';
+
+  @override
+  String get itemAdminPayrollSubtitle => 'ការគណនាប្រាក់ខែ និងប័ណ្ណប្រាក់ខែ';
+
+  @override
+  String get itemAdminExpensesSubtitle => 'ពិនិត្យ និងអនុម័តសំណើសងប្រាក់ចំណាយ';
+
+  @override
+  String get itemBranchLocations => 'សាខាក្រុមហ៊ុន';
+
+  @override
+  String get itemBranchLocationsSubtitle => 'ទីតាំង GPS និងប្រព័ន្ធ Wi-Fi';
+
+  @override
+  String get itemKpiPerformance => 'KPI & ការវាយតម្លៃ';
+
+  @override
+  String get itemKpiPerformanceSubtitle => 'ការវាយតម្លៃសមិទ្ធផលប្រចាំត្រីមាស';
+
+  @override
+  String get itemAuditLogs => 'Audit Logs';
+
+  @override
+  String get itemAuditLogsSubtitle => 'កំណត់ត្រាសកម្មភាពគ្រប់គ្រងប្រព័ន្ធ';
+
+  @override
+  String get itemHolidayCalendar => 'ប្រតិទិនថ្ងៃឈប់សម្រាក';
+
+  @override
+  String get itemHolidayCalendarSubtitle =>
+      'ថ្ងៃឈប់សម្រាកបុណ្យជាតិ និងក្រុមហ៊ុន';
+
+  @override
+  String get itemAnnouncements => 'សេចក្តីប្រកាសព័ត៌មាន';
+
+  @override
+  String get itemAnnouncementsSubtitle => 'ផ្សព្វផ្សាយដំណឹង និងសេចក្តីជូនដំណឹង';
+
+  @override
+  String get itemCompanyPolicies => 'គោលការណ៍ក្រុមហ៊ុន';
+
+  @override
+  String get itemCompanyPoliciesSubtitle => 'សៀវភៅគោលការណ៍ និងឯកសាររដ្ឋបាល';
+
+  @override
+  String get itemRolesPermissions => 'Roles & សិទ្ធិ';
+
+  @override
+  String get itemRolesPermissionsSubtitle => 'ការកំណត់កម្រិតសិទ្ធិចូលប្រើ';
+
+  @override
+  String get itemSupportTickets => 'Support Tickets';
+
+  @override
+  String get itemSupportTicketsSubtitle => 'ផ្នែកជំនួយ និងដោះស្រាយបញ្ហា';
+
+  @override
+  String get itemPlatformHealth => 'Platform Health';
+
+  @override
+  String get itemPlatformHealthSubtitle => 'ស្ថេរភាព និងស្ថានភាពប្រព័ន្ធ';
+
+  @override
+  String get itemGlobalAnnouncementsSubtitle => 'ការប្រកាសទូទាំងប្រព័ន្ធ';
+
+  @override
+  String get itemPlatformSettings => 'Platform Settings';
+
+  @override
+  String get itemPlatformSettingsSubtitle => 'ការកំណត់រចនាសម្ព័ន្ធកម្មវិធី';
+
+  @override
+  String get workShifts => 'វេនការងារ (Shifts)';
+
+  @override
+  String get companyAssets => 'ទ្រព្យសម្បត្តិក្រុមហ៊ុន (Assets)';
+
+  @override
+  String get manageAssignedAssets => 'គ្រប់គ្រងឧបករណ៍ និងសម្ភារៈ';
+
+  @override
+  String get recruitmentJobsDesc => 'ដំណឹងជ្រើសរើស និងបេក្ខជន';
+
+  @override
+  String get performanceReviews => 'ការវាយតម្លៃលទ្ធផល (Appraisals)';
+
+  @override
+  String get performanceReviewsDesc => 'KPI និងការវាយតម្លៃបុគ្គលិក';
+
+  @override
+  String get summaryReports => 'របាយការណ៍សង្ខេប';
+
+  @override
+  String get summaryReportsDesc => 'ទិដ្ឋភាពទូទៅវត្តមាន និងប្រាក់ខែ';
+
+  @override
+  String get analyticsReports => 'ការវិភាគ & ស្ថិតិ';
+
+  @override
+  String get analyticsReportsDesc => 'HR insights & statistics';
+
+  @override
+  String get all => 'ទាំងអស់';
+
+  @override
+  String get rejected => 'បានបដិសេធ';
+
+  @override
+  String get total => 'សរុប';
+
+  @override
+  String get clear => 'សម្អាត (Clear)';
+
+  @override
+  String get allFiles => 'ឯកសារទាំងអស់ (All Files)';
+
+  @override
+  String get wordDocuments => 'ឯកសារ Word (Docs)';
+
+  @override
+  String get spreadsheets => 'តារាងគណនា (Excel/Sheets)';
+
+  @override
+  String get images => 'រូបភាព (Images)';
+
+  @override
+  String get documentsCount => 'ឯកសារ (Documents)';
+
+  @override
+  String get availableFiles => 'ឯកសារដែលមាន (Available Files)';
+
+  @override
+  String get searchFilesHint => 'ស្វែងរកឯកសារ ទម្រង់បែបបទ...';
+
+  @override
+  String get corporateDocVaultSubtitle => 'មជ្ឈមណ្ឌលឯកសារ និងធនធានក្រុមហ៊ុន';
+
+  @override
+  String get noFilesMatching => 'មិនមានឯកសារដែលត្រូវនឹង';
+
+  @override
+  String get companyRulesSubtitle => 'ក្រមសីលធម៌ និងគោលការណ៍ណែនាំបុគ្គលិក';
+
+  @override
+  String get searchRulesHint => 'ស្វែងរកបទបញ្ជា ក្រមសីលធម៌...';
+
+  @override
+  String get regulationsAndPolicies => 'បទប្បញ្ញត្តិ និងគោលការណ៍ (Policies)';
+
+  @override
+  String get guidelinesCount => 'គោលការណ៍ណែនាំ';
+
+  @override
+  String get noRulesMatching => 'មិនមានបទបញ្ជាដែលត្រូវនឹង';
+
+  @override
+  String get allPoliciesReadSuccess =>
+      'អបអរសាទរ! អ្នកបានអាន និងយល់ព្រមលើគោលការណ៍ចាំបាច់ទាំងអស់រួចរាល់ហើយ។';
+
+  @override
+  String get acknowledgedPoliciesEmpty =>
+      'គោលការណ៍ដែលអ្នកបានចុះហត្ថលេខា និងយល់ព្រម នឹងបង្ហាញនៅទីនេះ។';
+
+  @override
+  String get overtimeManagement => 'គ្រប់គ្រងម៉ោងបន្ថែម (OT Management)';
+
+  @override
+  String get overtimeManagementSubtitle =>
+      'ស្នើសុំ និងតាមដានម៉ោងបន្ថែមការងារ (OT)';
+
+  @override
+  String get requestOT => 'ស្នើសុំ OT (Request OT)';
+
+  @override
+  String get myHistory => 'ប្រវត្តិស្នើសុំ (History)';
+
+  @override
+  String get shiftPolicyRules => 'គោលការណ៍វេនការងារ និងបទបញ្ជា';
+
+  @override
+  String get shiftPolicyDesc =>
+      'អត្រាប្រាក់ម៉ោងបន្ថែម (OT) គិតបន្ទាប់ពីម៉ោងធ្វើការធម្មតា។ រាល់សំណើត្រូវមានការអនុម័តពីប្រធានផ្នែក។';
+
+  @override
+  String get selectDateLabel => 'ជ្រើសរើសកាលបរិច្ឆេទ';
+
+  @override
+  String get timeWindow => 'ចន្លោះម៉ោង (Time Window)';
+
+  @override
+  String get startTime => 'ម៉ោងចាប់ផ្តើម';
+
+  @override
+  String get endTime => 'ម៉ោងបញ្ចប់';
+
+  @override
+  String get calculatedDuration => 'រយៈពេលសរុប (Duration)';
+
+  @override
+  String get overtimeReasonLabel => 'មូលហេតុធ្វើការបន្ថែមម៉ោង (OT) *';
+
+  @override
+  String get overtimeReasonHint =>
+      'ឧទាហរណ៍៖ បញ្ចប់ការងារបន្ទាន់, ការងារបិទបញ្ជីប្រចាំខែ...';
+
+  @override
+  String get submitOTRequest => 'បញ្ជូនសំណើ OT (Submit OT)';
+
+  @override
+  String get submittingRequest => 'កំពុងបញ្ជូនសំណើ...';
+
+  @override
+  String get otSubmittedSuccess => '✅ បានបញ្ជូនសំណើថែមម៉ោង (OT) ដោយជោគជ័យ';
+
+  @override
+  String get noEmployeeProfileFound => 'រកមិនឃើញព័ត៌មានបុគ្គលិកឡើយ';
+
+  @override
+  String get failedToSubmitRequest => 'ការបញ្ជូនសំណើមិនបានសម្រេច';
+
+  @override
+  String get overtimeRequests => 'សំណើម៉ោងបន្ថែម (OT Requests)';
+
+  @override
+  String get noOtRequests => 'មិនមានសំណើថែមម៉ោង (OT) ឡើយ';
+
+  @override
+  String get noOtRequestsFilter => 'មិនមានសំណើថែមម៉ោងក្នុងស្ថានភាពនេះទេ';
+
+  @override
+  String get kpiSubtitle => 'តាមដានសូចនាករការងារ វត្តមាន និងគោលដៅ (KPIs)';
+
+  @override
+  String get loadingKpis => 'កំពុងដំណើរការទិន្នន័យ KPI...';
+
+  @override
+  String get performanceGradeExcellent => 'ល្អឥតខ្ចោះ (Excellent)';
+
+  @override
+  String get performanceGradeAverage => 'មធ្យម (Average)';
+
+  @override
+  String get performanceGradeNeedsAttention => 'ត្រូវកែលម្អ (Needs Attention)';
+
+  @override
+  String get overallScore => 'ពិន្ទុសរុប (Overall Score)';
+
+  @override
+  String get multiTenantMetrics => 'ទិន្នន័យគ្រប់គ្រងសាខា (Metrics)';
+
+  @override
+  String get payslipAndSalary => 'សន្លឹកប្រាក់ខែ និងប្រាក់បៀវត្ស (Payslips)';
+
+  @override
+  String get paymentHistory => 'ប្រវត្តិបើកប្រាក់បៀវត្ស (Payment History)';
+
+  @override
+  String get downloadLatestStatement =>
+      'ទាញយកប័ណ្ណប្រាក់ខែចុងក្រោយ (Download PDF)';
+
+  @override
+  String get netPaid => 'ប្រាក់ខែជាក់ស្តែង (Net Paid)';
+
+  @override
+  String get statementSingular => 'សន្លឹក';
+
+  @override
+  String get statementsPlural => 'សន្លឹក';
+
+  @override
+  String get nextUpcomingHoliday => 'ថ្ងៃឈប់សម្រាកបុណ្យបន្ទាប់';
+
+  @override
+  String get tomorrow => 'ថ្ងៃស្អែក';
+
+  @override
+  String get passed => 'បានកន្លងផុត';
+
+  @override
+  String get regularScheduleEnjoy =>
+      'សូមរីករាយជាមួយកាលវិភាគការងារធម្មតារបស់អ្នក!';
+
+  @override
+  String get refreshCourses => 'ផ្ទុកវគ្គបណ្តុះបណ្តាលឡើងវិញ';
+
+  @override
+  String get browseAvailableCourses => 'ស្វែងរកវគ្គបណ្តុះបណ្តាល (Courses)';
+
+  @override
+  String get noTrainingsEnrolledDesc =>
+      'អ្នកមិនទាន់បានចុះឈ្មោះក្នុងវគ្គបណ្តុះបណ្តាលណាមួយនៅឡើយទេ។ សូមស្វែងរកវគ្គសិក្សាដែលមានដើម្បីចាប់ផ្តើមរៀនសូត្រ។';
+
+  @override
+  String get newCoursesPublishedDesc =>
+      'វគ្គបណ្តុះបណ្តាលជំនាញវិជ្ជាជីវៈ និងសិក្ខាសាលាថ្មីៗពី HR នឹងបង្ហាញនៅទីនេះ។';
+
+  @override
+  String get claimExpense => 'ស្នើសុំទូទាត់ចំណាយ (Claim Expense)';
+
+  @override
+  String get expenseTitleSubject => 'ចំណងជើង / គោលបំណងចំណាយ *';
+
+  @override
+  String get statusPaid => 'បានទូទាត់ (Paid)';
+
+  @override
+  String get personalAndContact => 'ព័ត៌មានផ្ទាល់ខ្លួន និងទំនាក់ទំនង';
+
+  @override
+  String get branchLocation => 'សាខាធ្វើការ (Branch Location)';
+
+  @override
+  String get jobTitleRole => 'មុខតំណែង / តួនាទី (Job Title)';
+
+  @override
+  String get reportingManager => 'ប្រធានគ្រប់គ្រងផ្ទាល់ (Manager)';
+
+  @override
+  String get joiningDate => 'ថ្ងៃចូលបម្រើការងារ (Joining Date)';
+
+  @override
+  String get fullNameLatin => 'ឈ្មោះពេញ (អក្សរឡាតាំង / English)';
+
+  @override
+  String get khmerNameOptional => 'ឈ្មោះជាភាសាខ្មែរ (មិនបង្ខំ)';
+
+  @override
+  String get otherGender => 'ផ្សេងៗ (Other)';
+
+  @override
+  String get dailyLogs => 'កំណត់ត្រាប្រចាំថ្ងៃ (Daily Logs)';
+
+  @override
+  String get heavyTraffic => 'ស្ទះចរាចរណ៍ខ្លាំង (Traffic)';
+
+  @override
+  String get heavyRain => 'ភ្លៀងធ្លាក់ខ្លាំង (Rain)';
+
+  @override
+  String get vehicleIssue => 'បញ្ហាយានជំនិះ (Vehicle Issue)';
+
+  @override
+  String get familyEmergency => 'ការងារគ្រួសារបន្ទាន់ (Emergency)';
+
+  @override
+  String get healthIssue => 'បញ្ហាសុខភាព (Health Issue)';
+
+  @override
+  String get otherReason => 'មូលហេតុផ្សេងទៀត (Other)';
+
+  @override
+  String get daysFreeToBook => 'ថ្ងៃអាចស្នើសុំបាន';
+
+  @override
+  String get daysLeft => 'ថ្ងៃនៅសល់';
+
+  @override
+  String get awaitingApproval => 'រង់ចាំការអនុម័ត (Pending)';
+
+  @override
+  String get leavesAndBalancesEmptyDesc =>
+      'សំណើឈប់សម្រាក និងសមតុល្យច្បាប់របស់អ្នកនឹងបង្ហាញនៅទីនេះ។';
+
+  @override
+  String get themeLight => 'ពន្លឺ (Light)';
+
+  @override
+  String get themeDark => 'ងងឹត (Dark)';
+
+  @override
+  String get themeAuto => 'ស្វ័យប្រវត្តិ (Auto)';
+
+  @override
+  String get englishUs => 'អង់គ្លេស - English (US)';
+
+  @override
+  String get khmerKm => 'ភាសាខ្មែរ (Khmer)';
+
+  @override
+  String get descriptionPurpose => 'ការពិពណ៌នា / គោលបំណង';
+
+  @override
+  String get attachReceipt => 'ភ្ជាប់វិក្កយបត្រ (រូបថត/ឯកសារ)';
+
+  @override
+  String get refresh => 'ផ្ទុកឡើងវិញ (Refresh)';
 }

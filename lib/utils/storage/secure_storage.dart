@@ -5,6 +5,7 @@ class SecureStorageService {
   static final SecureStorageService instance = SecureStorageService._();
 
   late final FlutterSecureStorage _storage;
+  final Map<String, String?> _memoryFallback = {};
 
   String? _cachedToken;
   String? _cachedCompanyId;
@@ -29,107 +30,130 @@ class SecureStorageService {
       aOptions: AndroidOptions(encryptedSharedPreferences: true),
       iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
     );
+    _cachedToken = await _readSafe(_tokenKey);
+    _cachedCompanyId = await _readSafe(_companyIdKey);
+  }
+
+  Future<String?> _readSafe(String key) async {
     try {
-      _cachedToken = await _storage.read(key: _tokenKey);
-      _cachedCompanyId = await _storage.read(key: _companyIdKey);
-    } catch (e) {
-      _cachedToken = null;
-      _cachedCompanyId = null;
+      final val = await _storage.read(key: key);
+      _memoryFallback[key] = val;
+      return val;
+    } catch (_) {
+      return _memoryFallback[key];
     }
   }
 
+  Future<void> _writeSafe(String key, String? value) async {
+    _memoryFallback[key] = value;
+    try {
+      if (value == null) {
+        await _storage.delete(key: key);
+      } else {
+        await _storage.write(key: key, value: value);
+      }
+    } catch (_) {}
+  }
+
   /// Synchronous fast accessors for Dio network interceptors (0ms latency)
-  String? get cachedAccessToken => _cachedToken;
-  String? get cachedCompanyId => _cachedCompanyId;
+  String? get cachedAccessToken => _cachedToken ?? _memoryFallback[_tokenKey];
+  String? get cachedCompanyId => _cachedCompanyId ?? _memoryFallback[_companyIdKey];
 
   // Auth Tokens
   Future<String?> get accessToken async {
-    _cachedToken ??= await _storage.read(key: _tokenKey);
+    _cachedToken ??= await _readSafe(_tokenKey);
     return _cachedToken;
   }
 
   Future<void> setAccessToken(String token) async {
     _cachedToken = token;
-    await _storage.write(key: _tokenKey, value: token);
+    await _writeSafe(_tokenKey, token);
   }
 
   Future<void> deleteAccessToken() async {
     _cachedToken = null;
-    await _storage.delete(key: _tokenKey);
+    await _writeSafe(_tokenKey, null);
   }
 
-  Future<String?> get refreshToken => _storage.read(key: _refreshTokenKey);
-  Future<void> setRefreshToken(String token) => _storage.write(key: _refreshTokenKey, value: token);
-  Future<void> deleteRefreshToken() => _storage.delete(key: _refreshTokenKey);
+  Future<String?> get refreshToken => _readSafe(_refreshTokenKey);
+  Future<void> setRefreshToken(String token) => _writeSafe(_refreshTokenKey, token);
+  Future<void> deleteRefreshToken() => _writeSafe(_refreshTokenKey, null);
 
   // Company
   Future<String?> get companyId async {
-    _cachedCompanyId ??= await _storage.read(key: _companyIdKey);
+    _cachedCompanyId ??= await _readSafe(_companyIdKey);
     return _cachedCompanyId;
   }
 
   Future<void> setCompanyId(String id) async {
     _cachedCompanyId = id;
-    await _storage.write(key: _companyIdKey, value: id);
+    await _writeSafe(_companyIdKey, id);
   }
 
-  Future<String?> get companyName => _storage.read(key: _companyNameKey);
-  Future<void> setCompanyName(String name) => _storage.write(key: _companyNameKey, value: name);
+  Future<String?> get companyName => _readSafe(_companyNameKey);
+  Future<void> setCompanyName(String name) => _writeSafe(_companyNameKey, name);
 
-  Future<String?> get companyLogo => _storage.read(key: _companyLogoKey);
-  Future<void> setCompanyLogo(String logo) => _storage.write(key: _companyLogoKey, value: logo);
+  Future<String?> get companyLogo => _readSafe(_companyLogoKey);
+  Future<void> setCompanyLogo(String logo) => _writeSafe(_companyLogoKey, logo);
 
   // User
-  Future<String?> get userId => _storage.read(key: _userIdKey);
-  Future<void> setUserId(String id) => _storage.write(key: _userIdKey, value: id);
+  Future<String?> get userId => _readSafe(_userIdKey);
+  Future<void> setUserId(String id) => _writeSafe(_userIdKey, id);
 
-  Future<String?> get employeeId => _storage.read(key: _employeeIdKey);
-  Future<void> setEmployeeId(String id) => _storage.write(key: _employeeIdKey, value: id);
+  Future<String?> get employeeId => _readSafe(_employeeIdKey);
+  Future<void> setEmployeeId(String id) => _writeSafe(_employeeIdKey, id);
 
-  Future<String?> get userName => _storage.read(key: _userNameKey);
-  Future<void> setUserName(String name) => _storage.write(key: _userNameKey, value: name);
+  Future<String?> get userName => _readSafe(_userNameKey);
+  Future<void> setUserName(String name) => _writeSafe(_userNameKey, name);
 
-  Future<String?> get userEmail => _storage.read(key: _userEmailKey);
-  Future<void> setUserEmail(String email) => _storage.write(key: _userEmailKey, value: email);
+  Future<String?> get userEmail => _readSafe(_userEmailKey);
+  Future<void> setUserEmail(String email) => _writeSafe(_userEmailKey, email);
 
-  Future<String?> get userEmailVerifiedAt => _storage.read(key: _userEmailVerifiedAtKey);
-  Future<void> setUserEmailVerifiedAt(String date) => _storage.write(key: _userEmailVerifiedAtKey, value: date);
+  Future<String?> get userEmailVerifiedAt => _readSafe(_userEmailVerifiedAtKey);
+  Future<void> setUserEmailVerifiedAt(String date) => _writeSafe(_userEmailVerifiedAtKey, date);
 
   Future<List<String>> get roles async {
-    final raw = await _storage.read(key: _rolesKey);
+    final raw = await _readSafe(_rolesKey);
     if (raw == null || raw.isEmpty) return [];
     return raw.split(',');
   }
   Future<void> setRoles(List<String> roles) =>
-      _storage.write(key: _rolesKey, value: roles.join(','));
+      _writeSafe(_rolesKey, roles.join(','));
 
   // Preferences
-  Future<String?> get themeMode => _storage.read(key: _themeModeKey);
-  Future<void> setThemeMode(String mode) => _storage.write(key: _themeModeKey, value: mode);
+  Future<String?> get themeMode => _readSafe(_themeModeKey);
+  Future<void> setThemeMode(String mode) => _writeSafe(_themeModeKey, mode);
 
-  Future<String?> get locale => _storage.read(key: _localeKey);
-  Future<void> setLocale(String locale) => _storage.write(key: _localeKey, value: locale);
+  Future<String?> get locale => _readSafe(_localeKey);
+  Future<void> setLocale(String locale) => _writeSafe(_localeKey, locale);
 
   Future<bool> get isBiometricEnabled async {
-    final value = await _storage.read(key: _biometricEnabledKey);
+    final value = await _readSafe(_biometricEnabledKey);
     return value == 'true';
   }
 
   Future<void> setBiometricEnabled(bool enabled) =>
-      _storage.write(key: _biometricEnabledKey, value: enabled.toString());
+      _writeSafe(_biometricEnabledKey, enabled.toString());
 
   // Clear all stored data (on logout)
   Future<void> clearAll() async {
     _cachedToken = null;
     _cachedCompanyId = null;
-    await _storage.deleteAll();
+    _memoryFallback.clear();
+    try {
+      await _storage.deleteAll();
+    } catch (_) {}
   }
 
   Future<void> clearAuth() async {
     _cachedToken = null;
-    await Future.wait([
-      _storage.delete(key: _tokenKey),
-      _storage.delete(key: _refreshTokenKey),
-    ]);
+    _memoryFallback.remove(_tokenKey);
+    _memoryFallback.remove(_refreshTokenKey);
+    try {
+      await Future.wait([
+        _storage.delete(key: _tokenKey),
+        _storage.delete(key: _refreshTokenKey),
+      ]);
+    } catch (_) {}
   }
 }

@@ -37,7 +37,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
     if (branchId == null) {
       // Should never happen, but guard just in case
       WidgetsBinding.instance.addPostFrameCallback((_) => context.go(AppRoutes.companyAdmin));
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -55,11 +55,11 @@ class BranchManagerViewScreen extends ConsumerWidget {
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFF0052FF).withAlpha(20),
+                color: const Color(0xFF0052FF).withAlpha(20),
               ),
-              child: Icon(Icons.business_rounded, color: Color(0xFF0052FF), size: 18),
+              child: const Icon(Icons.business_rounded, color: Color(0xFF0052FF), size: 18),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,19 +135,18 @@ class BranchManagerViewScreen extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.visibility_rounded, color: Colors.white, size: 20),
-                    SizedBox(width: 12),
+                    const Icon(Icons.visibility_rounded, color: Colors.white, size: 20),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             l10n.viewingAs(branchName),
-                            style: TextStyle(
-                              color: AppColors.textPrimary(context),
+                            style: const TextStyle(
+                              color: Colors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              
                             ),
                           ),
                           Text(
@@ -209,11 +208,11 @@ class BranchManagerViewScreen extends ConsumerWidget {
                     color: AppColors.dangerLight,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text('${l10n.errorLoadingBranchKpis}$e', style: TextStyle(color: AppColors.danger)),
+                  child: Text('${l10n.errorLoadingBranchKpis}$e', style: const TextStyle(color: AppColors.danger)),
                 ),
               ),
 
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // ── Quick Operations Grid ─────────────────────────────────────
               Text(
@@ -282,7 +281,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                 ],
               ),
 
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // ── Pending Leaves Quick List ─────────────────────────────────
               Text(
@@ -294,16 +293,16 @@ class BranchManagerViewScreen extends ConsumerWidget {
                   
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
 
               ref.watch(branchLeaveRequestsProvider(branchId)).when(
                 data: (requests) {
                   final pending = requests.where((r) => r.status == 'pending').take(5).toList();
                   if (pending.isEmpty) {
                     return Container(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.textPrimary(context),
+                        color: AppColors.surface(context),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: AppColors.border(context)),
                       ),
@@ -370,12 +369,12 @@ class BranchManagerViewScreen extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.visibility_rounded, color: Colors.white, size: 18),
-                SizedBox(width: 10),
+                const Icon(Icons.visibility_rounded, color: Colors.white, size: 18),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     l10n.viewingTapToExit(branchName),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -397,9 +396,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
 
   Widget _buildKpiCard(BuildContext context, String title, String value, IconData icon, Color color) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.textPrimary(context),
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border(context)),
         boxShadow: [
@@ -409,17 +408,17 @@ class BranchManagerViewScreen extends ConsumerWidget {
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(color: color.withAlpha(20), shape: BoxShape.circle),
             child: Icon(icon, color: color, size: 22),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontSize: 11, color: AppColors.grey500)),
-                SizedBox(height: 2),
+                Text(title, style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
+                const SizedBox(height: 2),
                 Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
               ],
             ),
@@ -519,13 +518,13 @@ class BranchManagerViewScreen extends ConsumerWidget {
             : AppColors.danger;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 10),
-      padding: EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border(context)),
-        boxShadow: [BoxShadow(color: AppColors.textPrimary(context).withAlpha(5), blurRadius: 8, offset: Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Row(
         children: [
@@ -538,7 +537,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
             ),
             child: Icon(Icons.person_rounded, color: statusColor, size: 20),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

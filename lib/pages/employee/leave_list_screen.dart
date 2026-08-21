@@ -10,6 +10,9 @@ import 'package:mpg_hr_mobile_app/services/leave_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/leave_provider.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
+/// Leave-state accents, shared by the hero bar and its caption chip.
+const Color _kPendingColor = Color(0xFF7DD3FC);
+
 class LeaveListScreen extends ConsumerStatefulWidget {
   const LeaveListScreen({super.key});
 
@@ -33,52 +36,12 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final bool isInitialLoading =
-        balancesAsync.isLoading && requestsAsync.isLoading;
+    final balances = balancesAsync.valueOrNull ?? const <LeaveBalance>[];
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDark ? Colors.white : AppColors.grey900,
-            size: 20,
-          ),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go(AppRoutes.main);
-            }
-          },
-        ),
-        title: Text(
-          l10n.leaveManagement,
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: isDark ? Colors.white : AppColors.grey900,
-            letterSpacing: -0.2,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.refresh_rounded,
-              color: isDark ? AppColors.grey300 : AppColors.grey700,
-              size: 22,
-            ),
-            tooltip: 'Refresh',
-            onPressed: _refresh,
-          ),
-          const SizedBox(width: 4),
-        ],
-      ),
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : const Color(0xFFF8FAFC),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           HapticFeedback.lightImpact();
@@ -99,335 +62,349 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
           ),
         ),
       ),
-      body: isInitialLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2.5,
-                color: AppColors.primary,
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: _refresh,
-              color: AppColors.primary,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
-                ),
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 100),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ── Section 1: Leave Balances ──
-                    balancesAsync.when(
-                      data: (balances) => _buildBalancesSection(balances, l10n, isDark),
-                      loading: () => _buildBalancesLoading(isDark),
-                      error: (e, _) => const SizedBox.shrink(),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // ── Section 2: Leave History & Filters ──
-                    requestsAsync.when(
-                      data: (requests) => _buildRequestsSection(requests, l10n, isDark),
-                      loading: () => _buildRequestsLoading(isDark),
-                      error: (e, _) => _buildErrorCard(l10n, isDark),
-                    ),
-                  ],
-                ),
-              ),
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+          color: AppColors.primary,
+          // The hero is scrolled under the status bar, so the spinner needs to
+          // drop below it rather than sit on the notch.
+          edgeOffset: MediaQuery.paddingOf(context).top + 8,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
             ),
+            padding: const EdgeInsets.only(bottom: 110),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHero(
+                  context,
+                  l10n,
+                  isDark,
+                  balances,
+                  loading: balancesAsync.isLoading,
+                ),
+
+                // Breakdown carousel only earns its space when there is more
+                // than one type — a single type already lives in the hero.
+                if (balances.length > 1) ...[
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    height: 165,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: balances.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 12),
+                      itemBuilder: (context, i) => _LeaveBalanceCard(
+                        balance: balances[i],
+                        l10n: l10n,
+                        isDark: isDark,
+                      ),
+                    ),
+                  ),
+                ],
+
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 22, 16, 0),
+                  child: requestsAsync.when(
+                    data: (requests) =>
+                        _buildRequestsSection(requests, l10n, isDark),
+                    loading: () => _buildRequestsLoading(isDark),
+                    error: (e, _) => _buildErrorCard(l10n, isDark),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
-  // ── Leave Balances Section ──
-  Widget _buildBalancesSection(
-    List<LeaveBalance> balances,
+  // ── Gradient hero: same slab treatment as the dashboard, carrying the
+  // headline balance instead of a separate white card below it. ──
+  Widget _buildHero(
+    BuildContext context,
     AppLocalizations l10n,
     bool isDark,
-  ) {
-    if (balances.isEmpty) return const SizedBox.shrink();
+    List<LeaveBalance> balances, {
+    required bool loading,
+  }) {
+    final baseColor = isDark
+        ? const Color(0xFF0A2472)
+        : const Color(0xFF0B2A80);
 
-    final year = DateTime.now().year;
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [baseColor, Color.lerp(baseColor, AppColors.primary, 0.6)!],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: isDark ? 0.34 : 0.28),
+            blurRadius: 30,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -120,
+            right: -90,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -40,
+            right: -40,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              MediaQuery.paddingOf(context).top + 6,
+              16,
+              24,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    if (context.canPop()) ...[
+                      _heroIconButton(
+                        Icons.arrow_back_ios_new_rounded,
+                        onTap: () {
+                          if (context.canPop()) {
+                            context.pop();
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 12),
+                    ],
+                    Expanded(
+                      child: Text(
+                        l10n.leaveManagement,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                    ),
+                    _heroIconButton(Icons.refresh_rounded, onTap: _refresh),
+                  ],
+                ),
+                if (loading && balances.isEmpty) ...[
+                  const SizedBox(height: 28),
+                  const Center(
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ] else if (balances.isNotEmpty) ...[
+                  const SizedBox(height: 22),
+                  _heroBalance(balances),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _heroIconButton(IconData icon, {required VoidCallback onTap}) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.14),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        child: SizedBox(
+          width: 38,
+          height: 38,
+          child: Icon(icon, size: 18, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  // Headline: one type shows its own numbers, many types show the pooled
+  // total with the per-type breakdown left to the carousel below.
+  //
+  // Every line has to earn its place: the headline is the bookable number, the
+  // bar is the same number in shape, and the caption is the only place the
+  // used/allocated split is spelled out. Nothing is stated twice.
+  Widget _heroBalance(List<LeaveBalance> balances) {
+    final single = balances.length == 1 ? balances.first : null;
+    final total = balances.fold<double>(
+      0,
+      (sum, b) => sum + b.allocated + b.carriedForward,
+    );
+    final used = balances.fold<double>(0, (sum, b) => sum + b.used);
+    final pending = balances.fold<double>(0, (sum, b) => sum + b.pending);
+    final carried = balances.fold<double>(0, (sum, b) => sum + b.carriedForward);
+    // remaining already excludes pending — it is what can still be booked.
+    final remaining = balances.fold<double>(0, (sum, b) => sum + b.remaining);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          single != null && single.typeName.isNotEmpty
+              ? '${single.typeName.toUpperCase()} · ${_currentYear()}'
+              : '${_currentYear()} · ${balances.length} LEAVE TYPES',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.1,
+            color: Colors.white.withValues(alpha: 0.6),
+          ),
+        ),
+        const SizedBox(height: 10),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
           children: [
             Text(
-              '${l10n.leaveBalances} ($year)',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : AppColors.grey900,
-                letterSpacing: -0.1,
+              _formatDays(remaining),
+              style: const TextStyle(
+                fontSize: 52,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                height: 1.0,
+                letterSpacing: -2,
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: isDark ? 0.30 : 0.15),
-                  width: 0.8,
-                ),
-              ),
-              child: Text(
-                '${balances.length} ${balances.length == 1 ? 'Type' : 'Types'}',
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w700,
+            const SizedBox(width: 9),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(
+                  'days available',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white.withValues(alpha: 0.8),
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
-
-        if (balances.length == 1)
-          _buildSingleBalanceHero(balances.first, l10n, isDark)
-        else
-          SizedBox(
-            height: 165,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemCount: balances.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 12),
-              itemBuilder: (context, i) => _LeaveBalanceCard(
-                balance: balances[i],
-                l10n: l10n,
-                isDark: isDark,
+        const SizedBox(height: 18),
+        // One stacked track: taken, awaiting approval, then what is left.
+        _heroTrack(total: total, remaining: remaining),
+        const SizedBox(height: 11),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                carried > 0
+                    ? '${_formatDays(used)} of ${_formatDays(total)} days used · incl. ${_formatDays(carried)}d carried over'
+                    : '${_formatDays(used)} of ${_formatDays(total)} days used',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w500,
+                  height: 1.3,
+                  color: Colors.white.withValues(alpha: 0.7),
+                ),
               ),
             ),
-          ),
+            if (pending > 0) ...[
+              const SizedBox(width: 10),
+              _heroPendingChip(pending),
+            ],
+          ],
+        ),
       ],
     );
   }
 
-  // ── Executive Hero Card for Single Leave Balance ──
-  Widget _buildSingleBalanceHero(
-    LeaveBalance balance,
-    AppLocalizations l10n,
-    bool isDark,
-  ) {
-    final remaining = balance.remaining;
-    final total = balance.allocated + balance.carriedForward;
-    final used = balance.used;
-    final pending = balance.pending;
-    final progress = total > 0 ? (used / total).clamp(0.0, 1.0) : 0.0;
+  String _currentYear() => DateTime.now().year.toString();
 
+  Widget _heroPendingChip(double pending) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.fromLTRB(8, 4, 10, 4),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.03),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: Colors.white.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Row 1: Icon + Leave Type Title & Big Available Stat
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: isDark ? 0.25 : 0.10),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.beach_access_rounded,
-                  color: AppColors.primary,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      balance.typeName.isNotEmpty ? balance.typeName : 'Annual Leave',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white : AppColors.grey900,
-                        letterSpacing: -0.2,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Total Quota: ${_formatDays(total)} days',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? AppColors.grey400 : AppColors.grey500,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Prominent Days Left Badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.18 : 0.10),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFF10B981).withValues(alpha: isDark ? 0.35 : 0.22),
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _formatDays(remaining),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF10B981),
-                        height: 1.05,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'Days Left',
-                      style: TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF10B981),
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Linear Progress Bar with smooth rounded corners
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: SizedBox(
-              height: 7,
-              child: LinearProgressIndicator(
-                value: progress,
-                backgroundColor: isDark
-                    ? AppColors.surfaceDarkElevated
-                    : const Color(0xFFF1F5F9),
-                color: AppColors.primary,
-              ),
+          Container(
+            width: 6,
+            height: 6,
+            decoration: const BoxDecoration(
+              color: _kPendingColor,
+              shape: BoxShape.circle,
             ),
           ),
-
-          const SizedBox(height: 14),
-
-          // 3 Metric Stat Tiles in Row
-          Row(
-            children: [
-              Expanded(
-                child: _heroMetricPill(
-                  label: 'Allocated',
-                  value: '${_formatDays(total)}d',
-                  dotColor: AppColors.primary,
-                  isDark: isDark,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _heroMetricPill(
-                  label: 'Used',
-                  value: '${_formatDays(used)}d',
-                  dotColor: const Color(0xFFF59E0B),
-                  isDark: isDark,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _heroMetricPill(
-                  label: 'Pending',
-                  value: '${_formatDays(pending)}d',
-                  dotColor: isDark ? AppColors.grey400 : AppColors.grey500,
-                  isDark: isDark,
-                ),
-              ),
-            ],
+          const SizedBox(width: 6),
+          Text(
+            '${_formatDays(pending)}d awaiting',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _heroMetricPill({
-    required String label,
-    required String value,
-    required Color dotColor,
-    required bool isDark,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDarkElevated : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? AppColors.borderDark : const Color(0xFFF1F5F9),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 5),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isDark ? AppColors.grey400 : AppColors.grey500,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : AppColors.grey900,
-            ),
-          ),
-        ],
+  // Available-vs-allocated in one native bar (e.g. 16 of 18 filled).
+  // ponytail: LinearProgressIndicator instead of hand-rolled flex segments —
+  // the old ColoredBox segments collapsed to zero height under a Row's loose
+  // cross-axis constraints, so the track always rendered empty.
+  Widget _heroTrack({required double total, required double remaining}) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: LinearProgressIndicator(
+        value: total <= 0 ? 0 : (remaining / total).clamp(0.0, 1.0),
+        minHeight: 8,
+        backgroundColor: Colors.white.withValues(alpha: 0.16),
+        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
       ),
     );
   }
@@ -457,35 +434,50 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white : AppColors.grey900,
-                letterSpacing: -0.1,
+                letterSpacing: -0.2,
               ),
             ),
             if (requests.isNotEmpty)
-              Text(
-                '$allCount total',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isDark ? AppColors.grey400 : AppColors.grey500,
-                  fontWeight: FontWeight.w500,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF242424)
+                      : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF333333)
+                        : const Color(0xFFE2E8F0),
+                    width: 0.8,
+                  ),
+                ),
+                child: Text(
+                  '$allCount ${l10n.total}',
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    color: isDark ? AppColors.grey400 : AppColors.grey600,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
           ],
         ),
         const SizedBox(height: 12),
 
-        // Filter Bar (Segmented Filter Chips)
+        // Senior UX/UI Filter Bar (Segmented Filter Chips)
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
           child: Row(
             children: [
-              _filterChip('all', 'All', allCount, null, isDark),
+              _filterChip('all', l10n.all, allCount, isDark),
               const SizedBox(width: 8),
-              _filterChip('pending', 'Pending', pendingCount, const Color(0xFFF59E0B), isDark),
+              _filterChip('pending', l10n.pending, pendingCount, isDark),
               const SizedBox(width: 8),
-              _filterChip('approved', 'Approved', approvedCount, const Color(0xFF10B981), isDark),
+              _filterChip('approved', l10n.approved, approvedCount, isDark),
               const SizedBox(width: 8),
-              _filterChip('rejected', 'Rejected', rejectedCount, const Color(0xFFEF4444), isDark),
+              _filterChip('rejected', l10n.rejected, rejectedCount, isDark),
             ],
           ),
         ),
@@ -522,38 +514,53 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
     String key,
     String label,
     int count,
-    Color? dotColor,
     bool isDark,
   ) {
     final isSelected = _selectedFilter == key;
+
+    final Color chipBg = isSelected
+        ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF))
+        : (isDark ? const Color(0xFF242424) : Colors.white);
+
+    final Color chipBorder = isSelected
+        ? (isDark ? const Color(0xFF3B82F6) : AppColors.primary)
+        : (isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0));
+
+    final Color chipTextColor = isSelected
+        ? (isDark ? const Color(0xFF93C5FD) : AppColors.primary)
+        : (isDark ? AppColors.grey400 : AppColors.grey600);
+
+    final Color countBg = isSelected
+        ? (isDark ? const Color(0xFF2563EB).withValues(alpha: 0.30) : const Color(0xFFDBEAFE))
+        : (isDark ? const Color(0xFF2E2E2E) : const Color(0xFFF1F5F9));
+
+    final Color countTextColor = isSelected
+        ? (isDark ? const Color(0xFF93C5FD) : AppColors.primary)
+        : (isDark ? AppColors.grey400 : AppColors.grey600);
 
     return InkWell(
       onTap: () {
         HapticFeedback.selectionClick();
         setState(() => _selectedFilter = key);
       },
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 180),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7.5),
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary
-              : (isDark ? AppColors.surfaceDark : Colors.white),
-          borderRadius: BorderRadius.circular(24),
+          color: chipBg,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : (isDark ? AppColors.borderDark : const Color(0xFFE2E8F0)),
-            width: 1,
+            color: chipBorder,
+            width: isSelected ? 1.2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: isDark ? 0.35 : 0.22),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
+                    color: AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ]
               : null,
@@ -561,44 +568,27 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (dotColor != null && !isSelected) ...[
-              Container(
-                width: 6.5,
-                height: 6.5,
-                decoration: BoxDecoration(
-                  color: dotColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 6),
-            ],
             Text(
               label,
               style: TextStyle(
                 fontSize: 12.5,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected
-                    ? Colors.white
-                    : (isDark ? AppColors.grey300 : AppColors.grey700),
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: chipTextColor,
               ),
             ),
             const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? Colors.white.withValues(alpha: 0.22)
-                    : (isDark ? AppColors.surfaceDarkElevated : const Color(0xFFF1F5F9)),
-                borderRadius: BorderRadius.circular(10),
+                color: countBg,
+                borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 count.toString(),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: isSelected
-                      ? Colors.white
-                      : (isDark ? AppColors.grey400 : AppColors.grey600),
+                  color: countTextColor,
                 ),
               ),
             ),
@@ -650,7 +640,7 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
           const SizedBox(height: 4),
           Text(
             _selectedFilter == 'all'
-                ? 'Your requested leaves and balances will appear here.'
+                ? l10n.leavesAndBalancesEmptyDesc
                 : 'There are no leave requests under this filter status.',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -659,23 +649,6 @@ class _LeaveListScreenState extends ConsumerState<LeaveListScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBalancesLoading(bool isDark) {
-    return Container(
-      height: 140,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0),
-        ),
-      ),
-      child: const Center(
-        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
       ),
     );
   }

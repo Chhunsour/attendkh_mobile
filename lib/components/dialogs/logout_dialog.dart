@@ -1,103 +1,76 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
-/// Shows a reusable confirmation dialog for logging out.
-/// If the user confirms, it triggers the logout flow.
+/// Confirms sign-out, then clears the session.
+///
+/// Uses the platform alert (UIAlertController on iOS, Material 3 dialog on
+/// Android) rather than a bespoke card: Apple's HIG asks destructive
+/// confirmations to be a standard alert with a plain destructive action and
+/// Cancel as the preferred button — not a large filled red target that is the
+/// easiest thing on screen to hit by accident.
 Future<void> showLogoutConfirmation(BuildContext context, WidgetRef ref) async {
   final l10n = AppLocalizations.of(context)!;
-  final confirmed = await showDialog<bool>(
+
+  final confirmed = await showAdaptiveDialog<bool>(
     context: context,
-    builder: (ctx) => Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      child: Container(
-        padding: EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
-          shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.textPrimary(context).withAlpha(30),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
+    builder: (ctx) => AlertDialog.adaptive(
+      title: Text('${l10n.logOut}?'),
+      content: Text(l10n.logoutConfirmationDesc),
+      actions: [
+        _adaptiveAction(
+          ctx,
+          label: l10n.cancel,
+          isDefault: true,
+          onPressed: () => Navigator.pop(ctx, false),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.dangerLight,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.logout_rounded, color: AppColors.danger, size: 36),
-            ),
-            SizedBox(height: 20),
-            Text(
-              l10n.logOut,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary(context),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.logoutConfirmationDesc,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 15,
-                color: AppColors.grey500,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(ctx, false),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.grey700,
-                      side: const BorderSide(color: AppColors.grey300),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: Text(l10n.cancel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(ctx, true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.danger,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      elevation: 0,
-                    ),
-                    child: Text(l10n.logOut, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                  ),
-                ),
-              ],
-            ),
-          ],
+        _adaptiveAction(
+          ctx,
+          label: l10n.logOut,
+          isDestructive: true,
+          onPressed: () => Navigator.pop(ctx, true),
         ),
-      ),
+      ],
     ),
   );
 
   if (confirmed == true) {
-    // The authProvider will handle clearing state and redirecting to login.
+    // The authProvider clears state and the router redirects to login.
     await ref.read(authProvider.notifier).logout();
   }
 }
 
+Widget _adaptiveAction(
+  BuildContext context, {
+  required String label,
+  required VoidCallback onPressed,
+  bool isDefault = false,
+  bool isDestructive = false,
+}) {
+  switch (Theme.of(context).platform) {
+    case TargetPlatform.iOS:
+    case TargetPlatform.macOS:
+      return CupertinoDialogAction(
+        onPressed: onPressed,
+        isDefaultAction: isDefault,
+        isDestructiveAction: isDestructive,
+        child: Text(label),
+      );
+    default:
+      return TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          foregroundColor: isDestructive ? AppColors.danger : null,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontWeight: isDefault ? FontWeight.w700 : FontWeight.w600,
+          ),
+        ),
+      );
+  }
+}

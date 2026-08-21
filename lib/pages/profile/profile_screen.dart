@@ -4,17 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
-import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   final bool showBackButton;
@@ -22,61 +18,26 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
     final profileAsync = ref.watch(profileProvider);
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        leading: showBackButton
-            ? IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: isDark ? Colors.white : AppColors.grey900,
-                  size: 20,
-                ),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: Text(
-          l10n.myProfile,
-          style: TextStyle(
-            color: isDark ? Colors.white : AppColors.grey900,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: isDark ? 0.20 : 0.10),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.edit_rounded, color: AppColors.primary, size: 18),
-              ),
-              tooltip: l10n.editProfile,
-              onPressed: () => context.push(AppRoutes.editProfile),
-            ),
-          ),
-        ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
-      body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(profileProvider),
-        color: AppColors.primary,
-        child: profileAsync.when(
-          data: (data) => _buildContent(context, ref, data, authState, l10n, isDark),
-          loading: () => LoadingIndicator(message: l10n.loadingProfile),
-          error: (e, _) => _buildFallback(context, ref, authState, l10n, isDark),
+      child: Scaffold(
+        backgroundColor: isDark ? AppColors.backgroundDark : const Color(0xFFF8FAFC),
+        body: RefreshIndicator(
+          onRefresh: () async => ref.invalidate(profileProvider),
+          color: AppColors.primary,
+          child: profileAsync.when(
+            data: (data) => _buildContent(context, ref, data, l10n, isDark),
+            loading: () => LoadingIndicator(message: l10n.loadingProfile),
+            error: (e, _) => _buildFallback(context, ref, l10n, isDark),
+          ),
         ),
       ),
     );
@@ -85,17 +46,25 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildFallback(
     BuildContext context,
     WidgetRef ref,
-    AuthState authState,
     AppLocalizations l10n,
     bool isDark,
   ) {
-    return Center(
-      child: Padding(
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        alignment: Alignment.center,
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline_rounded, size: 48, color: isDark ? AppColors.grey600 : AppColors.grey400),
+            Icon(
+              Icons.error_outline_rounded,
+              size: 48,
+              color: isDark ? AppColors.grey600 : AppColors.grey400,
+            ),
             const SizedBox(height: 12),
             Text(
               l10n.failedToLoadProfile,
@@ -122,297 +91,288 @@ class ProfileScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     ProfileData data,
-    AuthState authState,
     AppLocalizations l10n,
     bool isDark,
   ) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.only(bottom: 40),
       child: Column(
         children: [
-          // ── Clean Executive Hero Header ──
-          _buildHeroHeader(context, data, l10n, isDark),
+          // ── Royal Blue Gradient Hero Header (Matches Home / Leave Screen) ──
+          _buildRoyalHeroHeader(context, data, l10n, isDark),
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
 
-          // ── High-Value Key Metric Pills (Non-Redundant) ──
-          _buildKeyStatsStrip(context, data, isDark),
-
-          const SizedBox(height: 14),
-
-          // ── Employment & Work Details Card ──
-          _buildSectionCard(
-            context: context,
-            title: 'Employment Details',
-            icon: Icons.business_center_rounded,
-            iconColor: AppColors.primary,
-            isDark: isDark,
-            children: [
-              _buildInfoRow(
-                context: context,
-                label: 'Company',
-                value: data.companyName ?? (data.companyId > 0 ? 'Company #${data.companyId}' : '—'),
-                icon: Icons.domain_rounded,
-                isDark: isDark,
-              ),
-              if (data.branchName != null && data.branchName!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Branch Location',
-                  value: data.branchName!,
-                  icon: Icons.storefront_rounded,
-                  isDark: isDark,
-                ),
-              if (data.department != null && data.department!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Department',
-                  value: data.department!,
-                  icon: Icons.account_tree_rounded,
-                  isDark: isDark,
-                ),
-              if (data.jobTitle != null && data.jobTitle!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Job Title / Role',
-                  value: data.jobTitle!,
-                  icon: Icons.work_outline_rounded,
-                  isDark: isDark,
-                ),
-              if (data.team != null && data.team!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Team',
-                  value: data.team!,
-                  icon: Icons.groups_rounded,
-                  isDark: isDark,
-                ),
-              if (data.manager != null && data.manager!.trim().isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Reporting Manager',
-                  value: data.manager!.trim(),
-                  icon: Icons.person_pin_rounded,
-                  isDark: isDark,
-                ),
-              if (data.hireDate != null && data.hireDate!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Joining Date',
-                  value: formatDate(data.hireDate),
-                  icon: Icons.calendar_today_rounded,
-                  isDark: isDark,
-                ),
-              if (data.probationEndDate != null && data.probationEndDate!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Probation End',
-                  value: formatDate(data.probationEndDate),
-                  icon: Icons.event_available_rounded,
-                  isDark: isDark,
-                ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-
-          // ── Contact & Personal Information Card ──
-          _buildSectionCard(
-            context: context,
-            title: 'Personal & Contact',
-            icon: Icons.contact_page_rounded,
-            iconColor: const Color(0xFF0284C7),
-            isDark: isDark,
-            children: [
-              if (data.phone != null && data.phone!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Phone Number',
-                  value: data.phone!,
-                  icon: Icons.phone_outlined,
-                  isDark: isDark,
-                  isCopyable: true,
-                ),
-              if (data.email != null && data.email!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Email Address',
-                  value: data.email!,
-                  icon: Icons.mail_outline_rounded,
-                  isDark: isDark,
-                  isCopyable: true,
-                ),
-              if (data.gender != null && data.gender!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Gender',
-                  value: _capitalize(data.gender!),
-                  icon: Icons.person_outline_rounded,
-                  isDark: isDark,
-                ),
-              if (data.dateOfBirth != null && data.dateOfBirth!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Date of Birth',
-                  value: formatDate(data.dateOfBirth),
-                  icon: Icons.cake_outlined,
-                  isDark: isDark,
-                ),
-              if (data.nationalId != null && data.nationalId!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'National ID / Passport',
-                  value: data.nationalId!,
-                  icon: Icons.badge_outlined,
-                  isDark: isDark,
-                  isCopyable: true,
-                ),
-              if (data.address != null && data.address!.isNotEmpty)
-                _buildInfoRow(
-                  context: context,
-                  label: 'Residential Address',
-                  value: data.address!,
-                  icon: Icons.location_on_outlined,
-                  isDark: isDark,
-                ),
-            ],
-          ),
-
-          // ── Banking & Payroll Card (Conditional) ──
-          if ((data.bankName != null && data.bankName!.isNotEmpty) ||
-              (data.bankAccount != null && data.bankAccount!.isNotEmpty)) ...[
-            const SizedBox(height: 14),
-            _buildSectionCard(
-              context: context,
-              title: 'Payroll & Banking',
-              icon: Icons.account_balance_rounded,
-              iconColor: const Color(0xFF10B981),
-              isDark: isDark,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
               children: [
-                if (data.bankName != null && data.bankName!.isNotEmpty)
-                  _buildInfoRow(
+                // ── High-Value Key Metric Cards ──
+                _buildKeyStatsStrip(context, data, isDark),
+
+                const SizedBox(height: 16),
+
+                // ── Section 1: Employment & Work Details ──
+                _buildSectionCard(
+                  context: context,
+                  title: l10n.employmentDetails,
+                  icon: Icons.business_center_rounded,
+                  iconColor: AppColors.primary,
+                  isDark: isDark,
+                  children: [
+                    _buildInfoRow(
+                      context: context,
+                      label: l10n.company,
+                      value: data.companyName ??
+                          (data.companyId > 0 ? 'Company #${data.companyId}' : '—'),
+                      icon: Icons.domain_rounded,
+                      isDark: isDark,
+                    ),
+                    if (data.branchName != null && data.branchName!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.branchLocation,
+                        value: data.branchName!,
+                        icon: Icons.storefront_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.department != null && data.department!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.department,
+                        value: data.department!,
+                        icon: Icons.account_tree_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.jobTitle != null && data.jobTitle!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.jobTitleRole,
+                        value: data.jobTitle!,
+                        icon: Icons.work_outline_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.team != null && data.team!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.team,
+                        value: data.team!,
+                        icon: Icons.groups_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.manager != null && data.manager!.trim().isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.reportingManager,
+                        value: data.manager!.trim(),
+                        icon: Icons.person_pin_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.hireDate != null && data.hireDate!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.joiningDate,
+                        value: formatDate(data.hireDate),
+                        icon: Icons.calendar_today_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.probationEndDate != null &&
+                        data.probationEndDate!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.probationEnd,
+                        value: formatDate(data.probationEndDate),
+                        icon: Icons.event_available_rounded,
+                        isDark: isDark,
+                      ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // ── Section 2: Personal & Contact Information ──
+                _buildSectionCard(
+                  context: context,
+                  title: l10n.personalAndContact,
+                  icon: Icons.contact_page_rounded,
+                  iconColor: const Color(0xFF0284C7),
+                  isDark: isDark,
+                  children: [
+                    if (data.phone != null && data.phone!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.phoneNumber,
+                        value: data.phone!,
+                        icon: Icons.phone_outlined,
+                        isDark: isDark,
+                        isCopyable: true,
+                      ),
+                    if (data.email != null && data.email!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.emailAddress,
+                        value: data.email!,
+                        icon: Icons.mail_outline_rounded,
+                        isDark: isDark,
+                        isCopyable: true,
+                      ),
+                    if (data.gender != null && data.gender!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.gender,
+                        value: _capitalize(data.gender!),
+                        icon: Icons.person_outline_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.dateOfBirth != null && data.dateOfBirth!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: 'Date of Birth',
+                        value: formatDate(data.dateOfBirth),
+                        icon: Icons.cake_outlined,
+                        isDark: isDark,
+                      ),
+                    if (data.nationalId != null && data.nationalId!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: 'National ID / Passport',
+                        value: data.nationalId!,
+                        icon: Icons.badge_outlined,
+                        isDark: isDark,
+                        isCopyable: true,
+                      ),
+                    if (data.address != null && data.address!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: 'Residential Address',
+                        value: data.address!,
+                        icon: Icons.location_on_outlined,
+                        isDark: isDark,
+                      ),
+                  ],
+                ),
+
+                // ── Section 3: Banking & Payroll (Conditional) ──
+                if ((data.bankName != null && data.bankName!.isNotEmpty) ||
+                    (data.bankAccount != null && data.bankAccount!.isNotEmpty)) ...[
+                  const SizedBox(height: 16),
+                  _buildSectionCard(
                     context: context,
-                    label: 'Bank Name',
-                    value: data.bankName!,
-                    icon: Icons.account_balance_outlined,
+                    title: 'Payroll & Banking',
+                    icon: Icons.account_balance_rounded,
+                    iconColor: const Color(0xFF10B981),
                     isDark: isDark,
+                    children: [
+                      if (data.bankName != null && data.bankName!.isNotEmpty)
+                        _buildInfoRow(
+                          context: context,
+                          label: 'Bank Name',
+                          value: data.bankName!,
+                          icon: Icons.account_balance_outlined,
+                          isDark: isDark,
+                        ),
+                      if (data.bankAccount != null && data.bankAccount!.isNotEmpty)
+                        _buildInfoRow(
+                          context: context,
+                          label: 'Account Number',
+                          value: data.bankAccount!,
+                          icon: Icons.credit_card_rounded,
+                          isDark: isDark,
+                          isCopyable: true,
+                        ),
+                    ],
                   ),
-                if (data.bankAccount != null && data.bankAccount!.isNotEmpty)
-                  _buildInfoRow(
+                ],
+
+                // ── Section 4: Emergency Contact (Conditional) ──
+                if (_hasEmergencyContact(data.emergencyContact)) ...[
+                  const SizedBox(height: 16),
+                  _buildSectionCard(
                     context: context,
-                    label: 'Account Number',
-                    value: data.bankAccount!,
-                    icon: Icons.credit_card_rounded,
+                    title: 'Emergency Contact',
+                    icon: Icons.health_and_safety_rounded,
+                    iconColor: const Color(0xFFEF4444),
                     isDark: isDark,
-                    isCopyable: true,
+                    children: [
+                      if (data.emergencyContact!['name'] != null &&
+                          data.emergencyContact!['name'].toString().isNotEmpty)
+                        _buildInfoRow(
+                          context: context,
+                          label: 'Contact Name',
+                          value: data.emergencyContact!['name'].toString(),
+                          icon: Icons.person_rounded,
+                          isDark: isDark,
+                        ),
+                      if (data.emergencyContact!['relationship'] != null &&
+                          data.emergencyContact!['relationship'].toString().isNotEmpty)
+                        _buildInfoRow(
+                          context: context,
+                          label: 'Relationship',
+                          value: data.emergencyContact!['relationship'].toString(),
+                          icon: Icons.family_restroom_rounded,
+                          isDark: isDark,
+                        ),
+                      if (data.emergencyContact!['phone'] != null &&
+                          data.emergencyContact!['phone'].toString().isNotEmpty)
+                        _buildInfoRow(
+                          context: context,
+                          label: 'Emergency Phone',
+                          value: data.emergencyContact!['phone'].toString(),
+                          icon: Icons.phone_in_talk_rounded,
+                          isDark: isDark,
+                          isCopyable: true,
+                        ),
+                    ],
                   ),
+                ],
+
+                const SizedBox(height: 24),
+
+                // ── Bottom Edit Action Button ──
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      context.push(AppRoutes.editProfile);
+                    },
+                    icon: const Icon(Icons.edit_note_rounded, size: 20),
+                    label: Text(
+                      l10n.editProfile,
+                      style: const TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDark
+                          ? AppColors.surfaceDarkElevated
+                          : Colors.white,
+                      foregroundColor: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        side: BorderSide(
+                          color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0),
+                          width: 1.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
-          ],
-
-          // ── Emergency Contact Card (Conditional) ──
-          if (_hasEmergencyContact(data.emergencyContact)) ...[
-            const SizedBox(height: 14),
-            _buildSectionCard(
-              context: context,
-              title: 'Emergency Contact',
-              icon: Icons.health_and_safety_rounded,
-              iconColor: const Color(0xFFEF4444),
-              isDark: isDark,
-              children: [
-                if (data.emergencyContact!['name'] != null &&
-                    data.emergencyContact!['name'].toString().isNotEmpty)
-                  _buildInfoRow(
-                    context: context,
-                    label: 'Contact Name',
-                    value: data.emergencyContact!['name'].toString(),
-                    icon: Icons.person_rounded,
-                    isDark: isDark,
-                  ),
-                if (data.emergencyContact!['relationship'] != null &&
-                    data.emergencyContact!['relationship'].toString().isNotEmpty)
-                  _buildInfoRow(
-                    context: context,
-                    label: 'Relationship',
-                    value: data.emergencyContact!['relationship'].toString(),
-                    icon: Icons.family_restroom_rounded,
-                    isDark: isDark,
-                  ),
-                if (data.emergencyContact!['phone'] != null &&
-                    data.emergencyContact!['phone'].toString().isNotEmpty)
-                  _buildInfoRow(
-                    context: context,
-                    label: 'Emergency Phone',
-                    value: data.emergencyContact!['phone'].toString(),
-                    icon: Icons.phone_in_talk_rounded,
-                    isDark: isDark,
-                    isCopyable: true,
-                  ),
-              ],
-            ),
-          ],
-
-          const SizedBox(height: 14),
-
-          // ── Preferences & Account Settings Card ──
-          _buildSectionCard(
-            context: context,
-            title: 'Preferences & Account',
-            icon: Icons.tune_rounded,
-            iconColor: const Color(0xFF8B5CF6),
-            isDark: isDark,
-            children: [
-              if (authState.isSuperAdmin || authState.isCompanyAdmin) ...[
-                _buildActionRow(
-                  icon: Icons.admin_panel_settings_rounded,
-                  title: l10n.returnToAdminConsole,
-                  subtitle: 'Switch to HR Admin dashboard',
-                  iconColor: const Color(0xFF6366F1),
-                  isDark: isDark,
-                  onTap: () {
-                    if (authState.isSuperAdmin) {
-                      context.go(AppRoutes.adminDashboard);
-                    } else {
-                      context.go(AppRoutes.companyAdmin);
-                    }
-                  },
-                ),
-                Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.grey100),
-              ],
-              _buildThemeRow(context, ref, isDark),
-              Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.grey100),
-              _buildLanguageRow(context, ref, l10n, isDark),
-              Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.grey100),
-              _buildActionRow(
-                icon: Icons.edit_note_rounded,
-                title: l10n.editProfile,
-                subtitle: 'Update your contact and bank details',
-                iconColor: AppColors.primary,
-                isDark: isDark,
-                onTap: () => context.push(AppRoutes.editProfile),
-              ),
-              Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.grey100),
-              _buildActionRow(
-                icon: Icons.logout_rounded,
-                title: l10n.logOut,
-                subtitle: 'Sign out from this device',
-                iconColor: AppColors.danger,
-                titleColor: AppColors.danger,
-                isDark: isDark,
-                onTap: () => showLogoutConfirmation(context, ref),
-              ),
-            ],
           ),
-
-          const SizedBox(height: 36),
         ],
       ),
     );
   }
 
-  // ── Hero Profile Header ──
-  Widget _buildHeroHeader(
+  // ── Royal Blue Curved Hero Header (Matches Home / Leave Screen) ──
+  Widget _buildRoyalHeroHeader(
     BuildContext context,
     ProfileData data,
     AppLocalizations l10n,
@@ -430,184 +390,341 @@ class ProfileScreen extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
-          width: 1,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF0038B8), // Royal Blue Deep
+            Color(0xFF0052FF), // Royal Blue Main
+            Color(0xFF1E6BFF), // Royal Blue Light Glow
+          ],
         ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.03),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            color: Color(0x550052FF),
+            blurRadius: 28,
+            offset: Offset(0, 10),
           ),
         ],
       ),
-      child: Column(
+      child: Stack(
         children: [
-          // Avatar + Edit Camera Badge
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: 90,
-                height: 90,
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF0052FF), Color(0xFF38BDF8)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+          // Translucent decorative background circles
+          Positioned(
+            top: -100,
+            right: -80,
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.06),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -50,
+            left: -40,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.04),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 26),
+              child: Column(
+                children: [
+                  // ── Top Navigation Bar ──
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (showBackButton)
+                        _frostedHeroButton(
+                          icon: Icons.arrow_back_ios_new_rounded,
+                          onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            }
+                          },
+                        )
+                      else
+                        const SizedBox(width: 40),
+                      Text(
+                        l10n.myProfile,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                      _frostedHeroButton(
+                        icon: Icons.edit_rounded,
+                        tooltip: l10n.editProfile,
+                        onTap: () => context.push(AppRoutes.editProfile),
+                      ),
+                    ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: isDark ? 0.35 : 0.20),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isDark ? AppColors.surfaceDark : Colors.white,
-                  ),
-                  padding: const EdgeInsets.all(2),
-                  child: ClipOval(
-                    child: data.photoUrl != null && data.photoUrl!.isNotEmpty
-                        ? CachedNetworkImage(
-                            imageUrl: data.photoUrl!,
-                            width: 82,
-                            height: 82,
-                            memCacheWidth: 250,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => const Center(
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ),
+
+                  const SizedBox(height: 16),
+
+                  // ── Avatar with Illuminated White Ring & Camera Badge ──
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 96,
+                        height: 96,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3.5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.25),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
                             ),
-                            errorWidget: (context, url, error) => Center(
-                              child: Text(
-                                _initials(displayName),
-                                style: const TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: data.photoUrl != null && data.photoUrl!.isNotEmpty
+                              ? CachedNetworkImage(
+                                  imageUrl: data.photoUrl!,
+                                  width: 90,
+                                  height: 90,
+                                  memCacheWidth: 250,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => const Center(
+                                    child: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) => Center(
+                                    child: Text(
+                                      _initials(displayName),
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  color: Colors.white.withValues(alpha: 0.20),
+                                  child: Center(
+                                    child: Text(
+                                      _initials(displayName),
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                        ),
+                      ),
+
+                      // Floating Camera Edit Action Badge
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            context.push(AppRoutes.editProfile);
+                          },
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.20),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          )
-                        : Center(
-                            child: Text(
-                              _initials(displayName),
-                              style: const TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                              ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              size: 16,
+                              color: AppColors.primary,
                             ),
                           ),
-                  ),
-                ),
-              ),
-
-              // Camera edit icon on avatar
-              Positioned(
-                bottom: 0,
-                right: -2,
-                child: GestureDetector(
-                  onTap: () => context.push(AppRoutes.editProfile),
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isDark ? AppColors.surfaceDark : Colors.white,
-                        width: 2.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.20),
-                          blurRadius: 4,
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt_rounded,
-                      size: 13,
-                      color: Colors.white,
-                    ),
+                      ),
+                    ],
                   ),
-                ),
+
+                  const SizedBox(height: 14),
+
+                  // Full Display Name
+                  Text(
+                    displayName,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.3,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  // Khmer Name (if present)
+                  if (data.khmerName != null && data.khmerName!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      data.khmerName!.trim(),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white.withValues(alpha: 0.90),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+
+                  // Job Title / Role & Department
+                  if (departmentRole.isNotEmpty) ...[
+                    const SizedBox(height: 5),
+                    Text(
+                      departmentRole,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        color: Colors.white.withValues(alpha: 0.78),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+
+                  const SizedBox(height: 14),
+
+                  // Frosted Role & Status Badges
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildHeroRoleBadge(data.roles),
+                      const SizedBox(width: 8),
+                      _buildHeroStatusBadge(isActive, data.employmentStatus ?? 'Active'),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-
-          // Full Name
-          Text(
-            displayName,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : AppColors.grey900,
-              letterSpacing: -0.2,
             ),
-            textAlign: TextAlign.center,
-          ),
-
-          // Khmer Name (if available)
-          if (data.khmerName != null && data.khmerName!.trim().isNotEmpty) ...[
-            const SizedBox(height: 2),
-            Text(
-              data.khmerName!.trim(),
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? AppColors.grey300 : AppColors.grey700,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-
-          if (departmentRole.isNotEmpty) ...[
-            const SizedBox(height: 5),
-            Text(
-              departmentRole,
-              style: TextStyle(
-                fontSize: 13.5,
-                color: isDark ? AppColors.grey400 : AppColors.grey600,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-
-          const SizedBox(height: 12),
-
-          // Badges: Role & Status
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildRoleBadge(data.roles, isDark),
-              const SizedBox(width: 8),
-              _buildStatusBadge(isActive, data.employmentStatus ?? 'Active', isDark),
-            ],
           ),
         ],
       ),
     );
   }
 
-  // ── High-Value Key Stats Strip (Non-Redundant) ──
+  Widget _frostedHeroButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    String? tooltip,
+  }) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.18),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        child: Tooltip(
+          message: tooltip ?? '',
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Icon(icon, size: 18, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeroRoleBadge(List<String> roles) {
+    final roleText = roles.isNotEmpty ? roles.first.replaceAll('_', ' ') : 'Employee';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+      ),
+      child: Text(
+        roleText.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 10.5,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+          letterSpacing: 0.4,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeroStatusBadge(bool isActive, String status) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: isActive ? const Color(0xFF34D399) : const Color(0xFFFBBF24),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: (isActive ? const Color(0xFF34D399) : const Color(0xFFFBBF24))
+                      .withValues(alpha: 0.6),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            status.replaceAll('_', ' ').toUpperCase(),
+            style: const TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              letterSpacing: 0.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── High-Value Key Stats Strip ──
   Widget _buildKeyStatsStrip(BuildContext context, ProfileData data, bool isDark) {
     final empId = data.employeeId != null && data.employeeId!.isNotEmpty
         ? data.employeeId!
@@ -643,7 +760,7 @@ class ProfileScreen extends ConsumerWidget {
         Expanded(
           child: _buildMetricTile(
             context: context,
-            icon: Icons.event_note_rounded,
+            icon: Icons.event_available_rounded,
             label: 'Joined',
             value: joinDate != '—' ? joinDate : 'Recent',
             color: const Color(0xFF8B5CF6),
@@ -667,20 +784,20 @@ class ProfileScreen extends ConsumerWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
           decoration: BoxDecoration(
             color: isDark ? AppColors.surfaceDark : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+              color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.02),
-                blurRadius: 8,
+                color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.03),
+                blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
             ],
@@ -688,12 +805,12 @@ class ProfileScreen extends ConsumerWidget {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: isDark ? 0.22 : 0.12),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 16, color: color),
+                child: Icon(icon, size: 18, color: color),
               ),
               const SizedBox(height: 8),
               FittedBox(
@@ -701,7 +818,7 @@ class ProfileScreen extends ConsumerWidget {
                 child: Text(
                   value,
                   style: TextStyle(
-                    fontSize: 12.5,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: isDark ? Colors.white : AppColors.grey900,
                   ),
@@ -712,7 +829,7 @@ class ProfileScreen extends ConsumerWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 10.5,
+                  fontSize: 11,
                   color: isDark ? AppColors.grey400 : AppColors.grey500,
                   fontWeight: FontWeight.w500,
                 ),
@@ -741,16 +858,16 @@ class ProfileScreen extends ConsumerWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -758,30 +875,34 @@ class ProfileScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
                     color: iconColor.withValues(alpha: isDark ? 0.22 : 0.12),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(icon, size: 16, color: iconColor),
+                  child: Icon(icon, size: 18, color: iconColor),
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : AppColors.grey900,
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : AppColors.grey900,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          Divider(height: 1, color: isDark ? AppColors.borderDark : AppColors.grey100),
+          Divider(height: 1, color: isDark ? AppColors.borderDark : const Color(0xFFF1F5F9)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(children: validChildren),
@@ -803,18 +924,18 @@ class ProfileScreen extends ConsumerWidget {
     if (value.trim().isEmpty || value == '—') return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, size: 16, color: isDark ? AppColors.grey500 : AppColors.grey400),
+          Icon(icon, size: 17, color: isDark ? AppColors.grey500 : AppColors.grey400),
           const SizedBox(width: 10),
           Expanded(
             flex: 4,
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 13.5,
                 color: isDark ? AppColors.grey400 : AppColors.grey600,
                 fontWeight: FontWeight.w500,
               ),
@@ -831,7 +952,7 @@ class ProfileScreen extends ConsumerWidget {
                   child: Text(
                     value,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 13.5,
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : AppColors.grey900,
                     ),
@@ -840,306 +961,20 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 if (isCopyable) ...[
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   GestureDetector(
                     onTap: () => _copyToClipboard(context, value, label),
                     child: Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: Icon(
                         Icons.copy_rounded,
-                        size: 13,
-                        color: isDark ? AppColors.grey400 : AppColors.grey500,
+                        size: 14,
+                        color: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
                       ),
                     ),
                   ),
                 ],
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Action Row Item ──
-  Widget _buildActionRow({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    required bool isDark,
-    Color? iconColor,
-    Color? titleColor,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: (iconColor ?? AppColors.primary).withValues(alpha: isDark ? 0.20 : 0.10),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                size: 18,
-                color: iconColor ?? (isDark ? AppColors.grey300 : AppColors.grey700),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                      color: titleColor ?? (isDark ? Colors.white : AppColors.grey900),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isDark ? AppColors.grey400 : AppColors.grey500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              size: 18,
-              color: isDark ? AppColors.grey500 : AppColors.grey400,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ── Appearance Theme Switcher ──
-  Widget _buildThemeRow(BuildContext context, WidgetRef ref, bool isDark) {
-    final themeMode = ref.watch(themeModeProvider);
-
-    final String modeLabel = switch (themeMode) {
-      ThemeMode.light => 'Light Mode',
-      ThemeMode.dark => 'Dark Mode',
-      ThemeMode.system => 'System Default',
-    };
-
-    final IconData modeIcon = switch (themeMode) {
-      ThemeMode.light => Icons.light_mode_rounded,
-      ThemeMode.dark => Icons.dark_mode_rounded,
-      ThemeMode.system => Icons.brightness_auto_rounded,
-    };
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.20 : 0.10),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              modeIcon,
-              size: 18,
-              color: themeMode == ThemeMode.light
-                  ? const Color(0xFFF59E0B)
-                  : (themeMode == ThemeMode.dark
-                      ? const Color(0xFF818CF8)
-                      : AppColors.primary),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Theme & Appearance',
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : AppColors.grey900,
-                  ),
-                ),
-                Text(
-                  modeLabel,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isDark ? AppColors.grey400 : AppColors.grey500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          DropdownButtonHideUnderline(
-            child: DropdownButton<ThemeMode>(
-              value: themeMode,
-              icon: Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: isDark ? AppColors.grey400 : AppColors.grey500,
-              ),
-              dropdownColor: isDark ? AppColors.surfaceDark : Colors.white,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
-              ),
-              items: const [
-                DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
-                DropdownMenuItem(value: ThemeMode.system, child: Text('Auto')),
-              ],
-              onChanged: (ThemeMode? newMode) {
-                if (newMode != null) {
-                  ref.read(themeModeProvider.notifier).setThemeMode(newMode);
-                }
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Language Selector ──
-  Widget _buildLanguageRow(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-    bool isDark,
-  ) {
-    final currentLang = ref.watch(localeProvider).languageCode;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.20 : 0.10),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              Icons.translate_rounded,
-              size: 18,
-              color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.language,
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : AppColors.grey900,
-                  ),
-                ),
-                Text(
-                  currentLang == 'km' ? l10n.khmer : l10n.english,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: isDark ? AppColors.grey400 : AppColors.grey500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: currentLang,
-              icon: Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: isDark ? AppColors.grey400 : AppColors.grey500,
-              ),
-              dropdownColor: isDark ? AppColors.surfaceDark : Colors.white,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
-              ),
-              items: [
-                DropdownMenuItem(value: 'en', child: Text(l10n.english)),
-                DropdownMenuItem(value: 'km', child: Text(l10n.khmer)),
-              ],
-              onChanged: (String? val) {
-                if (val != null) {
-                  ref.read(localeProvider.notifier).setLocale(Locale(val));
-                }
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Badges ──
-  Widget _buildRoleBadge(List<String> roles, bool isDark) {
-    final roleText = roles.isNotEmpty ? roles.first.replaceAll('_', ' ') : 'Employee';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0x283B82F6) : AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        roleText.toUpperCase(),
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: isDark ? const Color(0xFF93C5FD) : AppColors.primaryDark,
-          letterSpacing: 0.4,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge(bool isActive, String status, bool isDark) {
-    final Color badgeColor = isActive ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: badgeColor.withValues(alpha: isDark ? 0.20 : 0.12),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: badgeColor,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            status.replaceAll('_', ' ').toUpperCase(),
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: isDark ? const Color(0xFF6EE7B7) : AppColors.secondaryDark,
-              letterSpacing: 0.4,
             ),
           ),
         ],

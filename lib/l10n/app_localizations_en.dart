@@ -43,7 +43,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logoutConfirmationDesc =>
-      'Are you sure you want to log out of your account?';
+      'You\'ll need to sign in again to see your attendance, leave and payslips on this device.';
 
   @override
   String get language => 'Language';
@@ -73,7 +73,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get password => 'Password';
 
   @override
-  String get passwordRequired => 'Password *';
+  String get passwordRequired => 'Password is required';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get signInSubtitle => 'Sign in to continue to your workspace';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String get tooManyAttempts =>
+      'Too many failed attempts. Please wait before trying again.';
+
+  @override
+  String get resetPasswordTitle => 'Reset password';
+
+  @override
+  String get resetPasswordDesc =>
+      'Enter the email linked to your account and we\'ll send you a link to reset your password.';
+
+  @override
+  String get sendResetLink => 'Send reset link';
+
+  @override
+  String get resetLinkSent =>
+      'If that email is registered, a reset link has been sent.';
 
   @override
   String get signIn => 'Sign In';
@@ -237,6 +267,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get clockOutConfirm =>
       'Are you sure you want to clock out for the day? Your work hours will be recorded.';
+
+  @override
+  String get earlyClockOutTitle => 'Leaving Early?';
+
+  @override
+  String earlyClockOutBody(String duration) {
+    return 'Your shift still has $duration to run. Tell your manager why you are leaving.';
+  }
+
+  @override
+  String get earlyClockOutReasonHint => 'Choose a reason';
+
+  @override
+  String get earlyClockOutDetailHint => 'Add detail (optional)';
+
+  @override
+  String get earlyClockOutOtherHint => 'Tell your manager what came up';
 
   @override
   String get cancel => 'Cancel';
@@ -2908,6 +2955,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markCompletedBtn => 'Mark Completed';
 
   @override
+  String get payrollRuns => 'Payroll Runs';
+
+  @override
   String payrollRunTitle(String period) {
     return 'Payroll Run $period';
   }
@@ -4906,4 +4956,613 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noPayslipsYet => 'No payslips yet';
+
+  @override
+  String get preferences => 'Preferences';
+
+  @override
+  String get themeAndAppearance => 'Theme & Appearance';
+
+  @override
+  String get themeSubtitle => 'Dark, light or system theme';
+
+  @override
+  String get languageSubtitle => 'English • ខ្មែរ';
+
+  @override
+  String get accountAndInfo => 'Account & Info';
+
+  @override
+  String get accountActions => 'Account Actions';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get privacyPolicySubtitle =>
+      'Review how we protect and process your data';
+
+  @override
+  String get deleteAccount => 'Delete Account';
+
+  @override
+  String get deleteAccountSubtitle =>
+      'Permanently remove your account and personal data';
+
+  @override
+  String get signOutSubtitle => 'Sign out from this device';
+
+  @override
+  String get returnToAdminSubtitle => 'Switch to HR Admin dashboard';
+
+  @override
+  String get editProfileSubtitle => 'Update your contact and bank details';
+
+  @override
+  String get companyServicesAndTools => 'Company Services & Tools';
+
+  @override
+  String featuresCount(int count) {
+    return '$count Features';
+  }
+
+  @override
+  String get selectTheme => 'Select Theme';
+
+  @override
+  String get selectLanguage => 'Select Language';
+
+  @override
+  String get lightTheme => 'Light Theme';
+
+  @override
+  String get darkTheme => 'Dark Theme';
+
+  @override
+  String get systemTheme => 'System Theme';
+
+  @override
+  String get lightThemeDesc => 'Crisp clean interface with high contrast';
+
+  @override
+  String get darkThemeDesc =>
+      'Deep dark interface, easier on the eyes in low light';
+
+  @override
+  String get systemThemeDesc =>
+      'Automatically matches your device display mode';
+
+  @override
+  String get englishDesc => 'Default language for international operations';
+
+  @override
+  String get khmerDesc => 'ភាសាជាតិកម្ពុជា';
+
+  @override
+  String get attendkhAppVersion => 'Version 1.0.0 • Production Release';
+
+  @override
+  String get filterUnread => 'Unread';
+
+  @override
+  String get filterAttendance => 'Attendance';
+
+  @override
+  String get filterAnnouncements => 'Announcements';
+
+  @override
+  String get filterPolicies => 'Policies';
+
+  @override
+  String get filterRequests => 'Requests';
+
+  @override
+  String get filterRead => 'Read';
+
+  @override
+  String get timelineToday => 'Today';
+
+  @override
+  String get timelineYesterday => 'Yesterday';
+
+  @override
+  String get timelineThisWeek => 'This Week';
+
+  @override
+  String get timelineEarlier => 'Earlier';
+
+  @override
+  String get searchNotificationsHint =>
+      'Search notifications by title or message...';
+
+  @override
+  String get markAsRead => 'Mark as Read';
+
+  @override
+  String get markAsUnread => 'Mark as Unread';
+
+  @override
+  String get noMatchingNotifications => 'No matching notifications';
+
+  @override
+  String get allCaughtUp => 'You\'re all caught up!';
+
+  @override
+  String get noFilterNotifications => 'No notifications in this filter';
+
+  @override
+  String get searchSuggestions =>
+      'Try searching with different keywords or clearing your query.';
+
+  @override
+  String get checkOtherTabs =>
+      'Check other tabs or swipe down to refresh for new updates.';
+
+  @override
+  String get emptyNotificationsPrompt =>
+      'Company announcements, policy updates, and attendance alerts will appear here.';
+
+  @override
+  String get moreServices => 'More Services';
+
+  @override
+  String get hrOperations => 'HR Operations';
+
+  @override
+  String get financeAndAssets => 'Finance & Assets';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navLeave => 'Leave';
+
+  @override
+  String get navPayslip => 'Payslip';
+
+  @override
+  String get navMore => 'More';
+
+  @override
+  String get navHR => 'HR';
+
+  @override
+  String get navPayroll => 'Payroll';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get navCompanies => 'Companies';
+
+  @override
+  String get itemAttendanceSubtitle => 'History & clock logs';
+
+  @override
+  String get itemOvertimeSubtitle => 'Request & track OT';
+
+  @override
+  String get itemExpensesSubtitle => 'Claims & receipts';
+
+  @override
+  String get itemTrainingSubtitle => 'Courses & skills';
+
+  @override
+  String get itemKpisSubtitle => 'Performance goals';
+
+  @override
+  String get itemHolidaysSubtitle => 'Company calendar';
+
+  @override
+  String get itemRulesSubtitle => 'Regulations & guide';
+
+  @override
+  String get itemPoliciesSubtitle => 'Terms & conditions';
+
+  @override
+  String get itemEmployees => 'Employees';
+
+  @override
+  String get itemEmployeesSubtitle => 'Directory & staff profiles';
+
+  @override
+  String get itemHrStructure => 'HR Structure';
+
+  @override
+  String get itemHrStructureSubtitle => 'Departments & designations';
+
+  @override
+  String get itemAdminAttendanceSubtitle => 'Daily check-in logs & scans';
+
+  @override
+  String get itemAdminLeaveSubtitle => 'Time-off approvals & balance';
+
+  @override
+  String get itemAdminOvertimeSubtitle => 'Extra hours review & claims';
+
+  @override
+  String get itemAdminShiftsSubtitle => 'Rosters & timing schedules';
+
+  @override
+  String get itemAdminPayrollSubtitle => 'Salaries & payslip generation';
+
+  @override
+  String get itemAdminExpensesSubtitle => 'Receipt review & payouts';
+
+  @override
+  String get itemBranchLocations => 'Branch Locations';
+
+  @override
+  String get itemBranchLocationsSubtitle => 'GPS geofences & Wi-Fi';
+
+  @override
+  String get itemKpiPerformance => 'KPI & Performance';
+
+  @override
+  String get itemKpiPerformanceSubtitle => 'Quarterly reviews';
+
+  @override
+  String get itemAuditLogs => 'Audit Logs';
+
+  @override
+  String get itemAuditLogsSubtitle => 'System activity logs';
+
+  @override
+  String get itemHolidayCalendar => 'Holiday Calendar';
+
+  @override
+  String get itemHolidayCalendarSubtitle => 'Public & company days off';
+
+  @override
+  String get itemAnnouncements => 'Company Announcements';
+
+  @override
+  String get itemAnnouncementsSubtitle => 'Broadcasts & notices';
+
+  @override
+  String get itemCompanyPolicies => 'Company Policies';
+
+  @override
+  String get itemCompanyPoliciesSubtitle => 'HR handbook & docs';
+
+  @override
+  String get itemRolesPermissions => 'Roles & Permissions';
+
+  @override
+  String get itemRolesPermissionsSubtitle => 'Access controls';
+
+  @override
+  String get itemSupportTickets => 'Support Tickets';
+
+  @override
+  String get itemSupportTicketsSubtitle => 'Client helpdesk';
+
+  @override
+  String get itemPlatformHealth => 'Platform Health';
+
+  @override
+  String get itemPlatformHealthSubtitle => 'KPIs & uptime';
+
+  @override
+  String get itemGlobalAnnouncementsSubtitle => 'Global broadcasts';
+
+  @override
+  String get itemPlatformSettings => 'Platform Settings';
+
+  @override
+  String get itemPlatformSettingsSubtitle => 'App configuration';
+
+  @override
+  String get workShifts => 'Work Shifts';
+
+  @override
+  String get companyAssets => 'Company Assets';
+
+  @override
+  String get manageAssignedAssets => 'Track & manage equipment';
+
+  @override
+  String get recruitmentJobsDesc => 'Open positions & applicants';
+
+  @override
+  String get performanceReviews => 'Performance Reviews';
+
+  @override
+  String get performanceReviewsDesc => 'Staff KPI & appraisals';
+
+  @override
+  String get summaryReports => 'Summary Reports';
+
+  @override
+  String get summaryReportsDesc => 'Attendance & payroll overview';
+
+  @override
+  String get analyticsReports => 'Analytics & Trends';
+
+  @override
+  String get analyticsReportsDesc => 'HR insights & statistics';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get rejected => 'Rejected';
+
+  @override
+  String get total => 'total';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get allFiles => 'All Files';
+
+  @override
+  String get wordDocuments => 'Word Documents';
+
+  @override
+  String get spreadsheets => 'Spreadsheets';
+
+  @override
+  String get images => 'Images';
+
+  @override
+  String get documentsCount => 'Documents';
+
+  @override
+  String get availableFiles => 'Available Files';
+
+  @override
+  String get searchFilesHint => 'Search files, forms, templates...';
+
+  @override
+  String get corporateDocVaultSubtitle =>
+      'Corporate Document Vault & Resources';
+
+  @override
+  String get noFilesMatching => 'No files matching';
+
+  @override
+  String get companyRulesSubtitle => 'Employee Code of Conduct & Guidelines';
+
+  @override
+  String get searchRulesHint => 'Search rules, conduct, guidelines...';
+
+  @override
+  String get regulationsAndPolicies => 'Regulations & Policies';
+
+  @override
+  String get guidelinesCount => 'Guidelines';
+
+  @override
+  String get noRulesMatching => 'No rules matching';
+
+  @override
+  String get allPoliciesReadSuccess =>
+      'Great job! You have read and acknowledged all required policies.';
+
+  @override
+  String get acknowledgedPoliciesEmpty =>
+      'Policies you have signed and acknowledged will appear here.';
+
+  @override
+  String get overtimeManagement => 'Overtime Management';
+
+  @override
+  String get overtimeManagementSubtitle => 'Request and track extra work hours';
+
+  @override
+  String get requestOT => 'Request OT';
+
+  @override
+  String get myHistory => 'My History';
+
+  @override
+  String get shiftPolicyRules => 'Shift Policy & Rules';
+
+  @override
+  String get shiftPolicyDesc =>
+      'Standard OT rate applies after regular shift hours. All requests require line manager approval.';
+
+  @override
+  String get selectDateLabel => 'Select Date';
+
+  @override
+  String get timeWindow => 'Time Window';
+
+  @override
+  String get startTime => 'Start Time';
+
+  @override
+  String get endTime => 'End Time';
+
+  @override
+  String get calculatedDuration => 'Calculated Duration';
+
+  @override
+  String get overtimeReasonLabel => 'Reason for Overtime *';
+
+  @override
+  String get overtimeReasonHint =>
+      'e.g. Urgent server maintenance, Monthly financial closing...';
+
+  @override
+  String get submitOTRequest => 'Submit OT Request';
+
+  @override
+  String get submittingRequest => 'Submitting request...';
+
+  @override
+  String get otSubmittedSuccess => '✅ Overtime request submitted successfully';
+
+  @override
+  String get noEmployeeProfileFound => 'No employee profile found';
+
+  @override
+  String get failedToSubmitRequest => 'Failed to submit request';
+
+  @override
+  String get overtimeRequests => 'Overtime Requests';
+
+  @override
+  String get noOtRequests => 'No overtime requests found';
+
+  @override
+  String get noOtRequestsFilter => 'No overtime requests with this status';
+
+  @override
+  String get kpiSubtitle => 'Track metrics, attendance & milestones';
+
+  @override
+  String get loadingKpis => 'Loading KPIs...';
+
+  @override
+  String get performanceGradeExcellent => 'EXCELLENT';
+
+  @override
+  String get performanceGradeAverage => 'AVERAGE';
+
+  @override
+  String get performanceGradeNeedsAttention => 'NEEDS ATTENTION';
+
+  @override
+  String get overallScore => 'Overall Score';
+
+  @override
+  String get multiTenantMetrics => 'MULTI-TENANT METRICS';
+
+  @override
+  String get payslipAndSalary => 'Payslips & Salary';
+
+  @override
+  String get paymentHistory => 'Payment History';
+
+  @override
+  String get downloadLatestStatement => 'Download Latest Statement';
+
+  @override
+  String get netPaid => 'NET PAID';
+
+  @override
+  String get statementSingular => 'statement';
+
+  @override
+  String get statementsPlural => 'statements';
+
+  @override
+  String get nextUpcomingHoliday => 'NEXT UPCOMING HOLIDAY';
+
+  @override
+  String get tomorrow => 'Tomorrow';
+
+  @override
+  String get passed => 'Passed';
+
+  @override
+  String get regularScheduleEnjoy => 'Enjoy your regular working schedule!';
+
+  @override
+  String get refreshCourses => 'Refresh Courses';
+
+  @override
+  String get browseAvailableCourses => 'Browse Available Courses';
+
+  @override
+  String get noTrainingsEnrolledDesc =>
+      'You have not enrolled in any training programs yet. Explore available courses to start your learning journey.';
+
+  @override
+  String get newCoursesPublishedDesc =>
+      'New professional skill courses and department workshops published by HR will appear here.';
+
+  @override
+  String get claimExpense => 'Claim Expense';
+
+  @override
+  String get expenseTitleSubject => 'Title / Subject *';
+
+  @override
+  String get statusPaid => 'Paid';
+
+  @override
+  String get personalAndContact => 'Personal & Contact';
+
+  @override
+  String get branchLocation => 'Branch Location';
+
+  @override
+  String get jobTitleRole => 'Job Title / Role';
+
+  @override
+  String get reportingManager => 'Reporting Manager';
+
+  @override
+  String get joiningDate => 'Joining Date';
+
+  @override
+  String get fullNameLatin => 'Full Name (Latin)';
+
+  @override
+  String get khmerNameOptional => 'Khmer Name (Optional)';
+
+  @override
+  String get otherGender => 'Other';
+
+  @override
+  String get dailyLogs => 'Daily Logs';
+
+  @override
+  String get heavyTraffic => 'Heavy Traffic';
+
+  @override
+  String get heavyRain => 'Heavy Rain';
+
+  @override
+  String get vehicleIssue => 'Vehicle Issue';
+
+  @override
+  String get familyEmergency => 'Family Emergency';
+
+  @override
+  String get healthIssue => 'Health Issue';
+
+  @override
+  String get otherReason => 'Other Reason';
+
+  @override
+  String get daysFreeToBook => 'days free to book';
+
+  @override
+  String get daysLeft => 'days left';
+
+  @override
+  String get awaitingApproval => 'Awaiting approval';
+
+  @override
+  String get leavesAndBalancesEmptyDesc =>
+      'Your requested leaves and balances will appear here.';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeAuto => 'Auto';
+
+  @override
+  String get englishUs => 'English (US)';
+
+  @override
+  String get khmerKm => 'Khmer (ភាសាខ្មែរ)';
+
+  @override
+  String get descriptionPurpose => 'Description / Purpose';
+
+  @override
+  String get attachReceipt => 'Attach Receipt (Photo/File)';
+
+  @override
+  String get refresh => 'Refresh';
 }

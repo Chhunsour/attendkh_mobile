@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/attendance_provider.dart';
 import 'package:mpg_hr_mobile_app/services/attendance_repository.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
@@ -29,7 +31,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
     final newDate = await showModalBottomSheet<DateTime>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -44,7 +46,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.grey300,
+                    color: isDark ? AppColors.grey700 : AppColors.grey300,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -54,7 +56,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.chevron_left_rounded),
+                    icon: const Icon(Icons.chevron_left_rounded),
                     onPressed: () => setSheetState(() => selectedYear--),
                   ),
                   Text(
@@ -161,18 +163,19 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     final dateCtrl = TextEditingController();
     final reasonCtrl = TextEditingController();
     String correctionType = 'missed_clock_in';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Padding(
+        builder: (ctx, setSheetState) => SingleChildScrollView(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
             left: 20,
             right: 20,
             top: 16,
@@ -186,28 +189,33 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.grey300,
+                    color: isDark ? AppColors.grey700 : AppColors.grey300,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    l10n.requestCorrection,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary(context),
+                  Expanded(
+                    child: Text(
+                      l10n.requestCorrection,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary(context),
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.close_rounded,
                       size: 20,
-                      color: AppColors.grey500,
+                      color: isDark ? AppColors.grey400 : AppColors.grey500,
                     ),
                     onPressed: () => Navigator.pop(ctx),
                   ),
@@ -215,16 +223,19 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               ),
               Text(
                 l10n.requestCorrectionDesc,
-                style: const TextStyle(color: AppColors.grey500, fontSize: 12),
+                style: TextStyle(
+                  color: isDark ? AppColors.grey400 : AppColors.grey500,
+                  fontSize: 12,
+                ),
               ),
               const SizedBox(height: 20),
 
               Text(
                 l10n.dateStr,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey700,
+                  color: isDark ? AppColors.grey300 : AppColors.grey700,
                 ),
               ),
               const SizedBox(height: 6),
@@ -235,7 +246,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   final date = await showDatePicker(
                     context: ctx,
                     initialDate: DateTime.now(),
-                    firstDate: DateTime.now().subtract(Duration(days: 30)),
+                    firstDate: DateTime.now().subtract(const Duration(days: 30)),
                     lastDate: DateTime.now(),
                   );
                   if (date != null) {
@@ -247,10 +258,10 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   prefixIcon: Icon(
                     Icons.calendar_today_rounded,
                     size: 18,
-                    color: AppColors.grey400,
+                    color: isDark ? AppColors.grey400 : AppColors.grey500,
                   ),
                   filled: true,
-                  fillColor: AppColors.grey50,
+                  fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: AppColors.border(context)),
@@ -272,24 +283,25 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey700,
+                  color: isDark ? AppColors.grey300 : AppColors.grey700,
                 ),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 initialValue: correctionType,
+                dropdownColor: isDark ? AppColors.surfaceDarkElevated : Colors.white,
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: AppColors.grey500,
+                  color: isDark ? AppColors.grey400 : AppColors.grey500,
                 ),
                 decoration: InputDecoration(
                   prefixIcon: Icon(
                     Icons.category_outlined,
                     size: 18,
-                    color: AppColors.grey400,
+                    color: isDark ? AppColors.grey400 : AppColors.grey500,
                   ),
                   filled: true,
-                  fillColor: AppColors.grey50,
+                  fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: AppColors.border(context)),
@@ -335,18 +347,21 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey700,
+                  color: isDark ? AppColors.grey300 : AppColors.grey700,
                 ),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               TextField(
                 controller: reasonCtrl,
                 maxLines: 3,
                 decoration: InputDecoration(
                   hintText: l10n.explainCorrectionReason,
-                  hintStyle: TextStyle(color: AppColors.grey400, fontSize: 13),
+                  hintStyle: TextStyle(
+                    color: isDark ? AppColors.grey500 : AppColors.grey400,
+                    fontSize: 13,
+                  ),
                   filled: true,
-                  fillColor: AppColors.grey50,
+                  fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: AppColors.border(context)),
@@ -361,549 +376,738 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: AppColors.border(context)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text(
+                        l10n.cancel,
+                        style: TextStyle(
+                          color: isDark ? AppColors.grey300 : AppColors.grey700,
+                        ),
+                      ),
                     ),
-                    elevation: 0,
                   ),
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: Text(
-                    l10n.submitRequest,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (dateCtrl.text.isEmpty) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(content: Text(l10n.selectDate)),
+                          );
+                          return;
+                        }
+                        if (reasonCtrl.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(content: Text(l10n.fieldRequired)),
+                          );
+                          return;
+                        }
+                        Navigator.pop(ctx, true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text(l10n.submit),
                     ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 8),
             ],
           ),
         ),
       ),
     );
 
-    if (result == true && dateCtrl.text.isNotEmpty) {
-      try {
-        final repo = ref.read(attendanceRepositoryProvider);
-        await repo.requestCorrection(
-          date: dateCtrl.text.trim(),
-          type: correctionType,
-          reason: reasonCtrl.text.trim().isEmpty
-              ? 'No reason provided'
-              : reasonCtrl.text.trim(),
-        );
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.correctionSubmitted),
-            backgroundColor: AppColors.success,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ ${e.toString()}'),
-            backgroundColor: AppColors.danger,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+    if (result == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.correctionSubmitted),
+          backgroundColor: AppColors.success,
+        ),
+      );
     }
+  }
+
+  void _shiftMonth(int delta) {
+    setState(() {
+      _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + delta, 1);
+      _selectedDay = null;
+    });
+  }
+
+  void _refresh() {
+    ref.invalidate(attendanceHistoryProvider(_selectedMonth));
+    ref.invalidate(attendanceSummaryProvider(_selectedMonth));
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final historyAsync = ref.watch(attendanceHistoryProvider(_selectedMonth));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final summaryAsync = ref.watch(attendanceSummaryProvider(_selectedMonth));
+    final historyAsync = ref.watch(attendanceHistoryProvider(_selectedMonth));
 
     return Scaffold(
-      backgroundColor: AppColors.bg(context),
-      appBar: AppBar(
-        backgroundColor: AppColors.surface(context),
-        elevation: 0,
-        centerTitle: false,
-        title: Text(
-          l10n.attendanceHistory,
-          style: TextStyle(
-            color: AppColors.textPrimary(context),
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.edit_calendar_rounded,
-              color: AppColors.primary,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: RefreshIndicator(
+          onRefresh: () async => _refresh(),
+          color: AppColors.primary,
+          // The hero runs under the status bar, so the spinner has to drop
+          // below it rather than sit on the notch.
+          edgeOffset: MediaQuery.paddingOf(context).top + 8,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
             ),
-            tooltip: l10n.requestCorrection,
-            onPressed: () => _showCorrectionDialog(l10n),
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
-            tooltip: 'Refresh',
-            onPressed: () {
-              ref.invalidate(attendanceHistoryProvider(_selectedMonth));
-              ref.invalidate(attendanceSummaryProvider(_selectedMonth));
-            },
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(attendanceHistoryProvider(_selectedMonth));
-          ref.invalidate(attendanceSummaryProvider(_selectedMonth));
-        },
-        color: AppColors.primary,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics(),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Month Selector Bar ──
-              Padding(
-                padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: _showMonthYearPicker,
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.border(context)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.02),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.calendar_month_rounded,
-                              size: 16,
-                              color: AppColors.primary,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              _monthLabel,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary(context),
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              size: 18,
-                              color: AppColors.grey500,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => _showCorrectionDialog(l10n),
-                      icon: const Icon(Icons.edit_note_rounded, size: 16),
-                      label: Text(l10n.requestCorrection),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        textStyle: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHero(context, l10n, isDark, summaryAsync),
 
-              // ── Monthly Summary Stats Strip ──
-              summaryAsync.when(
-                data: (summary) => Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  child: _SummaryGrid(summary: summary, l10n: l10n),
-                ),
-                loading: () => const SizedBox(
-                  height: 70,
-                  child: Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                const SizedBox(height: 18),
+
+                // ── Calendar ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: historyAsync.when(
+                    data: (records) =>
+                        _buildCalendarCard(context, l10n, isDark, records),
+                    loading: () => Container(
+                      height: 320,
+                      decoration: _cardDecoration(context, isDark),
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                    error: (_, _) => const SizedBox.shrink(),
                   ),
                 ),
-                error: (_, _) => const SizedBox.shrink(),
-              ),
 
-              SizedBox(height: 12),
+                const SizedBox(height: 22),
 
-              // ── Calendar View ──
-              historyAsync.when(
-                data: (records) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.textPrimary(context),
-                        borderRadius: BorderRadius.circular(22),
-                        border: Border.all(color: AppColors.border(context)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.02),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: TableCalendar(
-                        firstDay: DateTime.utc(2020, 1, 1),
-                        lastDay: DateTime.utc(2030, 12, 31),
-                        focusedDay: _focusedDay,
-                        selectedDayPredicate: (day) =>
-                            isSameDay(_selectedDay, day),
-                        onDaySelected: (selectedDay, focusedDay) {
-                          setState(() {
-                            _selectedDay = selectedDay;
-                            _focusedDay = focusedDay;
-                          });
-                        },
-                        onPageChanged: (focusedDay) {
-                          setState(() {
-                            _focusedDay = focusedDay;
-                            _selectedDay = null;
-                          });
-                        },
-                        headerVisible: false,
-                        daysOfWeekHeight: 24,
-                        calendarStyle: CalendarStyle(
-                          todayDecoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                          ),
-                          todayTextStyle: TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          selectedDecoration: BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          selectedTextStyle: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          markerSize: 5,
-                        ),
-                        calendarBuilders: CalendarBuilders(
-                          markerBuilder: (context, date, events) {
-                            final record = records
-                                .where(
-                                  (r) =>
-                                      r.date != null &&
-                                      isSameDay(DateTime.parse(r.date!), date),
-                                )
-                                .firstOrNull;
-                            if (record != null) {
-                              Color markerColor;
-                              switch (record.status) {
-                                case 'present':
-                                  markerColor = AppColors.success;
-                                  break;
-                                case 'absent':
-                                  markerColor = AppColors.danger;
-                                  break;
-                                case 'late':
-                                  markerColor = AppColors.warning;
-                                  break;
-                                case 'half_day':
-                                  markerColor = AppColors.info;
-                                  break;
-                                default:
-                                  markerColor = AppColors.grey400;
-                              }
-                              return Positioned(
-                                bottom: 4,
-                                child: Container(
-                                  width: 5,
-                                  height: 5,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: markerColor,
-                                  ),
-                                ),
-                              );
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                loading: () => const SizedBox(
-                  height: 280,
-                  child: Center(
-                    child: LoadingIndicator(message: 'Loading calendar...'),
-                  ),
-                ),
-                error: (_, _) => const SizedBox.shrink(),
-              ),
-
-              const SizedBox(height: 16),
-
-              // ── Daily History Section Header ──
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _selectedDay != null
-                          ? 'Records for ${DateFormat('MMM d').format(_selectedDay!)}'
-                          : 'Daily Logs',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary(context),
-                      ),
-                    ),
-                    if (_selectedDay != null)
-                      GestureDetector(
-                        onTap: () => setState(() => _selectedDay = null),
-                        child: const Text(
-                          'Show All Month',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-
-              // ── Daily History List ──
-              historyAsync.when(
-                data: (records) {
-                  final filteredRecords = _selectedDay == null
-                      ? records
-                      : records
-                            .where(
-                              (r) =>
-                                  r.date != null &&
-                                  isSameDay(
-                                    DateTime.parse(r.date!),
-                                    _selectedDay,
-                                  ),
-                            )
-                            .toList();
-
-                  if (filteredRecords.isEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Center(
+                // ── Daily logs ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
                         child: Text(
                           _selectedDay != null
-                              ? l10n.noRecordForThisDay
-                              : l10n.noRecordsThisMonth,
-                          style: const TextStyle(color: AppColors.grey400),
+                              ? DateFormat(
+                                  'EEEE, d MMMM',
+                                ).format(_selectedDay!)
+                              : l10n.dailyLogs,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.1,
+                            color: AppColors.textPrimary(context),
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    );
-                  }
-
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-                    itemCount: filteredRecords.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
-                    itemBuilder: (context, i) {
-                      return _HistoryCard(
-                        record: filteredRecords[i],
-                        l10n: l10n,
-                      );
-                    },
-                  );
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (e, _) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 40,
-                        color: AppColors.grey400,
-                      ),
-                      const SizedBox(height: 8),
-                      OutlinedButton.icon(
-                        onPressed: () => ref.invalidate(
-                          attendanceHistoryProvider(_selectedMonth),
+                      if (_selectedDay != null)
+                        TextButton.icon(
+                          onPressed: () => setState(() => _selectedDay = null),
+                          icon: const Icon(Icons.close_rounded, size: 15),
+                          label: Text(l10n.clear),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            visualDensity: VisualDensity.compact,
+                            textStyle: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         ),
-                        icon: const Icon(Icons.refresh),
-                        label: Text(l10n.retry),
-                      ),
                     ],
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 10),
+
+                historyAsync.when(
+                  data: (records) {
+                    final filtered = _selectedDay == null
+                        ? records
+                        : records
+                              .where(
+                                (r) =>
+                                    r.date != null &&
+                                    isSameDay(
+                                      DateTime.parse(r.date!),
+                                      _selectedDay,
+                                    ),
+                              )
+                              .toList();
+
+                    if (filtered.isEmpty) {
+                      return _emptyLogs(context, l10n, isDark);
+                    }
+
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+                      itemCount: filtered.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
+                      itemBuilder: (context, i) =>
+                          _HistoryCard(record: filtered[i], l10n: l10n),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (e, _) => Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 40,
+                            color: AppColors.grey400,
+                          ),
+                          const SizedBox(height: 10),
+                          OutlinedButton.icon(
+                            onPressed: _refresh,
+                            icon: const Icon(Icons.refresh),
+                            label: Text(l10n.retry),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-}
 
-// ── Summary Metrics Strip ───────────────────────────────────
-class _SummaryGrid extends StatelessWidget {
-  final AttendanceSummary summary;
-  final AppLocalizations l10n;
-  const _SummaryGrid({required this.summary, required this.l10n});
+  BoxDecoration _cardDecoration(BuildContext context, bool isDark) {
+    return BoxDecoration(
+      color: isDark ? AppColors.surfaceDark : Colors.white,
+      borderRadius: BorderRadius.circular(22),
+      border: Border.all(color: AppColors.border(context)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.03),
+          blurRadius: 14,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  // ── Gradient hero: same slab as the dashboard. It carries the month
+  // stepper and the month's tally, so the body is left to the calendar. ──
+  Widget _buildHero(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isDark,
+    AsyncValue<AttendanceSummary> summaryAsync,
+  ) {
+    final baseColor = isDark
+        ? const Color(0xFF0A2472)
+        : const Color(0xFF0B2A80);
+    final summary = summaryAsync.valueOrNull;
+
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [baseColor, Color.lerp(baseColor, AppColors.primary, 0.6)!],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: isDark ? 0.34 : 0.28),
+            blurRadius: 30,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -120,
+            right: -90,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -40,
+            right: -40,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              MediaQuery.paddingOf(context).top + 6,
+              16,
+              22,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _heroIconButton(
+                      Icons.arrow_back_ios_new_rounded,
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go(AppRoutes.main);
+                        }
+                      },
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        l10n.attendanceHistory,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                    ),
+                    _heroIconButton(
+                      Icons.add_rounded,
+                      tooltip: l10n.requestCorrection,
+                      onTap: () => _showCorrectionDialog(l10n),
+                    ),
+                    const SizedBox(width: 8),
+                    _heroIconButton(Icons.refresh_rounded, onTap: _refresh),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // Month stepper: arrows for the common ±1 hop, the label
+                // itself for jumping somewhere far away.
+                Row(
+                  children: [
+                    _heroIconButton(
+                      Icons.chevron_left_rounded,
+                      size: 34,
+                      onTap: () => _shiftMonth(-1),
+                    ),
+                    Expanded(
+                      child: Material(
+                        color: Colors.white.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(14),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: _showMonthYearPicker,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 9,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.calendar_month_rounded,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    _monthLabel,
+                                    style: const TextStyle(
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  size: 18,
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    _heroIconButton(
+                      Icons.chevron_right_rounded,
+                      size: 34,
+                      onTap: () => _shiftMonth(1),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 14),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _heroStat(
+                        l10n.present,
+                        summary?.present,
+                        const Color(0xFF6EE7B7),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _heroStat(
+                        l10n.absent,
+                        summary?.absent,
+                        const Color(0xFFFCA5A5),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _heroStat(
+                        l10n.late,
+                        summary?.late,
+                        const Color(0xFFFBBF24),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _heroStat(
+                        l10n.halfDay,
+                        summary?.halfDay,
+                        const Color(0xFF93C5FD),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _heroIconButton(
+    IconData icon, {
+    required VoidCallback onTap,
+    String? tooltip,
+    double size = 38,
+  }) {
+    final button = Material(
+      color: Colors.white.withValues(alpha: 0.14),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: Icon(icon, size: size * 0.47, color: Colors.white),
+        ),
+      ),
+    );
+    return tooltip == null
+        ? button
+        : Tooltip(message: tooltip, child: button);
+  }
+
+  Widget _heroStat(String label, int? value, Color valueColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            value?.toString() ?? '—',
+            style: TextStyle(
+              color: valueColor,
+              fontWeight: FontWeight.w800,
+              fontSize: 17,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Calendar card, now with a legend. The dots meant nothing before. ──
+  Widget _buildCalendarCard(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isDark,
+    List<TodayAttendance> records,
+  ) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 12, 10, 4),
+      decoration: _cardDecoration(context, isDark),
+      child: Column(
+        children: [
+          TableCalendar(
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2030, 12, 31),
+            focusedDay: _focusedDay,
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
+            },
+            onPageChanged: (focusedDay) {
+              setState(() {
+                _focusedDay = focusedDay;
+                _selectedDay = null;
+              });
+            },
+            headerVisible: false,
+            daysOfWeekHeight: 26,
+            rowHeight: 46,
+            calendarStyle: CalendarStyle(
+              cellMargin: const EdgeInsets.all(5),
+              todayDecoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.14),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.5),
+                ),
+              ),
+              todayTextStyle: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+              ),
+              selectedDecoration: const BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+              ),
+              selectedTextStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+              defaultTextStyle: TextStyle(
+                color: AppColors.textPrimary(context),
+                fontWeight: FontWeight.w500,
+              ),
+              weekendTextStyle: TextStyle(
+                color: isDark ? AppColors.grey400 : AppColors.grey600,
+                fontWeight: FontWeight.w500,
+              ),
+              outsideTextStyle: TextStyle(
+                color: isDark ? AppColors.grey600 : AppColors.grey300,
+              ),
+              markersMaxCount: 1,
+            ),
+            daysOfWeekStyle: DaysOfWeekStyle(
+              weekdayStyle: TextStyle(
+                color: isDark ? AppColors.grey400 : AppColors.grey500,
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+                letterSpacing: 0.4,
+              ),
+              weekendStyle: TextStyle(
+                color: isDark ? AppColors.grey500 : AppColors.grey400,
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+                letterSpacing: 0.4,
+              ),
+            ),
+            calendarBuilders: CalendarBuilders(
+              markerBuilder: (context, date, events) {
+                final record = records
+                    .where(
+                      (r) =>
+                          r.date != null &&
+                          isSameDay(DateTime.parse(r.date!), date),
+                    )
+                    .firstOrNull;
+                if (record == null) return null;
+                // A short underline reads as a status bar under the date and
+                // survives being drawn over the selected-day fill.
+                return Positioned(
+                  bottom: 5,
+                  child: Container(
+                    width: 14,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: _statusColor(record.status),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const Divider(height: 18, thickness: 0.6),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(6, 0, 6, 10),
+            child: Wrap(
+              spacing: 14,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: [
+                _legendDot(l10n.present, AppColors.success, isDark),
+                _legendDot(l10n.absent, AppColors.danger, isDark),
+                _legendDot(l10n.late, AppColors.warning, isDark),
+                _legendDot(l10n.halfDay, AppColors.info, isDark),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _statusColor(String? status) {
+    switch (status) {
+      case 'present':
+        return AppColors.success;
+      case 'absent':
+        return AppColors.danger;
+      case 'late':
+        return AppColors.warning;
+      case 'half_day':
+        return AppColors.info;
+      default:
+        return AppColors.grey400;
+    }
+  }
+
+  Widget _legendDot(String label, Color color, bool isDark) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: _SummaryCard(
-            label: l10n.present,
-            value: '${summary.present}',
-            color: AppColors.success,
-            icon: Icons.check_circle_outline_rounded,
+        Container(
+          width: 12,
+          height: 3,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
           ),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _SummaryCard(
-            label: l10n.absent,
-            value: '${summary.absent}',
-            color: AppColors.danger,
-            icon: Icons.cancel_outlined,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _SummaryCard(
-            label: l10n.late,
-            value: '${summary.late}',
-            color: AppColors.warning,
-            icon: Icons.access_time_rounded,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _SummaryCard(
-            label: l10n.halfDay,
-            value: '${summary.halfDay}',
-            color: AppColors.info,
-            icon: Icons.timelapse_rounded,
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: isDark ? AppColors.grey400 : AppColors.grey600,
           ),
         ),
       ],
     );
   }
-}
 
-class _SummaryCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final IconData icon;
-
-  const _SummaryCard({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: isDark ? 0.15 : 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-              maxLines: 1,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10.5,
-                  color: isDark ? AppColors.grey400 : AppColors.grey500,
-                  fontWeight: FontWeight.w500,
+  Widget _emptyLogs(BuildContext context, AppLocalizations l10n, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 50),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
+        decoration: _cardDecoration(context, isDark),
+        child: Column(
+          children: [
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(
+                  alpha: isDark ? 0.18 : 0.08,
                 ),
-                maxLines: 1,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.event_busy_rounded,
+                size: 26,
+                color: AppColors.primary,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 14),
+            Text(
+              _selectedDay != null
+                  ? l10n.noRecordForThisDay
+                  : l10n.noRecordsThisMonth,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary(context),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
 
 // ── Daily History Card ──────────────────────────────────────
 class _HistoryCard extends StatelessWidget {

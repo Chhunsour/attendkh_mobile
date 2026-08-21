@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/layouts/bottom_nav_shell.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_companies_screen.dart';
@@ -15,66 +16,68 @@ class SuperAdminShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+
     return BottomNavShell(
       items: [
         NavItem(
           outlineIcon: Icons.home_outlined,
           filledIcon: Icons.home,
-          label: 'Home',
+          label: l10n.navHome,
           screen: const AdminDashboardScreen(),
         ),
         NavItem(
           outlineIcon: Icons.business_outlined,
           filledIcon: Icons.business_rounded,
-          label: 'Companies',
+          label: l10n.navCompanies,
           screen: const AdminCompaniesScreen(),
         ),
         NavItem(
           outlineIcon: Icons.apps_outlined,
           filledIcon: Icons.apps_rounded,
-          label: 'More',
+          label: l10n.navMore,
           screen: MoreScreen(
-            title: 'More',
-            showLogout: true,
+            title: l10n.navMore,
+            showPreferences: true,
             items: [
               MoreItem(
-                title: 'Roles & Permissions',
-                subtitle: 'Access controls',
+                title: l10n.itemRolesPermissions,
+                subtitle: l10n.itemRolesPermissionsSubtitle,
                 icon: Icons.shield_outlined,
                 color: const Color(0xFF8B5CF6),
                 routePath: AppRoutes.superAdminRoles,
               ),
               MoreItem(
-                title: 'Support Tickets',
-                subtitle: 'Client helpdesk',
+                title: l10n.itemSupportTickets,
+                subtitle: l10n.itemSupportTicketsSubtitle,
                 icon: Icons.support_agent_outlined,
                 color: const Color(0xFFF59E0B),
                 routePath: AppRoutes.adminSupportTickets,
               ),
               MoreItem(
-                title: 'Platform Health',
-                subtitle: 'KPIs & uptime',
+                title: l10n.itemPlatformHealth,
+                subtitle: l10n.itemPlatformHealthSubtitle,
                 icon: Icons.track_changes_outlined,
                 color: const Color(0xFF10B981),
                 routePath: AppRoutes.kpi,
               ),
               MoreItem(
-                title: 'Announcements',
-                subtitle: 'Global broadcasts',
+                title: l10n.announcements,
+                subtitle: l10n.itemGlobalAnnouncementsSubtitle,
                 icon: Icons.campaign_outlined,
                 color: const Color(0xFF0EA5E9),
                 routePath: AppRoutes.adminAnnouncements,
               ),
               MoreItem(
-                title: 'Audit Logs',
-                subtitle: 'System activity',
+                title: l10n.itemAuditLogs,
+                subtitle: l10n.itemAuditLogsSubtitle,
                 icon: Icons.receipt_long_outlined,
                 color: const Color(0xFF6366F1),
                 routePath: AppRoutes.adminAuditLogs,
               ),
               MoreItem(
-                title: 'Platform Settings',
-                subtitle: 'App configuration',
+                title: l10n.itemPlatformSettings,
+                subtitle: l10n.itemPlatformSettingsSubtitle,
                 icon: Icons.settings_outlined,
                 color: const Color(0xFF64748B),
                 routePath: AppRoutes.adminSettings,
@@ -85,7 +88,7 @@ class SuperAdminShell extends ConsumerWidget {
         NavItem(
           outlineIcon: Icons.person_outline,
           filledIcon: Icons.person,
-          label: 'Profile',
+          label: l10n.navProfile,
           screen: const AdminProfileScreen(showBackButton: false),
         ),
       ],

@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/models/kpi_model.dart';
 
 class KpiSharedComponents {
   static Widget buildSummaryCard({
+    required BuildContext context,
     required String title,
     required num score,
     required String subtitle,
@@ -13,40 +14,47 @@ class KpiSharedComponents {
     num? branchAverage,
     num? companyAverage,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     String ratingLabel;
     Color ratingColor;
+    final l10n = AppLocalizations.of(context)!;
     if (score >= 85) {
-      ratingLabel = 'EXCELLENT';
+      ratingLabel = l10n.performanceGradeExcellent;
       ratingColor = AppColors.success;
     } else if (score >= 70) {
-      ratingLabel = 'GOOD';
-      ratingColor = const Color(0xFF0EA5E9);
+      ratingLabel = l10n.scoreGood;
+      ratingColor = const Color(0xFF3B82F6);
     } else if (score >= 50) {
-      ratingLabel = 'AVERAGE';
+      ratingLabel = l10n.performanceGradeAverage;
       ratingColor = AppColors.warning;
     } else {
-      ratingLabel = 'NEEDS ATTENTION';
+      ratingLabel = l10n.performanceGradeNeedsAttention;
       ratingColor = AppColors.danger;
     }
 
+    final Color cardBg = isDark ? const Color(0xFF242424) : Colors.white;
+    final Color cardBorder = isDark
+        ? const Color(0xFF333333)
+        : const Color(0xFFE2E8F0);
+    final Color iconBg = isDark
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFEFF6FF);
+    final Color iconColor = isDark
+        ? const Color(0xFF93C5FD)
+        : AppColors.primary;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF0F172A),
-            const Color(0xFF1E293B),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(22),
+        color: cardBg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cardBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -62,25 +70,37 @@ class KpiSharedComponents {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(6),
+                        width: 34,
+                        height: 34,
                         decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
+                          color: iconBg,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF3B82F6).withValues(alpha: 0.3)
+                                : const Color(0xFFBFDBFE),
+                            width: 0.8,
+                          ),
                         ),
-                        child: Icon(icon, color: color, size: 16),
+                        child: Icon(
+                          icon,
+                          color: iconColor,
+                          size: 17,
+                        ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Text(
                         title,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF94A3B8),
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : AppColors.grey900,
+                          letterSpacing: -0.1,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
@@ -88,19 +108,19 @@ class KpiSharedComponents {
                       Text(
                         '$score',
                         style: TextStyle(
-                          fontSize: 38,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          fontSize: 36,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : AppColors.grey900,
                           letterSpacing: -1,
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Text(
+                      Text(
                         '%',
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF94A3B8),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.grey400 : AppColors.grey500,
                         ),
                       ),
                     ],
@@ -108,11 +128,13 @@ class KpiSharedComponents {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4.5),
                 decoration: BoxDecoration(
-                  color: ratingColor.withValues(alpha: 0.2),
+                  color: ratingColor.withValues(alpha: isDark ? 0.20 : 0.12),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: ratingColor.withValues(alpha: 0.4)),
+                  border: Border.all(
+                    color: ratingColor.withValues(alpha: isDark ? 0.35 : 0.25),
+                  ),
                 ),
                 child: Text(
                   ratingLabel,
@@ -126,31 +148,45 @@ class KpiSharedComponents {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const Divider(height: 1, color: Color(0xFF334155)),
           const SizedBox(height: 14),
+          Divider(height: 1, color: cardBorder),
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                subtitle,
-                style: const TextStyle(fontSize: 11.5, color: Color(0xFF94A3B8)),
+              Expanded(
+                child: Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    color: isDark ? AppColors.grey400 : AppColors.grey600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
-              if (branchAverage != null && branchAverage > 0)
+              if (branchAverage != null && branchAverage > 0) ...[
+                const SizedBox(width: 8),
                 Row(
                   children: [
-                    const Icon(Icons.apartment_rounded, size: 13, color: Color(0xFF94A3B8)),
+                    Icon(
+                      Icons.apartment_rounded,
+                      size: 13,
+                      color: isDark ? AppColors.grey400 : AppColors.grey500,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       'Branch Avg: $branchAverage%',
-                      style: const TextStyle(
-                        fontSize: 11,
+                      style: TextStyle(
+                        fontSize: 11.5,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white70,
+                        color: isDark ? AppColors.grey300 : AppColors.grey700,
                       ),
                     ),
                   ],
                 ),
+              ],
             ],
           ),
         ],
@@ -166,26 +202,42 @@ class KpiSharedComponents {
     ScrollPhysics? physics,
   }) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (kpis.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.track_changes_outlined, size: 56, color: AppColors.grey300),
+            const Icon(
+              Icons.track_changes_outlined,
+              size: 52,
+              color: AppColors.grey300,
+            ),
             const SizedBox(height: 12),
             Text(
               l10n.noKpisFound,
-              style: const TextStyle(fontSize: 14, color: AppColors.grey500, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.grey500,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
       );
     }
 
+    final Color cardBg = isDark ? const Color(0xFF242424) : Colors.white;
+    final Color cardBorder = isDark
+        ? const Color(0xFF333333)
+        : const Color(0xFFE2E8F0);
+
     return ListView.separated(
       shrinkWrap: shrinkWrap,
-      physics: physics ?? const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+      physics: physics ??
+          const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
       itemCount: kpis.length,
       separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
@@ -202,14 +254,14 @@ class KpiSharedComponents {
         }
 
         return Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.textPrimary(context),
+            color: cardBg,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.border(context)),
+            border: Border.all(color: cardBorder),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -230,37 +282,75 @@ class KpiSharedComponents {
                           kpi.title,
                           style: TextStyle(
                             fontSize: 14.5,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary(context),
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? Colors.white : AppColors.grey900,
+                            letterSpacing: -0.1,
                           ),
                         ),
                         if (kpi.description.isNotEmpty) ...[
                           const SizedBox(height: 3),
                           Text(
                             kpi.description,
-                            style: const TextStyle(fontSize: 12, color: AppColors.grey500, height: 1.3),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark
+                                  ? AppColors.grey400
+                                  : AppColors.grey500,
+                              height: 1.3,
+                            ),
                           ),
                         ],
                         const SizedBox(height: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: (isMock ? AppColors.warning : AppColors.success).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 2.5,
                           ),
-                          child: Text(
-                            isMock ? l10n.estimatedBadge : l10n.liveDataBadge,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: isMock ? AppColors.warning : AppColors.success,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF1E293B)
+                                : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: isDark
+                                  ? const Color(0xFF333333)
+                                  : const Color(0xFFE2E8F0),
+                              width: 0.8,
                             ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 5,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isMock
+                                      ? AppColors.warning
+                                      : AppColors.success,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                isMock
+                                    ? l10n.estimatedBadge
+                                    : l10n.liveDataBadge,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? AppColors.grey300
+                                      : AppColors.grey700,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -269,22 +359,51 @@ class KpiSharedComponents {
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
-                          Text(
-                            '${kpi.unit == '\$' ? '\$' : ''}${kpi.actual}',
-                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
+                          Builder(
+                            builder: (_) {
+                              final prefix = kpi.unit == '\$' ? '\$' : '';
+                              return Text(
+                                '$prefix${kpi.actual}',
+                                style: TextStyle(
+                                  fontSize: 16.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: isDark
+                                      ? Colors.white
+                                      : AppColors.grey900,
+                                ),
+                              );
+                            },
                           ),
-                          Text(
-                            ' / ${kpi.unit == '\$' ? '\$' : ''}${kpi.target} ${kpi.unit != '\$' ? kpi.unit : ''}',
-                            style: const TextStyle(fontSize: 11.5, color: AppColors.grey500, fontWeight: FontWeight.w500),
+                          Builder(
+                            builder: (_) {
+                              final prefix = kpi.unit == '\$' ? '\$' : '';
+                              final suffix =
+                                  kpi.unit != '\$' ? ' ${kpi.unit}' : '';
+                              return Text(
+                                ' / $prefix${kpi.target}$suffix',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: isDark
+                                      ? AppColors.grey400
+                                      : AppColors.grey500,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2.5,
+                        ),
                         decoration: BoxDecoration(
-                          color: scoreColor.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
+                          color: scoreColor.withValues(
+                            alpha: isDark ? 0.20 : 0.12,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           '${kpi.score}%',
@@ -299,14 +418,16 @@ class KpiSharedComponents {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
                   value: (kpi.score.clamp(0, 100)) / 100.0,
-                  backgroundColor: AppColors.grey100,
+                  backgroundColor: isDark
+                      ? const Color(0xFF1E1E1E)
+                      : const Color(0xFFF1F5F9),
                   valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
-                  minHeight: 7,
+                  minHeight: 6,
                 ),
               ),
             ],
