@@ -157,14 +157,17 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                         style: const TextStyle(color: AppColors.grey500, fontSize: 13),
                       ),
                       const SizedBox(height: 12),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.useCustomBranchRulesLabel),
-                        value: _isCustom,
-                        activeThumbColor: AppColors.primary,
-                        onChanged: (val) {
-                          setState(() => _isCustom = val);
-                        },
+                      Material(
+                        type: MaterialType.transparency,
+                        child: SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.useCustomBranchRulesLabel),
+                          value: _isCustom,
+                          activeThumbColor: AppColors.primary,
+                          onChanged: (val) {
+                            setState(() => _isCustom = val);
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -233,11 +236,14 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                       const SizedBox(height: 28),
                       _sectionHeader(l10n.overtimeSettingsTitle),
                       const SizedBox(height: 12),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.enableOvertimePayLabel),
-                        value: _otEnabled,
-                        onChanged: (val) => setState(() => _otEnabled = val),
+                      Material(
+                        type: MaterialType.transparency,
+                        child: SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.enableOvertimePayLabel),
+                          value: _otEnabled,
+                          onChanged: (val) => setState(() => _otEnabled = val),
+                        ),
                       ),
                       if (_otEnabled) ...[
                         const SizedBox(height: 8),
@@ -255,11 +261,14 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                       const SizedBox(height: 28),
                       _sectionHeader(l10n.lateDeductionSettingsTitle),
                       const SizedBox(height: 12),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.enableLateDeductionsLabel),
-                        value: _lateEnabled,
-                        onChanged: (val) => setState(() => _lateEnabled = val),
+                      Material(
+                        type: MaterialType.transparency,
+                        child: SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.enableLateDeductionsLabel),
+                          value: _lateEnabled,
+                          onChanged: (val) => setState(() => _lateEnabled = val),
+                        ),
                       ),
                       if (_lateEnabled) ...[
                         const SizedBox(height: 8),
@@ -316,24 +325,30 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                       const SizedBox(height: 28),
                       _sectionHeader('Tax & NSSF / Social Security'),
                       const SizedBox(height: 8),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Enable Tax on Salary (TOAS)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                        subtitle: const Text('Deduct income tax percentage from gross salary', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
-                        value: _taxEnabled,
-                        onChanged: (v) => setState(() => _taxEnabled = v),
+                      Material(
+                        type: MaterialType.transparency,
+                        child: SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Enable Tax on Salary (TOAS)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          subtitle: const Text('Deduct income tax percentage from gross salary', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                          value: _taxEnabled,
+                          onChanged: (v) => setState(() => _taxEnabled = v),
+                        ),
                       ),
                       if (_taxEnabled) ...[
                         const SizedBox(height: 8),
                         _textField(_taxRateCtrl, 'Tax Rate Percentage (%)', keyboardType: const TextInputType.numberWithOptions(decimal: true)),
                       ],
                       const SizedBox(height: 12),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Enable NSSF / Insurance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                        subtitle: const Text('Deduct social security percentage from base salary', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
-                        value: _insuranceEnabled,
-                        onChanged: (v) => setState(() => _insuranceEnabled = v),
+                      Material(
+                        type: MaterialType.transparency,
+                        child: SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Enable NSSF / Insurance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          subtitle: const Text('Deduct social security percentage from base salary', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                          value: _insuranceEnabled,
+                          onChanged: (v) => setState(() => _insuranceEnabled = v),
+                        ),
                       ),
                       if (_insuranceEnabled) ...[
                         const SizedBox(height: 8),

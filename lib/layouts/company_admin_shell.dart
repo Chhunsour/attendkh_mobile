@@ -21,6 +21,7 @@ class CompanyAdminShell extends ConsumerWidget {
     // Already loaded for the Home tab — reusing it costs nothing and turns
     // these menus from a list of links into a list of work.
     final kpi = ref.watch(dashboardStatsProvider).valueOrNull;
+    final employeesCount = ref.watch(allEmployeesProvider).valueOrNull?.length ?? (kpi?.totalEmployees ?? 0);
     String? count(int n) => n > 0 ? '$n' : null;
 
     return BottomNavShell(
@@ -46,7 +47,7 @@ class CompanyAdminShell extends ConsumerWidget {
                 icon: Icons.people_alt_outlined,
                 color: const Color(0xFF0EA5E9),
                 routePath: AppRoutes.adminEmployees,
-                badgeText: count(kpi?.totalEmployees ?? 0),
+                badgeText: count(employeesCount),
               ),
               MoreItem(
                 title: l10n.itemHrStructure,

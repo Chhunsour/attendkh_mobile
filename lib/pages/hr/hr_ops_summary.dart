@@ -23,9 +23,10 @@ class HrOpsSummary extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final kpi = ref.watch(dashboardStatsProvider).valueOrNull;
+    final employeesList = ref.watch(allEmployeesProvider).valueOrNull;
     if (kpi == null) return const SizedBox(height: 96);
 
-    final total = kpi.totalEmployees;
+    final total = employeesList?.length ?? kpi.totalEmployees;
     final present = kpi.todayAttendance;
     final ratio = total > 0 ? (present / total).clamp(0.0, 1.0) : 0.0;
 

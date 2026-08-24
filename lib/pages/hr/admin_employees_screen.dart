@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -103,28 +102,25 @@ class AdminEmployeesScreen extends ConsumerStatefulWidget {
 
 class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
   EmployeeFilters _filters = const EmployeeFilters();
+  String _searchQuery = '';
   bool _showFilters = false;
   bool _sortAscending = true;
   final _searchCtrl = TextEditingController();
-  Timer? _debounce;
 
   @override
   void dispose() {
     _searchCtrl.dispose();
-    _debounce?.cancel();
     super.dispose();
   }
 
   void _onSearchChanged(String val) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () {
-      setState(() => _filters = _filters.copyWith(search: val));
-    });
+    setState(() => _searchQuery = val.trim().toLowerCase());
   }
 
   void _clearFilters() {
     _searchCtrl.clear();
     setState(() {
+      _searchQuery = '';
       _filters = const EmployeeFilters();
       _showFilters = false;
     });
@@ -260,10 +256,7 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                                             ),
                                             onPressed: () {
                                               _searchCtrl.clear();
-                                              setState(
-                                                () => _filters = _filters
-                                                    .copyWith(search: ''),
-                                              );
+                                              setState(() => _searchQuery = '');
                                             },
                                           )
                                         : null,
@@ -523,14 +516,32 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
                     // ── Sort & Results Header ─────────────────────────────────────────
                     employeesAsync.maybeWhen(
                       data: (employees) {
+                        final filtered = employees.where((e) {
+                          if (_searchQuery.isEmpty) return true;
+                          final name = e.name.toLowerCase();
+                          final khmerName = (e.khmerName ?? '').toLowerCase();
+                          final empId = (e.employeeId ?? '').toLowerCase();
+                          final email = (e.email ?? '').toLowerCase();
+                          final phone = (e.phone ?? '').toLowerCase();
+                          final dept = (e.department ?? '').toLowerCase();
+                          final pos = (e.position ?? '').toLowerCase();
+                          return name.contains(_searchQuery) ||
+                              khmerName.contains(_searchQuery) ||
+                              empId.contains(_searchQuery) ||
+                              email.contains(_searchQuery) ||
+                              phone.contains(_searchQuery) ||
+                              dept.contains(_searchQuery) ||
+                              pos.contains(_searchQuery);
+                        }).toList();
+
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: Row(
                             children: [
                               Text(
                                 l10n.employeeCount(
-                                  employees.length,
-                                  employees.length != 1 ? 's' : '',
+                                  filtered.length,
+                                  filtered.length != 1 ? 's' : '',
                                 ),
                                 style: const TextStyle(
                                   fontSize: 12.5,
@@ -595,19 +606,38 @@ class _AdminEmployeesScreenState extends ConsumerState<AdminEmployeesScreen> {
             // ── Lazy Virtualized Employee List ────────────────────────────────
             employeesAsync.when(
               data: (employees) {
-                if (employees.isEmpty) {
+                final filtered = employees.where((e) {
+                  if (_searchQuery.isEmpty) return true;
+                  final name = e.name.toLowerCase();
+                  final khmerName = (e.khmerName ?? '').toLowerCase();
+                  final empId = (e.employeeId ?? '').toLowerCase();
+                  final email = (e.email ?? '').toLowerCase();
+                  final phone = (e.phone ?? '').toLowerCase();
+                  final dept = (e.department ?? '').toLowerCase();
+                  final pos = (e.position ?? '').toLowerCase();
+                  return name.contains(_searchQuery) ||
+                      khmerName.contains(_searchQuery) ||
+                      empId.contains(_searchQuery) ||
+                      email.contains(_searchQuery) ||
+                      phone.contains(_searchQuery) ||
+                      dept.contains(_searchQuery) ||
+                      pos.contains(_searchQuery);
+                }).toList();
+
+                if (filtered.isEmpty) {
                   return SliverPadding(
                     padding: const EdgeInsets.all(16),
                     sliver: SliverToBoxAdapter(
                       child: _EmptyState(
-                        hasFilters: _filters.hasActiveFilters,
+                        hasFilters:
+                            _filters.hasActiveFilters || _searchQuery.isNotEmpty,
                         onClear: _clearFilters,
                         l10n: l10n,
                       ),
                     ),
                   );
                 }
-                final sorted = List.of(employees)
+                final sorted = List.of(filtered)
                   ..sort((a, b) {
                     final cmp = a.name.toLowerCase().compareTo(
                       b.name.toLowerCase(),

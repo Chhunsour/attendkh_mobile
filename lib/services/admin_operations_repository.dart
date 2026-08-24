@@ -7,33 +7,48 @@ import 'package:path_provider/path_provider.dart';
 class AttendanceCorrectionData {
   final int id;
   final String employeeName;
+  final String? employeeCode;
   final String date;
   final String? reason;
   final String status;
   final String? clockIn;
   final String? clockOut;
+  final String? reviewerNotes;
 
   const AttendanceCorrectionData({
     required this.id,
     required this.employeeName,
+    this.employeeCode,
     required this.date,
     this.reason,
     required this.status,
     this.clockIn,
     this.clockOut,
+    this.reviewerNotes,
   });
 
   factory AttendanceCorrectionData.fromJson(Map<String, dynamic> json) {
+    final emp = json['employee'];
+    String name = '';
+    if (emp is Map<String, dynamic>) {
+      name = (emp['full_name'] as String?) ??
+          (emp['name'] as String?) ??
+          (emp['first_name'] != null
+              ? '${emp['first_name']} ${emp['last_name'] ?? ''}'.trim()
+              : '');
+    }
+    if (name.isEmpty) {
+      name = (json['user']?['name'] as String?) ?? '';
+    }
+
+    final empCode = emp is Map<String, dynamic>
+        ? (emp['employee_id'] as String?)
+        : null;
+
     return AttendanceCorrectionData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      employeeName:
-          json['employee']?['name'] as String? ??
-          (json['employee'] != null && json['employee']['first_name'] != null
-              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
-                    .trim()
-              : null) ??
-          json['user']?['name'] as String? ??
-          '',
+      employeeName: name.isNotEmpty ? name : 'Employee #${json['employee_id'] ?? ''}',
+      employeeCode: empCode,
       date: json['date'] as String? ?? '',
       reason: json['reason'] as String?,
       status: json['status'] as String? ?? 'pending',
@@ -42,6 +57,7 @@ class AttendanceCorrectionData {
       clockOut:
           json['clock_out'] as String? ??
           json['requested_clock_out'] as String?,
+      reviewerNotes: json['reviewer_notes'] as String?,
     );
   }
 }
@@ -1129,9 +1145,20 @@ class AdminOperationsRepository {
   /// Fetch all attendance logs. When [branchId] is provided, scoped to that branch.
   Future<List<AdminAttendanceRecord>> getAllAttendanceLogs({
     int? branchId,
+    String? dateFrom,
+    String? dateTo,
+    int? departmentId,
+    int? employeeId,
+    String? status,
   }) async {
     final queryParams = <String, dynamic>{};
     if (branchId != null) queryParams['branch_id'] = branchId;
+    if (dateFrom != null && dateFrom.isNotEmpty) queryParams['date_from'] = dateFrom;
+    if (dateTo != null && dateTo.isNotEmpty) queryParams['date_to'] = dateTo;
+    if (departmentId != null) queryParams['department_id'] = departmentId;
+    if (employeeId != null) queryParams['employee_id'] = employeeId;
+    if (status != null && status.isNotEmpty && status != 'all') queryParams['status'] = status;
+
     final response = await _api.get(
       '/company/attendance',
       queryParameters: queryParams.isEmpty ? null : queryParams,

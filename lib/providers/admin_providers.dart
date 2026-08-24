@@ -112,9 +112,81 @@ final dashboardStatsProvider = FutureProvider.autoDispose<DashboardKpiData>((ref
   return ref.watch(adminOpsRepositoryProvider).getDashboardStats(branchId: activeBranchId);
 });
 
-final allAttendanceLogsProvider = FutureProvider.autoDispose<List<AdminAttendanceRecord>>((ref) {
+class AttendanceFilters {
+  final String? dateFrom;
+  final String? dateTo;
+  final int? departmentId;
+  final int? employeeId;
+  final String? status;
+  final int? branchId;
+
+  const AttendanceFilters({
+    this.dateFrom,
+    this.dateTo,
+    this.departmentId,
+    this.employeeId,
+    this.status,
+    this.branchId,
+  });
+
+  bool get hasActiveFilters =>
+      (dateFrom != null && dateFrom!.isNotEmpty) ||
+      (dateTo != null && dateTo!.isNotEmpty) ||
+      departmentId != null ||
+      employeeId != null ||
+      (status != null && status!.isNotEmpty && status != 'all') ||
+      branchId != null;
+
+  AttendanceFilters copyWith({
+    String? Function()? dateFrom,
+    String? Function()? dateTo,
+    int? Function()? departmentId,
+    int? Function()? employeeId,
+    String? Function()? status,
+    int? Function()? branchId,
+  }) {
+    return AttendanceFilters(
+      dateFrom: dateFrom != null ? dateFrom() : this.dateFrom,
+      dateTo: dateTo != null ? dateTo() : this.dateTo,
+      departmentId: departmentId != null ? departmentId() : this.departmentId,
+      employeeId: employeeId != null ? employeeId() : this.employeeId,
+      status: status != null ? status() : this.status,
+      branchId: branchId != null ? branchId() : this.branchId,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AttendanceFilters &&
+          dateFrom == other.dateFrom &&
+          dateTo == other.dateTo &&
+          departmentId == other.departmentId &&
+          employeeId == other.employeeId &&
+          status == other.status &&
+          branchId == other.branchId;
+
+  @override
+  int get hashCode => Object.hash(
+        dateFrom,
+        dateTo,
+        departmentId,
+        employeeId,
+        status,
+        branchId,
+      );
+}
+
+final allAttendanceLogsProvider = FutureProvider.autoDispose.family<List<AdminAttendanceRecord>, AttendanceFilters>((ref, filters) {
   final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
-  return ref.watch(adminOpsRepositoryProvider).getAllAttendanceLogs(branchId: activeBranchId);
+  return ref.watch(adminOpsRepositoryProvider).getAllAttendanceLogs(
+    branchId: activeBranchId ?? filters.branchId,
+    dateFrom: filters.dateFrom,
+    dateTo: filters.dateTo,
+    departmentId: filters.departmentId,
+    employeeId: filters.employeeId,
+    status: filters.status,
+  );
 });
 
 final attendanceCorrectionsProvider = FutureProvider.autoDispose<List<AttendanceCorrectionData>>((ref) {

@@ -415,7 +415,7 @@ class _AdminEmployeeFormScreenState
               : _employeeIdCtrl.text.trim(),
           email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
           phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
-          phoneNumbers: phoneNumbers,
+          phoneNumbers: phoneNumbers.isNotEmpty ? phoneNumbers : null,
           salary: double.tryParse(_salaryCtrl.text),
           employmentType: _employmentType,
           employmentStatus: _employmentStatus,
@@ -629,6 +629,7 @@ class _AdminEmployeeFormScreenState
                     label: l10n.phoneNumber,
                     icon: Icons.phone_outlined,
                     keyboard: TextInputType.phone,
+                    required: true,
                     l10n: l10n,
                   ),
                   // ── Additional Phone Numbers ───────────────────────
@@ -1225,7 +1226,11 @@ class _AdminEmployeeFormScreenState
       maxLines: maxLines,
       obscureText: obscureText,
       style: const TextStyle(fontSize: 14),
-      decoration: _fieldDecor(label, icon: icon, suffixIcon: suffixIcon),
+      decoration: _fieldDecor(
+        required && !label.endsWith('*') ? '$label *' : label,
+        icon: icon,
+        suffixIcon: suffixIcon,
+      ),
       validator: required
           ? (v) => (v == null || v.trim().isEmpty)
                 ? (l10n?.required ?? 'Required')

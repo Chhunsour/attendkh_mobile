@@ -926,7 +926,9 @@ class HrRepository {
 
     // Add phone numbers as array
     if (phoneNumbers != null && phoneNumbers.isNotEmpty) {
-      dataMap['phone_numbers'] = phoneNumbers;
+      for (int i = 0; i < phoneNumbers.length; i++) {
+        dataMap['phone_numbers[$i]'] = phoneNumbers[i];
+      }
     }
 
     if (photo != null) {
@@ -1021,8 +1023,10 @@ class HrRepository {
     };
 
     // Add phone numbers as array
-    if (phoneNumbers != null) {
-      dataMap['phone_numbers'] = phoneNumbers;
+    if (phoneNumbers != null && phoneNumbers.isNotEmpty) {
+      for (int i = 0; i < phoneNumbers.length; i++) {
+        dataMap['phone_numbers[$i]'] = phoneNumbers[i];
+      }
     }
 
     if (photo != null) {

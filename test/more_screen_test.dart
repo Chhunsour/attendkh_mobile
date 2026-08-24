@@ -28,14 +28,14 @@ void main() {
           ),
         ],
         child: const MaterialApp(
-          localizationsDelegates: const [
+          localizationsDelegates: [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const MoreScreen(
+          home: MoreScreen(
             title: 'HR Operations',
             items: [
               MoreItem(

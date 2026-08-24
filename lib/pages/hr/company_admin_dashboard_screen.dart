@@ -938,7 +938,7 @@ class _CompanyAdminDashboardScreenState
       _buildMetricCell(
         context,
         label: l10n.totalStaff,
-        value: kpi.totalEmployees.toString(),
+        value: (ref.watch(allEmployeesProvider).valueOrNull?.length ?? kpi.totalEmployees).toString(),
         icon: Icons.people_alt_rounded,
         color: AppColors.primary,
         route: AppRoutes.adminEmployees,

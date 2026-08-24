@@ -165,6 +165,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     String correctionType = 'missed_clock_in';
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    bool isSubmitting = false;
+
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -221,11 +223,12 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: 6),
               Text(
                 l10n.requestCorrectionDesc,
                 style: TextStyle(
-                  color: isDark ? AppColors.grey400 : AppColors.grey500,
-                  fontSize: 12,
+                  fontSize: 13,
+                  color: isDark ? AppColors.grey400 : AppColors.grey600,
                 ),
               ),
               const SizedBox(height: 20),
@@ -243,25 +246,28 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 controller: dateCtrl,
                 readOnly: true,
                 onTap: () async {
-                  final date = await showDatePicker(
-                    context: ctx,
+                  final picked = await showDatePicker(
+                    context: context,
                     initialDate: DateTime.now(),
-                    firstDate: DateTime.now().subtract(const Duration(days: 30)),
+                    firstDate: DateTime.now().subtract(
+                      const Duration(days: 60),
+                    ),
                     lastDate: DateTime.now(),
                   );
-                  if (date != null) {
-                    dateCtrl.text = DateFormat('yyyy-MM-dd').format(date);
+                  if (picked != null) {
+                    dateCtrl.text =
+                        '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
                   }
                 },
                 decoration: InputDecoration(
-                  hintText: l10n.selectDate,
-                  prefixIcon: Icon(
-                    Icons.calendar_today_rounded,
-                    size: 18,
-                    color: isDark ? AppColors.grey400 : AppColors.grey500,
+                  hintText: 'YYYY-MM-DD',
+                  hintStyle: TextStyle(
+                    color: isDark ? AppColors.grey500 : AppColors.grey400,
+                    fontSize: 13,
                   ),
                   filled: true,
                   fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                  suffixIcon: const Icon(Icons.calendar_today_rounded, size: 18),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: AppColors.border(context)),
@@ -289,17 +295,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 initialValue: correctionType,
-                dropdownColor: isDark ? AppColors.surfaceDarkElevated : Colors.white,
-                icon: Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: isDark ? AppColors.grey400 : AppColors.grey500,
-                ),
                 decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.category_outlined,
-                    size: 18,
-                    color: isDark ? AppColors.grey400 : AppColors.grey500,
-                  ),
                   filled: true,
                   fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                   border: OutlineInputBorder(
@@ -315,6 +311,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                     vertical: 12,
                   ),
                 ),
+                dropdownColor: isDark ? AppColors.surfaceDarkElevated : Colors.white,
                 items: [
                   DropdownMenuItem(
                     value: 'missed_clock_in',
@@ -382,7 +379,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.pop(ctx, false),
+                      onPressed: isSubmitting ? null : () => Navigator.pop(ctx, false),
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: AppColors.border(context)),
                         shape: RoundedRectangleBorder(
@@ -401,21 +398,41 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () async {
-                        if (dateCtrl.text.isEmpty) {
-                          ScaffoldMessenger.of(ctx).showSnackBar(
-                            SnackBar(content: Text(l10n.selectDate)),
-                          );
-                          return;
-                        }
-                        if (reasonCtrl.text.trim().isEmpty) {
-                          ScaffoldMessenger.of(ctx).showSnackBar(
-                            SnackBar(content: Text(l10n.fieldRequired)),
-                          );
-                          return;
-                        }
-                        Navigator.pop(ctx, true);
-                      },
+                      onPressed: isSubmitting
+                          ? null
+                          : () async {
+                              if (dateCtrl.text.isEmpty) {
+                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                  SnackBar(content: Text(l10n.selectDate)),
+                                );
+                                return;
+                              }
+                              if (reasonCtrl.text.trim().isEmpty) {
+                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                  SnackBar(content: Text(l10n.fieldRequired)),
+                                );
+                                return;
+                              }
+                              setSheetState(() => isSubmitting = true);
+                              try {
+                                await ref.read(attendanceRepositoryProvider).requestCorrection(
+                                  date: dateCtrl.text,
+                                  type: correctionType,
+                                  reason: reasonCtrl.text.trim(),
+                                );
+                                if (ctx.mounted) Navigator.pop(ctx, true);
+                              } catch (e) {
+                                if (ctx.mounted) {
+                                  ScaffoldMessenger.of(ctx).showSnackBar(
+                                    SnackBar(
+                                      content: Text(e.toString()),
+                                      backgroundColor: AppColors.danger,
+                                    ),
+                                  );
+                                  setSheetState(() => isSubmitting = false);
+                                }
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -424,7 +441,16 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: Text(l10n.submit),
+                      child: isSubmitting
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(l10n.submit),
                     ),
                   ),
                 ],
