@@ -7,8 +7,9 @@ final topEmployeeRepositoryProvider = Provider<TopEmployeeRepository>((ref) {
 });
 
 class TopEmployeeRepository extends ApiRepository {
-  Future<Map<String, dynamic>> getTopEmployees(String month) async {
-    final response = await get('/company/top-employees?month=$month');
+  Future<Map<String, dynamic>> getTopEmployees(String month, {int? branchId}) async {
+    final query = 'month=$month${branchId != null ? '&branch_id=$branchId' : ''}';
+    final response = await get('/company/top-employees?$query');
     if (response.isSuccess && response.data != null) {
       final rawData = response.data;
       final Map<String, dynamic> data = rawData is Map<String, dynamic>

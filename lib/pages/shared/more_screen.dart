@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
+import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
@@ -625,15 +626,16 @@ class MoreScreen extends ConsumerWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Quiet native app bar that keeps the list as the visual focus.
-class _MoreHeaderBar extends StatelessWidget {
+class _MoreHeaderBar extends ConsumerWidget {
   final String title;
   final bool isDark;
 
   const _MoreHeaderBar({required this.title, required this.isDark});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final surface = isDark ? AppColors.surfaceDark : Colors.white;
+    final branchSwitch = ref.watch(branchSwitchProvider);
 
     return SliverAppBar(
       pinned: true,
@@ -654,6 +656,49 @@ class _MoreHeaderBar extends StatelessWidget {
           letterSpacing: -0.4,
         ),
       ),
+      actions: [
+        if (branchSwitch.isActive)
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: InkWell(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                ref.read(branchSwitchProvider.notifier).exitBranchView();
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.business_rounded, size: 13, color: AppColors.primary),
+                    const SizedBox(width: 5),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 110),
+                      child: Text(
+                        branchSwitch.activeBranchName ?? '',
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.close_rounded, size: 13, color: AppColors.primary),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

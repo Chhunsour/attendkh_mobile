@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/providers/top_employees_provider.dart';
 import 'package:mpg_hr_mobile_app/models/top_employee.dart';
@@ -98,6 +99,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
   Widget build(BuildContext context) {
     final monthStr = DateFormat('yyyy-MM').format(_selectedMonth);
     final topEmployeesAsync = ref.watch(topEmployeesProvider(monthStr));
+    final branchSwitch = ref.watch(branchSwitchProvider);
 
     return Scaffold(
       backgroundColor: AppColors.bg(context),
@@ -114,6 +116,40 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
             fontWeight: FontWeight.w700,
           ),
         ),
+        actions: [
+          if (branchSwitch.isActive)
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.business_rounded, size: 13, color: AppColors.primary),
+                    const SizedBox(width: 5),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 120),
+                      child: Text(
+                        branchSwitch.activeBranchName ?? '',
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
