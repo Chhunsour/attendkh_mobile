@@ -177,8 +177,13 @@ class RecruitmentJobsResponse {
 class RecruitmentRepository {
   final ApiRepository _api = ApiRepository();
 
-  Future<RecruitmentJobsResponse> getJobs() async {
-    final response = await _api.get('/company/recruitment/jobs');
+  Future<RecruitmentJobsResponse> getJobs({int? branchId}) async {
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get(
+      '/company/recruitment/jobs',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
     final data =
         response.data; // ApiResponse automatically extracts the 'data' envelope
 

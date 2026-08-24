@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/reviews/reviews_tab.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/kpis/admin_kpis_tab.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/training/training_tab.dart';
 
-class AdminPerformanceScreen extends StatefulWidget {
+class AdminPerformanceScreen extends ConsumerStatefulWidget {
   const AdminPerformanceScreen({super.key});
 
   @override
-  State<AdminPerformanceScreen> createState() => _AdminPerformanceScreenState();
+  ConsumerState<AdminPerformanceScreen> createState() => _AdminPerformanceScreenState();
 }
 
-class _AdminPerformanceScreenState extends State<AdminPerformanceScreen>
+class _AdminPerformanceScreenState extends ConsumerState<AdminPerformanceScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -31,6 +33,8 @@ class _AdminPerformanceScreenState extends State<AdminPerformanceScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final branchSwitch = ref.watch(branchSwitchProvider);
+
     return Scaffold(
       backgroundColor: AppColors.bg(context),
       appBar: AppBar(
@@ -45,6 +49,42 @@ class _AdminPerformanceScreenState extends State<AdminPerformanceScreen>
             fontWeight: FontWeight.w700,
           ),
         ),
+        actions: [
+          if (branchSwitch.isActive)
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.business_rounded, size: 12, color: AppColors.primary),
+                      const SizedBox(width: 4),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 100),
+                        child: Text(
+                          branchSwitch.activeBranchName ?? '',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       body: Column(
         children: [

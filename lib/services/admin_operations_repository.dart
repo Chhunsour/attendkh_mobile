@@ -1505,8 +1505,13 @@ class AdminOperationsRepository {
   );
 
   // ── Performance ─────────────────────────────────────────────────────────
-  Future<List<PerformanceReviewData>> getReviews() async {
-    final response = await _api.get('/company/performance/reviews');
+  Future<List<PerformanceReviewData>> getReviews({int? branchId}) async {
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get(
+      '/company/performance/reviews',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
     return _parseList(response.data, PerformanceReviewData.fromJson);
   }
 
@@ -1602,8 +1607,13 @@ class AdminOperationsRepository {
     );
   }
 
-  Future<List<AdminPayslipDetailData>> getPayslipsForRun(String period) async {
-    final response = await _api.get('/company/payroll/payslips/$period');
+  Future<List<AdminPayslipDetailData>> getPayslipsForRun(String period, {int? branchId}) async {
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get(
+      '/company/payroll/payslips/$period',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
     return _parseList(
       response.data['payslips'] ?? response.data,
       AdminPayslipDetailData.fromJson,

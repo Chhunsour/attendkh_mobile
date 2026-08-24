@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/performance_repository.dart';
 import 'package:mpg_hr_mobile_app/services/directory_repository.dart' show EmployeeData;
@@ -9,14 +11,14 @@ import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/shared/chip_style.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/shared/star_rating_picker.dart';
 
-class ReviewsTab extends StatefulWidget {
+class ReviewsTab extends ConsumerStatefulWidget {
   const ReviewsTab({super.key});
 
   @override
-  State<ReviewsTab> createState() => _ReviewsTabState();
+  ConsumerState<ReviewsTab> createState() => _ReviewsTabState();
 }
 
-class _ReviewsTabState extends State<ReviewsTab> {
+class _ReviewsTabState extends ConsumerState<ReviewsTab> {
   bool _loading = true;
   List<PerformanceReviewData> _reviews = [];
   List<String> _periods = [];
@@ -47,10 +49,12 @@ class _ReviewsTabState extends State<ReviewsTab> {
   Future<void> _fetchData() async {
     setState(() => _loading = true);
     try {
+      final activeBranchId = ref.read(branchSwitchProvider).activeBranchId;
       final res = await _repo.getReviews(
         search: _searchCtrl.text.trim(),
         period: _period,
         type: _type,
+        branchId: activeBranchId,
         page: _currentPage,
       );
       setState(() {
@@ -831,6 +835,10 @@ class _ReviewsTabState extends State<ReviewsTab> {
   // ── Build ──────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    ref.listen(branchSwitchProvider, (_, _) {
+      _currentPage = 1;
+      _fetchData();
+    });
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.transparent,

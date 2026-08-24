@@ -206,12 +206,14 @@ class PerformanceRepository {
     String? search,
     String? period,
     String? type,
+    int? branchId,
     int page = 1,
   }) async {
     final Map<String, dynamic> query = {'page': page};
     if (search != null && search.isNotEmpty) query['search'] = search;
     if (period != null && period != 'all') query['review_period'] = period;
     if (type != null && type != 'all') query['review_type'] = type;
+    if (branchId != null) query['branch_id'] = branchId;
 
     final response = await _api.get(
       '/company/performance/reviews',

@@ -178,8 +178,13 @@ class AssetsRepository {
     return [];
   }
 
-  Future<List<AssetData>> getAssets() async {
-    final response = await _api.get('/company/assets');
+  Future<List<AssetData>> getAssets({int? branchId}) async {
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get(
+      '/company/assets',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
     return _parseList(response.data, AssetData.fromJson);
   }
 

@@ -226,11 +226,13 @@ final holidaysAdminProvider = FutureProvider.autoDispose<List<HolidayData>>((ref
 });
 
 final assetsProvider = FutureProvider.autoDispose<List<AssetData>>((ref) {
-  return ref.watch(assetsRepositoryProvider).getAssets();
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+  return ref.watch(assetsRepositoryProvider).getAssets(branchId: activeBranchId);
 });
 
 final recruitmentJobsProvider = FutureProvider.autoDispose<RecruitmentJobsResponse>((ref) {
-  return ref.watch(recruitmentRepositoryProvider).getJobs();
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+  return ref.watch(recruitmentRepositoryProvider).getJobs(branchId: activeBranchId);
 });
 
 final jobCandidatesProvider = FutureProvider.family.autoDispose<List<CandidateData>, int>((ref, jobId) {
@@ -238,7 +240,8 @@ final jobCandidatesProvider = FutureProvider.family.autoDispose<List<CandidateDa
 });
 
 final performanceReviewsProvider = FutureProvider.autoDispose<List<PerformanceReviewData>>((ref) {
-  return ref.watch(adminOpsRepositoryProvider).getReviews();
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+  return ref.watch(adminOpsRepositoryProvider).getReviews(branchId: activeBranchId);
 });
 
 final trainingCoursesProvider = FutureProvider.autoDispose<List<TrainingCourseData>>((ref) {
