@@ -106,32 +106,49 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF061634),
+      backgroundColor: const Color(0xFF0A0F1D),
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // A single light source: brand blue at the upper left falling away
-          // to near-black. No second hue, no floating colour blobs.
+          // ── Layer 1: Ambient Midnight Background ──
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF0B2A80), Color(0xFF07143A), Color(0xFF050F2A)],
-                stops: [0.0, 0.62, 1.0],
+                colors: [
+                  Color(0xFF0A0F1D),
+                  Color(0xFF0F172A),
+                  Color(0xFF0D1B3E),
+                  Color(0xFF070B14),
+                ],
+                stops: [0.0, 0.4, 0.75, 1.0],
               ),
             ),
           ),
-          // Vignette, so the eye lands on the mark rather than the corners.
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: const Alignment(0, -0.28),
-                radius: 1.0,
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.20),
-                  Colors.transparent,
-                ],
+
+          // ── Glowing ambient light accents ──
+          Positioned(
+            top: -60,
+            left: -40,
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary.withValues(alpha: 0.18),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -60,
+            right: -40,
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF6366F1).withValues(alpha: 0.14),
               ),
             ),
           ),
@@ -141,8 +158,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               children: [
                 const Spacer(flex: 5),
 
-                // The geofence rings are the illustration: this app decides
-                // whether you are inside a radius, so the radius is the image.
+                // Geofence rings & radar sweep
                 SizedBox(
                   width: 320,
                   height: 320,
@@ -168,7 +184,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       ),
                       ScaleTransition(
                         scale: Tween<double>(
-                          begin: 0.9,
+                          begin: 0.88,
                           end: 1.0,
                         ).animate(_mark),
                         child: FadeTransition(
@@ -180,25 +196,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   ),
                 ),
 
-                const SizedBox(height: 26),
+                const SizedBox(height: 28),
 
                 _rise(
                   _word,
                   const Text(
                     'AttendKH',
                     style: TextStyle(
-                      fontSize: 31,
-                      // Tight and medium-heavy. The old w900 at +2.5 tracking
-                      // was shouting.
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.6,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.8,
                       color: Colors.white,
                       height: 1.0,
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
                 _rise(
                   _tag,
@@ -210,10 +224,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        // No negative tracking here — the Khmer tagline needs
-                        // its natural spacing.
-                        color: Colors.white.withValues(alpha: 0.60),
-                        height: 1.5,
+                        color: Colors.white.withValues(alpha: 0.65),
+                        height: 1.4,
                       ),
                     ),
                   ),
@@ -223,18 +235,32 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
                 _rise(
                   _foot,
-                  Text(
-                    l10n.poweredByAttendKH.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 2.0,
-                      color: Colors.white.withValues(alpha: 0.32),
-                    ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.poweredByAttendKH.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 2.2,
+                          color: Colors.white.withValues(alpha: 0.38),
+                        ),
+                      ),
+                    ],
                   ),
                   from: 8,
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 28),
               ],
             ),
           ),
@@ -243,9 +269,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     );
   }
 
-  /// The logo in a thin collar. Rendered here rather than via [AppLogo] so the
-  /// splash does not inherit that widget's heavy halo — the rings already do
-  /// the work that halo was attempting.
+  /// The logo in a glowing frosted collar.
   Widget _buildMark() {
     const double size = 104;
     return Container(
@@ -254,8 +278,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: 0.06),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+        color: Colors.white.withValues(alpha: 0.08),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.25),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.35),
+            blurRadius: 24,
+            spreadRadius: 2,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: ClipOval(
         child: Image.asset(
@@ -282,9 +317,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 }
 
-/// Concentric geofence rings, drawn from the inside out as the intro plays.
-/// Every second ring is dashed, so the set reads as a measured radius rather
-/// than as decoration.
+/// Concentric geofence rings, drawn with subtle primary tints.
 class _RingsPainter extends CustomPainter {
   final double progress;
 
@@ -297,14 +330,13 @@ class _RingsPainter extends CustomPainter {
     final center = size.center(Offset.zero);
 
     for (int i = 0; i < _radii.length; i++) {
-      // Each ring waits for the one inside it.
       final t = ((progress - i * 0.12) / 0.55).clamp(0.0, 1.0);
       if (t <= 0) continue;
 
       final paint = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..color = Colors.white.withValues(alpha: (0.20 - i * 0.04) * t);
+        ..strokeWidth = 1.2
+        ..color = const Color(0xFF60A5FA).withValues(alpha: (0.28 - i * 0.05) * t);
 
       final r = _radii[i] * (0.94 + 0.06 * t);
       if (i.isOdd) {
@@ -328,8 +360,7 @@ class _RingsPainter extends CustomPainter {
   bool shouldRepaint(_RingsPainter old) => old.progress != progress;
 }
 
-/// The sweep: a comet arc riding the outer ring with a bright head, the way a
-/// radar trace or a second hand reads. Rotated by its parent.
+/// The sweep: vibrant cyan/blue radar trace with glowing instrument head.
 class _SweepPainter extends CustomPainter {
   const _SweepPainter();
 
@@ -340,23 +371,34 @@ class _SweepPainter extends CustomPainter {
     final center = size.center(Offset.zero);
     final rect = Rect.fromCircle(center: center, radius: _radius);
 
-    // Tail fades out behind the head, which sits at angle 0.
+    // Tail fades out behind the head with cyan/indigo glow
     final tail = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
+      ..strokeWidth = 2.2
       ..strokeCap = StrokeCap.round
-      ..shader = SweepGradient(
+      ..shader = const SweepGradient(
         startAngle: -math.pi * 0.5,
         endAngle: 0,
-        colors: [Colors.transparent, Colors.white.withValues(alpha: 0.85)],
+        colors: [
+          Colors.transparent,
+          Color(0xFF38BDF8),
+        ],
       ).createShader(rect);
 
     canvas.drawArc(rect, -math.pi * 0.5, math.pi * 0.5, false, tail);
 
-    // The head: the detail that makes it read as an instrument.
+    // Instrument head: cyan glow dot
     final head = Offset(center.dx + _radius, center.dy);
-    canvas.drawCircle(head, 8, Paint()..color = Colors.white.withValues(alpha: 0.14));
-    canvas.drawCircle(head, 3, Paint()..color = Colors.white);
+    canvas.drawCircle(
+      head,
+      9,
+      Paint()..color = const Color(0xFF38BDF8).withValues(alpha: 0.25),
+    );
+    canvas.drawCircle(
+      head,
+      3.5,
+      Paint()..color = const Color(0xFFE0F2FE),
+    );
   }
 
   @override
