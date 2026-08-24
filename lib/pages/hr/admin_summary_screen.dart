@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/summary_repository.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 class AdminSummaryScreen extends StatefulWidget {
   const AdminSummaryScreen({super.key});
@@ -23,6 +24,16 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
   bool _isOvertimeTableView = true; // Default to Web-like Table View
   bool _isPayrollTableView = true; // Default to Web-like Table View
   bool _isExpenseTableView = true; // Default to Web-like Table View
+  bool _isPerformanceTableView = true; // Default to Web-like Table View
+
+  String? _resolvePhotoUrl(String? url) {
+    if (url == null || url.trim().isEmpty) return null;
+    final clean = url.trim();
+    if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
+    final base = DioClient.storageUrl;
+    final cleanPath = clean.startsWith('/') ? clean.substring(1) : clean;
+    return '$base/$cleanPath';
+  }
 
   static const _summaryTypes = [
     {
@@ -709,7 +720,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                     final index = entry.key;
                     final row = entry.value;
                     final emp = row['employee'] as Map<String, dynamic>? ?? {};
-                    final photoUrl = emp['photo_url']?.toString();
+                    final photoUrl = _resolvePhotoUrl(emp['photo_url']?.toString());
                     final name = emp['full_name']?.toString() ?? 'Employee';
                     final empId = emp['employee_id']?.toString() ?? '-';
                     final isEven = index % 2 == 0;
@@ -1548,7 +1559,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                   ..._filteredData.asMap().entries.map((entry) {
                     final index = entry.key;
                     final row = entry.value;
-                    final photoUrl = row['photo_url']?.toString();
+                    final photoUrl = _resolvePhotoUrl(row['photo_url']?.toString());
                     final name = row['full_name']?.toString() ?? 'Employee';
                     final empId = row['emp_code']?.toString() ?? '-';
                     final isEven = index % 2 == 0;
@@ -1784,7 +1795,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
     final dept = row['department']?.toString() ?? '-';
     final branch = row['branch']?.toString() ?? '';
     final period = row['period']?.toString() ?? '-';
-    final photoUrl = row['photo_url']?.toString();
+    final photoUrl = _resolvePhotoUrl(row['photo_url']?.toString());
 
     final approved = int.tryParse(row['approved_count']?.toString() ?? '0') ?? 0;
     final pending = int.tryParse(row['pending_count']?.toString() ?? '0') ?? 0;
@@ -2281,7 +2292,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                   ..._filteredData.asMap().entries.map((entry) {
                     final index = entry.key;
                     final row = entry.value;
-                    final photoUrl = row['photo_url']?.toString();
+                    final photoUrl = _resolvePhotoUrl(row['photo_url']?.toString());
                     final name = row['full_name']?.toString() ?? 'Employee';
                     final empId = row['emp_code']?.toString() ?? '-';
                     final isEven = index % 2 == 0;
@@ -2463,7 +2474,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
     final dept = row['department']?.toString() ?? '-';
     final branch = row['branch']?.toString() ?? '';
     final period = row['period']?.toString() ?? '-';
-    final photoUrl = row['photo_url']?.toString();
+    final photoUrl = _resolvePhotoUrl(row['photo_url']?.toString());
 
     final basic = double.tryParse(row['basic_salary']?.toString() ?? '0') ?? 0;
     final otPay = double.tryParse(row['overtime_pay']?.toString() ?? '0') ?? 0;
@@ -2695,6 +2706,796 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
               ],
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  // ── PERFORMANCE SUMMARY VIEW ───────────────────────────────────────────────
+
+  Widget _buildPerformanceSummaryView(bool isDark) {
+    int totalReviews = _data.length;
+    double sumRating = 0;
+    int completedReviews = 0;
+    int totalKpis = 0;
+    int completedKpis = 0;
+
+    for (final row in _data) {
+      final rating = double.tryParse(row['overall_rating']?.toString() ?? '0') ?? 0;
+      sumRating += rating;
+      if (row['status']?.toString().toLowerCase() == 'completed') {
+        completedReviews++;
+      }
+      totalKpis += int.tryParse(row['total_kpis']?.toString() ?? '0') ?? 0;
+      completedKpis += int.tryParse(row['completed_kpis']?.toString() ?? '0') ?? 0;
+    }
+
+    final avgRating = totalReviews > 0 ? sumRating / totalReviews : 0.0;
+    final kpiCompletion = totalKpis > 0 ? (completedKpis / totalKpis * 100).round() : 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. Unified Executive Performance Banner
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [const Color(0xFF2E1065), const Color(0xFF1E1B4B)]
+                  : [const Color(0xFF8B5CF6), const Color(0xFF6D28D9)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.trending_up_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'PERFORMANCE & KPI EVALUATION',
+                          style: TextStyle(
+                            fontSize: 10,
+                            letterSpacing: 1.0,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white70,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(
+                              avgRating > 0 ? '${avgRating.toStringAsFixed(1)} ★' : 'N/A',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Text(
+                              'Avg Score',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          'Total: $totalReviews reviews • Met: $completedKpis/$totalKpis KPIs ($kpiCompletion%)',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatPill('Reviews', '$totalReviews', Colors.white),
+                    _buildStatPill('Avg Score', avgRating > 0 ? '${avgRating.toStringAsFixed(1)}★' : '—', const Color(0xFFFDE047)),
+                    _buildStatPill('Completed', '$completedReviews', const Color(0xFF86EFAC)),
+                    _buildStatPill('KPI Rate', '$kpiCompletion%', const Color(0xFF93C5FD)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 14),
+
+        // 2. Search Bar
+        TextField(
+          onChanged: (v) => setState(() => _searchQuery = v),
+          decoration: InputDecoration(
+            hintText: 'Search employee, review type, period, status...',
+            prefixIcon: const Icon(Icons.search, size: 18),
+            filled: true,
+            fillColor: AppColors.surface(context),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppColors.border(context)),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // 3. Record count & View Toggle Switcher
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'PERFORMANCE REVIEWS',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
+                    color: AppColors.textSecondary(context),
+                  ),
+                ),
+                Text(
+                  '${_filteredData.length} records',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.grey500,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            // View Mode Toggle Switcher
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: AppColors.surface(context),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border(context)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildPerformanceViewBtn(
+                    icon: Icons.table_chart_rounded,
+                    label: 'Table',
+                    isSelected: _isPerformanceTableView,
+                    onTap: () => setState(() => _isPerformanceTableView = true),
+                  ),
+                  _buildPerformanceViewBtn(
+                    icon: Icons.view_agenda_rounded,
+                    label: 'Cards',
+                    isSelected: !_isPerformanceTableView,
+                    onTap: () => setState(() => _isPerformanceTableView = false),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 10),
+
+        if (_filteredData.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(32),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.surface(context),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border(context)),
+            ),
+            child: const Text(
+              'No performance review records found',
+              style: TextStyle(fontSize: 13, color: AppColors.grey500),
+            ),
+          )
+        else if (_isPerformanceTableView)
+          _buildPerformanceTableView(isDark)
+        else
+          ..._filteredData.map((row) => _buildPerformanceCard(row, isDark)),
+      ],
+    );
+  }
+
+  Widget _buildPerformanceViewBtn({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF8B5CF6) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: isSelected ? Colors.white : AppColors.grey500,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : AppColors.grey600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Synchronized Performance Table View ────────────────────────────────────
+  Widget _buildPerformanceTableView(bool isDark) {
+    const double employeeColWidth = 140.0;
+    const double headerHeight = 36.0;
+    const double rowHeight = 46.0;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Left Pinned Column: Employee Details ──
+            SizedBox(
+              width: employeeColWidth,
+              child: Column(
+                children: [
+                  Container(
+                    height: headerHeight,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    alignment: Alignment.centerLeft,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.grey900 : AppColors.grey100,
+                      border: Border(
+                        bottom: BorderSide(color: AppColors.border(context)),
+                        right: BorderSide(
+                            color: AppColors.border(context), width: 1.5),
+                      ),
+                    ),
+                    child: Text(
+                      'EMPLOYEE',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                        color: AppColors.textSecondary(context),
+                      ),
+                    ),
+                  ),
+                  ..._filteredData.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final row = entry.value;
+                    final photoUrl = _resolvePhotoUrl(row['photo_url']?.toString());
+                    final name = row['full_name']?.toString() ?? 'Employee';
+                    final empId = row['emp_code']?.toString() ?? '-';
+                    final isEven = index % 2 == 0;
+
+                    return Container(
+                      height: rowHeight,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: isEven
+                            ? Colors.transparent
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.02)
+                                : AppColors.grey50),
+                        border: Border(
+                          bottom: BorderSide(
+                              color: AppColors.border(context), width: 0.5),
+                          right: BorderSide(
+                              color: AppColors.border(context), width: 1.5),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+                            ),
+                            child: ClipOval(
+                              child: photoUrl != null && photoUrl.isNotEmpty
+                                  ? CachedNetworkImage(
+                                      imageUrl: photoUrl,
+                                      fit: BoxFit.cover,
+                                      errorWidget: (_, _, _) => Center(
+                                        child: Text(
+                                          name.isNotEmpty
+                                              ? name[0].toUpperCase()
+                                              : 'E',
+                                          style: const TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF8B5CF6),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        name.isNotEmpty
+                                            ? name[0].toUpperCase()
+                                            : 'E',
+                                        style: const TextStyle(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF8B5CF6),
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  empId,
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    color: AppColors.grey500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+
+            // ── Right Pane: Scrollable Breakdown Columns (Matching Web) ──
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: SizedBox(
+                  width: 480,
+                  child: Column(
+                    children: [
+                      Container(
+                        height: headerHeight,
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.grey900 : AppColors.grey100,
+                          border: Border(
+                            bottom: BorderSide(color: AppColors.border(context)),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            _buildOtThCell('Review Type', 90),
+                            _buildOtThCell('Period', 80),
+                            _buildOtThCell('Review Date', 85),
+                            _buildOtThCell('Rating', 70),
+                            _buildOtThCell('KPIs Met', 75),
+                            _buildOtThCell('Status', 80),
+                          ],
+                        ),
+                      ),
+                      ..._filteredData.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final row = entry.value;
+                        final reviewType = (row['review_type']?.toString() ?? 'Annual').replaceAll('_', ' ').toUpperCase();
+                        final period = row['review_period']?.toString() ?? '-';
+                        final date = row['review_date']?.toString() ?? '-';
+                        final rating = double.tryParse(row['overall_rating']?.toString() ?? '0') ?? 0;
+                        final totalKpi = int.tryParse(row['total_kpis']?.toString() ?? '0') ?? 0;
+                        final completedKpi = int.tryParse(row['completed_kpis']?.toString() ?? '0') ?? 0;
+                        final status = row['status']?.toString().toLowerCase() ?? 'draft';
+                        final isEven = index % 2 == 0;
+
+                        return Container(
+                          height: rowHeight,
+                          decoration: BoxDecoration(
+                            color: isEven
+                                ? Colors.transparent
+                                : (isDark
+                                    ? Colors.white.withValues(alpha: 0.02)
+                                    : AppColors.grey50),
+                            border: Border(
+                              bottom: BorderSide(
+                                  color: AppColors.border(context), width: 0.5),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 90,
+                                alignment: Alignment.center,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: (isDark ? AppColors.grey800 : AppColors.grey200).withValues(alpha: 0.6),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    reviewType,
+                                    style: TextStyle(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textSecondary(context),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                              _buildOtTdText(period, 80),
+                              _buildOtTdText(date, 85),
+                              Container(
+                                width: 70,
+                                alignment: Alignment.center,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: (rating >= 4.0 ? const Color(0xFFF59E0B) : const Color(0xFF3B82F6)).withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.star_rounded,
+                                        size: 11,
+                                        color: rating >= 4.0 ? const Color(0xFFF59E0B) : const Color(0xFF3B82F6),
+                                      ),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        rating > 0 ? rating.toStringAsFixed(1) : '—',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w900,
+                                          color: rating >= 4.0 ? const Color(0xFFF59E0B) : const Color(0xFF3B82F6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              _buildOtTdBadge('$completedKpi / $totalKpi', const Color(0xFF10B981), 75),
+                              _buildOtTdBadge(
+                                status.toUpperCase(),
+                                status == 'completed'
+                                    ? const Color(0xFF10B981)
+                                    : (status == 'submitted'
+                                        ? const Color(0xFF3B82F6)
+                                        : (status == 'acknowledged'
+                                            ? const Color(0xFFF59E0B)
+                                            : AppColors.grey500)),
+                                80,
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Clean & Simplified Executive Performance Card ──────────────────────────
+  Widget _buildPerformanceCard(Map<String, dynamic> row, bool isDark) {
+    final name = row['full_name']?.toString() ?? 'Employee';
+    final code = row['emp_code']?.toString() ?? '-';
+    final dept = row['department']?.toString() ?? '-';
+    final branch = row['branch']?.toString() ?? '';
+    final reviewType = (row['review_type']?.toString() ?? 'Annual').replaceAll('_', ' ').toUpperCase();
+    final period = row['review_period']?.toString() ?? '-';
+    final reviewDate = row['review_date']?.toString() ?? '-';
+    final photoUrl = _resolvePhotoUrl(row['photo_url']?.toString());
+
+    final rating = double.tryParse(row['overall_rating']?.toString() ?? '0') ?? 0;
+    final totalKpis = int.tryParse(row['total_kpis']?.toString() ?? '0') ?? 0;
+    final completedKpis = int.tryParse(row['completed_kpis']?.toString() ?? '0') ?? 0;
+    final kpiPct = totalKpis > 0 ? (completedKpis / totalKpis * 100).round() : 0;
+    final status = row['status']?.toString().toLowerCase() ?? 'draft';
+
+    Color statusColor;
+    switch (status) {
+      case 'completed':
+        statusColor = const Color(0xFF10B981);
+        break;
+      case 'submitted':
+        statusColor = const Color(0xFF3B82F6);
+        break;
+      case 'acknowledged':
+        statusColor = const Color(0xFFF59E0B);
+        break;
+      default:
+        statusColor = AppColors.grey500;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border(context)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Header: Avatar, Name, Department & Review Type Badge
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+                  border: Border.all(
+                    color: AppColors.border(context),
+                    width: 0.5,
+                  ),
+                ),
+                child: ClipOval(
+                  child: photoUrl != null && photoUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: photoUrl,
+                          fit: BoxFit.cover,
+                          errorWidget: (_, _, _) => Center(
+                            child: Text(
+                              name.isNotEmpty ? name[0].toUpperCase() : 'E',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF8B5CF6),
+                              ),
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                            name.isNotEmpty ? name[0].toUpperCase() : 'E',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF8B5CF6),
+                            ),
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      '$code • $dept${branch.isNotEmpty ? ' • $branch' : ''}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  reviewType,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF8B5CF6),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // 2. Hero Score Box: Overall Rating vs KPI Met Rate
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.grey900 : const Color(0xFFF5F3FF),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF8B5CF6).withValues(alpha: 0.25),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(
+                  children: [
+                    const Text(
+                      'OVERALL RATING',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star_rounded,
+                          size: 16,
+                          color: Color(0xFFF59E0B),
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          rating > 0 ? rating.toStringAsFixed(1) : '—',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textPrimary(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Container(
+                  width: 1,
+                  height: 28,
+                  color: AppColors.border(context),
+                ),
+                Column(
+                  children: [
+                    const Text(
+                      'KPI COMPLETION',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$kpiPct% ($completedKpis/$totalKpis)',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF10B981),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // 3. Bottom Row: Period, Date & Status Chip
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today_rounded, size: 12, color: AppColors.grey500),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$period • $reviewDate',
+                    style: const TextStyle(fontSize: 11, color: AppColors.grey600),
+                  ),
+                ],
+              ),
+              _buildMiniStatusBadge(
+                status.toUpperCase(),
+                '●',
+                statusColor,
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -3001,7 +3802,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                   ..._filteredData.asMap().entries.map((entry) {
                     final index = entry.key;
                     final row = entry.value;
-                    final photoUrl = row['photo_url']?.toString();
+                    final photoUrl = _resolvePhotoUrl(row['photo_url']?.toString());
                     final name = row['full_name']?.toString() ?? 'Employee';
                     final empId = row['emp_code']?.toString() ?? '-';
                     final isEven = index % 2 == 0;
@@ -3200,7 +4001,7 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
     final dept = row['department']?.toString() ?? '-';
     final branch = row['branch']?.toString() ?? '';
     final category = row['category']?.toString() ?? 'General';
-    final photoUrl = row['photo_url']?.toString();
+    final photoUrl = _resolvePhotoUrl(row['photo_url']?.toString());
 
     final claims = int.tryParse(row['total_claims']?.toString() ?? '0') ?? 0;
     final total = double.tryParse(row['total_amount']?.toString() ?? '0') ?? 0;
@@ -3833,6 +4634,8 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                 _buildPayrollSummaryView(isDark)
               else if (_selectedType == 'expense')
                 _buildExpenseSummaryView(isDark)
+              else if (_selectedType == 'performance')
+                _buildPerformanceSummaryView(isDark)
               else ...[
                 // Search bar for other types
                 TextField(
