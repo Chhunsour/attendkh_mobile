@@ -1679,6 +1679,7 @@ class AdminOperationsRepository {
     await _api.download(
       '/company/reports/export',
       savePath,
+      method: 'POST',
       data: {'type': type, 'format': format, ...?params},
     );
     return savePath;
