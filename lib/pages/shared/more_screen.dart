@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
@@ -46,7 +45,6 @@ class MoreScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final authState = ref.watch(authProvider);
     final l10n = AppLocalizations.of(context)!;
     final bool displayPreferences = showPreferences || showLogout;
     final accent = _accent;
@@ -89,25 +87,6 @@ class MoreScreen extends ConsumerWidget {
                   _buildGroupCard(
                     isDark: isDark,
                     children: [
-                      if (authState.isSuperAdmin ||
-                          authState.isCompanyAdmin) ...[
-                        _buildSettingRow(
-                          context: context,
-                          icon: Icons.admin_panel_settings_rounded,
-                          iconColor: const Color(0xFF6366F1),
-                          title: l10n.returnToAdminConsole,
-                          subtitle: l10n.returnToAdminSubtitle,
-                          isDark: isDark,
-                          onTap: () {
-                            if (authState.isSuperAdmin) {
-                              context.go(AppRoutes.adminDashboard);
-                            } else {
-                              context.go(AppRoutes.companyAdmin);
-                            }
-                          },
-                        ),
-                        _buildDivider(isDark),
-                      ],
                       _buildSettingRow(
                         context: context,
                         icon: Icons.edit_note_rounded,

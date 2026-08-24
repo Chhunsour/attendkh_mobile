@@ -1,76 +1,148 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
-/// Confirms sign-out, then clears the session.
-///
-/// Uses the platform alert (UIAlertController on iOS, Material 3 dialog on
-/// Android) rather than a bespoke card: Apple's HIG asks destructive
-/// confirmations to be a standard alert with a plain destructive action and
-/// Cancel as the preferred button — not a large filled red target that is the
-/// easiest thing on screen to hit by accident.
+import 'package:go_router/go_router.dart';
+import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+
+/// Shows a modern, premium sign-out confirmation dialog.
 Future<void> showLogoutConfirmation(BuildContext context, WidgetRef ref) async {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
   final l10n = AppLocalizations.of(context)!;
 
-  final confirmed = await showAdaptiveDialog<bool>(
+  final confirmed = await showDialog<bool>(
     context: context,
-    builder: (ctx) => AlertDialog.adaptive(
-      title: Text('${l10n.logOut}?'),
-      content: Text(l10n.logoutConfirmationDesc),
-      actions: [
-        _adaptiveAction(
-          ctx,
-          label: l10n.cancel,
-          isDefault: true,
-          onPressed: () => Navigator.pop(ctx, false),
+    builder: (ctx) => AlertDialog(
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(
+          color: isDark
+              ? AppColors.borderDark
+              : AppColors.border(ctx),
         ),
-        _adaptiveAction(
-          ctx,
-          label: l10n.logOut,
-          isDestructive: true,
-          onPressed: () => Navigator.pop(ctx, true),
+      ),
+      icon: Container(
+        width: 58,
+        height: 58,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: (isDark ? const Color(0xFFEF4444) : const Color(0xFFDC2626)).withValues(alpha: 0.12),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.logout_rounded,
+          color: isDark ? const Color(0xFFF87171) : const Color(0xFFDC2626),
+          size: 28,
+        ),
+      ),
+      title: Text(
+        '${l10n.logOut}?',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 19,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.4,
+          color: isDark ? Colors.white : AppColors.grey900,
+        ),
+      ),
+      content: Text(
+        l10n.logoutConfirmationDesc,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 13.5,
+          height: 1.45,
+          color: isDark ? AppColors.grey400 : AppColors.grey600,
+        ),
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+      actions: [
+        Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 46,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.of(ctx).pop(false),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: isDark ? Colors.white : AppColors.grey700,
+                    side: BorderSide(color: isDark ? AppColors.borderDark : AppColors.border(ctx)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: Text(
+                    l10n.cancel,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: SizedBox(
+                height: 46,
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  icon: const Icon(Icons.logout_rounded, size: 18),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.danger,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shadowColor: AppColors.danger.withValues(alpha: 0.3),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  label: Text(
+                    l10n.logOut,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     ),
   );
 
   if (confirmed == true) {
-    // The authProvider clears state and the router redirects to login.
-    await ref.read(authProvider.notifier).logout();
-  }
-}
-
-Widget _adaptiveAction(
-  BuildContext context, {
-  required String label,
-  required VoidCallback onPressed,
-  bool isDefault = false,
-  bool isDestructive = false,
-}) {
-  switch (Theme.of(context).platform) {
-    case TargetPlatform.iOS:
-    case TargetPlatform.macOS:
-      return CupertinoDialogAction(
-        onPressed: onPressed,
-        isDefaultAction: isDefault,
-        isDestructiveAction: isDestructive,
-        child: Text(label),
-      );
-    default:
-      return TextButton(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          foregroundColor: isDestructive ? AppColors.danger : null,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontWeight: isDefault ? FontWeight.w700 : FontWeight.w600,
+    if (context.mounted) {
+      // Show clean centered loading spinner
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: Colors.black38,
+        builder: (ctx) => const PopScope(
+          canPop: false,
+          child: Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
+              strokeWidth: 3.5,
+            ),
           ),
         ),
       );
+    }
+
+    try {
+      await ref.read(authProvider.notifier).logout();
+    } catch (_) {}
+
+    if (context.mounted) {
+      context.go(AppRoutes.login);
+    } else {
+      rootNavigatorKey.currentContext?.go(AppRoutes.login);
+    }
   }
 }
