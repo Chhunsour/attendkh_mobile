@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:mpg_hr_mobile_app/models/monthly_attendance_model.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 
@@ -320,6 +321,35 @@ class AttendanceRepository {
       }
     }
     return [];
+  }
+
+  /// GET /api/v1/company/attendance/monthly-summary
+  Future<CompanyMonthlyAttendanceData> getCompanyMonthlyAttendance({
+    String? month,
+    int? departmentId,
+    int? branchId,
+  }) async {
+    final query = <String, dynamic>{};
+    if (month != null && month.isNotEmpty) query['month'] = month;
+    if (departmentId != null) query['department_id'] = departmentId;
+    if (branchId != null) query['branch_id'] = branchId;
+
+    final response = await _api.get(
+      '/company/attendance/monthly-summary',
+      queryParameters: query,
+    );
+
+    final data = response.data;
+    if (data is Map<String, dynamic> && data['data'] is Map<String, dynamic>) {
+      return CompanyMonthlyAttendanceData.fromJson(
+        data['data'] as Map<String, dynamic>,
+      );
+    }
+    return const CompanyMonthlyAttendanceData(
+      summaryData: [],
+      currentMonth: '',
+      daysInMonth: 30,
+    );
   }
 
   /// POST /api/v1/company/attendance/corrections

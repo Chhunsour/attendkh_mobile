@@ -4062,7 +4062,37 @@ class AppLocalizationsKm extends AppLocalizations {
   String get tabReviews => 'ការវាយតម្លៃ';
 
   @override
+  String get tabKpis => 'គោលដៅ KPI';
+
+  @override
   String get tabTraining => 'ការបណ្តុះបណ្តាល';
+
+  @override
+  String get assignGoal => 'ចាត់តាំងគោលដៅ';
+
+  @override
+  String get kpiTemplates => 'គំរូ KPI';
+
+  @override
+  String get assignedGoals => 'គោលដៅដែលបានចាត់តាំង';
+
+  @override
+  String get evaluateGoal => 'វាយតម្លៃគោលដៅ';
+
+  @override
+  String get saveEvaluation => 'រក្សាទុកការវាយតម្លៃ';
+
+  @override
+  String get actualValueLabel => 'តម្លៃជាក់ស្តែង';
+
+  @override
+  String get managerNotesLabel => 'កំណត់សម្គាល់អ្នកគ្រប់គ្រង';
+
+  @override
+  String get employeeNotesLabel => 'កំណត់សម្គាល់បុគ្គលិក';
+
+  @override
+  String get overallAttainmentLabel => 'សមិទ្ធផលរួមរបស់ក្រុមហ៊ុន';
 
   @override
   String get createReviewTitle => 'បង្កើតការវាយតម្លៃ';

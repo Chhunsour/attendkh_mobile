@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'widgets/admin_attendance/corrections_tab.dart';
 import 'widgets/admin_attendance/daily_logs_tab.dart';
 import 'widgets/admin_attendance/manual_attendance_modal.dart';
+import 'widgets/admin_attendance/monthly_summary_tab.dart';
 
 class AdminAttendanceScreen extends ConsumerStatefulWidget {
   const AdminAttendanceScreen({super.key});
@@ -22,7 +23,7 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -108,6 +109,16 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
                 fontWeight: FontWeight.w500,
               ),
               tabs: [
+                const Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.calendar_month_rounded, size: 16),
+                      SizedBox(width: 6),
+                      Text('Monthly Matrix'),
+                    ],
+                  ),
+                ),
                 Tab(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -156,7 +167,11 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [DailyLogsTab(), CorrectionsTab()],
+        children: const [
+          MonthlySummaryTab(),
+          DailyLogsTab(),
+          CorrectionsTab(),
+        ],
       ),
     );
   }

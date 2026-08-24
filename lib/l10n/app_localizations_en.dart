@@ -4050,7 +4050,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabReviews => 'Reviews';
 
   @override
+  String get tabKpis => 'KPI Goals';
+
+  @override
   String get tabTraining => 'Training';
+
+  @override
+  String get assignGoal => 'Assign Goal';
+
+  @override
+  String get kpiTemplates => 'Templates';
+
+  @override
+  String get assignedGoals => 'Assigned Goals';
+
+  @override
+  String get evaluateGoal => 'Evaluate Goal';
+
+  @override
+  String get saveEvaluation => 'Save Evaluation';
+
+  @override
+  String get actualValueLabel => 'Actual Value';
+
+  @override
+  String get managerNotesLabel => 'Manager Notes';
+
+  @override
+  String get employeeNotesLabel => 'Employee Notes';
+
+  @override
+  String get overallAttainmentLabel => 'Company Attainment';
 
   @override
   String get createReviewTitle => 'Create Review';

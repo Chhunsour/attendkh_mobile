@@ -50,19 +50,39 @@ class ExpenseData {
   }
 
   factory ExpenseData.fromJson(Map<String, dynamic> json) {
-    String employeeName = '';
-    String? employeeKhmerName;
-    String? employeeCode;
+    String employeeName = json['employee_name'] as String? ?? json['user_name'] as String? ?? '';
+    String? employeeKhmerName = json['employee_khmer_name'] as String?;
+    String? employeeCode = json['employee_code'] as String? ?? json['employee_id'] as String?;
     String? employeePhoto;
-    String? employeePosition;
+    String? employeePosition = json['position_name'] as String? ?? json['employee_position'] as String?;
+
     final emp = json['employee'];
     if (emp != null && emp is Map) {
-      employeeName = emp['full_name'] as String? ?? '${emp['first_name'] ?? ''} ${emp['last_name'] ?? ''}'.trim();
-      if (employeeName.isEmpty) employeeName = emp['name'] as String? ?? '';
-      employeeKhmerName = emp['khmer_name'] as String?;
-      employeeCode = emp['employee_id'] as String? ?? emp['code'] as String?;
+      final fName = (emp['full_name'] as String? ?? '').trim();
+      final n = (emp['name'] as String? ?? '').trim();
+      final joined = '${emp['first_name'] ?? ''} ${emp['last_name'] ?? ''}'.trim();
+      if (fName.isNotEmpty) {
+        employeeName = fName;
+      } else if (n.isNotEmpty) {
+        employeeName = n;
+      } else if (joined.isNotEmpty) {
+        employeeName = joined;
+      } else if (emp['user'] is Map && (emp['user']['name'] as String? ?? '').isNotEmpty) {
+        employeeName = (emp['user']['name'] as String).trim();
+      }
+
+      employeeKhmerName = emp['khmer_name'] as String? ?? employeeKhmerName;
+      employeeCode = emp['employee_id'] as String? ?? emp['code'] as String? ?? employeeCode;
       
-      final rawPhoto = emp['photo_url'] as String? ?? emp['photo'] as String? ?? emp['avatar'] as String? ?? emp['profile_photo_url'] as String?;
+      final rawPhoto = emp['photo_url'] as String? ??
+          emp['photo'] as String? ??
+          emp['avatar'] as String? ??
+          emp['profile_photo_url'] as String? ??
+          (emp['user'] is Map ? emp['user']['profile_image_url'] as String? ?? emp['user']['profile_image'] as String? : null) ??
+          json['employee_photo'] as String? ??
+          json['employee_avatar'] as String? ??
+          json['photo_url'] as String?;
+
       if (rawPhoto != null && rawPhoto.isNotEmpty) {
         employeePhoto = rawPhoto.startsWith('http')
             ? rawPhoto

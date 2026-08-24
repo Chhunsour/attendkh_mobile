@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mpg_hr_mobile_app/models/leave_summary_model.dart';
 import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
 import 'package:mpg_hr_mobile_app/services/assets_repository.dart';
+import 'package:mpg_hr_mobile_app/services/summary_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 
 // ── Repository Providers ────────────────────────────────────────────────────
@@ -10,6 +12,7 @@ final hrRepositoryProvider = Provider<HrRepository>((ref) => HrRepository());
 final adminOpsRepositoryProvider = Provider<AdminOperationsRepository>((ref) => AdminOperationsRepository());
 final recruitmentRepositoryProvider = Provider<RecruitmentRepository>((ref) => RecruitmentRepository());
 final assetsRepositoryProvider = Provider<AssetsRepository>((ref) => AssetsRepository());
+final summaryRepositoryProvider = Provider<SummaryRepository>((ref) => SummaryRepository());
 
 // ── HR Structure Providers ──────────────────────────────────────────────────
 final branchesProvider = FutureProvider<List<BranchData>>((ref) {
@@ -270,4 +273,50 @@ final orgChartProvider = FutureProvider.autoDispose<List<OrgNode>>((ref) {
 // ── Shift Assignments Provider ──────────────────────────────────────────────
 final shiftAssignmentsProvider = FutureProvider.autoDispose<List<ShiftAssignmentData>>((ref) {
   return ref.watch(adminOpsRepositoryProvider).getShiftAssignments();
+});
+
+// ── Company Leave Summary Provider ──────────────────────────────────────────
+class CompanyLeaveSummaryQuery {
+  final int year;
+  final int? departmentId;
+  final int? branchId;
+  final int? employeeId;
+
+  const CompanyLeaveSummaryQuery({
+    required this.year,
+    this.departmentId,
+    this.branchId,
+    this.employeeId,
+  });
+
+  Map<String, dynamic> toMap() {
+    final map = <String, dynamic>{'year': year};
+    if (departmentId != null) map['department_id'] = departmentId;
+    if (branchId != null) map['branch_id'] = branchId;
+    if (employeeId != null) map['employee_id'] = employeeId;
+    return map;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CompanyLeaveSummaryQuery &&
+          year == other.year &&
+          departmentId == other.departmentId &&
+          branchId == other.branchId &&
+          employeeId == other.employeeId;
+
+  @override
+  int get hashCode => Object.hash(year, departmentId, branchId, employeeId);
+}
+
+final companyLeaveSummaryProvider = FutureProvider.autoDispose
+    .family<List<CompanyLeaveSummaryItem>, CompanyLeaveSummaryQuery>(
+        (ref, query) async {
+  final repo = ref.watch(summaryRepositoryProvider);
+  final rawList = await repo.fetchSummary(
+    type: 'leave',
+    filters: query.toMap(),
+  );
+  return rawList.map(CompanyLeaveSummaryItem.fromJson).toList();
 });

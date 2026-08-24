@@ -10,6 +10,7 @@ import 'package:mpg_hr_mobile_app/services/expense_repository.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 class AdminExpensesScreen extends ConsumerStatefulWidget {
@@ -488,107 +489,109 @@ class _AdminExpenseCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: statusColor.withAlpha(26),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(_categoryIcon(expense.category), color: statusColor, size: 22),
+                _buildEmployeeAvatar(
+                  photoUrl: expense.employeePhoto,
+                  name: expense.employeeName ?? expense.title,
+                  size: 44,
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(expense.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                      if (expense.description != null && expense.description!.isNotEmpty) ...[
-                        const SizedBox(height: 1),
-                        Text(expense.description!, style: const TextStyle(fontSize: 11, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ],
-                      if (expense.employeeName != null) ...[
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            _buildEmployeeAvatar(
-                              photoUrl: expense.employeePhoto,
-                              name: expense.employeeName!,
-                              size: 26,
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              expense.employeeName ?? 'Employee',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13.5,
+                                color: AppColors.textPrimary(context),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          expense.employeeName!,
-                                          style: TextStyle(
-                                            fontSize: 12.5,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.textPrimary(context),
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      if (expense.employeeKhmerName != null &&
-                                          expense.employeeKhmerName!.isNotEmpty) ...[
-                                        const SizedBox(width: 4),
-                                        Flexible(
-                                          child: Text(
-                                            '(${expense.employeeKhmerName!})',
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: AppColors.grey500,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                      if (expense.employeeCode != null &&
-                                          expense.employeeCode!.isNotEmpty) ...[
-                                        const SizedBox(width: 6),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 5,
-                                            vertical: 1,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary.withAlpha(15),
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          child: Text(
-                                            expense.employeeCode!,
-                                            style: const TextStyle(
-                                              fontSize: 9.5,
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.primary,
-                                              fontFamily: 'monospace',
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                  if (expense.employeePosition != null &&
-                                      expense.employeePosition!.isNotEmpty)
-                                    Text(
-                                      expense.employeePosition!,
-                                      style: const TextStyle(
-                                        fontSize: 10.5,
-                                        color: AppColors.grey500,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                ],
+                          ),
+                          if (expense.employeeKhmerName != null &&
+                              expense.employeeKhmerName!.trim().isNotEmpty) ...[
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                '(${expense.employeeKhmerName!.trim()})',
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  color: AppColors.grey500,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
+                          if (expense.employeeCode != null &&
+                              expense.employeeCode!.isNotEmpty) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 1.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withAlpha(15),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                expense.employeeCode!,
+                                style: const TextStyle(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      if (expense.employeePosition != null &&
+                          expense.employeePosition!.trim().isNotEmpty) ...[
+                        const SizedBox(height: 1),
+                        Text(
+                          expense.employeePosition!,
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            color: AppColors.grey500,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                      const SizedBox(height: 2),
+                      Text(
+                        expense.title,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.grey800,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (expense.description != null &&
+                          expense.description!.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          expense.description!,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.grey500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ],
@@ -599,18 +602,28 @@ class _AdminExpenseCard extends StatelessWidget {
                   children: [
                     Text(
                       '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: statusColor.withAlpha(26),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         _capitalize(expense.status),
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: statusColor),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: statusColor,
+                        ),
                       ),
                     ),
                   ],
@@ -711,18 +724,6 @@ class _AdminExpenseCard extends StatelessWidget {
     );
   }
 
-  IconData _categoryIcon(String category) {
-    switch (category.toLowerCase()) {
-      case 'travel': return Icons.flight;
-      case 'meals': return Icons.restaurant;
-      case 'supplies': return Icons.inventory_2;
-      case 'software': return Icons.computer;
-      case 'transport': return Icons.directions_car;
-      case 'accommodation': return Icons.hotel;
-      case 'other':
-      default: return Icons.receipt_outlined;
-    }
-  }
 
   String _capitalize(String s) => s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
 
@@ -974,74 +975,50 @@ Widget _buildEmployeeAvatar({
   required String name,
   double size = 32,
 }) {
-  final initial = name.isNotEmpty ? name[0].toUpperCase() : 'E';
-  if (photoUrl != null && photoUrl.isNotEmpty) {
-    return CachedNetworkImage(
-      imageUrl: photoUrl,
-      imageBuilder: (_, provider) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          image: DecorationImage(image: provider, fit: BoxFit.cover),
-          border: Border.all(
-            color: AppColors.primary.withAlpha(40),
-            width: 1.5,
-          ),
-        ),
-      ),
-      placeholder: (_, _) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppColors.primary.withAlpha(25),
-        ),
-        child: Center(
-          child: Text(
-            initial,
-            style: TextStyle(
-              fontSize: size * 0.42,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
-      ),
-      errorWidget: (_, _, _) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppColors.primary.withAlpha(25),
-        ),
-        child: Center(
-          child: Text(
-            initial,
-            style: TextStyle(
-              fontSize: size * 0.42,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  final cleanName = name.trim();
+  final initial = cleanName.isNotEmpty ? cleanName[0].toUpperCase() : 'E';
+  final effectiveUrl = (photoUrl != null && photoUrl.isNotEmpty)
+      ? (photoUrl.startsWith('http')
+          ? photoUrl
+          : '${DioClient.storageUrl}/${photoUrl.startsWith('/') ? photoUrl.substring(1) : photoUrl}')
+      : 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(cleanName.isNotEmpty ? cleanName : "Employee")}&background=4F46E5&color=fff&bold=true';
+
   return Container(
     width: size,
     height: size,
     decoration: BoxDecoration(
       shape: BoxShape.circle,
-      color: AppColors.primary.withAlpha(25),
+      color: AppColors.primary.withAlpha(20),
+      border: Border.all(
+        color: AppColors.primary.withAlpha(40),
+        width: 1.5,
+      ),
     ),
-    child: Center(
-      child: Text(
-        initial,
-        style: TextStyle(
-          fontSize: size * 0.42,
-          fontWeight: FontWeight.bold,
-          color: AppColors.primary,
+    child: ClipOval(
+      child: CachedNetworkImage(
+        imageUrl: effectiveUrl,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        placeholder: (_, _) => Center(
+          child: Text(
+            initial,
+            style: TextStyle(
+              fontSize: size * 0.42,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+        errorWidget: (_, _, _) => Center(
+          child: Text(
+            initial,
+            style: TextStyle(
+              fontSize: size * 0.42,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
         ),
       ),
     ),

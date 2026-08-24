@@ -7673,11 +7673,71 @@ abstract class AppLocalizations {
   /// **'Reviews'**
   String get tabReviews;
 
+  /// No description provided for @tabKpis.
+  ///
+  /// In en, this message translates to:
+  /// **'KPI Goals'**
+  String get tabKpis;
+
   /// No description provided for @tabTraining.
   ///
   /// In en, this message translates to:
   /// **'Training'**
   String get tabTraining;
+
+  /// No description provided for @assignGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign Goal'**
+  String get assignGoal;
+
+  /// No description provided for @kpiTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Templates'**
+  String get kpiTemplates;
+
+  /// No description provided for @assignedGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned Goals'**
+  String get assignedGoals;
+
+  /// No description provided for @evaluateGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluate Goal'**
+  String get evaluateGoal;
+
+  /// No description provided for @saveEvaluation.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Evaluation'**
+  String get saveEvaluation;
+
+  /// No description provided for @actualValueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual Value'**
+  String get actualValueLabel;
+
+  /// No description provided for @managerNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager Notes'**
+  String get managerNotesLabel;
+
+  /// No description provided for @employeeNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee Notes'**
+  String get employeeNotesLabel;
+
+  /// No description provided for @overallAttainmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Attainment'**
+  String get overallAttainmentLabel;
 
   /// No description provided for @createReviewTitle.
   ///
