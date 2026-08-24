@@ -25,6 +25,8 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
   bool _isPayrollTableView = true; // Default to Web-like Table View
   bool _isExpenseTableView = true; // Default to Web-like Table View
   bool _isPerformanceTableView = true; // Default to Web-like Table View
+  bool _isRecruitmentTableView = true; // Default to Web-like Table View
+  bool _isTrainingTableView = true; // Default to Web-like Table View
 
   String? _resolvePhotoUrl(String? url) {
     if (url == null || url.trim().isEmpty) return null;
@@ -2711,6 +2713,1579 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
     );
   }
 
+  // ── RECRUITMENT SUMMARY VIEW ───────────────────────────────────────────────
+
+  Widget _buildRecruitmentSummaryView(bool isDark) {
+    int totalPostings = _data.length;
+    int openPostings = 0;
+    int totalApplicants = 0;
+    int totalHired = 0;
+    int totalInterviewed = 0;
+    int totalOffered = 0;
+
+    for (final row in _data) {
+      if (row['status']?.toString().toLowerCase() == 'open') {
+        openPostings++;
+      }
+      totalApplicants += int.tryParse(row['total_applicants']?.toString() ?? '0') ?? 0;
+      totalHired += int.tryParse(row['hired']?.toString() ?? '0') ?? 0;
+      totalInterviewed += int.tryParse(row['interviewed']?.toString() ?? '0') ?? 0;
+      totalOffered += int.tryParse(row['offered']?.toString() ?? '0') ?? 0;
+    }
+
+    final overallConversion = totalApplicants > 0 ? (totalHired / totalApplicants * 100).toStringAsFixed(1) : '0.0';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. Unified Blue/Sky Executive Recruitment Banner
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [const Color(0xFF0F172A), const Color(0xFF1E293B)]
+                  : [const Color(0xFF0284C7), const Color(0xFF0369A1)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0284C7).withValues(alpha: 0.3),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.person_search_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'TALENT ACQUISITION & PIPELINE',
+                          style: TextStyle(
+                            fontSize: 10,
+                            letterSpacing: 1.0,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white70,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(
+                              '$totalPostings Postings',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '($openPostings open)',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          'Pipeline: $totalApplicants applicants • $totalInterviewed intv • $totalOffered offer • $totalHired hired ($overallConversion%)',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatPill('Total Jobs', '$totalPostings', Colors.white),
+                    _buildStatPill('Applicants', '$totalApplicants', const Color(0xFFBAE6FD)),
+                    _buildStatPill('Interviewed', '$totalInterviewed', const Color(0xFFFDE047)),
+                    _buildStatPill('Hired', '$totalHired', const Color(0xFF86EFAC)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 14),
+
+        // 2. Search Bar
+        TextField(
+          onChanged: (v) => setState(() => _searchQuery = v),
+          decoration: InputDecoration(
+            hintText: 'Search job title, department, position...',
+            prefixIcon: const Icon(Icons.search, size: 18),
+            filled: true,
+            fillColor: AppColors.surface(context),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppColors.border(context)),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // 3. Record count & View Toggle Switcher
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'JOB POSTINGS & FUNNEL',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
+                    color: AppColors.textSecondary(context),
+                  ),
+                ),
+                Text(
+                  '${_filteredData.length} records',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.grey500,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            // View Mode Toggle Switcher
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: AppColors.surface(context),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border(context)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildRecruitmentViewBtn(
+                    icon: Icons.table_chart_rounded,
+                    label: 'Table',
+                    isSelected: _isRecruitmentTableView,
+                    onTap: () => setState(() => _isRecruitmentTableView = true),
+                  ),
+                  _buildRecruitmentViewBtn(
+                    icon: Icons.view_agenda_rounded,
+                    label: 'Cards',
+                    isSelected: !_isRecruitmentTableView,
+                    onTap: () => setState(() => _isRecruitmentTableView = false),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 10),
+
+        if (_filteredData.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(32),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.surface(context),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border(context)),
+            ),
+            child: const Text(
+              'No recruitment job postings found',
+              style: TextStyle(fontSize: 13, color: AppColors.grey500),
+            ),
+          )
+        else if (_isRecruitmentTableView)
+          _buildRecruitmentTableView(isDark)
+        else
+          ..._filteredData.map((row) => _buildRecruitmentCard(row, isDark)),
+      ],
+    );
+  }
+
+  Widget _buildRecruitmentViewBtn({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF0284C7) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: isSelected ? Colors.white : AppColors.grey500,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : AppColors.grey600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Synchronized Recruitment Table View ────────────────────────────────────
+  Widget _buildRecruitmentTableView(bool isDark) {
+    const double jobColWidth = 150.0;
+    const double headerHeight = 36.0;
+    const double rowHeight = 46.0;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Left Pinned Column: Job Title & Position ──
+            SizedBox(
+              width: jobColWidth,
+              child: Column(
+                children: [
+                  Container(
+                    height: headerHeight,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    alignment: Alignment.centerLeft,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.grey900 : AppColors.grey100,
+                      border: Border(
+                        bottom: BorderSide(color: AppColors.border(context)),
+                        right: BorderSide(
+                            color: AppColors.border(context), width: 1.5),
+                      ),
+                    ),
+                    child: Text(
+                      'JOB POSTING',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                        color: AppColors.textSecondary(context),
+                      ),
+                    ),
+                  ),
+                  ..._filteredData.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final row = entry.value;
+                    final title = row['job_title']?.toString() ?? 'Job Title';
+                    final position = row['position']?.toString() ?? '-';
+                    final isEven = index % 2 == 0;
+
+                    return Container(
+                      height: rowHeight,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: isEven
+                            ? Colors.transparent
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.02)
+                                : AppColors.grey50),
+                        border: Border(
+                          bottom: BorderSide(
+                              color: AppColors.border(context), width: 0.5),
+                          right: BorderSide(
+                              color: AppColors.border(context), width: 1.5),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.work_outline_rounded,
+                                size: 14,
+                                color: Color(0xFF0284C7),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  position,
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    color: AppColors.grey500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+
+            // ── Right Pane: Scrollable Breakdown Columns (Matching Web) ──
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: SizedBox(
+                  width: 580,
+                  child: Column(
+                    children: [
+                      Container(
+                        height: headerHeight,
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.grey900 : AppColors.grey100,
+                          border: Border(
+                            bottom: BorderSide(color: AppColors.border(context)),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            _buildOtThCell('Department', 95),
+                            _buildOtThCell('Type', 75),
+                            _buildOtThCell('Openings', 65),
+                            _buildOtThCell('Applicants', 75),
+                            _buildOtThCell('Interviewed', 75),
+                            _buildOtThCell('Offered', 65),
+                            _buildOtThCell('Hired', 60),
+                            _buildOtThCell('Conv %', 65),
+                            _buildOtThCell('Status', 70),
+                          ],
+                        ),
+                      ),
+                      ..._filteredData.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final row = entry.value;
+                        final dept = row['department']?.toString() ?? '-';
+                        final type = (row['employment_type']?.toString() ?? 'full_time').replaceAll('_', ' ').toUpperCase();
+                        final openings = row['positions_available']?.toString() ?? '1';
+                        final applicants = row['total_applicants']?.toString() ?? '0';
+                        final interviewed = row['interviewed']?.toString() ?? '0';
+                        final offered = row['offered']?.toString() ?? '0';
+                        final hired = row['hired']?.toString() ?? '0';
+                        final conv = double.tryParse(row['conversion_rate']?.toString() ?? '0') ?? 0.0;
+                        final status = row['status']?.toString().toLowerCase() ?? 'open';
+                        final isEven = index % 2 == 0;
+
+                        return Container(
+                          height: rowHeight,
+                          decoration: BoxDecoration(
+                            color: isEven
+                                ? Colors.transparent
+                                : (isDark
+                                    ? Colors.white.withValues(alpha: 0.02)
+                                    : AppColors.grey50),
+                            border: Border(
+                              bottom: BorderSide(
+                                  color: AppColors.border(context), width: 0.5),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              _buildOtTdText(dept, 95),
+                              Container(
+                                width: 75,
+                                alignment: Alignment.center,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: (isDark ? AppColors.grey800 : AppColors.grey200).withValues(alpha: 0.6),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    type,
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textSecondary(context),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                              _buildOtTdText(openings, 65),
+                              _buildOtTdBadge(applicants, const Color(0xFF6366F1), 75),
+                              _buildOtTdBadge(interviewed, const Color(0xFFF59E0B), 75),
+                              _buildOtTdBadge(offered, const Color(0xFF0284C7), 65),
+                              _buildOtTdBadge(hired, const Color(0xFF10B981), 60),
+                              Container(
+                                width: 65,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '${conv.toStringAsFixed(1)}%',
+                                  style: const TextStyle(
+                                    fontSize: 10.5,
+                                    fontFamily: 'monospace',
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF8B5CF6),
+                                  ),
+                                ),
+                              ),
+                              _buildOtTdBadge(
+                                status.toUpperCase(),
+                                status == 'open'
+                                    ? const Color(0xFF10B981)
+                                    : (status == 'closed'
+                                        ? const Color(0xFFEF4444)
+                                        : (status == 'filled'
+                                            ? const Color(0xFF3B82F6)
+                                            : AppColors.grey500)),
+                                70,
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Clean & Simplified Executive Recruitment Card ──────────────────────────
+  Widget _buildRecruitmentCard(Map<String, dynamic> row, bool isDark) {
+    final title = row['job_title']?.toString() ?? 'Job Title';
+    final dept = row['department']?.toString() ?? '-';
+    final position = row['position']?.toString() ?? '-';
+    final type = (row['employment_type']?.toString() ?? 'full_time').replaceAll('_', ' ').toUpperCase();
+    final openings = int.tryParse(row['positions_available']?.toString() ?? '1') ?? 1;
+    final closingDate = row['closing_date']?.toString() ?? '-';
+    final applicants = int.tryParse(row['total_applicants']?.toString() ?? '0') ?? 0;
+    final interviewed = int.tryParse(row['interviewed']?.toString() ?? '0') ?? 0;
+    final offered = int.tryParse(row['offered']?.toString() ?? '0') ?? 0;
+    final hired = int.tryParse(row['hired']?.toString() ?? '0') ?? 0;
+    final conv = double.tryParse(row['conversion_rate']?.toString() ?? '0') ?? 0.0;
+    final status = row['status']?.toString().toLowerCase() ?? 'open';
+
+    Color statusColor;
+    switch (status) {
+      case 'open':
+        statusColor = const Color(0xFF10B981);
+        break;
+      case 'closed':
+        statusColor = const Color(0xFFEF4444);
+        break;
+      case 'filled':
+        statusColor = const Color(0xFF3B82F6);
+        break;
+      default:
+        statusColor = AppColors.grey500;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border(context)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Header: Icon, Job Title, Dept, Position & Type Badge
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                  border: Border.all(
+                    color: AppColors.border(context),
+                    width: 0.5,
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.work_outline_rounded,
+                    size: 16,
+                    color: Color(0xFF0284C7),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      '$position • $dept',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  type,
+                  style: const TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0284C7),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // 2. Hero Funnel Box: Total Applicants vs Hired + Conversion Rate
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.grey900 : const Color(0xFFF0F9FF),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF0284C7).withValues(alpha: 0.25),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(
+                  children: [
+                    const Text(
+                      'TOTAL APPLICANTS',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$applicants',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.textPrimary(context),
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  width: 1,
+                  height: 28,
+                  color: AppColors.border(context),
+                ),
+                Column(
+                  children: [
+                    const Text(
+                      'HIRED (CONVERSION)',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$hired (${conv.toStringAsFixed(1)}%)',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF10B981),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // 3. Funnel Stages Breakdown Chips
+          Row(
+            children: [
+              _buildMiniStatusBadge('Interviewed', '$interviewed', const Color(0xFFF59E0B)),
+              const SizedBox(width: 6),
+              _buildMiniStatusBadge('Offered', '$offered', const Color(0xFF0284C7)),
+              const SizedBox(width: 6),
+              _buildMiniStatusBadge('Slots', '$openings', const Color(0xFF6366F1)),
+              const Spacer(),
+              _buildMiniStatusBadge(
+                status.toUpperCase(),
+                '●',
+                statusColor,
+              ),
+            ],
+          ),
+
+          if (closingDate != '-') ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.event_busy_rounded, size: 12, color: AppColors.grey500),
+                const SizedBox(width: 4),
+                Text(
+                  'Closing Date: $closingDate',
+                  style: const TextStyle(fontSize: 10.5, color: AppColors.grey500),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ── TRAINING SUMMARY VIEW ──────────────────────────────────────────────────
+
+  Widget _buildTrainingSummaryView(bool isDark) {
+    int totalEnrollments = _data.length;
+    int completedCount = 0;
+    int inProgressCount = 0;
+    double totalCompletedHours = 0;
+    int totalProgressSum = 0;
+
+    for (final row in _data) {
+      final status = row['status']?.toString().toLowerCase();
+      if (status == 'completed') {
+        completedCount++;
+      } else if (status == 'in_progress') {
+        inProgressCount++;
+      }
+      totalCompletedHours += double.tryParse(row['completed_hours']?.toString() ?? '0') ?? 0;
+      totalProgressSum += int.tryParse(row['progress_percentage']?.toString() ?? '0') ?? 0;
+    }
+
+    final avgProgress = totalEnrollments > 0 ? (totalProgressSum / totalEnrollments).round() : 0;
+    final completionRate = totalEnrollments > 0 ? (completedCount / totalEnrollments * 100).round() : 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. Unified Emerald/Teal Executive Training Banner
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [const Color(0xFF064E3B), const Color(0xFF022C22)]
+                  : [const Color(0xFF059669), const Color(0xFF047857)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF059669).withValues(alpha: 0.3),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.school_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'TRAINING & PROFESSIONAL DEVELOPMENT',
+                          style: TextStyle(
+                            fontSize: 10,
+                            letterSpacing: 1.0,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white70,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(
+                              '$totalEnrollments Enrollments',
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '($completedCount completed)',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          'Progress: $avgProgress% avg • $totalCompletedHours hrs completed • $completionRate% completion rate',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatPill('Enrollments', '$totalEnrollments', Colors.white),
+                    _buildStatPill('Completed', '$completedCount', const Color(0xFF86EFAC)),
+                    _buildStatPill('In Progress', '$inProgressCount', const Color(0xFFFDE047)),
+                    _buildStatPill('Hours', '${totalCompletedHours.toStringAsFixed(0)}h', const Color(0xFFBAE6FD)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 14),
+
+        // 2. Search Bar
+        TextField(
+          onChanged: (v) => setState(() => _searchQuery = v),
+          decoration: InputDecoration(
+            hintText: 'Search employee, course, category, status...',
+            prefixIcon: const Icon(Icons.search, size: 18),
+            filled: true,
+            fillColor: AppColors.surface(context),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppColors.border(context)),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // 3. Record count & View Toggle Switcher
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'TRAINING ENROLLMENTS',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
+                    color: AppColors.textSecondary(context),
+                  ),
+                ),
+                Text(
+                  '${_filteredData.length} records',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.grey500,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            // View Mode Toggle Switcher
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: AppColors.surface(context),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border(context)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTrainingViewBtn(
+                    icon: Icons.table_chart_rounded,
+                    label: 'Table',
+                    isSelected: _isTrainingTableView,
+                    onTap: () => setState(() => _isTrainingTableView = true),
+                  ),
+                  _buildTrainingViewBtn(
+                    icon: Icons.view_agenda_rounded,
+                    label: 'Cards',
+                    isSelected: !_isTrainingTableView,
+                    onTap: () => setState(() => _isTrainingTableView = false),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 10),
+
+        if (_filteredData.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(32),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.surface(context),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border(context)),
+            ),
+            child: const Text(
+              'No training enrollment records found',
+              style: TextStyle(fontSize: 13, color: AppColors.grey500),
+            ),
+          )
+        else if (_isTrainingTableView)
+          _buildTrainingTableView(isDark)
+        else
+          ..._filteredData.map((row) => _buildTrainingCard(row, isDark)),
+      ],
+    );
+  }
+
+  Widget _buildTrainingViewBtn({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF059669) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: isSelected ? Colors.white : AppColors.grey500,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : AppColors.grey600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Synchronized Training Table View ───────────────────────────────────────
+  Widget _buildTrainingTableView(bool isDark) {
+    const double employeeColWidth = 140.0;
+    const double headerHeight = 36.0;
+    const double rowHeight = 46.0;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Left Pinned Column: Employee Details ──
+            SizedBox(
+              width: employeeColWidth,
+              child: Column(
+                children: [
+                  Container(
+                    height: headerHeight,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    alignment: Alignment.centerLeft,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.grey900 : AppColors.grey100,
+                      border: Border(
+                        bottom: BorderSide(color: AppColors.border(context)),
+                        right: BorderSide(
+                            color: AppColors.border(context), width: 1.5),
+                      ),
+                    ),
+                    child: Text(
+                      'EMPLOYEE',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                        color: AppColors.textSecondary(context),
+                      ),
+                    ),
+                  ),
+                  ..._filteredData.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final row = entry.value;
+                    final photoUrl = _resolvePhotoUrl(row['photo_url']?.toString());
+                    final name = row['full_name']?.toString() ?? 'Employee';
+                    final empId = row['emp_code']?.toString() ?? '-';
+                    final isEven = index % 2 == 0;
+
+                    return Container(
+                      height: rowHeight,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: isEven
+                            ? Colors.transparent
+                            : (isDark
+                                ? Colors.white.withValues(alpha: 0.02)
+                                : AppColors.grey50),
+                        border: Border(
+                          bottom: BorderSide(
+                              color: AppColors.border(context), width: 0.5),
+                          right: BorderSide(
+                              color: AppColors.border(context), width: 1.5),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF059669).withValues(alpha: 0.12),
+                            ),
+                            child: ClipOval(
+                              child: photoUrl != null && photoUrl.isNotEmpty
+                                  ? CachedNetworkImage(
+                                      imageUrl: photoUrl,
+                                      fit: BoxFit.cover,
+                                      errorWidget: (_, _, _) => Center(
+                                        child: Text(
+                                          name.isNotEmpty
+                                              ? name[0].toUpperCase()
+                                              : 'E',
+                                          style: const TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF059669),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        name.isNotEmpty
+                                            ? name[0].toUpperCase()
+                                            : 'E',
+                                        style: const TextStyle(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF059669),
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  empId,
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    color: AppColors.grey500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+
+            // ── Right Pane: Scrollable Breakdown Columns (Matching Web) ──
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: SizedBox(
+                  width: 580,
+                  child: Column(
+                    children: [
+                      Container(
+                        height: headerHeight,
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.grey900 : AppColors.grey100,
+                          border: Border(
+                            bottom: BorderSide(color: AppColors.border(context)),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            _buildOtThCell('Course Title', 140),
+                            _buildOtThCell('Category', 90),
+                            _buildOtThCell('Duration', 65),
+                            _buildOtThCell('Progress', 85),
+                            _buildOtThCell('Score', 60),
+                            _buildOtThCell('Status', 70),
+                            _buildOtThCell('Completed', 70),
+                          ],
+                        ),
+                      ),
+                      ..._filteredData.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final row = entry.value;
+                        final course = row['training_title']?.toString() ?? 'Course';
+                        final category = row['training_category']?.toString() ?? '-';
+                        final duration = '${row['duration_hours'] ?? 0} hrs';
+                        final progress = int.tryParse(row['progress_percentage']?.toString() ?? '0') ?? 0;
+                        final score = row['score'] != null ? '${row['score']}' : '—';
+                        final scoreNum = int.tryParse(row['score']?.toString() ?? '');
+                        final status = row['status']?.toString().toLowerCase() ?? 'enrolled';
+                        final completedDate = row['completed_at']?.toString() ?? '—';
+                        final isEven = index % 2 == 0;
+
+                        return Container(
+                          height: rowHeight,
+                          decoration: BoxDecoration(
+                            color: isEven
+                                ? Colors.transparent
+                                : (isDark
+                                    ? Colors.white.withValues(alpha: 0.02)
+                                    : AppColors.grey50),
+                            border: Border(
+                              bottom: BorderSide(
+                                  color: AppColors.border(context), width: 0.5),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 140,
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  course,
+                                  style: const TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              _buildOtTdText(category, 90),
+                              _buildOtTdText(duration, 65),
+                              Container(
+                                width: 85,
+                                padding: const EdgeInsets.symmetric(horizontal: 6),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: LinearProgressIndicator(
+                                          value: progress / 100,
+                                          minHeight: 4,
+                                          backgroundColor: AppColors.grey300,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            progress == 100 ? const Color(0xFF10B981) : const Color(0xFF059669),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '$progress%',
+                                      style: const TextStyle(
+                                        fontSize: 9.5,
+                                        fontFamily: 'monospace',
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              _buildOtTdBadge(
+                                score,
+                                scoreNum != null
+                                    ? (scoreNum >= 80 ? const Color(0xFF10B981) : (scoreNum >= 50 ? const Color(0xFFF59E0B) : const Color(0xFFEF4444)))
+                                    : AppColors.grey500,
+                                60,
+                              ),
+                              _buildOtTdBadge(
+                                status.replaceAll('_', ' ').toUpperCase(),
+                                status == 'completed'
+                                    ? const Color(0xFF10B981)
+                                    : (status == 'in_progress'
+                                        ? const Color(0xFFF59E0B)
+                                        : (status == 'enrolled'
+                                            ? const Color(0xFF3B82F6)
+                                            : const Color(0xFFEF4444))),
+                                70,
+                              ),
+                              _buildOtTdText(completedDate != 'null' ? completedDate : '—', 70),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Clean & Simplified Executive Training Card ─────────────────────────────
+  Widget _buildTrainingCard(Map<String, dynamic> row, bool isDark) {
+    final name = row['full_name']?.toString() ?? 'Employee';
+    final code = row['emp_code']?.toString() ?? '-';
+    final dept = row['department']?.toString() ?? '-';
+    final branch = row['branch']?.toString() ?? '';
+    final course = row['training_title']?.toString() ?? 'Course';
+    final category = row['training_category']?.toString() ?? '-';
+    final duration = '${row['duration_hours'] ?? 0} hrs';
+    final progress = int.tryParse(row['progress_percentage']?.toString() ?? '0') ?? 0;
+    final score = row['score'] != null ? '${row['score']}' : null;
+    final scoreNum = int.tryParse(row['score']?.toString() ?? '');
+    final status = row['status']?.toString().toLowerCase() ?? 'enrolled';
+    final enrolledAt = row['enrolled_at']?.toString() ?? '-';
+    final completedAt = row['completed_at']?.toString();
+    final photoUrl = _resolvePhotoUrl(row['photo_url']?.toString());
+
+    Color statusColor;
+    switch (status) {
+      case 'completed':
+        statusColor = const Color(0xFF10B981);
+        break;
+      case 'in_progress':
+        statusColor = const Color(0xFFF59E0B);
+        break;
+      case 'enrolled':
+        statusColor = const Color(0xFF3B82F6);
+        break;
+      default:
+        statusColor = const Color(0xFFEF4444);
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border(context)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Header: Employee Avatar, Name, Dept & Category Badge
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF059669).withValues(alpha: 0.12),
+                  border: Border.all(
+                    color: AppColors.border(context),
+                    width: 0.5,
+                  ),
+                ),
+                child: ClipOval(
+                  child: photoUrl != null && photoUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: photoUrl,
+                          fit: BoxFit.cover,
+                          errorWidget: (_, _, _) => Center(
+                            child: Text(
+                              name.isNotEmpty ? name[0].toUpperCase() : 'E',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF059669),
+                              ),
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                            name.isNotEmpty ? name[0].toUpperCase() : 'E',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF059669),
+                            ),
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      '$code • $dept${branch.isNotEmpty ? ' • $branch' : ''}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF059669).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  category,
+                  style: const TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF059669),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // 2. Course Title & Duration
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  course,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.grey200.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  duration,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.grey600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // 3. Hero Progress Box: Progress Bar vs Score
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.grey900 : const Color(0xFFECFDF5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF059669).withValues(alpha: 0.25),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'COURSE PROGRESS',
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                              color: AppColors.grey500,
+                            ),
+                          ),
+                          Text(
+                            '$progress%',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF059669),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: progress / 100,
+                          minHeight: 6,
+                          backgroundColor: AppColors.grey300,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            progress == 100 ? const Color(0xFF10B981) : const Color(0xFF059669),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Container(
+                  width: 1,
+                  height: 28,
+                  color: AppColors.border(context),
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  children: [
+                    const Text(
+                      'TEST SCORE',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      score != null ? '$score pts' : '—',
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w900,
+                        color: scoreNum != null
+                            ? (scoreNum >= 80 ? const Color(0xFF10B981) : (scoreNum >= 50 ? const Color(0xFFF59E0B) : const Color(0xFFEF4444)))
+                            : AppColors.grey500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // 4. Dates & Status Badge
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.event_available_rounded, size: 12, color: AppColors.grey500),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Enrolled: $enrolledAt${completedAt != null && completedAt != 'null' ? ' • Done: $completedAt' : ''}',
+                    style: const TextStyle(fontSize: 10.5, color: AppColors.grey500),
+                  ),
+                ],
+              ),
+              _buildMiniStatusBadge(
+                status.replaceAll('_', ' ').toUpperCase(),
+                '●',
+                statusColor,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── PERFORMANCE SUMMARY VIEW ───────────────────────────────────────────────
 
   Widget _buildPerformanceSummaryView(bool isDark) {
@@ -4636,6 +6211,10 @@ class _AdminSummaryScreenState extends State<AdminSummaryScreen> {
                 _buildExpenseSummaryView(isDark)
               else if (_selectedType == 'performance')
                 _buildPerformanceSummaryView(isDark)
+              else if (_selectedType == 'recruitment')
+                _buildRecruitmentSummaryView(isDark)
+              else if (_selectedType == 'training')
+                _buildTrainingSummaryView(isDark)
               else ...[
                 // Search bar for other types
                 TextField(
