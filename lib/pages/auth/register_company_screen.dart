@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/services/auth_repository.dart';
@@ -157,196 +158,282 @@ class _RegisterCompanyScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.sizeOf(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : const Color(0xFF071228),
-      body: Stack(
-        children: [
-          // ── Layer 1: Tech Gradient Background ──
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF061124),
-                    Color(0xFF092055),
-                    Color(0xFF0038B8),
-                    Color(0xFF02132B),
-                  ],
-                  stops: [0.0, 0.35, 0.75, 1.0],
+    final bgGradient = isDark
+        ? const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF0A0F1D),
+              Color(0xFF0F172A),
+              Color(0xFF0D1B3E),
+              Color(0xFF070B14),
+            ],
+            stops: [0.0, 0.4, 0.75, 1.0],
+          )
+        : const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFF1F5F9),
+              Color(0xFFE2E8F0),
+              Color(0xFFDBEAFE),
+              Color(0xFFF8FAFC),
+            ],
+            stops: [0.0, 0.35, 0.75, 1.0],
+          );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        backgroundColor: isDark ? const Color(0xFF0A0F1D) : const Color(0xFFF8FAFC),
+        body: Stack(
+          children: [
+            // ── Layer 1: Ambient Background ──
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(gradient: bgGradient),
+              ),
+            ),
+
+            // ── Ambient Glows ──
+            Positioned(
+              top: -size.width * 0.25,
+              right: -size.width * 0.2,
+              child: Container(
+                width: size.width * 0.8,
+                height: size.width * 0.8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary.withValues(alpha: isDark ? 0.18 : 0.12),
                 ),
               ),
             ),
-          ),
-
-          // ── Layer 2: Ambient Glowing Light Orbs ──
-          Positioned(
-            top: -size.width * 0.2,
-            right: -size.width * 0.15,
-            child: Container(
-              width: size.width * 0.75,
-              height: size.width * 0.75,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withAlpha(50),
+            Positioned(
+              bottom: -size.width * 0.3,
+              left: -size.width * 0.2,
+              child: Container(
+                width: size.width * 0.75,
+                height: size.width * 0.75,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF6366F1).withValues(alpha: isDark ? 0.12 : 0.08),
+                ),
               ),
             ),
-          ),
 
-          // ── Layer 4: Main Content Layout ──
-          SafeArea(
-            bottom: false,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
+            // ── Layer 2: Main Content ──
+            SafeArea(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      12,
+                      20,
+                      24 + MediaQuery.viewInsetsOf(context).bottom,
                     ),
-                    child: IntrinsicHeight(
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 48),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight - 36,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          children: [
+                            // ── Top Navigation Bar ──
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Material(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : Colors.white.withValues(alpha: 0.85),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    side: BorderSide(
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.12)
+                                          : AppColors.border(context),
+                                    ),
+                                  ),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(14),
+                                    onTap: () {
+                                      if (_step == 2) {
+                                        _goToStep1();
+                                      } else {
+                                        context.go('/login');
+                                      }
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Icon(
+                                        Icons.arrow_back_rounded,
+                                        size: 20,
+                                        color: isDark ? Colors.white : AppColors.grey900,
+                                      ),
+                                    ),
+                                  ),
+                                ),
 
-                          // Top Header Branding
-                          FadeTransition(
-                            opacity: _fadeAnim,
-                            child: Center(
-                              child: Column(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: AppColors.primary.withAlpha(120),
-                                          blurRadius: 24,
-                                          spreadRadius: 2,
-                                        ),
-                                      ],
-                                    ),
-                                    child: const AppLogo(size: 72),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  const Text(
-                                    'AttendKH',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      letterSpacing: 1.2,
+                                // Top Step Indicator Badge
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: (isDark ? Colors.white : AppColors.primary).withValues(alpha: isDark ? 0.08 : 0.08),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: (isDark ? Colors.white : AppColors.primary).withValues(alpha: isDark ? 0.12 : 0.15),
                                     ),
                                   ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    l10n.smartAttendanceSystem,
+                                  child: Text(
+                                    _step == 1 ? 'Step 1: Admin Profile' : 'Step 2: Company Info',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.white.withAlpha(190),
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? Colors.white70 : AppColors.primary,
                                     ),
                                   ),
-                                ],
+                                ),
+
+                                // Switches
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.08)
+                                        : Colors.white.withValues(alpha: 0.75),
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.12)
+                                          : AppColors.border(context),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ThemeSwitchButton(isDarkHeader: isDark),
+                                      const SizedBox(width: 4),
+                                      LanguageSwitchButton(isDark: isDark),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // ── Branding Header ──
+                            FadeTransition(
+                              opacity: _fadeAnim,
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppColors.primary.withValues(alpha: isDark ? 0.35 : 0.22),
+                                            blurRadius: 20,
+                                            spreadRadius: 2,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const AppLogo(size: 56),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'AttendKH',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w900,
+                                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                        letterSpacing: 0.6,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
 
-                          const SizedBox(height: 20),
+                            const SizedBox(height: 20),
 
-                          // Bottom Form Card
-                          Expanded(
-                            child: SlideTransition(
+                            // ── Floating Form Card ──
+                            SlideTransition(
                               position: _slideAnim,
                               child: Container(
                                 width: double.infinity,
                                 decoration: BoxDecoration(
-                                  color: isDark
-                                      ? AppColors.surfaceDark
-                                      : AppColors.surfaceLight,
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(36),
-                                    topRight: Radius.circular(36),
+                                  color: isDark ? AppColors.surfaceDark : Colors.white,
+                                  borderRadius: BorderRadius.circular(28),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? AppColors.borderDark
+                                        : AppColors.border(context),
+                                    width: 1,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withAlpha(70),
-                                      blurRadius: 30,
-                                      offset: const Offset(0, -10),
+                                      color: isDark
+                                          ? Colors.black.withValues(alpha: 0.35)
+                                          : AppColors.primary.withValues(alpha: 0.08),
+                                      blurRadius: 28,
+                                      offset: const Offset(0, 10),
                                     ),
                                   ],
                                 ),
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(36),
-                                    topRight: Radius.circular(36),
+                                child: _buildCardContent(l10n, isDark),
+                              ),
+                            ),
+
+                            const Spacer(),
+
+                            const SizedBox(height: 16),
+
+                            // Privacy Policy Link
+                            Center(
+                              child: TextButton.icon(
+                                onPressed: () => launchUrl(
+                                  Uri.parse('https://attendkh.com/privacy-policy'),
+                                  mode: LaunchMode.inAppBrowserView,
+                                ),
+                                icon: Icon(
+                                  Icons.shield_outlined,
+                                  size: 14,
+                                  color: isDark ? AppColors.grey400 : AppColors.grey500,
+                                ),
+                                label: Text(
+                                  l10n.privacyPolicy,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? AppColors.grey400 : AppColors.grey500,
                                   ),
-                                  child: _buildCardContent(l10n, isDark),
+                                ),
+                                style: TextButton.styleFrom(
+                                  minimumSize: const Size(44, 32),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          // ── Layer 3: Top Navigation (Back Button + Language Switcher) ──
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (_step == 2) {
-                        _goToStep1();
-                      } else {
-                        context.go('/login');
-                      }
-                    },
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(35),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withAlpha(50),
-                          width: 1,
+                          ],
                         ),
                       ),
-                      child: const Icon(
-                        Icons.arrow_back_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
                     ),
-                  ),
-                  const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ThemeSwitchButton(isDarkHeader: true),
-                      SizedBox(width: 8),
-                      LanguageSwitchButton(isDark: true),
-                    ],
-                  ),
-                ],
+                  );
+                },
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -356,7 +443,7 @@ class _RegisterCompanyScreenState
   // ────────────────────────────────────────────
   Widget _buildCardContent(AppLocalizations l10n, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+      padding: const EdgeInsets.fromLTRB(22, 24, 22, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -364,9 +451,10 @@ class _RegisterCompanyScreenState
           Text(
             _step == 1 ? l10n.registerYourCompany : l10n.companyDetails,
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 21,
               fontWeight: FontWeight.w800,
               color: isDark ? Colors.white : AppColors.grey900,
+              letterSpacing: -0.3,
             ),
           ),
           const SizedBox(height: 4),
@@ -375,43 +463,42 @@ class _RegisterCompanyScreenState
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w400,
-              color: isDark ? AppColors.grey400 : AppColors.grey600,
+              color: isDark ? AppColors.grey400 : AppColors.grey500,
             ),
           ),
 
           const SizedBox(height: 18),
 
-          // ── Visual 2-Step Progress Indicator ──
+          // ── Modern 2-Step Progress Indicator ──
           Row(
             children: [
-              _buildStepIndicator(
-                stepNumber: 1,
-                label: l10n.step1Of2.split(':').first,
-                isActive: _step >= 1,
-                isCurrent: _step == 1,
-              ),
               Expanded(
-                child: Container(
-                  height: 3,
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  height: 6,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
-                    color: _step == 2
-                        ? AppColors.primary
-                        : AppColors.grey200,
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(3),
                   ),
                 ),
               ),
-              _buildStepIndicator(
-                stepNumber: 2,
-                label: l10n.step2Of2.split(':').first,
-                isActive: _step == 2,
-                isCurrent: _step == 2,
+              const SizedBox(width: 8),
+              Expanded(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: _step == 2
+                        ? AppColors.primary
+                        : (isDark ? AppColors.grey700 : AppColors.grey200),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
               ),
             ],
           ),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
 
           // ── Error banner ──
           if (_serverError != null) ...[
@@ -420,9 +507,9 @@ class _RegisterCompanyScreenState
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.dangerLight,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: AppColors.danger.withAlpha(120),
+                  color: AppColors.danger.withValues(alpha: 0.35),
                 ),
               ),
               child: Row(
@@ -465,43 +552,18 @@ class _RegisterCompanyScreenState
                 text: TextSpan(
                   text: 'Already have an account? ',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.5,
                     color: isDark ? AppColors.grey400 : AppColors.grey600,
                   ),
-                  children: const [
+                  children: [
                     TextSpan(
                       text: 'Sign In',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? const Color(0xFF60A5FA) : AppColors.primary,
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-
-          // Privacy Policy Link (Apple Guideline 5.1.1)
-          Center(
-            child: TextButton(
-              onPressed: () => launchUrl(
-                Uri.parse('https://attendkh.com/privacy-policy'),
-                mode: LaunchMode.inAppBrowserView,
-              ),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: Text(
-                'Privacy Policy',
-                style: TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
-                  decoration: TextDecoration.underline,
                 ),
               ),
             ),
@@ -511,42 +573,9 @@ class _RegisterCompanyScreenState
     );
   }
 
-  Widget _buildStepIndicator({
-    required int stepNumber,
-    required String label,
-    required bool isActive,
-    required bool isCurrent,
-  }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isActive ? AppColors.primary : AppColors.grey200,
-            border: isCurrent
-                ? Border.all(color: AppColors.primaryLight, width: 3)
-                : null,
-          ),
-          child: Center(
-            child: Text(
-              '$stepNumber',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: isActive ? Colors.white : AppColors.grey500,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   // ── Step 1 form ──
   Widget _buildStep1(AppLocalizations l10n) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Form(
       key: _formKeyStep1,
       child: Column(
@@ -596,8 +625,8 @@ class _RegisterCompanyScreenState
                 _obscurePassword
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: AppColors.grey400,
-                size: 22,
+                color: isDark ? AppColors.grey400 : AppColors.grey500,
+                size: 21,
               ),
               onPressed: () =>
                   setState(() => _obscurePassword = !_obscurePassword),
@@ -620,8 +649,8 @@ class _RegisterCompanyScreenState
                 _obscureConfirmPassword
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: AppColors.grey400,
-                size: 22,
+                color: isDark ? AppColors.grey400 : AppColors.grey500,
+                size: 21,
               ),
               onPressed: () => setState(
                   () => _obscureConfirmPassword = !_obscureConfirmPassword),
@@ -634,7 +663,7 @@ class _RegisterCompanyScreenState
               return null;
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 22),
           PrimaryButton(
             label: l10n.continueText,
             onPressed: _goToStep2,
@@ -646,6 +675,7 @@ class _RegisterCompanyScreenState
 
   // ── Step 2 form ──
   Widget _buildStep2(AppLocalizations l10n) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Form(
       key: _formKeyStep2,
       child: Column(
@@ -666,20 +696,16 @@ class _RegisterCompanyScreenState
             isExpanded: true,
             hint: Text(
               l10n.selectCompanySize,
-              style: const TextStyle(
-                color: AppColors.grey400,
+              style: TextStyle(
+                color: isDark ? AppColors.grey500 : AppColors.grey400,
                 fontSize: 14,
               ),
             ),
-            dropdownColor: Theme.of(context).brightness == Brightness.dark
-                ? AppColors.surfaceDark
-                : AppColors.surfaceLight,
+            dropdownColor: isDark ? AppColors.surfaceDark : Colors.white,
             borderRadius: BorderRadius.circular(16),
             style: TextStyle(
               fontSize: 14,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white
-                  : AppColors.grey900,
+              color: isDark ? Colors.white : AppColors.grey900,
             ),
             icon: const Icon(
               Icons.keyboard_arrow_down_rounded,
@@ -687,39 +713,45 @@ class _RegisterCompanyScreenState
             ),
             decoration: InputDecoration(
               labelText: l10n.companySize,
-              labelStyle: const TextStyle(
-                color: AppColors.grey500,
+              labelStyle: TextStyle(
+                color: isDark ? AppColors.grey400 : AppColors.grey600,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
-              prefixIcon: const Icon(
-                Icons.people_outline_rounded,
-                color: AppColors.grey400,
-                size: 22,
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(left: 14, right: 10),
+                child: Icon(
+                  Icons.people_outline_rounded,
+                  color: AppColors.grey400,
+                  size: 21,
+                ),
               ),
+              prefixIconConstraints: const BoxConstraints(minWidth: 46),
               filled: true,
-              fillColor: Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.grey800
-                  : AppColors.grey50,
+              fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: AppColors.border(context)),
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: AppColors.border(context)),
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(
+                  color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
                 borderSide: const BorderSide(
                   color: AppColors.primary,
-                  width: 2,
+                  width: 1.6,
                 ),
               ),
               errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
                 borderSide: const BorderSide(color: AppColors.danger),
               ),
             ),
@@ -728,9 +760,7 @@ class _RegisterCompanyScreenState
                       value: size,
                       child: Text(
                         size,
-                        style: const TextStyle(
-                          fontSize: 13,
-                        ),
+                        style: const TextStyle(fontSize: 13),
                       ),
                     ))
                 .toList(),
@@ -758,8 +788,10 @@ class _RegisterCompanyScreenState
                   child: OutlinedButton(
                     onPressed: _goToStep1,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.grey600,
-                      side: const BorderSide(color: AppColors.grey300),
+                      foregroundColor: isDark ? Colors.white : AppColors.grey700,
+                      side: BorderSide(
+                        color: isDark ? AppColors.borderDark : AppColors.border(context),
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
