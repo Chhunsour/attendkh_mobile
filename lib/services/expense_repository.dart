@@ -13,9 +13,11 @@ class ExpenseData {
   final String date;
   final String status;
   final String? employeeName;
+  final String? employeeKhmerName;
   final String? employeeId;
   final String? employeeCode;
   final String? employeePhoto;
+  final String? employeePosition;
   final String? rejectionReason;
   final String? paidAt;
   final String? receiptPath;
@@ -30,9 +32,11 @@ class ExpenseData {
     required this.date,
     required this.status,
     this.employeeName,
+    this.employeeKhmerName,
     this.employeeId,
     this.employeeCode,
     this.employeePhoto,
+    this.employeePosition,
     this.rejectionReason,
     this.paidAt,
     this.receiptPath,
@@ -47,14 +51,30 @@ class ExpenseData {
 
   factory ExpenseData.fromJson(Map<String, dynamic> json) {
     String employeeName = '';
+    String? employeeKhmerName;
     String? employeeCode;
     String? employeePhoto;
+    String? employeePosition;
     final emp = json['employee'];
     if (emp != null && emp is Map) {
       employeeName = emp['full_name'] as String? ?? '${emp['first_name'] ?? ''} ${emp['last_name'] ?? ''}'.trim();
       if (employeeName.isEmpty) employeeName = emp['name'] as String? ?? '';
+      employeeKhmerName = emp['khmer_name'] as String?;
       employeeCode = emp['employee_id'] as String? ?? emp['code'] as String?;
-      employeePhoto = emp['photo_url'] as String? ?? emp['photo'] as String? ?? emp['profile_photo_url'] as String?;
+      
+      final rawPhoto = emp['photo_url'] as String? ?? emp['photo'] as String? ?? emp['avatar'] as String? ?? emp['profile_photo_url'] as String?;
+      if (rawPhoto != null && rawPhoto.isNotEmpty) {
+        employeePhoto = rawPhoto.startsWith('http')
+            ? rawPhoto
+            : '${DioClient.storageUrl}/${rawPhoto.startsWith('/') ? rawPhoto.substring(1) : rawPhoto}';
+      }
+
+      final pos = emp['position'];
+      if (pos is Map) {
+        employeePosition = pos['name'] as String? ?? pos['title'] as String?;
+      } else if (pos is String) {
+        employeePosition = pos;
+      }
     }
 
     return ExpenseData(
@@ -67,9 +87,11 @@ class ExpenseData {
       date: json['expense_date'] as String? ?? json['date'] as String? ?? json['created_at'] as String? ?? '',
       status: json['status'] as String? ?? 'pending',
       employeeName: employeeName.isNotEmpty ? employeeName : null,
+      employeeKhmerName: employeeKhmerName,
       employeeId: emp is Map ? (emp['id']?.toString() ?? emp['employee_id']?.toString()) : null,
       employeeCode: employeeCode,
       employeePhoto: employeePhoto,
+      employeePosition: employeePosition,
       rejectionReason: json['rejection_reason'] as String?,
       paidAt: json['paid_at'] as String?,
       receiptPath: json['receipt_path'] as String?,

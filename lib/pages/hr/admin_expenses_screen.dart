@@ -220,7 +220,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
                             onApprove: e.status == 'pending' ? () => _approveExpense(e.id) : null,
                             onReject: e.status == 'pending' ? () => _showRejectDialog(context, e.id) : null,
                             onPay: e.status == 'approved' ? () => _markAsPaid(e.id) : null,
-                            onEdit: e.status == 'pending' ? () => _showEditExpenseSheet(context, e) : null,
+                            onEdit: () => _showEditExpenseSheet(context, e),
                             onDelete: _canDelete(e.status) ? () => _deleteExpense(e.id) : null,
                           );
                         },
@@ -509,47 +509,85 @@ class _AdminExpenseCard extends StatelessWidget {
                         Text(expense.description!, style: const TextStyle(fontSize: 11, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
                       ],
                       if (expense.employeeName != null) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Row(
                           children: [
-                            CircleAvatar(
-                              radius: 10,
-                              backgroundColor: AppColors.primary.withAlpha(26),
-                              backgroundImage: expense.employeePhoto != null && expense.employeePhoto!.isNotEmpty
-                                  ? CachedNetworkImageProvider(
-                                      expense.employeePhoto!,
-                                      maxWidth: 60,
-                                      maxHeight: 60,
-                                    )
-                                  : null,
-                              child: expense.employeePhoto == null || expense.employeePhoto!.isEmpty
-                                  ? Text(
-                                      expense.employeeName![0].toUpperCase(),
-                                      style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: AppColors.primary),
-                                    )
-                                  : null,
+                            _buildEmployeeAvatar(
+                              photoUrl: expense.employeePhoto,
+                              name: expense.employeeName!,
+                              size: 26,
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              expense.employeeName!,
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey700),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (expense.employeeCode != null && expense.employeeCode!.isNotEmpty) ...[
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                                decoration: BoxDecoration(
-                                  color: AppColors.grey100,
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: AppColors.border(context)),
-                                ),
-                                child: Text(
-                                  expense.employeeCode!,
-                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.grey700),
-                                ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          expense.employeeName!,
+                                          style: TextStyle(
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.textPrimary(context),
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (expense.employeeKhmerName != null &&
+                                          expense.employeeKhmerName!.isNotEmpty) ...[
+                                        const SizedBox(width: 4),
+                                        Flexible(
+                                          child: Text(
+                                            '(${expense.employeeKhmerName!})',
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: AppColors.grey500,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                      if (expense.employeeCode != null &&
+                                          expense.employeeCode!.isNotEmpty) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 5,
+                                            vertical: 1,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary.withAlpha(15),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            expense.employeeCode!,
+                                            style: const TextStyle(
+                                              fontSize: 9.5,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.primary,
+                                              fontFamily: 'monospace',
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  if (expense.employeePosition != null &&
+                                      expense.employeePosition!.isNotEmpty)
+                                    Text(
+                                      expense.employeePosition!,
+                                      style: const TextStyle(
+                                        fontSize: 10.5,
+                                        color: AppColors.grey500,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                ],
                               ),
-                            ],
+                            ),
                           ],
                         ),
                       ],
@@ -728,8 +766,106 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
+          if (expense.employeeName != null) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(12),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.primary.withAlpha(30)),
+              ),
+              child: Row(
+                children: [
+                  _buildEmployeeAvatar(
+                    photoUrl: expense.employeePhoto,
+                    name: expense.employeeName!,
+                    size: 44,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                expense.employeeName!,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary(context),
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (expense.employeeKhmerName != null &&
+                                expense.employeeKhmerName!.isNotEmpty) ...[
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  '(${expense.employeeKhmerName!})',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.grey600,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            if (expense.employeeCode != null &&
+                                expense.employeeCode!.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 1.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withAlpha(20),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  expense.employeeCode!,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ),
+                            if (expense.employeePosition != null &&
+                                expense.employeePosition!.isNotEmpty) ...[
+                              if (expense.employeeCode != null)
+                                const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  expense.employeePosition!,
+                                  style: const TextStyle(
+                                    fontSize: 11.5,
+                                    color: AppColors.grey600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
           _detailRow(context, l10n.titleLabel, expense.title),
-          if (expense.employeeName != null) _detailRow(context, l10n.employeeLabel, expense.employeeName!),
           _detailRow(context, l10n.categoryLabel, expense.category),
           _detailRow(context, l10n.amountLabel, '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
           _detailRow(context, l10n.expenseDateLabel, expense.date),
@@ -831,6 +967,85 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
       default: return '$currency ';
     }
   }
+}
+
+Widget _buildEmployeeAvatar({
+  String? photoUrl,
+  required String name,
+  double size = 32,
+}) {
+  final initial = name.isNotEmpty ? name[0].toUpperCase() : 'E';
+  if (photoUrl != null && photoUrl.isNotEmpty) {
+    return CachedNetworkImage(
+      imageUrl: photoUrl,
+      imageBuilder: (_, provider) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(image: provider, fit: BoxFit.cover),
+          border: Border.all(
+            color: AppColors.primary.withAlpha(40),
+            width: 1.5,
+          ),
+        ),
+      ),
+      placeholder: (_, _) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.primary.withAlpha(25),
+        ),
+        child: Center(
+          child: Text(
+            initial,
+            style: TextStyle(
+              fontSize: size * 0.42,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+      ),
+      errorWidget: (_, _, _) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.primary.withAlpha(25),
+        ),
+        child: Center(
+          child: Text(
+            initial,
+            style: TextStyle(
+              fontSize: size * 0.42,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  return Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: AppColors.primary.withAlpha(25),
+    ),
+    child: Center(
+      child: Text(
+        initial,
+        style: TextStyle(
+          fontSize: size * 0.42,
+          fontWeight: FontWeight.bold,
+          color: AppColors.primary,
+        ),
+      ),
+    ),
+  );
 }
 
 // ─── Admin Expense Form (Add/Edit) ─────────────────────────────────────────

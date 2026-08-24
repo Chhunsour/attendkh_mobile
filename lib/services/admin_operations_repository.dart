@@ -1203,11 +1203,20 @@ class AdminOperationsRepository {
     return _parseList(response.data, AdminLeaveRequestData.fromJson);
   }
 
-  Future<void> approveLeaveRequest(int id) async =>
-      _api.post('/company/leave/requests/$id/approve');
+  Future<void> approveLeaveRequest(int id, {String? notes}) async =>
+      _api.post(
+        '/company/leave/requests/$id/approve',
+        data: {
+          if (notes != null && notes.trim().isNotEmpty)
+            'approver_notes': notes.trim(),
+        },
+      );
   Future<void> rejectLeaveRequest(int id, {String? reason}) async => _api.post(
     '/company/leave/requests/$id/reject',
-    data: {'rejection_reason': ?reason},
+    data: {
+      if (reason != null && reason.trim().isNotEmpty)
+        'rejection_reason': reason.trim(),
+    },
   );
   Future<void> updateLeaveRequest(int id, Map<String, dynamic> data) async =>
       _api.put('/company/leave/requests/$id', data: data);

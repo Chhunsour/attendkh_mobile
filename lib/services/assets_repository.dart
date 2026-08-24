@@ -18,6 +18,9 @@ class AssetData {
   final String status;
   final String? notes;
   final String? assignedTo;
+  final String? assignedEmployeeKhmerName;
+  final String? assignedEmployeePhoto;
+  final String? assignedEmployeePosition;
   final String? assignedDate;
   final int? currentAssignmentId;
 
@@ -39,6 +42,9 @@ class AssetData {
     required this.status,
     this.notes,
     this.assignedTo,
+    this.assignedEmployeeKhmerName,
+    this.assignedEmployeePhoto,
+    this.assignedEmployeePosition,
     this.assignedDate,
     this.currentAssignmentId,
   });
@@ -50,12 +56,26 @@ class AssetData {
       if (v is String) return double.tryParse(v);
       return null;
     }
-    
-    String? extractName(dynamic emp) {
-      if (emp == null) return null;
-      if (emp['name'] != null) return emp['name'] as String?;
-      if (emp['first_name'] != null) return '${emp['first_name']} ${emp['last_name'] ?? ''}'.trim();
-      return null;
+
+    final emp = json['current_assignment']?['employee'] ?? json['assigned_to'];
+    String? empName;
+    String? empKhmerName;
+    String? empPhoto;
+    String? empPosition;
+
+    if (emp is Map) {
+      empName = emp['full_name'] as String? ??
+          emp['name'] as String? ??
+          ('${emp['first_name'] ?? ''} ${emp['last_name'] ?? ''}').trim();
+      empKhmerName = emp['khmer_name'] as String?;
+      empPhoto = emp['photo_url'] as String? ?? emp['avatar'] as String?;
+      if (emp['position'] is Map) {
+        empPosition = emp['position']['name'] as String?;
+      } else if (emp['position'] is String) {
+        empPosition = emp['position'] as String?;
+      }
+    } else if (emp is String) {
+      empName = emp;
     }
 
     return AssetData(
@@ -75,8 +95,12 @@ class AssetData {
       condition: json['condition'] as String? ?? 'good',
       status: json['status'] as String? ?? 'available',
       notes: json['notes'] as String?,
-      assignedTo: extractName(json['assigned_to']) ?? extractName(json['current_assignment']?['employee']),
-      assignedDate: json['assigned_date'] as String?,
+      assignedTo: empName?.isNotEmpty == true ? empName : null,
+      assignedEmployeeKhmerName: empKhmerName,
+      assignedEmployeePhoto: empPhoto,
+      assignedEmployeePosition: empPosition,
+      assignedDate: json['assigned_date'] as String? ?? json['current_assignment']?['assigned_date'] as String?,
+      currentAssignmentId: int.tryParse(json['current_assignment']?['id']?.toString() ?? ''),
     );
   }
 
@@ -86,18 +110,60 @@ class AssetData {
 class AssetAssignmentData {
   final int id;
   final String employeeName;
+  final String? employeeKhmerName;
+  final String? employeePhoto;
+  final String? employeePosition;
   final String assignedDate;
   final String? returnedDate;
+  final String? conditionAtAssignment;
+  final String? conditionAtReturn;
   final String? notes;
 
-  const AssetAssignmentData({required this.id, required this.employeeName, required this.assignedDate, this.returnedDate, this.notes});
+  const AssetAssignmentData({
+    required this.id,
+    required this.employeeName,
+    this.employeeKhmerName,
+    this.employeePhoto,
+    this.employeePosition,
+    required this.assignedDate,
+    this.returnedDate,
+    this.conditionAtAssignment,
+    this.conditionAtReturn,
+    this.notes,
+  });
 
   factory AssetAssignmentData.fromJson(Map<String, dynamic> json) {
+    final emp = json['employee'];
+    String empName = '';
+    String? empKhmerName;
+    String? empPhoto;
+    String? empPosition;
+
+    if (emp is Map) {
+      empName = emp['full_name'] as String? ??
+          emp['name'] as String? ??
+          ('${emp['first_name'] ?? ''} ${emp['last_name'] ?? ''}').trim();
+      empKhmerName = emp['khmer_name'] as String?;
+      empPhoto = emp['photo_url'] as String? ?? emp['avatar'] as String?;
+      if (emp['position'] is Map) {
+        empPosition = emp['position']['name'] as String?;
+      } else if (emp['position'] is String) {
+        empPosition = emp['position'] as String?;
+      }
+    } else if (emp is String) {
+      empName = emp;
+    }
+
     return AssetAssignmentData(
       id: int.tryParse(json['id']?.toString() ?? '') ?? 0,
-      employeeName: json['employee']?['name'] as String? ?? (json['employee'] != null && json['employee']['first_name'] != null ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'.trim() : null) ?? '',
+      employeeName: empName.isNotEmpty ? empName : 'Unknown Staff',
+      employeeKhmerName: empKhmerName,
+      employeePhoto: empPhoto,
+      employeePosition: empPosition,
       assignedDate: json['assigned_date'] as String? ?? json['created_at'] as String? ?? '',
       returnedDate: json['returned_date'] as String?,
+      conditionAtAssignment: json['condition_at_assignment'] as String?,
+      conditionAtReturn: json['condition_at_return'] as String?,
       notes: json['notes'] as String?,
     );
   }
@@ -122,9 +188,14 @@ class AssetsRepository {
     return AssetData.fromJson(response.data['data'] ?? response.data);
   }
 
-  Future<AssetData> updateAsset(int id, Map<String, dynamic> data) async {
+  Future<AssetData?> updateAsset(int id, Map<String, dynamic> data) async {
     final response = await _api.put('/company/assets/$id', data: data);
-    return AssetData.fromJson(response.data['data'] ?? response.data);
+    if (response.data is Map &&
+        response.data['data'] != null &&
+        response.data['data'] is Map<String, dynamic>) {
+      return AssetData.fromJson(response.data['data'] as Map<String, dynamic>);
+    }
+    return null;
   }
 
   Future<void> deleteAsset(int id) async {
