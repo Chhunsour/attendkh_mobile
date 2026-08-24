@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -598,16 +599,16 @@ class _ShiftCard extends ConsumerWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.person_add_alt_1_rounded,
-                                  color: AppColors.textPrimary(context),
+                                  color: Colors.white,
                                   size: 13,
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
                                   l10n.assign,
-                                  style: TextStyle(
-                                    color: AppColors.textPrimary(context),
+                                  style: const TextStyle(
+                                    color: Colors.white,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -1535,6 +1536,9 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                         : _assign,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      disabledForegroundColor: Colors.white.withAlpha(160),
+                      disabledBackgroundColor: AppColors.primary.withAlpha(120),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -1557,6 +1561,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                     _selectedIds.length.toString(),
                                   ),
                             style: const TextStyle(
+                              color: Colors.white,
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
                             ),
@@ -1586,21 +1591,17 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
     setState(() => _isLoading = true);
     try {
       final repo = ref.read(adminOpsRepositoryProvider);
-      int successCount = 0;
-      int failCount = 0;
-      for (final empId in _selectedIds) {
-        try {
-          await repo.assignShift(
-            targetShiftId,
-            empId,
-            effectiveDate: _effectiveDateCtrl.text.trim(),
-            endDate: _endDateCtrl.text.trim(),
-          );
-          successCount++;
-        } catch (_) {
-          failCount++;
-        }
-      }
+      final effDate = _effectiveDateCtrl.text.trim();
+      final endDate = _endDateCtrl.text.trim();
+
+      await repo.assignShift(
+        targetShiftId,
+        null,
+        employeeIds: _selectedIds.toList(),
+        effectiveDate: effDate.isNotEmpty ? effDate : null,
+        endDate: endDate.isNotEmpty ? endDate : null,
+      );
+
       ref.invalidate(shiftsProvider);
       ref.invalidate(shiftAssignmentsProvider);
       if (mounted) {
@@ -1608,16 +1609,9 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              failCount > 0
-                  ? l10n.assignSuccessWithFail(
-                      successCount.toString(),
-                      failCount.toString(),
-                    )
-                  : l10n.assignSuccess(successCount.toString()),
+              l10n.assignSuccess(_selectedIds.length.toString()),
             ),
-            backgroundColor: failCount == 0
-                ? AppColors.success
-                : AppColors.warning,
+            backgroundColor: AppColors.success,
           ),
         );
       }
@@ -1836,9 +1830,14 @@ class _ShiftAssignmentsTab extends ConsumerStatefulWidget {
 
 class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
   String _searchQuery = '';
+  int? _selectedShiftFilter; // null = all
 
-  Widget _buildScheduleBadges(Map<String, dynamic>? schedule) {
+  Widget _buildScheduleBadges(
+    Map<String, dynamic>? schedule,
+    BuildContext context,
+  ) {
     if (schedule == null || schedule.isEmpty) return const SizedBox.shrink();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final daysMap = [
       {'key': 'monday', 'short': 'Mon'},
       {'key': 'tuesday', 'short': 'Tue'},
@@ -1860,16 +1859,18 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
+              color: isDark
+                  ? AppColors.surfaceDarkElevated
+                  : AppColors.grey100,
               borderRadius: BorderRadius.circular(4),
               border: Border.all(color: AppColors.border(context)),
             ),
             child: Text(
               '${d['short']}: $start - $end',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
-                color: AppColors.grey700,
+                color: isDark ? AppColors.grey300 : AppColors.grey700,
               ),
             ),
           ),
@@ -1892,280 +1893,557 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
     return '$h12:${parts[1]} $ampm';
   }
 
+  Widget _buildAvatar(ShiftAssignmentData item, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final displayName = item.employeeName ?? 'E';
+    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'E';
+
+    if (item.employeePhoto != null && item.employeePhoto!.isNotEmpty) {
+      final imgUrl = item.employeePhoto!.startsWith('http')
+          ? item.employeePhoto!
+          : '${DioClient.storageUrl}/${item.employeePhoto!.startsWith('/') ? item.employeePhoto!.substring(1) : item.employeePhoto!}';
+
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: CachedNetworkImage(
+          imageUrl: imgUrl,
+          width: 40,
+          height: 40,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Container(
+            width: 40,
+            height: 40,
+            color: isDark ? AppColors.surfaceDarkElevated : const Color(0xFFE0E7FF),
+            child: const Center(
+              child: SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(strokeWidth: 1.5),
+              ),
+            ),
+          ),
+          errorWidget: (context, url, error) => _buildFallbackAvatar(initial, isDark),
+        ),
+      );
+    }
+    return _buildFallbackAvatar(initial, isDark);
+  }
+
+  Widget _buildFallbackAvatar(String initial, bool isDark) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDarkElevated : const Color(0xFFE0E7FF),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          initial,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            color: Color(0xFF4F46E5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showEditModal(ShiftAssignmentData assignment) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _EditShiftAssignmentModal(
+        assignment: assignment,
+        onSaved: () {
+          ref.invalidate(shiftAssignmentsProvider);
+          ref.invalidate(shiftsProvider);
+        },
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(ShiftAssignmentData item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Delete Shift Assignment', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        content: Text(
+          'Are you sure you want to remove the shift assignment for ${item.employeeName ?? "this employee"}?',
+          style: const TextStyle(fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+              elevation: 0,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        await ref.read(adminOpsRepositoryProvider).deleteShiftAssignment(item.id);
+        ref.invalidate(shiftAssignmentsProvider);
+        ref.invalidate(shiftsProvider);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Shift assignment deleted.'),
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed: ${e.toString()}'),
+              backgroundColor: AppColors.danger,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final assignmentsAsync = ref.watch(shiftAssignmentsProvider);
+    final shiftsAsync = ref.watch(shiftsProvider);
+    final employeesAsync = ref.watch(allEmployeesProvider);
+    final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
 
     return assignmentsAsync.when(
-      data: (assignments) {
+      data: (rawAssignments) {
+        final shiftsList = shiftsAsync.value ?? [];
+        final employeesList = employeesAsync.value ?? [];
+
+        // Deduplicate by employeeId to strictly show 1 active shift card per employee
+        final Map<int, ShiftAssignmentData> uniqueMap = {};
+        for (final a in rawAssignments) {
+          if (!uniqueMap.containsKey(a.employeeId)) {
+            uniqueMap[a.employeeId] = a;
+          }
+        }
+        final assignments = uniqueMap.values.toList();
+
+        // KPI Computations
+        final activeAssignedEmpIds = assignments
+            .where((a) => a.endDate == null || a.endDate!.isEmpty)
+            .map((a) => a.employeeId)
+            .toSet();
+
+        final validEmployees = employeesList.where((e) {
+          final isNotTerminated = e.employmentStatus != 'terminated';
+          final matchesBranch = activeBranchId == null ||
+              e.branchId == null ||
+              e.branchId == activeBranchId;
+          return isNotTerminated && matchesBranch;
+        }).toList();
+
+        final assignedCount = activeAssignedEmpIds.length;
+        final unassignedCount = (validEmployees.length - assignedCount).clamp(0, 9999);
+        final shiftsInUseCount = assignments.map((a) => a.shiftId).toSet().length;
+        final availableShiftsCount = shiftsList.length;
+
+        // Filtering
         final filtered = assignments.where((a) {
+          final matchesShift = _selectedShiftFilter == null ||
+              a.shiftId == _selectedShiftFilter;
           final name = (a.employeeName ?? '').toLowerCase();
           final code = (a.employeeCode ?? '').toLowerCase();
           final shift = (a.shiftName ?? '').toLowerCase();
+          final pos = (a.employeePosition ?? '').toLowerCase();
           final q = _searchQuery.toLowerCase();
-          return name.contains(q) || code.contains(q) || shift.contains(q);
+          final matchesSearch = q.isEmpty ||
+              name.contains(q) ||
+              code.contains(q) ||
+              shift.contains(q) ||
+              pos.contains(q);
+          return matchesShift && matchesSearch;
         }).toList();
 
-        return Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              color: AppColors.surfaceLight,
-              child: TextField(
-                onChanged: (val) => setState(() => _searchQuery = val),
-                decoration: InputDecoration(
-                  hintText: 'Search employee or shift assignment…',
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    size: 20,
-                    color: AppColors.grey500,
-                  ),
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  filled: true,
-                  fillColor: AppColors.backgroundLight,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.border(context)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: AppColors.border(context)),
-                  ),
+        return CustomScrollView(
+          slivers: [
+            // ── 1. KPI Metric Summary Cards ──
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final cardWidth = (constraints.maxWidth - 10) / 2;
+                    return Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        _buildKpiCard(
+                          title: 'Assigned Staff',
+                          value: '$assignedCount',
+                          subtitle: 'With active shift',
+                          icon: Icons.people_alt_rounded,
+                          color: const Color(0xFF4F46E5),
+                          width: cardWidth,
+                          isDark: isDark,
+                        ),
+                        _buildKpiCard(
+                          title: 'Unassigned Staff',
+                          value: '$unassignedCount',
+                          subtitle: 'Needing assignment',
+                          icon: Icons.person_off_rounded,
+                          color: unassignedCount > 0
+                              ? const Color(0xFFF59E0B)
+                              : const Color(0xFF10B981),
+                          width: cardWidth,
+                          isDark: isDark,
+                        ),
+                        _buildKpiCard(
+                          title: 'Shifts in Use',
+                          value: '$shiftsInUseCount',
+                          subtitle: 'Active schedules',
+                          icon: Icons.check_circle_outline_rounded,
+                          color: const Color(0xFF10B981),
+                          width: cardWidth,
+                          isDark: isDark,
+                        ),
+                        _buildKpiCard(
+                          title: 'Available Shifts',
+                          value: '$availableShiftsCount',
+                          subtitle: 'Total schedules',
+                          icon: Icons.schedule_rounded,
+                          color: const Color(0xFF8B5CF6),
+                          width: cardWidth,
+                          isDark: isDark,
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
-            const Divider(height: 1, color: AppColors.grey200),
-            Expanded(
-              child: filtered.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No shift assignments found',
-                        style: TextStyle(color: AppColors.grey400),
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: () async =>
-                          ref.invalidate(shiftAssignmentsProvider),
-                      child: ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                        itemCount: filtered.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 10),
-                        itemBuilder: (context, i) {
-                          final item = filtered[i];
-                          return Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceLight,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.border(context)),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Avatar / Photo
-                                    Container(
-                                      width: 44,
-                                      height: 44,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primaryLight,
-                                        borderRadius: BorderRadius.circular(22),
-                                        image:
-                                            (item.employeePhoto != null &&
-                                                item.employeePhoto!.isNotEmpty)
-                                            ? DecorationImage(
-                                                image: NetworkImage(
-                                                  item.employeePhoto!
-                                                          .startsWith('http')
-                                                      ? item.employeePhoto!
-                                                      : '${DioClient.storageUrl}/${item.employeePhoto!.startsWith('/') ? item.employeePhoto!.substring(1) : item.employeePhoto!}',
-                                                ),
-                                                fit: BoxFit.cover,
-                                              )
-                                            : null,
-                                      ),
-                                      child:
-                                          (item.employeePhoto == null ||
-                                              item.employeePhoto!.isEmpty)
-                                          ? Center(
-                                              child: Text(
-                                                (item.employeeName != null &&
-                                                        item
-                                                            .employeeName!
-                                                            .isNotEmpty)
-                                                    ? item.employeeName![0]
-                                                          .toUpperCase()
-                                                    : '?',
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: AppColors.primary,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            )
-                                          : null,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item.employeeName ??
-                                                'Employee #${item.employeeId}',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15,
-                                              color: AppColors.textPrimary(context),
-                                            ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              if (item.employeeCode != null &&
-                                                  item.employeeCode!.isNotEmpty)
-                                                Text(
-                                                  item.employeeCode!,
-                                                  style: const TextStyle(
-                                                    fontSize: 11,
-                                                    color: AppColors.grey400,
-                                                    fontFamily: 'monospace',
-                                                  ),
-                                                ),
-                                              if (item.employeePosition !=
-                                                      null &&
-                                                  item
-                                                      .employeePosition!
-                                                      .isNotEmpty) ...[
-                                                const SizedBox(width: 6),
-                                                const Text(
-                                                  '•',
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: AppColors.grey400,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Flexible(
-                                                  child: Text(
-                                                    item.employeePosition!,
-                                                    style: const TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: AppColors.primary,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.delete_outline_rounded,
-                                        color: AppColors.danger,
-                                        size: 20,
-                                      ),
-                                      onPressed: () async {
-                                        try {
-                                          await ref
-                                              .read(adminOpsRepositoryProvider)
-                                              .deleteShiftAssignment(item.id);
-                                          ref.invalidate(
-                                            shiftAssignmentsProvider,
-                                          );
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Shift assignment deleted.',
-                                                ),
-                                                backgroundColor:
-                                                    AppColors.success,
-                                              ),
-                                            );
-                                          }
-                                        } catch (e) {
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  'Failed: ${e.toString()}',
-                                                ),
-                                                backgroundColor:
-                                                    AppColors.danger,
-                                              ),
-                                            );
-                                          }
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.backgroundLight,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            item.shiftName ??
-                                                'Shift #${item.shiftId}',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 12,
-                                              color: AppColors.textPrimary(context),
-                                            ),
-                                          ),
-                                          Text(
-                                            '${item.effectiveDate ?? '—'} ${item.endDate != null && item.endDate!.isNotEmpty ? '→ ${item.endDate}' : '(Indefinite)'}',
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: AppColors.grey500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      if (item.shiftSchedule != null) ...[
-                                        const SizedBox(height: 6),
-                                        _buildScheduleBadges(
-                                          item.shiftSchedule,
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+
+            // ── 2. Search & Shift Filter Row ──
+            SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    child: TextField(
+                      onChanged: (val) => setState(() => _searchQuery = val.trim()),
+                      decoration: InputDecoration(
+                        hintText: 'Search employee, ID, shift, position…',
+                        hintStyle: TextStyle(
+                          fontSize: 12.5,
+                          color: isDark ? AppColors.grey500 : AppColors.grey400,
+                        ),
+                        prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, size: 16),
+                                onPressed: () => setState(() => _searchQuery = ''),
+                              )
+                            : null,
+                        isDense: true,
+                        filled: true,
+                        fillColor: isDark
+                            ? AppColors.surfaceDarkElevated
+                            : AppColors.surface(context),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: AppColors.border(context)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: AppColors.border(context)),
+                        ),
                       ),
                     ),
+                  ),
+
+                  // Shift Filter Chips
+                  if (shiftsList.isNotEmpty)
+                    SizedBox(
+                      height: 38,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        children: [
+                          ChoiceChip(
+                            label: Text('All Shifts (${assignments.length})'),
+                            selected: _selectedShiftFilter == null,
+                            onSelected: (_) =>
+                                setState(() => _selectedShiftFilter = null),
+                            selectedColor: const Color(0xFF8B5CF6),
+                            labelStyle: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                              color: _selectedShiftFilter == null
+                                  ? Colors.white
+                                  : (isDark
+                                      ? AppColors.grey300
+                                      : AppColors.grey700),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ...shiftsList.map((s) {
+                            final count = assignments
+                                .where((a) => a.shiftId == s.id)
+                                .length;
+                            final isSelected = _selectedShiftFilter == s.id;
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: Text('${s.name} ($count)'),
+                                selected: isSelected,
+                                onSelected: (_) => setState(
+                                  () => _selectedShiftFilter =
+                                      isSelected ? null : s.id,
+                                ),
+                                selectedColor: const Color(0xFF8B5CF6),
+                                labelStyle: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : (isDark
+                                          ? AppColors.grey300
+                                          : AppColors.grey700),
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
+
+            // ── 3. Assignment Cards List ──
+            if (filtered.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.person_search_rounded,
+                          size: 48,
+                          color: isDark ? AppColors.grey600 : AppColors.grey300,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'No shift assignments found',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary(context),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Try modifying your search or filter keywords.',
+                          style: TextStyle(fontSize: 12, color: AppColors.grey500),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, i) {
+                      final item = filtered[i];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface(context),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.border(context)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withAlpha(isDark ? 0 : 6),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  _buildAvatar(item, context),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.employeeName ?? 'Employee #${item.employeeId}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                            color: AppColors.textPrimary(context),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Row(
+                                          children: [
+                                            if (item.employeeCode != null &&
+                                                item.employeeCode!.isNotEmpty)
+                                              Text(
+                                                item.employeeCode!,
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: AppColors.grey500,
+                                                  fontFamily: 'monospace',
+                                                ),
+                                              ),
+                                            if (item.employeePosition != null &&
+                                                item.employeePosition!.isNotEmpty) ...[
+                                              const SizedBox(width: 6),
+                                              const Text('•', style: TextStyle(fontSize: 11, color: AppColors.grey400)),
+                                              const SizedBox(width: 6),
+                                              Flexible(
+                                                child: Text(
+                                                  item.employeePosition!,
+                                                  style: const TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Color(0xFF6366F1),
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Actions: Edit and Delete
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit_outlined,
+                                      color: Color(0xFF6366F1),
+                                      size: 19,
+                                    ),
+                                    tooltip: 'Edit Assignment',
+                                    onPressed: () => _showEditModal(item),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete_outline_rounded,
+                                      color: AppColors.danger,
+                                      size: 19,
+                                    ),
+                                    tooltip: 'Delete Assignment',
+                                    onPressed: () => _confirmDelete(item),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? AppColors.surfaceDarkElevated
+                                      : AppColors.grey50,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppColors.border(context)),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.schedule_rounded,
+                                              size: 14,
+                                              color: Color(0xFF8B5CF6),
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              item.shiftName ?? 'Shift #${item.shiftId}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12.5,
+                                                color: AppColors.textPrimary(context),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 7,
+                                            vertical: 2.5,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF10B981).withAlpha(20),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            '${item.effectiveDate ?? '—'} ${item.endDate != null && item.endDate!.isNotEmpty ? '→ ${item.endDate}' : '(Indefinite)'}',
+                                            style: const TextStyle(
+                                              fontSize: 10.5,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF059669),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (item.shiftSchedule != null) ...[
+                                      const SizedBox(height: 8),
+                                      _buildScheduleBadges(item.shiftSchedule, context),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    childCount: filtered.length,
+                  ),
+                ),
+              ),
           ],
         );
       },
@@ -2180,61 +2458,132 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
       ),
     );
   }
+
+  Widget _buildKpiCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required double width,
+    required bool isDark,
+  }) {
+    return Container(
+      width: width,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDarkElevated : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.grey500,
+                ),
+              ),
+              Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  color: color.withAlpha(25),
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: Icon(icon, size: 14, color: color),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textPrimary(context),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            style: const TextStyle(fontSize: 10, color: AppColors.grey400),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _AssignShiftModal extends ConsumerStatefulWidget {
+// ─── Edit Shift Assignment Modal ─────────────────────────────────────────────
+class _EditShiftAssignmentModal extends ConsumerStatefulWidget {
+  final ShiftAssignmentData assignment;
   final VoidCallback onSaved;
-  const _AssignShiftModal({required this.onSaved});
+  const _EditShiftAssignmentModal({
+    required this.assignment,
+    required this.onSaved,
+  });
 
   @override
-  ConsumerState<_AssignShiftModal> createState() => _AssignShiftModalState();
+  ConsumerState<_EditShiftAssignmentModal> createState() =>
+      _EditShiftAssignmentModalState();
 }
 
-class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
+class _EditShiftAssignmentModalState
+    extends ConsumerState<_EditShiftAssignmentModal> {
   final _formKey = GlobalKey<FormState>();
-  final _employeeIdCtrl = TextEditingController();
-  final _effectiveDateCtrl = TextEditingController(
-    text: DateTime.now().toIso8601String().split('T')[0],
-  );
-  final _endDateCtrl = TextEditingController();
+  late TextEditingController _effectiveDateCtrl;
+  late TextEditingController _endDateCtrl;
   int? _selectedShiftId;
   bool _isSaving = false;
 
   @override
+  void initState() {
+    super.initState();
+    _selectedShiftId = widget.assignment.shiftId;
+    _effectiveDateCtrl = TextEditingController(
+      text: widget.assignment.effectiveDate ??
+          DateTime.now().toIso8601String().split('T')[0],
+    );
+    _endDateCtrl = TextEditingController(text: widget.assignment.endDate ?? '');
+  }
+
+  @override
   void dispose() {
-    _employeeIdCtrl.dispose();
     _effectiveDateCtrl.dispose();
     _endDateCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate() || _selectedShiftId == null) {
-      if (_selectedShiftId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a shift schedule')),
-        );
-      }
-      return;
-    }
+    if (!_formKey.currentState!.validate() || _selectedShiftId == null) return;
     setState(() => _isSaving = true);
     try {
-      final empId = int.parse(_employeeIdCtrl.text.trim());
-      await ref
-          .read(adminOpsRepositoryProvider)
-          .assignShift(
-            _selectedShiftId!,
-            empId,
-            effectiveDate: _effectiveDateCtrl.text.trim(),
-            endDate: _endDateCtrl.text.trim(),
-          );
+      await ref.read(adminOpsRepositoryProvider).updateShiftAssignment(
+        widget.assignment.id,
+        {
+          'shift_id': _selectedShiftId,
+          'effective_date': _effectiveDateCtrl.text.trim(),
+          if (_endDateCtrl.text.trim().isNotEmpty)
+            'end_date': _endDateCtrl.text.trim()
+          else
+            'end_date': null,
+        },
+      );
       widget.onSaved();
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Shift assigned successfully.'),
+            content: Text('Shift assignment updated.'),
             backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -2244,6 +2593,7 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
           SnackBar(
             content: Text('Failed: ${e.toString()}'),
             backgroundColor: AppColors.danger,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -2255,17 +2605,20 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
   @override
   Widget build(BuildContext context) {
     final shiftsAsync = ref.watch(shiftsProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
-        top: 20,
+        top: 16,
         left: 20,
         right: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: MediaQuery.of(context).padding.bottom +
+            MediaQuery.of(context).viewInsets.bottom +
+            20,
       ),
       child: Form(
         key: _formKey,
@@ -2274,89 +2627,110 @@ class _AssignShiftModalState extends ConsumerState<_AssignShiftModal> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 14),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Assign Shift to Employee',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Edit Shift Assignment',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary(context),
+                        ),
+                      ),
+                      Text(
+                        widget.assignment.employeeName ?? 'Employee #${widget.assignment.employeeId}',
+                        style: const TextStyle(fontSize: 12, color: AppColors.grey500),
+                      ),
+                    ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Icons.close_rounded, size: 20),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
+
+              // Shift selector
               shiftsAsync.when(
                 data: (shifts) => DropdownButtonFormField<int>(
                   initialValue: _selectedShiftId,
-                  decoration: const InputDecoration(
-                    labelText: 'Select Shift Schedule *',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: 'Shift Schedule *',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    filled: true,
+                    fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                   ),
                   items: shifts
-                      .map(
-                        (s) =>
-                            DropdownMenuItem(value: s.id, child: Text(s.name)),
-                      )
+                      .map((s) => DropdownMenuItem(value: s.id, child: Text(s.name)))
                       .toList(),
                   onChanged: (val) => setState(() => _selectedShiftId = val),
-                  validator: (val) =>
-                      val == null ? 'Please select a shift' : null,
+                  validator: (val) => val == null ? 'Please select a shift' : null,
                 ),
-                loading: () => const CircularProgressIndicator(),
-                error: (e, _) => const Text('Failed to load shift options'),
+                loading: () => const LinearProgressIndicator(),
+                error: (e, _) => const Text('Failed to load shifts', style: TextStyle(color: AppColors.danger)),
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _employeeIdCtrl,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Employee ID *',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (val) => val == null || val.trim().isEmpty
-                    ? 'Please enter employee ID'
-                    : null,
-              ),
-              const SizedBox(height: 12),
+
               TextFormField(
                 controller: _effectiveDateCtrl,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Effective Date * (YYYY-MM-DD)',
-                  border: OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.calendar_today_outlined, size: 18),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                 ),
-                validator: (val) => val == null || val.trim().isEmpty
-                    ? 'Please enter effective date'
-                    : null,
+                validator: (val) => val == null || val.trim().isEmpty ? 'Please enter effective date' : null,
               ),
               const SizedBox(height: 12),
+
               TextFormField(
                 controller: _endDateCtrl,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'End Date (Optional) (YYYY-MM-DD)',
-                  border: OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.event_busy_outlined, size: 18),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                 ),
               ),
               const SizedBox(height: 20),
+
               SizedBox(
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
                   onPressed: _isSaving ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: const Color(0xFF6366F1),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: _isSaving
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
                       : const Text(
-                          'Assign Shift',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          'Update Assignment',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                 ),
               ),

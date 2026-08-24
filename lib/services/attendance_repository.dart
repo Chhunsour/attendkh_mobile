@@ -327,10 +327,19 @@ class AttendanceRepository {
     required String date,
     required String type,
     required String reason,
+    String? clockIn,
+    String? clockOut,
   }) async {
     await _api.post(
       '/company/attendance/corrections',
-      data: {'date': date, 'type': type, 'reason': reason},
+      data: {
+        'date': date,
+        'type': type,
+        'reason': reason,
+        if (clockIn != null && clockIn.isNotEmpty) 'requested_clock_in': clockIn,
+        if (clockOut != null && clockOut.isNotEmpty)
+          'requested_clock_out': clockOut,
+      },
     );
   }
 }

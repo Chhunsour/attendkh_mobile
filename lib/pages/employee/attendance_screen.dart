@@ -161,6 +161,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
   Future<void> _showCorrectionDialog(AppLocalizations l10n) async {
     final dateCtrl = TextEditingController();
+    final clockInCtrl = TextEditingController();
+    final clockOutCtrl = TextEditingController();
     final reasonCtrl = TextEditingController();
     String correctionType = 'missed_clock_in';
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -339,6 +341,122 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               ),
               const SizedBox(height: 14),
 
+              // Requested Times
+              Row(
+                children: [
+                  if (correctionType != 'missed_clock_out') ...[
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.inTime,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? AppColors.grey300 : AppColors.grey700,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          TextField(
+                            controller: clockInCtrl,
+                            readOnly: true,
+                            onTap: () async {
+                              final picked = await showTimePicker(
+                                context: context,
+                                initialTime: const TimeOfDay(hour: 8, minute: 0),
+                              );
+                              if (picked != null) {
+                                clockInCtrl.text =
+                                    '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                              }
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'HH:MM',
+                              hintStyle: TextStyle(
+                                color: isDark ? AppColors.grey500 : AppColors.grey400,
+                                fontSize: 13,
+                              ),
+                              filled: true,
+                              fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                              suffixIcon: const Icon(Icons.access_time_rounded, size: 18),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: AppColors.border(context)),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: AppColors.border(context)),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (correctionType == 'wrong_time') const SizedBox(width: 10),
+                  if (correctionType != 'missed_clock_in') ...[
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.outTime,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? AppColors.grey300 : AppColors.grey700,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          TextField(
+                            controller: clockOutCtrl,
+                            readOnly: true,
+                            onTap: () async {
+                              final picked = await showTimePicker(
+                                context: context,
+                                initialTime: const TimeOfDay(hour: 17, minute: 0),
+                              );
+                              if (picked != null) {
+                                clockOutCtrl.text =
+                                    '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                              }
+                            },
+                            decoration: InputDecoration(
+                              hintText: 'HH:MM',
+                              hintStyle: TextStyle(
+                                color: isDark ? AppColors.grey500 : AppColors.grey400,
+                                fontSize: 13,
+                              ),
+                              filled: true,
+                              fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                              suffixIcon: const Icon(Icons.access_time_rounded, size: 18),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: AppColors.border(context)),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: AppColors.border(context)),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 14),
+
               Text(
                 l10n.reason,
                 style: TextStyle(
@@ -419,6 +537,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                                   date: dateCtrl.text,
                                   type: correctionType,
                                   reason: reasonCtrl.text.trim(),
+                                  clockIn: clockInCtrl.text.isNotEmpty ? clockInCtrl.text : null,
+                                  clockOut: clockOutCtrl.text.isNotEmpty ? clockOutCtrl.text : null,
                                 );
                                 if (ctx.mounted) Navigator.pop(ctx, true);
                               } catch (e) {

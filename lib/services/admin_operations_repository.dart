@@ -596,8 +596,9 @@ class ShiftAssignmentData {
         empPos = emp['job_title'].toString();
       }
 
-      empPhoto =
-          emp['profile_photo_url']?.toString() ?? emp['photo']?.toString();
+      empPhoto = emp['profile_photo_url']?.toString() ??
+          emp['photo']?.toString() ??
+          emp['avatar']?.toString();
     }
 
     final shiftObj = json['shift'];
@@ -1358,13 +1359,16 @@ class AdminOperationsRepository {
   Future<void> deleteShift(int id) async => _api.delete('/company/shifts/$id');
   Future<void> assignShift(
     int shiftId,
-    int employeeId, {
+    int? employeeId, {
+    List<int>? employeeIds,
     String? effectiveDate,
     String? endDate,
   }) async => _api.post(
     '/company/shifts/$shiftId/assign',
     data: {
-      'employee_id': employeeId,
+      if (employeeIds != null && employeeIds.isNotEmpty)
+        'employee_ids': employeeIds
+      else 'employee_id': ?employeeId,
       'effective_date':
           effectiveDate ?? DateTime.now().toIso8601String().substring(0, 10),
       if (endDate != null && endDate.trim().isNotEmpty)
