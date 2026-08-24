@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/layouts/bottom_nav_shell.dart';
+import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/company_admin_dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/finance_ops_summary.dart';
@@ -18,10 +19,14 @@ class CompanyAdminShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final authState = ref.watch(authProvider);
+    final isOwner = authState.isCompanyOwner || authState.isSuperAdmin;
     // Already loaded for the Home tab — reusing it costs nothing and turns
     // these menus from a list of links into a list of work.
     final kpi = ref.watch(dashboardStatsProvider).valueOrNull;
-    final employeesCount = ref.watch(allEmployeesProvider).valueOrNull?.length ?? (kpi?.totalEmployees ?? 0);
+    final employeesCount =
+        ref.watch(allEmployeesProvider).valueOrNull?.length ??
+        (kpi?.totalEmployees ?? 0);
     String? count(int n) => n > 0 ? '$n' : null;
 
     return BottomNavShell(
@@ -151,6 +156,14 @@ class CompanyAdminShell extends ConsumerWidget {
                 color: const Color(0xFFA855F7),
                 routePath: AppRoutes.adminPerformance,
               ),
+              if (isOwner)
+                MoreItem(
+                  title: l10n.moreTopEmployees,
+                  subtitle: l10n.moreTopEmployeesDesc,
+                  icon: Icons.emoji_events_rounded,
+                  color: const Color(0xFFF59E0B),
+                  routePath: AppRoutes.adminTopEmployees,
+                ),
               MoreItem(
                 title: l10n.menuKPIs,
                 subtitle: l10n.itemKpisSubtitle,

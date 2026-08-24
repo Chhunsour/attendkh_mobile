@@ -3523,6 +3523,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get morePerformanceDesc => 'Reviews & training';
 
   @override
+  String get moreTopEmployees => 'Top Employees';
+
+  @override
+  String get moreTopEmployeesDesc => 'Leaderboard & recognition';
+
+  @override
   String get moreReports => 'Reports';
 
   @override

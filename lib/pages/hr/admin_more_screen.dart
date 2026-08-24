@@ -17,6 +17,7 @@ class AdminMoreScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);
+    final isCompanyOwner = authState.isCompanyOwner || authState.isSuperAdmin;
     final isAdmin = authState.isCompanyAdmin;
     final isBranchManager = authState.isBranchManager;
 
@@ -61,6 +62,8 @@ class AdminMoreScreen extends ConsumerWidget {
               _buildGrid(context, [
                 _MoreItem(l10n.moreRecruitment, l10n.moreRecruitmentDesc, Icons.work_outline_rounded, const Color(0xFF0052FF), AppRoutes.adminRecruitment),
                 _MoreItem(l10n.morePerformance, l10n.morePerformanceDesc, Icons.trending_up_rounded, const Color(0xFFA855F7), AppRoutes.adminPerformance),
+                if (isCompanyOwner)
+                  _MoreItem(l10n.moreTopEmployees, l10n.moreTopEmployeesDesc, Icons.emoji_events_rounded, const Color(0xFFF59E0B), AppRoutes.adminTopEmployees),
                 _MoreItem(l10n.moreReports, l10n.moreReportsDesc, Icons.assessment_rounded, const Color(0xFF14B8A6), AppRoutes.adminReports),
                 _MoreItem(l10n.moreDocuments, l10n.moreDocumentsDesc, Icons.folder_open_rounded, const Color(0xFFF59E0B), AppRoutes.adminDocuments),
               ]),

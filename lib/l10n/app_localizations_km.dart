@@ -3537,6 +3537,12 @@ class AppLocalizationsKm extends AppLocalizations {
   String get morePerformanceDesc => 'ការវាយតម្លៃ & បណ្តុះបណ្តាល';
 
   @override
+  String get moreTopEmployees => 'បុគ្គលិកឆ្នើម';
+
+  @override
+  String get moreTopEmployeesDesc => 'តារាងចំណាត់ថ្នាក់ & ការលើកទឹកចិត្ត';
+
+  @override
   String get moreReports => 'របាយការណ៍';
 
   @override

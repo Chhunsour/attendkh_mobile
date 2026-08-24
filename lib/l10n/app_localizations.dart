@@ -6671,6 +6671,18 @@ abstract class AppLocalizations {
   /// **'Reviews & training'**
   String get morePerformanceDesc;
 
+  /// No description provided for @moreTopEmployees.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Employees'**
+  String get moreTopEmployees;
+
+  /// No description provided for @moreTopEmployeesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard & recognition'**
+  String get moreTopEmployeesDesc;
+
   /// No description provided for @moreReports.
   ///
   /// In en, this message translates to:

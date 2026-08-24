@@ -1,9 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../providers/top_employees_provider.dart';
-import '../../models/top_employee.dart';
-import '../../utils/theme/theme.dart';
+import 'package:mpg_hr_mobile_app/providers/top_employees_provider.dart';
+import 'package:mpg_hr_mobile_app/models/top_employee.dart';
+import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
 
 class TopEmployeesScreen extends ConsumerStatefulWidget {
   const TopEmployeesScreen({super.key});
@@ -13,372 +17,725 @@ class TopEmployeesScreen extends ConsumerStatefulWidget {
 }
 
 class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
-  DateTime selectedMonth = DateTime.now();
-  String activeCategory = 'attendance';
-  String activeSort = 'by_amount';
+  DateTime _selectedMonth = DateTime.now();
+  String _activeCategory = 'attendance';
+  String _activeSort = 'by_amount'; // 'by_amount' | 'by_hours'
 
-  final List<Map<String, dynamic>> categories = [
-    {'key': 'attendance', 'label': 'Attendance', 'icon': Icons.check_circle_outline, 'color': Colors.green},
-    {'key': 'leave', 'label': 'Leave', 'icon': Icons.calendar_today_outlined, 'color': Colors.amber},
-    {'key': 'check_early', 'label': 'Check Early', 'icon': Icons.access_time, 'color': Colors.blue},
-    {'key': 'check_late', 'label': 'Check Late', 'icon': Icons.error_outline, 'color': Colors.red},
-    {'key': 'checkout_early', 'label': 'Checkout Early', 'icon': Icons.logout, 'color': Colors.orange},
-    {'key': 'checkout_overtime', 'label': 'Overtime', 'icon': Icons.timer, 'color': Colors.indigo},
+  static const _categories = [
+    {
+      'key': 'attendance',
+      'label': 'Attendance',
+      'icon': Icons.check_circle_outline_rounded,
+      'color': Color(0xFF059669),
+    },
+    {
+      'key': 'leave',
+      'label': 'Leave',
+      'icon': Icons.calendar_today_rounded,
+      'color': Color(0xFFD97706),
+    },
+    {
+      'key': 'check_early',
+      'label': 'Check Early',
+      'icon': Icons.access_time_filled_rounded,
+      'color': Color(0xFF2563EB),
+    },
+    {
+      'key': 'check_late',
+      'label': 'Check Late',
+      'icon': Icons.warning_amber_rounded,
+      'color': Color(0xFFDC2626),
+    },
+    {
+      'key': 'checkout_early',
+      'label': 'Early Leave',
+      'icon': Icons.logout_rounded,
+      'color': Color(0xFFEA580C),
+    },
+    {
+      'key': 'checkout_overtime',
+      'label': 'Overtime',
+      'icon': Icons.trending_up_rounded,
+      'color': Color(0xFF7C3AED),
+    },
   ];
+
+  String _formatDuration(double hoursDecimal) {
+    if (hoursDecimal <= 0) return '0m';
+    final h = hoursDecimal.floor();
+    final m = ((hoursDecimal - h) * 60).round();
+    if (h > 0 && m > 0) return '${h}h ${m}m';
+    if (h > 0) return '${h}h';
+    return '${m}m';
+  }
+
+  String _getScoreDisplay(TopEmployee emp) {
+    if (_activeSort == 'by_amount') {
+      final unit = _activeCategory == 'leave' ? 'Days' : 'Times';
+      return '${emp.amount} $unit';
+    }
+    return _formatDuration(emp.hours);
+  }
+
+  void _prevMonth() {
+    setState(() {
+      _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1);
+    });
+  }
+
+  void _nextMonth() {
+    final next = DateTime(_selectedMonth.year, _selectedMonth.month + 1);
+    if (next.isBefore(DateTime.now()) || (next.year == DateTime.now().year && next.month == DateTime.now().month)) {
+      setState(() {
+        _selectedMonth = next;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final monthStr = DateFormat('yyyy-MM').format(selectedMonth);
+    final monthStr = DateFormat('yyyy-MM').format(_selectedMonth);
     final topEmployeesAsync = ref.watch(topEmployeesProvider(monthStr));
 
     return Scaffold(
       backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        title: Text('Top Employees Leaderboard', style: TextStyle(color: AppColors.textPrimary(context))),
         backgroundColor: AppColors.surface(context),
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
+        title: Text(
+          'Top Employees',
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
       ),
-      body: topEmployeesAsync.when(
-        data: (data) {
-          final currentCategoryData = data[activeCategory] ?? {'by_amount': [], 'by_hours': []};
-          final List<TopEmployee> currentList = currentCategoryData[activeSort] ?? [];
-
-          return CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header Controls
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            DateFormat('MMMM yyyy').format(selectedMonth).toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                          TextButton.icon(
-                            onPressed: () async {
-                              final date = await showDatePicker(
-                                context: context,
-                                initialDate: selectedMonth,
-                                firstDate: DateTime(2020),
-                                lastDate: DateTime.now(),
-                              );
-                              if (date != null) {
-                                setState(() => selectedMonth = date);
-                              }
-                            },
-                            icon: const Icon(Icons.calendar_month, size: 16),
-                            label: const Text('Change Month'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: AppColors.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Tabs for Amount vs Hours
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(topEmployeesProvider(monthStr));
+        },
+        child: CustomScrollView(
+          slivers: [
+            // ── 1. Gold Executive Leaderboard Banner ─────────────────────
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFFD97706),
+                      Color(0xFFF59E0B),
+                      Color(0xFFB45309),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFF59E0B).withValues(alpha: 0.28),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
                           children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => setState(() => activeSort = 'by_amount'),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: activeSort == 'by_amount' ? Colors.white : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: activeSort == 'by_amount'
-                                        ? [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 4)]
-                                        : null,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'By Amount',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: activeSort == 'by_amount' ? Colors.black87 : Colors.grey[600],
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Icon(
+                                Icons.emoji_events_rounded,
+                                color: Colors.white,
+                                size: 24,
                               ),
                             ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => setState(() => activeSort = 'by_hours'),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: activeSort == 'by_hours' ? Colors.white : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: activeSort == 'by_hours'
-                                        ? [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 4)]
-                                        : null,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'By Hours',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: activeSort == 'by_hours' ? Colors.black87 : Colors.grey[600],
-                                      ),
-                                    ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Employee Leaderboard',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -0.2,
                                   ),
                                 ),
-                              ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Recognition & Performance Ranking',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      // Categories scroll
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        child: Row(
-                          children: categories.map((c) {
-                            final isActive = activeCategory == c['key'];
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: ChoiceChip(
-                                label: Row(
-                                  children: [
-                                    Icon(c['icon'], size: 16, color: isActive ? Colors.white : c['color']),
-                                    const SizedBox(width: 8),
-                                    Text(c['label']),
-                                  ],
-                                ),
-                                selected: isActive,
-                                onSelected: (selected) {
-                                  if (selected) setState(() => activeCategory = c['key']);
-                                },
-                                selectedColor: Colors.grey[900],
-                                labelStyle: TextStyle(
-                                  color: isActive ? Colors.white : Colors.grey[700],
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  side: BorderSide(color: Colors.grey[200]!),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              
-              // List
-              if (currentList.isEmpty)
-                SliverFillRemaining(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.emoji_events_outlined, size: 48, color: Colors.grey[300]),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No Winners Yet',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800]),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'No data available for this month.',
-                          style: TextStyle(color: Colors.grey[500]),
-                        ),
                       ],
                     ),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final emp = currentList[index];
-                        
-                        // Solid Colors for Badges (no gradients)
-                        Color badgeColor = Colors.grey[200]!;
-                        Color badgeTextColor = Colors.grey[700]!;
-                        String suffix = "th";
+                    const SizedBox(height: 16),
 
-                        if (index == 0) {
-                          badgeColor = Colors.amber[400]!;
-                          badgeTextColor = Colors.white;
-                          suffix = "st";
-                        } else if (index == 1) {
-                          badgeColor = Colors.blueGrey[200]!;
-                          badgeTextColor = Colors.blueGrey[900]!;
-                          suffix = "nd";
-                        } else if (index == 2) {
-                          badgeColor = Colors.orange[400]!;
-                          badgeTextColor = Colors.white;
-                          suffix = "rd";
-                        }
-
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface(context),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                            border: Border.all(color: AppColors.border(context)),
+                    // Month Selector Bar
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.chevron_left_rounded, color: Colors.white, size: 22),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: _prevMonth,
                           ),
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              // Badge
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: badgeColor,
-                                  shape: BoxShape.circle,
-                                  boxShadow: index < 3 ? [
-                                    BoxShadow(
-                                      color: badgeColor.withAlpha(102),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                    )
-                                  ] : null,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      '${index + 1}',
-                                      style: TextStyle(
-                                        color: badgeTextColor,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w900,
-                                        height: 1.0,
-                                      ),
-                                    ),
-                                    Text(
-                                      suffix,
-                                      style: TextStyle(
-                                        color: badgeTextColor,
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        height: 1.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              
-                              // Avatar
-                              CircleAvatar(
-                                radius: 24,
-                                backgroundColor: Colors.grey[100],
-                                child: Text(
-                                  emp.name.substring(0, 1).toUpperCase(),
-                                  style: TextStyle(
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              
-                              // Name
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      emp.name,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 16,
-                                        color: AppColors.textPrimary(context),
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Top Employee',
-                                      style: TextStyle(
-                                        color: Colors.grey[500],
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              
-                              // Score
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                          InkWell(
+                            onTap: () async {
+                              final picked = await showCustomDatePicker(
+                                context,
+                                initialDate: _selectedMonth,
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime.now(),
+                              );
+                              if (picked != null) {
+                                setState(() => _selectedMonth = picked);
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  const Icon(Icons.calendar_month_rounded, color: Colors.white, size: 15),
+                                  const SizedBox(width: 6),
                                   Text(
-                                    activeSort == 'by_amount' ? emp.amount.toString() : emp.hours.toStringAsFixed(1),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 24,
-                                      color: index == 0 ? Colors.amber[500] : (index == 1 ? Colors.blueGrey[400] : (index == 2 ? Colors.orange[500] : AppColors.primary)),
-                                    ),
-                                  ),
-                                  Text(
-                                    activeSort == 'by_amount' ? 'TIMES' : 'HOURS',
-                                    style: TextStyle(
-                                      fontSize: 10,
+                                    DateFormat('MMMM yyyy').format(_selectedMonth),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.w800,
-                                      color: Colors.grey[400],
-                                      letterSpacing: 1.0,
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        );
-                      },
-                      childCount: currentList.length,
+                          IconButton(
+                            icon: const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 22),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: _nextMonth,
+                          ),
+                        ],
+                      ),
                     ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── 2. Category Filter Chips ────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Categories Scroll
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _categories.map((cat) {
+                          final isSelected = _activeCategory == cat['key'];
+                          final catColor = cat['color'] as Color;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: GestureDetector(
+                              onTap: () => setState(() => _activeCategory = cat['key'] as String),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? catColor : AppColors.surface(context),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: isSelected ? catColor : AppColors.border(context),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      cat['icon'] as IconData,
+                                      size: 14,
+                                      color: isSelected ? Colors.white : catColor,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      cat['label'] as String,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                        color: isSelected ? Colors.white : AppColors.textPrimary(context),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Sort Metric Toggle (By Count / By Hours)
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface(context),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border(context)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setState(() => _activeSort = 'by_amount'),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: _activeSort == 'by_amount'
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    _activeCategory == 'leave' ? 'By Days' : 'By Count (Occurrences)',
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: _activeSort == 'by_amount' ? FontWeight.bold : FontWeight.w500,
+                                      color: _activeSort == 'by_amount' ? Colors.white : AppColors.textSecondary(context),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setState(() => _activeSort = 'by_hours'),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: _activeSort == 'by_hours'
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'By Total Hours',
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: _activeSort == 'by_hours' ? FontWeight.bold : FontWeight.w500,
+                                      color: _activeSort == 'by_hours' ? Colors.white : AppColors.textSecondary(context),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── 3. Main Data Content ────────────────────────────────────
+            topEmployeesAsync.when(
+              loading: () => const SliverFillRemaining(
+                child: Center(
+                  child: LoadingIndicator(message: 'Loading Leaderboard...'),
+                ),
+              ),
+              error: (err, _) => SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 36),
+                      const SizedBox(height: 8),
+                      Text('Failed to load: $err', style: const TextStyle(fontSize: 13, color: AppColors.danger)),
+                    ],
                   ),
                 ),
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(
-          child: Text('Error loading data: $err'),
+              ),
+              data: (data) {
+                final currentCategoryData = data[_activeCategory] ?? {'by_amount': [], 'by_hours': []};
+                final List<TopEmployee> list = List<TopEmployee>.from(currentCategoryData[_activeSort] ?? []);
+
+                if (list.isEmpty) {
+                  return SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface(context),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.border(context)),
+                            ),
+                            child: const Icon(Icons.emoji_events_outlined, size: 36, color: AppColors.grey400),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'No rankings available',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary(context),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'No activity records recorded for this month.',
+                            style: TextStyle(fontSize: 12, color: AppColors.grey400),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final top1 = list.isNotEmpty ? list[0] : null;
+                final top2 = list.length > 1 ? list[1] : null;
+                final top3 = list.length > 2 ? list[2] : null;
+                final rest = list.length > 3 ? list.sublist(3) : <TopEmployee>[];
+
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      // Podium for Top 3
+                      _buildPodium(top1: top1, top2: top2, top3: top3),
+                      const SizedBox(height: 18),
+
+                      // Leaderboard list for rank 4+
+                      if (rest.isNotEmpty) ...[
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10, left: 4),
+                          child: Text(
+                            'OTHER RANKINGS',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textSecondary(context),
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                        ...rest.asMap().entries.map((entry) {
+                          final rank = entry.key + 4;
+                          final emp = entry.value;
+                          return _buildRankCard(rank: rank, emp: emp);
+                        }),
+                      ],
+                    ]),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  // ── Podium Widget for Top 3 ────────────────────────────────────────────────
+  Widget _buildPodium({
+    TopEmployee? top1,
+    TopEmployee? top2,
+    TopEmployee? top3,
+  }) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border(context)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // 2nd Place (Silver)
+          Expanded(
+            child: top2 != null
+                ? _buildPodiumColumn(
+                    rank: 2,
+                    emp: top2,
+                    podiumHeight: 90,
+                    badgeColor: const Color(0xFF94A3B8),
+                    badgeBg: const Color(0xFFF1F5F9),
+                    crownIcon: Icons.military_tech_rounded,
+                  )
+                : const SizedBox.shrink(),
+          ),
+          const SizedBox(width: 8),
+
+          // 1st Place (Gold)
+          Expanded(
+            child: top1 != null
+                ? _buildPodiumColumn(
+                    rank: 1,
+                    emp: top1,
+                    podiumHeight: 120,
+                    badgeColor: const Color(0xFFF59E0B),
+                    badgeBg: const Color(0xFFFEF3C7),
+                    crownIcon: Icons.workspace_premium_rounded,
+                    isFirst: true,
+                  )
+                : const SizedBox.shrink(),
+          ),
+          const SizedBox(width: 8),
+
+          // 3rd Place (Bronze)
+          Expanded(
+            child: top3 != null
+                ? _buildPodiumColumn(
+                    rank: 3,
+                    emp: top3,
+                    podiumHeight: 70,
+                    badgeColor: const Color(0xFFD97706),
+                    badgeBg: const Color(0xFFFFFBEB),
+                    crownIcon: Icons.military_tech_outlined,
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPodiumColumn({
+    required int rank,
+    required TopEmployee emp,
+    required double podiumHeight,
+    required Color badgeColor,
+    required Color badgeBg,
+    required IconData crownIcon,
+    bool isFirst = false,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Rank Crown / Medal Icon
+        Icon(crownIcon, color: badgeColor, size: isFirst ? 26 : 20),
+        const SizedBox(height: 4),
+
+        // Avatar
+        CircleAvatar(
+          radius: isFirst ? 28 : 22,
+          backgroundColor: badgeColor.withValues(alpha: 0.18),
+          backgroundImage: emp.avatar != null && emp.avatar!.isNotEmpty
+              ? NetworkImage(emp.avatar!)
+              : null,
+          child: emp.avatar == null || emp.avatar!.isEmpty
+              ? Text(
+                  emp.name.isNotEmpty ? emp.name[0].toUpperCase() : '?',
+                  style: TextStyle(
+                    fontSize: isFirst ? 18 : 14,
+                    fontWeight: FontWeight.bold,
+                    color: badgeColor,
+                  ),
+                )
+              : null,
+        ),
+        const SizedBox(height: 8),
+
+        // Name
+        Text(
+          emp.name,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: isFirst ? 13 : 11.5,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textPrimary(context),
+          ),
+        ),
+        const SizedBox(height: 3),
+
+        // Score Badge
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+          decoration: BoxDecoration(
+            color: badgeBg,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: badgeColor.withValues(alpha: 0.3)),
+          ),
+          child: Text(
+            _getScoreDisplay(emp),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: badgeColor,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Podium Block
+        Container(
+          height: podiumHeight,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                badgeColor.withValues(alpha: isFirst ? 0.25 : 0.15),
+                badgeColor.withValues(alpha: isFirst ? 0.10 : 0.05),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            border: Border.all(color: badgeColor.withValues(alpha: 0.3)),
+          ),
+          child: Center(
+            child: Text(
+              '#$rank',
+              style: TextStyle(
+                fontSize: isFirst ? 20 : 16,
+                fontWeight: FontWeight.w900,
+                color: badgeColor,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Rank Card for 4+ ───────────────────────────────────────────────────────
+  Widget _buildRankCard({required int rank, required TopEmployee emp}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      child: Row(
+        children: [
+          // Rank Number
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: AppColors.bg(context),
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.border(context)),
+            ),
+            child: Center(
+              child: Text(
+                '$rank',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textSecondary(context),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // Avatar
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+            backgroundImage: emp.avatar != null && emp.avatar!.isNotEmpty
+                ? NetworkImage(emp.avatar!)
+                : null,
+            child: emp.avatar == null || emp.avatar!.isEmpty
+                ? Text(
+                    emp.name.isNotEmpty ? emp.name[0].toUpperCase() : '?',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  )
+                : null,
+          ),
+          const SizedBox(width: 10),
+
+          // Name
+          Expanded(
+            child: Text(
+              emp.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary(context),
+              ),
+            ),
+          ),
+
+          // Score Badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+            ),
+            child: Text(
+              _getScoreDisplay(emp),
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
