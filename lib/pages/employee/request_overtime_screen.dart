@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/overtime_providers.dart';
@@ -16,10 +18,12 @@ class RequestOvertimeScreen extends ConsumerStatefulWidget {
   const RequestOvertimeScreen({super.key});
 
   @override
-  ConsumerState<RequestOvertimeScreen> createState() => _RequestOvertimeScreenState();
+  ConsumerState<RequestOvertimeScreen> createState() =>
+      _RequestOvertimeScreenState();
 }
 
-class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> with SingleTickerProviderStateMixin {
+class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _startTime = const TimeOfDay(hour: 18, minute: 0);
@@ -47,14 +51,24 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
     try {
       final repo = ref.read(overtimeRepositoryProvider);
       final dateFormatter = DateFormat('yyyy-MM-dd');
-      final data = await repo.getShiftForDate(dateFormatter.format(_selectedDate));
+      final data = await repo.getShiftForDate(
+        dateFormatter.format(_selectedDate),
+      );
 
-      if (data['is_working'] == true && data['start_time'] != null && data['end_time'] != null) {
+      if (data['is_working'] == true &&
+          data['start_time'] != null &&
+          data['end_time'] != null) {
         final startParts = (data['start_time'] as String).split(':');
         final endParts = (data['end_time'] as String).split(':');
         setState(() {
-          _shiftStart = TimeOfDay(hour: int.parse(startParts[0]), minute: int.parse(startParts[1]));
-          _shiftEnd = TimeOfDay(hour: int.parse(endParts[0]), minute: int.parse(endParts[1]));
+          _shiftStart = TimeOfDay(
+            hour: int.parse(startParts[0]),
+            minute: int.parse(startParts[1]),
+          );
+          _shiftEnd = TimeOfDay(
+            hour: int.parse(endParts[0]),
+            minute: int.parse(endParts[1]),
+          );
         });
       } else {
         setState(() {
@@ -77,6 +91,7 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
   }
 
   Future<void> _pickDate() async {
+    HapticFeedback.lightImpact();
     final date = await showCustomDatePicker(
       context,
       initialDate: _selectedDate,
@@ -92,6 +107,7 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
   }
 
   Future<void> _pickTime(bool isStart) async {
+    HapticFeedback.lightImpact();
     final time = await showCustomTimePicker(
       context: context,
       initialTime: isStart ? _startTime : _endTime,
@@ -118,6 +134,7 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
   }
 
   Future<void> _submitRequest(AppLocalizations l10n) async {
+    HapticFeedback.lightImpact();
     final reason = _reasonController.text.trim();
     if (reason.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -133,8 +150,8 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
     final authState = ref.read(authProvider);
     if (authState.employeeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No employee profile found'),
+        SnackBar(
+          content: Text(l10n.noEmployeeProfileFound),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -148,8 +165,10 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
       final repo = ref.read(overtimeRepositoryProvider);
       final dateFormatter = DateFormat('yyyy-MM-dd');
 
-      final startStr = '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}';
-      final endStr = '${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}';
+      final startStr =
+          '${_startTime.hour.toString().padLeft(2, '0')}:${_startTime.minute.toString().padLeft(2, '0')}';
+      final endStr =
+          '${_endTime.hour.toString().padLeft(2, '0')}:${_endTime.minute.toString().padLeft(2, '0')}';
 
       await repo.submitOvertimeRequest(
         date: dateFormatter.format(_selectedDate),
@@ -162,8 +181,8 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Overtime request submitted successfully'),
+          SnackBar(
+            content: Text(l10n.otSubmittedSuccess),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -172,7 +191,7 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
         _tabController.animateTo(1); // Switch to history tab
       }
     } catch (e) {
-      String msg = 'Failed to submit request';
+      String msg = l10n.failedToSubmitRequest;
       if (e is AppException) {
         msg = e.message;
       } else {
@@ -199,113 +218,327 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final requestsAsync = ref.watch(overtimeRequestsProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: false,
-        title: const Text(
-          'Overtime Management',
-          style: TextStyle(
-            color: AppColors.grey900,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.grey500,
-          indicatorColor: AppColors.primary,
-          indicatorWeight: 3,
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-          tabs: const [
-            Tab(text: 'Request OT'),
-            Tab(text: 'My History'),
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : const Color(0xFFF8FAFC),
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Column(
+          children: [
+            // ── Gradient Hero Header ──
+            _buildHeroHeader(context, isDark),
+
+            // ── Tab Bar Views ──
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // TAB 1: Request Form
+                  _buildRequestForm(context, l10n, isDark),
+
+                  // TAB 2: History List
+                  _buildHistoryList(context, requestsAsync, isDark),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // ── TAB 1: Request OT Form ──
-          _buildRequestForm(l10n),
+    );
+  }
 
-          // ── TAB 2: OT History List ──
-          _buildHistoryList(requestsAsync),
+  // ── Gradient Hero Slab matching Dashboard & Leave Page ──
+  Widget _buildHeroHeader(BuildContext context, bool isDark) {
+    final l10n = AppLocalizations.of(context)!;
+    final baseColor = isDark
+        ? const Color(0xFF0A2472)
+        : const Color(0xFF0B2A80);
+
+    return Container(
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [baseColor, Color.lerp(baseColor, AppColors.primary, 0.6)!],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: isDark ? 0.34 : 0.28),
+            blurRadius: 30,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Background ambient rings
+          Positioned(
+            top: -100,
+            right: -80,
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -30,
+            right: -30,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              MediaQuery.paddingOf(context).top + 6,
+              16,
+              20,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top App Bar Row
+                Row(
+                  children: [
+                    _heroIconButton(
+                      Icons.arrow_back_ios_new_rounded,
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        }
+                      },
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.overtimeManagement,
+                            style: const TextStyle(
+                              fontSize: 18.5,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            l10n.overtimeManagementSubtitle,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xB3FFFFFF),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 18),
+
+                // Glass Segmented Tab Switcher
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.22),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.12),
+                    ),
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    indicator: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.16),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    labelColor: AppColors.primary,
+                    unselectedLabelColor: Colors.white.withValues(alpha: 0.82),
+                    labelStyle: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13.5,
+                      letterSpacing: -0.1,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13.5,
+                    ),
+                    tabs: [
+                      Tab(text: l10n.requestOT),
+                      Tab(text: l10n.myHistory),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildRequestForm(AppLocalizations l10n) {
+  Widget _heroIconButton(IconData icon, {required VoidCallback onTap}) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.12),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        child: SizedBox(
+          width: 38,
+          height: 38,
+          child: Icon(icon, color: Colors.white, size: 17),
+        ),
+      ),
+    );
+  }
+
+  // ── Tab 1: Request Overtime Form ──
+  Widget _buildRequestForm(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isDark,
+  ) {
     if (_isSubmitting) {
-      return LoadingIndicator(message: 'Submitting request...');
+      return LoadingIndicator(message: l10n.submittingRequest);
     }
 
     final hours = _calculatedOtHours;
+
+    final Color cardBg = isDark ? const Color(0xFF242424) : Colors.white;
+    final Color cardBorder = isDark
+        ? const Color(0xFF333333)
+        : const Color(0xFFE2E8F0);
+    final Color iconBg = isDark
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFEFF6FF);
+    final Color iconColor = isDark
+        ? const Color(0xFF93C5FD)
+        : AppColors.primary;
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(
         parent: BouncingScrollPhysics(),
       ),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Shift Context Banner ──
+          // ── Shift Policy Banner (Executive Squircle Card) ──
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFF8B5CF6).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.2)),
+              color: cardBg,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: cardBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    color: iconBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF3B82F6).withValues(alpha: 0.3)
+                          : const Color(0xFFBFDBFE),
+                      width: 0.8,
+                    ),
                   ),
-                  child: const Icon(Icons.info_outline_rounded, color: Color(0xFF8B5CF6), size: 18),
+                  child: Icon(
+                    Icons.schedule_rounded,
+                    size: 19,
+                    color: iconColor,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Shift Schedule',
+                      Text(
+                        'Overtime Calculator Policy',
                         style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF8B5CF6),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : AppColors.grey900,
+                          letterSpacing: -0.1,
                         ),
                       ),
                       const SizedBox(height: 2),
                       if (_isLoadingShift)
-                        const Text(
+                        Text(
                           'Checking assigned schedule...',
-                          style: TextStyle(fontSize: 13, color: AppColors.grey700),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark
+                                ? AppColors.grey400
+                                : AppColors.grey600,
+                          ),
                         )
                       else if (_shiftStart != null && _shiftEnd != null)
                         Text(
                           'Regular Shift: ${_shiftStart!.format(context)} - ${_shiftEnd!.format(context)}',
-                          style: const TextStyle(
-                            fontSize: 13,
+                          style: TextStyle(
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.grey900,
+                            color: isDark
+                                ? const Color(0xFF93C5FD)
+                                : AppColors.primary,
                           ),
                         )
                       else
-                        const Text(
+                        Text(
                           'No scheduled shift (Day off or flexible)',
-                          style: TextStyle(fontSize: 13, color: AppColors.grey700, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark
+                                ? AppColors.grey400
+                                : AppColors.grey600,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                     ],
                   ),
@@ -314,26 +547,30 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
 
-          // ── Date Selector ──
-          const Text(
+          // ── Date Picker Card ──
+          Text(
             'Date of Overtime',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: isDark ? AppColors.grey300 : AppColors.grey800,
+            ),
           ),
           const SizedBox(height: 8),
           InkWell(
             onTap: _pickDate,
             borderRadius: BorderRadius.circular(16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardBg,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.grey200),
+                border: Border.all(color: cardBorder),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
+                    color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -342,12 +579,23 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: iconBg,
                       borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF3B82F6).withValues(alpha: 0.3)
+                            : const Color(0xFFBFDBFE),
+                        width: 0.8,
+                      ),
                     ),
-                    child: const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 18),
+                    child: Icon(
+                      Icons.calendar_today_rounded,
+                      color: iconColor,
+                      size: 17,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -356,14 +604,29 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                       children: [
                         Text(
                           DateFormat('EEEE, MMM d, yyyy').format(_selectedDate),
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? Colors.white : AppColors.grey900,
+                          ),
                         ),
                         const SizedBox(height: 2),
-                        const Text('Tap to change date', style: TextStyle(fontSize: 11, color: AppColors.grey500)),
+                        Text(
+                          'Tap to change date',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark
+                                ? AppColors.grey400
+                                : AppColors.grey500,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.arrow_drop_down_rounded, color: AppColors.grey400),
+                  Icon(
+                    Icons.arrow_drop_down_rounded,
+                    color: isDark ? AppColors.grey400 : AppColors.grey500,
+                  ),
                 ],
               ),
             ),
@@ -371,30 +634,39 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
 
           const SizedBox(height: 18),
 
-          // ── Time Pickers ──
+          // ── Start Time & End Time Pickers (Side by Side) ──
           Row(
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Start Time',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                    Text(
+                      l10n.startTime,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? AppColors.grey300 : AppColors.grey800,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () => _pickTime(true),
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: cardBg,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: cardBorder),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.02),
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.2 : 0.02,
+                              ),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -402,11 +674,35 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 18),
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: iconBg,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.access_time_rounded,
+                                color: iconColor,
+                                size: 17,
+                              ),
+                            ),
                             const SizedBox(width: 8),
-                            Text(
-                              _startTime.format(context),
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _startTime.format(context),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark
+                                        ? Colors.white
+                                        : AppColors.grey900,
+                                  ),
+                                  maxLines: 1,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -420,23 +716,32 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'End Time',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                    Text(
+                      l10n.endTime,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? AppColors.grey300 : AppColors.grey800,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () => _pickTime(false),
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: cardBg,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: cardBorder),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.02),
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.2 : 0.02,
+                              ),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -444,11 +749,35 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.access_time_filled_rounded, color: Color(0xFF8B5CF6), size: 18),
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: iconBg,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.access_time_filled_rounded,
+                                color: iconColor,
+                                size: 17,
+                              ),
+                            ),
                             const SizedBox(width: 8),
-                            Text(
-                              _endTime.format(context),
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _endTime.format(context),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark
+                                        ? Colors.white
+                                        : AppColors.grey900,
+                                  ),
+                                  maxLines: 1,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -464,22 +793,36 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
           if (hours > 0) ...[
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
               decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
+                color: isDark
+                    ? const Color(0xFF1E293B)
+                    : const Color(0xFFEFF6FF),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF3B82F6).withValues(alpha: 0.4)
+                      : const Color(0xFFBFDBFE),
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.timer_outlined, size: 16, color: AppColors.success),
+                  Icon(
+                    Icons.timer_outlined,
+                    size: 16,
+                    color: isDark
+                        ? const Color(0xFF93C5FD)
+                        : AppColors.primary,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Estimated Overtime: ${hours.toStringAsFixed(1)} hours',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.success,
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? const Color(0xFF93C5FD)
+                          : AppColors.primary,
                     ),
                   ),
                 ],
@@ -490,57 +833,78 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
           const SizedBox(height: 18),
 
           // ── Reason Field ──
-          const Text(
+          Text(
             'Reason & Description',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: isDark ? AppColors.grey300 : AppColors.grey800,
+            ),
           ),
           const SizedBox(height: 8),
           TextField(
             controller: _reasonController,
             maxLines: 4,
-            style: const TextStyle(fontSize: 14, color: AppColors.grey900),
+            style: TextStyle(
+              fontSize: 13.5,
+              color: isDark ? Colors.white : AppColors.grey900,
+            ),
             decoration: InputDecoration(
-              hintText: 'Describe task objectives and why overtime is required...',
-              hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
+              hintText:
+                  'Describe task objectives and why overtime is required...',
+              hintStyle: TextStyle(
+                color: isDark ? AppColors.grey500 : AppColors.grey400,
+                fontSize: 13,
+              ),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: cardBg,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.grey200),
+                borderSide: BorderSide(color: cardBorder),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.grey200),
+                borderSide: BorderSide(color: cardBorder),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 1.5,
+                ),
               ),
               contentPadding: const EdgeInsets.all(16),
             ),
           ),
 
-          const SizedBox(height: 28),
+          const SizedBox(height: 26),
 
           // ── Submit Button ──
           SizedBox(
-            height: 50,
+            height: 52,
             child: ElevatedButton(
               onPressed: () => _submitRequest(l10n),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 elevation: 2,
+                shadowColor: AppColors.primary.withValues(alpha: 0.3),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.send_rounded, size: 18),
-                  SizedBox(width: 8),
+                  const Icon(Icons.send_rounded, size: 18),
+                  const SizedBox(width: 8),
                   Text(
-                    'Submit Overtime Request',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    l10n.submitOTRequest,
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.2,
+                    ),
                   ),
                 ],
               ),
@@ -551,9 +915,23 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
     );
   }
 
-  Widget _buildHistoryList(AsyncValue<List<OvertimeRequest>> requestsAsync) {
+  // ── Tab 2: Overtime History List ──
+  Widget _buildHistoryList(
+    BuildContext context,
+    AsyncValue<List<OvertimeRequest>> requestsAsync,
+    bool isDark,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
     return requestsAsync.when(
       data: (requests) {
+        final allCount = requests.length;
+        final pendingCount =
+            requests.where((r) => r.status.toLowerCase() == 'pending').length;
+        final approvedCount =
+            requests.where((r) => r.status.toLowerCase() == 'approved').length;
+        final rejectedCount =
+            requests.where((r) => r.status.toLowerCase() == 'rejected').length;
+
         final filtered = requests.where((r) {
           if (_statusFilter == 'all') return true;
           return r.status.toLowerCase() == _statusFilter.toLowerCase();
@@ -566,62 +944,111 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
             children: [
               // Filter Chips Strip
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Row(
-                  children: [
-                    _buildFilterChip('All', 'all', requests.length),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Pending', 'pending', requests.where((r) => r.status == 'pending').length),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Approved', 'approved', requests.where((r) => r.status == 'approved').length),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Rejected', 'rejected', requests.where((r) => r.status == 'rejected').length),
-                  ],
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    children: [
+                      _buildSeniorFilterChip(l10n.all, 'all', allCount, isDark),
+                      const SizedBox(width: 8),
+                      _buildSeniorFilterChip(
+                        l10n.pending,
+                        'pending',
+                        pendingCount,
+                        isDark,
+                      ),
+                      const SizedBox(width: 8),
+                      _buildSeniorFilterChip(
+                        l10n.approved,
+                        'approved',
+                        approvedCount,
+                        isDark,
+                      ),
+                      const SizedBox(width: 8),
+                      _buildSeniorFilterChip(
+                        l10n.rejected,
+                        'rejected',
+                        rejectedCount,
+                        isDark,
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
               // Request Cards
               Expanded(
                 child: filtered.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.timer_off_outlined, size: 48, color: AppColors.grey300),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'No overtime requests found',
-                              style: TextStyle(fontSize: 14, color: AppColors.grey500, fontWeight: FontWeight.w500),
-                            ),
-                          ],
+                    ? SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
+                        child: Container(
+                          height: 380,
+                          alignment: Alignment.center,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: isDark
+                                      ? const Color(0xFF242424)
+                                      : const Color(0xFFF1F5F9),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.timer_off_outlined,
+                                  size: 28,
+                                  color: isDark
+                                      ? AppColors.grey500
+                                      : AppColors.grey400,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                l10n.noOtRequests,
+                                style: TextStyle(
+                                  color: isDark
+                                      ? AppColors.grey400
+                                      : AppColors.grey600,
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       )
                     : ListView.separated(
                         physics: const AlwaysScrollableScrollPhysics(
                           parent: BouncingScrollPhysics(),
                         ),
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                         itemCount: filtered.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 10),
-                        itemBuilder: (context, i) => _buildHistoryCard(filtered[i]),
+                        separatorBuilder: (_, _) => const SizedBox(height: 12),
+                        itemBuilder: (ctx, i) =>
+                            _buildHistoryCard(filtered[i], isDark),
                       ),
               ),
             ],
           ),
         );
       },
-      loading: () => const Center(child: LoadingIndicator(message: 'Loading history...')),
-      error: (e, _) => Center(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      ),
+      error: (err, _) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 40, color: AppColors.grey400),
-            const SizedBox(height: 8),
-            Text('Failed to load overtime requests: $e', style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
+            const Icon(Icons.cloud_off, size: 48, color: AppColors.grey400),
             const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: () => ref.invalidate(overtimeRequestsProvider),
-              child: const Text('Retry'),
+            Text(
+              'Failed to load overtime history: $err',
+              style: const TextStyle(color: AppColors.grey600),
             ),
           ],
         ),
@@ -629,17 +1056,64 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
     );
   }
 
-  Widget _buildFilterChip(String label, String value, int count) {
+  Widget _buildSeniorFilterChip(
+    String label,
+    String value,
+    int count,
+    bool isDark,
+  ) {
     final isSelected = _statusFilter == value;
+
+    final Color chipBg = isSelected
+        ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF))
+        : (isDark ? const Color(0xFF242424) : Colors.white);
+
+    final Color chipBorder = isSelected
+        ? (isDark ? const Color(0xFF3B82F6) : AppColors.primary)
+        : (isDark ? const Color(0xFF333333) : const Color(0xFFE2E8F0));
+
+    final Color chipTextColor = isSelected
+        ? (isDark ? const Color(0xFF93C5FD) : AppColors.primary)
+        : (isDark ? AppColors.grey400 : AppColors.grey600);
+
+    final Color countBg = isSelected
+        ? (isDark
+            ? const Color(0xFF2563EB).withValues(alpha: 0.30)
+            : const Color(0xFFDBEAFE))
+        : (isDark ? const Color(0xFF2E2E2E) : const Color(0xFFF1F5F9));
+
+    final Color countTextColor = isSelected
+        ? (isDark ? const Color(0xFF93C5FD) : AppColors.primary)
+        : (isDark ? AppColors.grey400 : AppColors.grey600);
+
     return InkWell(
-      onTap: () => setState(() => _statusFilter = value),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _statusFilter = value);
+      },
       borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: chipBg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.grey200),
+          border: Border.all(
+            color: chipBorder,
+            width: isSelected ? 1.2 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(
+                      alpha: isDark ? 0.20 : 0.08,
+                    ),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -647,36 +1121,34 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.grey700,
+                fontSize: 12.5,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: chipTextColor,
               ),
             ),
-            if (count > 0) ...[
-              const SizedBox(width: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                decoration: BoxDecoration(
-                  color: isSelected ? Colors.white.withValues(alpha: 0.25) : AppColors.grey100,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  '$count',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : AppColors.grey600,
-                  ),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+              decoration: BoxDecoration(
+                color: countBg,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                count.toString(),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: countTextColor,
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHistoryCard(OvertimeRequest req) {
+  Widget _buildHistoryCard(OvertimeRequest req, bool isDark) {
     Color statusColor;
     switch (req.status.toLowerCase()) {
       case 'approved':
@@ -690,15 +1162,26 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
         statusColor = AppColors.warning;
     }
 
+    final Color cardBg = isDark ? const Color(0xFF242424) : Colors.white;
+    final Color cardBorder = isDark
+        ? const Color(0xFF333333)
+        : const Color(0xFFE2E8F0);
+    final Color iconBg = isDark
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFEFF6FF);
+    final Color iconColor = isDark
+        ? const Color(0xFF93C5FD)
+        : AppColors.primary;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        border: Border.all(color: cardBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -713,12 +1196,23 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+                      color: iconBg,
                       borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF3B82F6).withValues(alpha: 0.3)
+                            : const Color(0xFFBFDBFE),
+                        width: 0.8,
+                      ),
                     ),
-                    child: const Icon(Icons.timer_outlined, color: Color(0xFF8B5CF6), size: 18),
+                    child: Icon(
+                      Icons.timer_outlined,
+                      color: iconColor,
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Column(
@@ -726,18 +1220,20 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                     children: [
                       Text(
                         req.date,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : AppColors.grey900,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '${req.startTime} - ${req.endTime}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.grey600,
+                          color: isDark
+                              ? AppColors.grey400
+                              : AppColors.grey600,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -746,9 +1242,12 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.12),
+                  color: statusColor.withValues(alpha: isDark ? 0.20 : 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -763,22 +1262,45 @@ class _RequestOvertimeScreenState extends ConsumerState<RequestOvertimeScreen> w
               ),
             ],
           ),
-          if (req.reason != null && req.reason!.isNotEmpty) ...[
+          if (req.reason != null && req.reason!.trim().isNotEmpty) ...[
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: AppColors.grey50,
+                color: isDark
+                    ? const Color(0xFF1E293B).withValues(alpha: 0.5)
+                    : const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                req.reason!,
-                style: const TextStyle(
-                  fontSize: 12.5,
-                  color: AppColors.grey700,
-                  height: 1.3,
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF333333)
+                      : const Color(0xFFE2E8F0),
+                  width: 0.8,
                 ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.notes_rounded,
+                    size: 14,
+                    color: isDark ? AppColors.grey400 : AppColors.grey500,
+                  ),
+                  const SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      req.reason!.trim(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? AppColors.grey300 : AppColors.grey700,
+                        height: 1.35,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

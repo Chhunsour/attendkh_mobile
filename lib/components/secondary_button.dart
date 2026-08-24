@@ -8,7 +8,7 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 /// - Border radius: 28
 /// - Blue (AppColors.primary) border, white background
 /// - Bold text
-class SecondaryButton extends StatelessWidget {
+class SecondaryButton extends StatefulWidget {
   final String label;
   final VoidCallback? onPressed;
 
@@ -18,32 +18,60 @@ class SecondaryButton extends StatelessWidget {
     this.onPressed,
   });
 
+  @override
+  State<SecondaryButton> createState() => _SecondaryButtonState();
+}
+
+class _SecondaryButtonState extends State<SecondaryButton> {
+  bool _isPressed = false;
   static const _height = 55.0;
   static const _radius = 18.0;
-  static const _borderColor = AppColors.primary;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: _height,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: _borderColor,
-          side: const BorderSide(color: _borderColor, width: 1.5),
-          backgroundColor: AppColors.surfaceLight,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_radius),
-          ),
-          padding: EdgeInsets.zero,
-          textStyle: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final borderColor = isDark ? const Color(0xFF3B82F6) : AppColors.primary;
+    final textColor = isDark ? const Color(0xFF93C5FD) : AppColors.primary;
+    final bgColor = isDark ? const Color(0x183B82F6) : Colors.white;
+
+    return AnimatedScale(
+      scale: _isPressed ? 0.97 : 1.0,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOutCubic,
+      child: SizedBox(
+        width: double.infinity,
+        height: _height,
+        child: Listener(
+          onPointerDown: (_) => setState(() => _isPressed = true),
+          onPointerUp: (_) => setState(() => _isPressed = false),
+          onPointerCancel: (_) => setState(() => _isPressed = false),
+          child: OutlinedButton(
+            onPressed: widget.onPressed,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: textColor,
+              side: BorderSide(color: borderColor, width: 1.5),
+              backgroundColor: bgColor,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(_radius),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              textStyle: const TextStyle(
+                fontSize: 16.5,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
+              ),
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                widget.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ),
         ),
-        child: Text(label),
       ),
     );
   }

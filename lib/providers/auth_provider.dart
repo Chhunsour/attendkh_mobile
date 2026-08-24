@@ -84,9 +84,9 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _authRepo;
 
-  AuthNotifier({AuthRepository? authRepo})
+  AuthNotifier({AuthRepository? authRepo, AuthState? initialState})
     : _authRepo = authRepo ?? AuthRepository(),
-      super(const AuthState(isLoading: true));
+      super(initialState ?? const AuthState(isLoading: true));
 
   /// Check if user is already logged in from stored token.
   ///
@@ -109,7 +109,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
 
       try {
-        final currentUser = await _authRepo.getCurrentUser();
+        final currentUser = await _authRepo.getCurrentUser().timeout(
+          const Duration(seconds: 8),
+        );
         await _persistUserData(currentUser);
 
         state = state.copyWith(
@@ -236,12 +238,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Logout — calls POST /logout, clears all stored data
+  /// Logout — revokes the token server-side, then clears everything locally.
+  ///
+  /// The revoke is time-boxed so a dead network can never leave the user stuck
+  /// on a screen they asked to leave; local data is cleared either way.
   Future<void> logout() async {
     try {
-      await _authRepo.logout();
+      await _authRepo.logout().timeout(const Duration(seconds: 5));
     } catch (e) {
       AppLogger.w('Logout API call failed — clearing local data anyway');
+    }
+    await FcmService.instance.clearToken();
+    await SecureStorageService.instance.clearAll();
+    state = const AuthState();
+  }
+
+  /// Delete Account — Guideline 5.1.1(v) compliance.
+  /// Throws on failure so the caller can keep the user signed in.
+  Future<void> deleteAccount() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await _authRepo.deleteAccount();
+    } catch (_) {
+      state = state.copyWith(isLoading: false);
+      rethrow; // caller decides what the user sees; session stays intact
     }
     await SecureStorageService.instance.clearAll();
     state = const AuthState();

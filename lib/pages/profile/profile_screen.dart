@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
+
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   final bool showBackButton;
@@ -18,48 +18,26 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
     final profileAsync = ref.watch(profileProvider);
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: showBackButton
-            ? IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: AppColors.grey900,
-                  size: 20,
-                ),
-                onPressed: () => context.pop(),
-              )
-            : null,
-        title: Text(
-          l10n.myProfile,
-          style: const TextStyle(
-            color: AppColors.grey900,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, color: AppColors.primary),
-            tooltip: l10n.editProfile,
-            onPressed: () => context.push(AppRoutes.editProfile),
-          ),
-        ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
-      body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(profileProvider),
-        color: AppColors.primary,
-        child: profileAsync.when(
-          data: (data) => _buildContent(context, ref, data, authState, l10n),
-          loading: () => LoadingIndicator(message: l10n.loadingProfile),
-          error: (e, _) => _buildFallback(context, ref, authState, l10n),
+      child: Scaffold(
+        backgroundColor: isDark ? AppColors.backgroundDark : const Color(0xFFF8FAFC),
+        body: RefreshIndicator(
+          onRefresh: () async => ref.invalidate(profileProvider),
+          color: AppColors.primary,
+          child: profileAsync.when(
+            data: (data) => _buildContent(context, ref, data, l10n, isDark),
+            loading: () => LoadingIndicator(message: l10n.loadingProfile),
+            error: (e, _) => _buildFallback(context, ref, l10n, isDark),
+          ),
         ),
       ),
     );
@@ -68,26 +46,43 @@ class ProfileScreen extends ConsumerWidget {
   Widget _buildFallback(
     BuildContext context,
     WidgetRef ref,
-    AuthState authState,
     AppLocalizations l10n,
+    bool isDark,
   ) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, size: 48, color: AppColors.grey400),
-          const SizedBox(height: 12),
-          Text(
-            l10n.failedToLoadProfile,
-            style: const TextStyle(color: AppColors.grey500),
-          ),
-          const SizedBox(height: 24),
-          OutlinedButton.icon(
-            onPressed: () => ref.invalidate(profileProvider),
-            icon: const Icon(Icons.refresh),
-            label: Text(l10n.retry),
-          ),
-        ],
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline_rounded,
+              size: 48,
+              color: isDark ? AppColors.grey600 : AppColors.grey400,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.failedToLoadProfile,
+              style: TextStyle(color: isDark ? AppColors.grey400 : AppColors.grey500),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () => ref.invalidate(profileProvider),
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: Text(l10n.retry),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -96,310 +91,544 @@ class ProfileScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     ProfileData data,
-    AuthState authState,
     AppLocalizations l10n,
+    bool isDark,
   ) {
     return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: BouncingScrollPhysics(),
-      ),
+      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      padding: const EdgeInsets.only(bottom: 40),
       child: Column(
         children: [
-          // ── Header Profile Hero Card ──
-          _buildHeroProfileHeader(context, data, l10n),
+          // ── Royal Blue Gradient Hero Header (Matches Home / Leave Screen) ──
+          _buildRoyalHeroHeader(context, data, l10n, isDark),
 
-          // ── Key Metrics Overview Strip ──
-          _buildQuickOverviewStrip(data),
+          const SizedBox(height: 16),
 
-          const SizedBox(height: 8),
-
-          // ── Employment Details Card ──
-          _buildSectionCard(
-            title: 'Employment Details',
-            icon: Icons.badge_outlined,
-            iconColor: AppColors.primary,
-            children: [
-              if (data.employeeId != null && data.employeeId!.isNotEmpty)
-                _buildInfoTile('Employee ID', data.employeeId!, Icons.fingerprint_rounded),
-              _buildInfoTile(l10n.company, data.companyName ?? data.companyId.toString(), Icons.business_rounded),
-              if (data.branchName != null)
-                _buildInfoTile('Branch', data.branchName!, Icons.storefront_rounded),
-              if (data.department != null)
-                _buildInfoTile(l10n.department, data.department!, Icons.corporate_fare_rounded),
-              if (data.jobTitle != null)
-                _buildInfoTile(l10n.jobTitle, data.jobTitle!, Icons.work_outline_rounded),
-              if (data.team != null)
-                _buildInfoTile('Team', data.team!, Icons.groups_rounded),
-              if (data.manager != null)
-                _buildInfoTile('Reporting Manager', data.manager!, Icons.person_pin_rounded),
-              if (data.hireDate != null)
-                _buildInfoTile('Join Date', data.hireDate!, Icons.calendar_today_rounded),
-              if (data.employmentType != null)
-                _buildInfoTile('Employment Type', _capitalize(data.employmentType!), Icons.assignment_ind_outlined),
-            ],
-          ),
-
-          // ── Personal Information Card ──
-          _buildSectionCard(
-            title: 'Personal Information',
-            icon: Icons.person_outline_rounded,
-            iconColor: const Color(0xFF3B82F6),
-            children: [
-              if (data.phone != null && data.phone!.isNotEmpty)
-                _buildInfoTile('Phone Number', data.phone!, Icons.phone_outlined),
-              if (data.email != null && data.email!.isNotEmpty)
-                _buildInfoTile('Email Address', data.email!, Icons.mail_outline_rounded),
-              if (data.gender != null)
-                _buildInfoTile('Gender', _capitalize(data.gender!), Icons.wc_rounded),
-              if (data.dateOfBirth != null)
-                _buildInfoTile('Date of Birth', data.dateOfBirth!, Icons.cake_outlined),
-              if (data.maritalStatus != null)
-                _buildInfoTile('Marital Status', _capitalize(data.maritalStatus!), Icons.favorite_border_rounded),
-              if (data.nationalId != null && data.nationalId!.isNotEmpty)
-                _buildInfoTile('National ID', data.nationalId!, Icons.credit_card_rounded),
-              if (data.address != null && data.address!.isNotEmpty)
-                _buildInfoTile('Address', data.address!, Icons.location_on_outlined),
-            ],
-          ),
-
-          // ── Banking & Payroll Card ──
-          if (data.bankName != null || data.bankAccount != null)
-            _buildSectionCard(
-              title: 'Banking & Financials',
-              icon: Icons.account_balance_outlined,
-              iconColor: const Color(0xFF10B981),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
               children: [
-                if (data.bankName != null)
-                  _buildInfoTile('Bank Name', data.bankName!, Icons.account_balance_rounded),
-                if (data.bankAccount != null)
-                  _buildInfoTile('Account Number', data.bankAccount!, Icons.numbers_rounded),
-              ],
-            ),
+                // ── High-Value Key Metric Cards ──
+                _buildKeyStatsStrip(context, data, isDark),
 
-          // ── Emergency Contact Card ──
-          if (data.emergencyContact != null)
-            _buildSectionCard(
-              title: 'Emergency Contact',
-              icon: Icons.emergency_outlined,
-              iconColor: const Color(0xFFEF4444),
-              children: [
-                if (data.emergencyContact!['name'] != null)
-                  _buildInfoTile('Contact Name', data.emergencyContact!['name'].toString(), Icons.person_outline_rounded),
-                if (data.emergencyContact!['relationship'] != null)
-                  _buildInfoTile('Relationship', data.emergencyContact!['relationship'].toString(), Icons.people_outline_rounded),
-                if (data.emergencyContact!['phone'] != null)
-                  _buildInfoTile('Phone Number', data.emergencyContact!['phone'].toString(), Icons.phone_in_talk_rounded),
-              ],
-            ),
+                const SizedBox(height: 16),
 
-          // ── Account & Preferences Card ──
-          _buildSectionCard(
-            title: 'Preferences & Security',
-            icon: Icons.tune_rounded,
-            iconColor: const Color(0xFF6366F1),
-            children: [
-              if (authState.isSuperAdmin || authState.isCompanyAdmin) ...[
-                _buildActionTile(
-                  icon: Icons.admin_panel_settings_outlined,
-                  title: l10n.returnToAdminConsole,
-                  subtitle: 'Switch to HR Admin dashboard',
-                  onTap: () {
-                    if (authState.isSuperAdmin) {
-                      context.go(AppRoutes.adminDashboard);
-                    } else {
-                      context.go(AppRoutes.companyAdmin);
-                    }
-                  },
+                // ── Section 1: Employment & Work Details ──
+                _buildSectionCard(
+                  context: context,
+                  title: l10n.employmentDetails,
+                  icon: Icons.business_center_rounded,
+                  iconColor: AppColors.primary,
+                  isDark: isDark,
+                  children: [
+                    _buildInfoRow(
+                      context: context,
+                      label: l10n.company,
+                      value: data.companyName ??
+                          (data.companyId > 0 ? 'Company #${data.companyId}' : '—'),
+                      icon: Icons.domain_rounded,
+                      isDark: isDark,
+                    ),
+                    if (data.branchName != null && data.branchName!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.branchLocation,
+                        value: data.branchName!,
+                        icon: Icons.storefront_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.department != null && data.department!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.department,
+                        value: data.department!,
+                        icon: Icons.account_tree_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.jobTitle != null && data.jobTitle!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.jobTitleRole,
+                        value: data.jobTitle!,
+                        icon: Icons.work_outline_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.team != null && data.team!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.team,
+                        value: data.team!,
+                        icon: Icons.groups_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.manager != null && data.manager!.trim().isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.reportingManager,
+                        value: data.manager!.trim(),
+                        icon: Icons.person_pin_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.hireDate != null && data.hireDate!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.joiningDate,
+                        value: formatDate(data.hireDate),
+                        icon: Icons.calendar_today_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.probationEndDate != null &&
+                        data.probationEndDate!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.probationEnd,
+                        value: formatDate(data.probationEndDate),
+                        icon: Icons.event_available_rounded,
+                        isDark: isDark,
+                      ),
+                  ],
                 ),
-                const Divider(height: 1, color: AppColors.grey100),
-              ],
-              _buildLanguageTile(context, ref, l10n),
-              _buildActionTile(
-                icon: Icons.edit_note_rounded,
-                title: 'Edit Profile Information',
-                subtitle: 'Update your personal and contact details',
-                onTap: () => context.push(AppRoutes.editProfile),
-              ),
-              const Divider(height: 1, color: AppColors.grey100),
-              _buildActionTile(
-                icon: Icons.logout_rounded,
-                title: l10n.logOut,
-                subtitle: 'Sign out from this device',
-                iconColor: AppColors.danger,
-                titleColor: AppColors.danger,
-                onTap: () => showLogoutConfirmation(context, ref),
-              ),
-            ],
-          ),
 
-          const SizedBox(height: 40),
+                const SizedBox(height: 16),
+
+                // ── Section 2: Personal & Contact Information ──
+                _buildSectionCard(
+                  context: context,
+                  title: l10n.personalAndContact,
+                  icon: Icons.contact_page_rounded,
+                  iconColor: const Color(0xFF0284C7),
+                  isDark: isDark,
+                  children: [
+                    if (data.phone != null && data.phone!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.phoneNumber,
+                        value: data.phone!,
+                        icon: Icons.phone_outlined,
+                        isDark: isDark,
+                        isCopyable: true,
+                      ),
+                    if (data.email != null && data.email!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.emailAddress,
+                        value: data.email!,
+                        icon: Icons.mail_outline_rounded,
+                        isDark: isDark,
+                        isCopyable: true,
+                      ),
+                    if (data.gender != null && data.gender!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: l10n.gender,
+                        value: _capitalize(data.gender!),
+                        icon: Icons.person_outline_rounded,
+                        isDark: isDark,
+                      ),
+                    if (data.dateOfBirth != null && data.dateOfBirth!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: 'Date of Birth',
+                        value: formatDate(data.dateOfBirth),
+                        icon: Icons.cake_outlined,
+                        isDark: isDark,
+                      ),
+                    if (data.nationalId != null && data.nationalId!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: 'National ID / Passport',
+                        value: data.nationalId!,
+                        icon: Icons.badge_outlined,
+                        isDark: isDark,
+                        isCopyable: true,
+                      ),
+                    if (data.address != null && data.address!.isNotEmpty)
+                      _buildInfoRow(
+                        context: context,
+                        label: 'Residential Address',
+                        value: data.address!,
+                        icon: Icons.location_on_outlined,
+                        isDark: isDark,
+                      ),
+                  ],
+                ),
+
+                // ── Section 3: Banking & Payroll (Conditional) ──
+                if ((data.bankName != null && data.bankName!.isNotEmpty) ||
+                    (data.bankAccount != null && data.bankAccount!.isNotEmpty)) ...[
+                  const SizedBox(height: 16),
+                  _buildSectionCard(
+                    context: context,
+                    title: 'Payroll & Banking',
+                    icon: Icons.account_balance_rounded,
+                    iconColor: const Color(0xFF10B981),
+                    isDark: isDark,
+                    children: [
+                      if (data.bankName != null && data.bankName!.isNotEmpty)
+                        _buildInfoRow(
+                          context: context,
+                          label: 'Bank Name',
+                          value: data.bankName!,
+                          icon: Icons.account_balance_outlined,
+                          isDark: isDark,
+                        ),
+                      if (data.bankAccount != null && data.bankAccount!.isNotEmpty)
+                        _buildInfoRow(
+                          context: context,
+                          label: 'Account Number',
+                          value: data.bankAccount!,
+                          icon: Icons.credit_card_rounded,
+                          isDark: isDark,
+                          isCopyable: true,
+                        ),
+                    ],
+                  ),
+                ],
+
+                // ── Section 4: Emergency Contact (Conditional) ──
+                if (_hasEmergencyContact(data.emergencyContact)) ...[
+                  const SizedBox(height: 16),
+                  _buildSectionCard(
+                    context: context,
+                    title: 'Emergency Contact',
+                    icon: Icons.health_and_safety_rounded,
+                    iconColor: const Color(0xFFEF4444),
+                    isDark: isDark,
+                    children: [
+                      if (data.emergencyContact!['name'] != null &&
+                          data.emergencyContact!['name'].toString().isNotEmpty)
+                        _buildInfoRow(
+                          context: context,
+                          label: 'Contact Name',
+                          value: data.emergencyContact!['name'].toString(),
+                          icon: Icons.person_rounded,
+                          isDark: isDark,
+                        ),
+                      if (data.emergencyContact!['relationship'] != null &&
+                          data.emergencyContact!['relationship'].toString().isNotEmpty)
+                        _buildInfoRow(
+                          context: context,
+                          label: 'Relationship',
+                          value: data.emergencyContact!['relationship'].toString(),
+                          icon: Icons.family_restroom_rounded,
+                          isDark: isDark,
+                        ),
+                      if (data.emergencyContact!['phone'] != null &&
+                          data.emergencyContact!['phone'].toString().isNotEmpty)
+                        _buildInfoRow(
+                          context: context,
+                          label: 'Emergency Phone',
+                          value: data.emergencyContact!['phone'].toString(),
+                          icon: Icons.phone_in_talk_rounded,
+                          isDark: isDark,
+                          isCopyable: true,
+                        ),
+                    ],
+                  ),
+                ],
+
+                const SizedBox(height: 24),
+
+                // ── Bottom Edit Action Button ──
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      context.push(AppRoutes.editProfile);
+                    },
+                    icon: const Icon(Icons.edit_note_rounded, size: 20),
+                    label: Text(
+                      l10n.editProfile,
+                      style: const TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDark
+                          ? AppColors.surfaceDarkElevated
+                          : Colors.white,
+                      foregroundColor: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        side: BorderSide(
+                          color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0),
+                          width: 1.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildHeroProfileHeader(BuildContext context, ProfileData data, AppLocalizations l10n) {
+  // ── Royal Blue Curved Hero Header (Matches Home / Leave Screen) ──
+  Widget _buildRoyalHeroHeader(
+    BuildContext context,
+    ProfileData data,
+    AppLocalizations l10n,
+    bool isDark,
+  ) {
+    final displayName = data.fullName != null && data.fullName!.isNotEmpty
+        ? data.fullName!
+        : data.name;
+    final departmentRole = [
+      data.jobTitle,
+      data.department,
+    ].where((s) => s != null && s.isNotEmpty).join(' • ');
+
+    final bool isActive = (data.employmentStatus ?? 'active').toLowerCase() == 'active';
+
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF0038B8), // Royal Blue Deep
+            Color(0xFF0052FF), // Royal Blue Main
+            Color(0xFF1E6BFF), // Royal Blue Light Glow
+          ],
+        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Color(0x550052FF),
+            blurRadius: 28,
+            offset: Offset(0, 10),
           ),
         ],
       ),
-      child: Column(
+      child: Stack(
         children: [
-          // Avatar with Edit Button Overlay
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              Container(
-                width: 84,
-                height: 84,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  border: Border.all(color: Colors.white, width: 3),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: data.photoUrl != null && data.photoUrl!.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: data.photoUrl!,
-                          width: 84,
-                          height: 84,
-                          memCacheWidth: 250,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => const Center(
-                            child: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Center(
-                            child: Text(
-                              _initials(data.name),
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
+          // Translucent decorative background circles
+          Positioned(
+            top: -100,
+            right: -80,
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.06),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -50,
+            left: -40,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.04),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 26),
+              child: Column(
+                children: [
+                  // ── Top Navigation Bar ──
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (showBackButton)
+                        _frostedHeroButton(
+                          icon: Icons.arrow_back_ios_new_rounded,
+                          onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            }
+                          },
                         )
-                      : Center(
-                          child: Text(
-                            _initials(data.name),
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                      else
+                        const SizedBox(width: 40),
+                      Text(
+                        l10n.myProfile,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                      _frostedHeroButton(
+                        icon: Icons.edit_rounded,
+                        tooltip: l10n.editProfile,
+                        onTap: () => context.push(AppRoutes.editProfile),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ── Avatar with Illuminated White Ring & Camera Badge ──
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        width: 96,
+                        height: 96,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3.5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.25),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: ClipOval(
+                          child: data.photoUrl != null && data.photoUrl!.isNotEmpty
+                              ? CachedNetworkImage(
+                                  imageUrl: data.photoUrl!,
+                                  width: 90,
+                                  height: 90,
+                                  memCacheWidth: 250,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => const Center(
+                                    child: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) => Center(
+                                    child: Text(
+                                      _initials(displayName),
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  color: Colors.white.withValues(alpha: 0.20),
+                                  child: Center(
+                                    child: Text(
+                                      _initials(displayName),
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
+
+                      // Floating Camera Edit Action Badge
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            context.push(AppRoutes.editProfile);
+                          },
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.20),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              size: 16,
                               color: AppColors.primary,
                             ),
                           ),
                         ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () => context.push(AppRoutes.editProfile),
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: AppColors.primary,
-                    shape: BoxShape.circle,
+                      ),
+                    ],
                   ),
-                  child: const Icon(
-                    Icons.camera_alt_rounded,
-                    size: 14,
-                    color: Colors.white,
+
+                  const SizedBox(height: 14),
+
+                  // Full Display Name
+                  Text(
+                    displayName,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.3,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
+
+                  // Khmer Name (if present)
+                  if (data.khmerName != null && data.khmerName!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      data.khmerName!.trim(),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white.withValues(alpha: 0.90),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+
+                  // Job Title / Role & Department
+                  if (departmentRole.isNotEmpty) ...[
+                    const SizedBox(height: 5),
+                    Text(
+                      departmentRole,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        color: Colors.white.withValues(alpha: 0.78),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+
+                  const SizedBox(height: 14),
+
+                  // Frosted Role & Status Badges
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildHeroRoleBadge(data.roles),
+                      const SizedBox(width: 8),
+                      _buildHeroStatusBadge(isActive, data.employmentStatus ?? 'Active'),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-
-          // Name
-          Text(
-            data.name,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.grey900,
-            ),
-            textAlign: TextAlign.center,
-          ),
-
-          const SizedBox(height: 4),
-
-          // Job Title & Department
-          Text(
-            [data.jobTitle, data.department].where((s) => s != null && s.isNotEmpty).join(' • '),
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.grey600,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-          ),
-
-          const SizedBox(height: 12),
-
-          // Roles & Status Tags
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildRoleTag(data.roles),
-              const SizedBox(width: 8),
-              _buildStatusTag(data.employmentStatus ?? 'active'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickOverviewStrip(ProfileData data) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: _overviewBox(
-              'Branch',
-              data.branchName ?? 'Headquarters',
-              Icons.storefront_rounded,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: _overviewBox(
-              'Employee ID',
-              data.employeeId ?? '#${data.id}',
-              Icons.badge_rounded,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: _overviewBox(
-              'Status',
-              _capitalize(data.employmentStatus ?? 'Active'),
-              Icons.verified_rounded,
             ),
           ),
         ],
@@ -407,83 +636,86 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _overviewBox(String label, String value, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 18, color: AppColors.primary),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: AppColors.grey900,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+  Widget _frostedHeroButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    String? tooltip,
+  }) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.18),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        child: Tooltip(
+          message: tooltip ?? '',
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Icon(icon, size: 18, color: Colors.white),
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 10, color: AppColors.grey500),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildRoleTag(List<String> roles) {
+  Widget _buildHeroRoleBadge(List<String> roles) {
     final roleText = roles.isNotEmpty ? roles.first.replaceAll('_', ' ') : 'Employee';
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
+        color: Colors.white.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
       ),
       child: Text(
         roleText.toUpperCase(),
         style: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: AppColors.primary,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
           letterSpacing: 0.4,
         ),
       ),
     );
   }
 
-  Widget _buildStatusTag(String status) {
+  Widget _buildHeroStatusBadge(bool isActive, String status) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color: const Color(0xFF10B981).withValues(alpha: 0.12),
+        color: Colors.white.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 6,
-            height: 6,
-            decoration: const BoxDecoration(
-              color: Color(0xFF10B981),
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: isActive ? const Color(0xFF34D399) : const Color(0xFFFBBF24),
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: (isActive ? const Color(0xFF34D399) : const Color(0xFFFBBF24))
+                      .withValues(alpha: 0.6),
+                  blurRadius: 4,
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
           Text(
             status.replaceAll('_', ' ').toUpperCase(),
             style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF10B981),
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
               letterSpacing: 0.4,
             ),
           ),
@@ -492,26 +724,150 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
+  // ── High-Value Key Stats Strip ──
+  Widget _buildKeyStatsStrip(BuildContext context, ProfileData data, bool isDark) {
+    final empId = data.employeeId != null && data.employeeId!.isNotEmpty
+        ? data.employeeId!
+        : '#${data.id}';
+    final empType = _formatEmploymentType(data.employmentType);
+    final joinDate = formatDate(data.hireDate);
+
+    return Row(
+      children: [
+        Expanded(
+          child: _buildMetricTile(
+            context: context,
+            icon: Icons.badge_rounded,
+            label: 'Employee ID',
+            value: empId,
+            color: const Color(0xFF0052FF),
+            isDark: isDark,
+            onTap: () => _copyToClipboard(context, empId, 'Employee ID'),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildMetricTile(
+            context: context,
+            icon: Icons.work_history_rounded,
+            label: 'Employment',
+            value: empType,
+            color: const Color(0xFF10B981),
+            isDark: isDark,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildMetricTile(
+            context: context,
+            icon: Icons.event_available_rounded,
+            label: 'Joined',
+            value: joinDate != '—' ? joinDate : 'Recent',
+            color: const Color(0xFF8B5CF6),
+            isDark: isDark,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMetricTile({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+    required bool isDark,
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: isDark ? 0.22 : 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 18, color: color),
+              ),
+              const SizedBox(height: 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : AppColors.grey900,
+                  ),
+                  maxLines: 1,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isDark ? AppColors.grey400 : AppColors.grey500,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Section Card Container ──
   Widget _buildSectionCard({
+    required BuildContext context,
     required String title,
     required IconData icon,
     required Color iconColor,
     required List<Widget> children,
+    required bool isDark,
   }) {
     final validChildren = children.where((w) => w is! SizedBox).toList();
     if (validChildren.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -519,30 +875,34 @@ class ProfileScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    color: iconColor.withValues(alpha: isDark ? 0.22 : 0.12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(icon, size: 16, color: iconColor),
+                  child: Icon(icon, size: 18, color: iconColor),
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : AppColors.grey900,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, color: AppColors.grey100),
+          Divider(height: 1, color: isDark ? AppColors.borderDark : const Color(0xFFF1F5F9)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(children: validChildren),
@@ -552,128 +912,114 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoTile(String label, String value, IconData icon) {
+  // ── Info Row Item with Clean Icons and 1-Tap Copy ──
+  Widget _buildInfoRow({
+    required BuildContext context,
+    required String label,
+    required String value,
+    required IconData icon,
+    required bool isDark,
+    bool isCopyable = false,
+  }) {
+    if (value.trim().isEmpty || value == '—') return const SizedBox.shrink();
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, size: 16, color: AppColors.grey400),
+          Icon(icon, size: 17, color: isDark ? AppColors.grey500 : AppColors.grey400),
           const SizedBox(width: 10),
           Expanded(
+            flex: 4,
             child: Text(
               label,
-              style: const TextStyle(fontSize: 13, color: AppColors.grey600),
-            ),
-          ),
-          Flexible(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.grey900,
+              style: TextStyle(
+                fontSize: 13.5,
+                color: isDark ? AppColors.grey400 : AppColors.grey600,
+                fontWeight: FontWeight.w500,
               ),
-              textAlign: TextAlign.end,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    Color? iconColor,
-    Color? titleColor,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: iconColor ?? AppColors.grey700),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
+          const SizedBox(width: 8),
+          Flexible(
+            flex: 6,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    value,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 13.5,
                       fontWeight: FontWeight.w600,
-                      color: titleColor ?? AppColors.grey900,
+                      color: isDark ? Colors.white : AppColors.grey900,
+                    ),
+                    textAlign: TextAlign.end,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (isCopyable) ...[
+                  const SizedBox(width: 6),
+                  GestureDetector(
+                    onTap: () => _copyToClipboard(context, value, label),
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.0),
+                      child: Icon(
+                        Icons.copy_rounded,
+                        size: 14,
+                        color: isDark ? const Color(0xFF93C5FD) : AppColors.primary,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(fontSize: 11, color: AppColors.grey500),
-                  ),
                 ],
-              ),
-            ),
-            const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.grey400),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLanguageTile(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
-    final currentLang = ref.watch(localeProvider).languageCode;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          const Icon(Icons.translate_rounded, size: 20, color: AppColors.grey700),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.language,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey900,
-                  ),
-                ),
-                Text(
-                  currentLang == 'km' ? l10n.khmer : l10n.english,
-                  style: const TextStyle(fontSize: 11, color: AppColors.grey500),
-                ),
               ],
-            ),
-          ),
-          DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: currentLang,
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.grey500),
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary),
-              items: [
-                DropdownMenuItem(value: 'en', child: Text(l10n.english)),
-                DropdownMenuItem(value: 'km', child: Text(l10n.khmer)),
-              ],
-              onChanged: (String? val) {
-                if (val != null) {
-                  ref.read(localeProvider.notifier).setLocale(Locale(val));
-                }
-              },
             ),
           ),
         ],
       ),
     );
+  }
+
+  // ── Helpers ──
+  bool _hasEmergencyContact(Map<String, dynamic>? contact) {
+    if (contact == null) return false;
+    final name = contact['name']?.toString() ?? '';
+    final phone = contact['phone']?.toString() ?? '';
+    return name.trim().isNotEmpty || phone.trim().isNotEmpty;
+  }
+
+  void _copyToClipboard(BuildContext context, String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    HapticFeedback.lightImpact();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Text('Copied $label to clipboard', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+          ],
+        ),
+        backgroundColor: AppColors.grey900,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  String _formatEmploymentType(String? type) {
+    if (type == null || type.isEmpty) return 'Full Time';
+    final clean = type.replaceAll('_', ' ').toLowerCase();
+    if (clean == 'full time') return 'Full Time';
+    if (clean == 'part time') return 'Part Time';
+    if (clean == 'contract') return 'Contract';
+    if (clean == 'intern' || clean == 'internship') return 'Internship';
+    if (clean == 'probation') return 'Probation';
+    return clean.split(' ').map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '').join(' ');
   }
 
   String _initials(String name) {

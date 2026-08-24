@@ -12,6 +12,7 @@ import 'package:mpg_hr_mobile_app/services/directory_repository.dart'
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 class AdminPerformanceScreen extends StatefulWidget {
@@ -41,15 +42,15 @@ class _AdminPerformanceScreenState extends State<AdminPerformanceScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.performanceTrainingTitle,
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -339,12 +340,12 @@ class _ReviewsTabState extends State<_ReviewsTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Review Details',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 IconButton(
@@ -426,10 +427,10 @@ class _ReviewsTabState extends State<_ReviewsTab> {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.grey900,
+                color: AppColors.textPrimary(context),
               ),
             ),
           ),
@@ -446,10 +447,10 @@ class _ReviewsTabState extends State<_ReviewsTab> {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
-              color: AppColors.grey900,
+              color: AppColors.textPrimary(context),
               letterSpacing: 0.5,
             ),
           ),
@@ -536,10 +537,10 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                   children: [
                     Text(
                       isEdit ? l10n.editReviewTitle : l10n.createReviewTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -648,7 +649,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                               decoration: BoxDecoration(
                                 color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.grey300),
+                                border: Border.all(color: AppColors.border(context)),
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -726,7 +727,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                               decoration: BoxDecoration(
                                 color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.grey300),
+                                border: Border.all(color: AppColors.border(context)),
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -821,7 +822,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                         decoration: BoxDecoration(
                           color: AppColors.backgroundLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.grey300),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -988,10 +989,10 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                         },
                         child: Text(
                           isEdit ? l10n.saveChangesBtn : l10n.createReviewTitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                       ),
@@ -1029,7 +1030,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.grey300),
+                      borderSide: BorderSide(color: AppColors.border(context)),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -1148,7 +1149,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                         decoration: BoxDecoration(
                           color: AppColors.surfaceLight,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -1396,7 +1397,7 @@ class _StarRatingPicker extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey300),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1759,10 +1760,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                       isEdit
                           ? l10n.editTrainingTitle
                           : l10n.createTrainingTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -1791,10 +1792,15 @@ class _TrainingTabState extends State<_TrainingTab> {
                                 ? Image.file(coverImageFile!, fit: BoxFit.cover)
                                 : (item?.coverImage != null &&
                                       item!.coverImage!.isNotEmpty)
-                                ? Image.network(
-                                    item.coverImage!,
+                                ? CachedNetworkImage(
+                                    imageUrl: item.coverImage!,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (ctx, err, stack) => Column(
+                                    memCacheWidth: 600,
+                                    memCacheHeight: 400,
+                                    placeholder: (ctx, url) => const Center(
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                                    ),
+                                    errorWidget: (ctx, url, err) => Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
@@ -2040,7 +2046,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                               decoration: BoxDecoration(
                                 color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.grey300),
+                                border: Border.all(color: AppColors.border(context)),
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -2121,7 +2127,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                               decoration: BoxDecoration(
                                 color: AppColors.backgroundLight,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.grey300),
+                                border: Border.all(color: AppColors.border(context)),
                               ),
                               child: Row(
                                 mainAxisAlignment:
@@ -2286,10 +2292,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                           isEdit
                               ? l10n.saveChangesBtn
                               : l10n.createTrainingTitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                       ),
@@ -2327,7 +2333,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.grey300),
+                      borderSide: BorderSide(color: AppColors.border(context)),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -2399,9 +2405,9 @@ class _TrainingTabState extends State<_TrainingTab> {
                       final t = _trainings[i];
                       return Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.cardBg(context),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -2417,12 +2423,17 @@ class _TrainingTabState extends State<_TrainingTab> {
                                 child:
                                     t.coverImage != null &&
                                         t.coverImage!.isNotEmpty
-                                    ? Image.network(
-                                        t.coverImage!.startsWith('http')
+                                    ? CachedNetworkImage(
+                                        imageUrl: t.coverImage!.startsWith('http')
                                             ? t.coverImage!
                                             : '${DioClient.storageUrl}/${t.coverImage!.startsWith('/') ? t.coverImage!.substring(1) : t.coverImage!}',
                                         fit: BoxFit.cover,
-                                        errorBuilder: (ctx, err, stack) =>
+                                        memCacheWidth: 600,
+                                        memCacheHeight: 300,
+                                        placeholder: (ctx, url) => const Center(
+                                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                                        ),
+                                        errorWidget: (ctx, url, err) =>
                                             const Center(
                                               child: Icon(
                                                 Icons.menu_book,
@@ -2483,7 +2494,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                             const SizedBox(height: 8),
                             Text(
                               t.description ?? '',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.grey500,
                               ),
@@ -2648,10 +2659,10 @@ class _TrainingTabState extends State<_TrainingTab> {
                       Expanded(
                         child: Text(
                           '${l10n.enrollmentsTitle}: ${t.title}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.grey900,
+                            color: AppColors.textPrimary(context),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -2741,8 +2752,8 @@ class _TrainingTabState extends State<_TrainingTab> {
                               },
                         child: Text(
                           l10n.enrollBtn,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: AppColors.textPrimary(context),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -2790,7 +2801,7 @@ class _TrainingTabState extends State<_TrainingTab> {
                                 decoration: BoxDecoration(
                                   color: AppColors.backgroundLight,
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: AppColors.grey200),
+                                  border: Border.all(color: AppColors.border(context)),
                                 ),
                                 child: Row(
                                   children: [

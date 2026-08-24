@@ -33,15 +33,15 @@ class _AdminPayrollScreenState extends ConsumerState<AdminPayrollScreen> with Si
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           AppLocalizations.of(context)!.payrollManagementTitle,
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -50,7 +50,7 @@ class _AdminPayrollScreenState extends ConsumerState<AdminPayrollScreen> with Si
       body: Column(
         children: [
           Container(
-            color: AppColors.surfaceLight,
+            color: AppColors.surface(context),
             child: TabBar(
               controller: _tabController,
               labelColor: AppColors.primary,
@@ -103,12 +103,12 @@ class _PayrollRunsTab extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Payroll Processing',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.grey800,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                         const Text(
@@ -202,7 +202,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
+                    color: AppColors.surface(context),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Column(
@@ -234,9 +234,9 @@ class _PayrollRunsTab extends ConsumerWidget {
 
                     return Container(
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceLight,
+                        color: AppColors.surface(context),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.grey200),
+                        border: Border.all(color: AppColors.border(context)),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withAlpha(6),
@@ -254,35 +254,42 @@ class _PayrollRunsTab extends ConsumerWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      r.period,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 16,
-                                        color: AppColors.grey800,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.grey100,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        '#${r.id}',
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.grey500,
-                                          fontFamily: 'monospace',
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          r.period,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 16,
+                                            color: AppColors.textPrimary(context),
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.grey100,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          '#${r.id}',
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.grey500,
+                                            fontFamily: 'monospace',
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
+                                const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
@@ -311,13 +318,17 @@ class _PayrollRunsTab extends ConsumerWidget {
                                 if (r.periodStart.isNotEmpty) ...[
                                   const Icon(Icons.calendar_today_rounded, size: 13, color: AppColors.grey400),
                                   const SizedBox(width: 5),
-                                  Text(
-                                    '${r.periodStart} to ${r.periodEnd}',
-                                    style: const TextStyle(fontSize: 12, color: AppColors.grey500, fontWeight: FontWeight.w500),
+                                  Flexible(
+                                    child: Text(
+                                      '${r.periodStart} to ${r.periodEnd}',
+                                      style: const TextStyle(fontSize: 12, color: AppColors.grey500, fontWeight: FontWeight.w500),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 8),
                                   const Text('•', style: TextStyle(color: AppColors.grey300)),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 8),
                                 ],
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -326,6 +337,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
                                       const Icon(Icons.people_alt_rounded, size: 12, color: AppColors.grey500),
                                       const SizedBox(width: 4),
@@ -383,7 +395,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                                       const SizedBox(height: 2),
                                       Text(
                                         '\$${r.totalNet.toStringAsFixed(2)}',
-                                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.grey900),
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context)),
                                       ),
                                     ],
                                   ),
@@ -526,9 +538,9 @@ class _KpiMiniCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -555,10 +567,14 @@ class _KpiMiniCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.grey900),
-            overflow: TextOverflow.ellipsis,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context)),
+              maxLines: 1,
+            ),
           ),
         ],
       ),
@@ -601,8 +617,8 @@ class _KpiMiniCard extends StatelessWidget {
     barrierDismissible: false,
     builder: (ctx) {
       return Dialog(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
@@ -728,8 +744,8 @@ class _KpiMiniCard extends StatelessWidget {
                       ),
                       child: Text(
                         AppLocalizations.of(context)!.cancel,
-                        style: const TextStyle(
-                          color: AppColors.grey800,
+                        style: TextStyle(
+                          color: AppColors.textPrimary(context),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -1176,7 +1192,7 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
   }
 
   Widget _sectionHeader(String title) {
-    return Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey800));
+    return Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)));
   }
 
   Widget _textField(TextEditingController ctrl, String label, {TextInputType? keyboardType}) {

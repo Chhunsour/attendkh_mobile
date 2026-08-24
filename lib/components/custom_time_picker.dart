@@ -95,12 +95,16 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
   @override
   Widget build(BuildContext context) {
     final minutesList = [0, 15, 30, 45];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pickerHeight = (MediaQuery.sizeOf(context).height * 0.86)
+        .clamp(280.0, 500.0)
+        .toDouble();
 
     return Container(
-      height: 500,
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      height: pickerHeight,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -109,12 +113,19 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Select Time',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary(context),
+                  ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: Icon(
+                    Icons.close,
+                    color: AppColors.textPrimary(context),
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -162,7 +173,11 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
-                        color: !_isPM ? AppColors.primary : AppColors.grey100,
+                        color: !_isPM
+                            ? AppColors.primary
+                            : (isDark
+                                ? AppColors.surfaceDarkElevated
+                                : AppColors.grey100),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
@@ -185,7 +200,11 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
-                        color: _isPM ? AppColors.primary : AppColors.grey100,
+                        color: _isPM
+                            ? AppColors.primary
+                            : (isDark
+                                ? AppColors.surfaceDarkElevated
+                                : AppColors.grey100),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
@@ -262,7 +281,9 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                                           ? Colors.grey.withAlpha(100)
                                           : isSelected
                                           ? AppColors.primary
-                                          : AppColors.grey900,
+                                          : (isDark
+                                              ? Colors.white
+                                              : AppColors.grey900),
                                     ),
                                   ),
                                 ),
@@ -332,7 +353,9 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                                                 ? Colors.grey.withAlpha(100)
                                                 : isSelected
                                                 ? AppColors.primary
-                                                : AppColors.grey900,
+                                                : (isDark
+                                                    ? Colors.white
+                                                    : AppColors.grey900),
                                           ),
                                         ),
                                       ),

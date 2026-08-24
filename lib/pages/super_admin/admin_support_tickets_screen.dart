@@ -72,15 +72,15 @@ class _AdminSupportTicketsScreenState
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.supportTicketsTitle,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -122,10 +122,10 @@ class _AdminSupportTicketsScreenState
             const SizedBox(height: 16),
             Text(
               l10n.failedToLoadTickets,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey900,
+                color: AppColors.textPrimary(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -219,9 +219,9 @@ class _AdminSupportTicketsScreenState
         // ── Search Field ──
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: AppColors.border(context)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
@@ -233,7 +233,7 @@ class _AdminSupportTicketsScreenState
           child: TextField(
             controller: _searchCtrl,
             onChanged: (val) => setState(() => _searchTerm = val.trim().toLowerCase()),
-            style: const TextStyle(fontSize: 13.5, color: AppColors.grey900),
+            style: TextStyle(fontSize: 13.5, color: AppColors.textPrimary(context)),
             decoration: InputDecoration(
               hintText: 'Search subject, requester, company...',
               hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
@@ -281,9 +281,9 @@ class _AdminSupportTicketsScreenState
             padding: const EdgeInsets.all(32),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface(context),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+              border: Border.all(color: AppColors.border(context)),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -313,7 +313,7 @@ class _AdminSupportTicketsScreenState
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -398,9 +398,9 @@ class _AdminSupportTicketsScreenState
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -439,10 +439,10 @@ class _AdminSupportTicketsScreenState
                           Flexible(
                             child: Text(
                               ticket.subject,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14.5,
-                                color: AppColors.grey900,
+                                color: AppColors.textPrimary(context),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -503,7 +503,7 @@ class _AdminSupportTicketsScreenState
                           ],
                           if (ticket.companyName != null) ...[
                             const SizedBox(width: 6),
-                            Text('•', style: TextStyle(color: AppColors.grey400, fontSize: 11)),
+                            const Text('•', style: TextStyle(color: AppColors.grey400, fontSize: 11)),
                             const SizedBox(width: 6),
                             const Icon(Icons.business_rounded, size: 12, color: AppColors.grey500),
                             const SizedBox(width: 3),
@@ -621,10 +621,10 @@ class _AdminSupportTicketsScreenState
                   const SizedBox(height: 12),
                   Text(
                     ticket.subject,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.grey900,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   if (ticket.message != null && ticket.message!.isNotEmpty) ...[
@@ -635,7 +635,7 @@ class _AdminSupportTicketsScreenState
                       decoration: BoxDecoration(
                         color: AppColors.grey50,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey200),
+                        border: Border.all(color: AppColors.border(context)),
                       ),
                       child: Text(
                         ticket.message!,
@@ -658,7 +658,7 @@ class _AdminSupportTicketsScreenState
                             if (ticket.userName != null) ticket.userName!,
                             if (ticket.companyName != null) '(${ticket.companyName!})',
                           ].join(' '),
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                         ),
                         if (ticket.createdAt != null) ...[
                           const Spacer(),
@@ -672,12 +672,12 @@ class _AdminSupportTicketsScreenState
                   const SizedBox(height: 18),
 
                   // Status dropdown
-                  const Text(
+                  Text(
                     'Ticket Status',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.grey900,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -688,7 +688,7 @@ class _AdminSupportTicketsScreenState
                       fillColor: AppColors.grey50,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.grey200),
+                        borderSide: BorderSide(color: AppColors.border(context)),
                       ),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     ),
@@ -705,12 +705,12 @@ class _AdminSupportTicketsScreenState
                   const SizedBox(height: 14),
 
                   // Priority dropdown
-                  const Text(
+                  Text(
                     'Priority Level',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.grey900,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -721,7 +721,7 @@ class _AdminSupportTicketsScreenState
                       fillColor: AppColors.grey50,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.grey200),
+                        borderSide: BorderSide(color: AppColors.border(context)),
                       ),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     ),

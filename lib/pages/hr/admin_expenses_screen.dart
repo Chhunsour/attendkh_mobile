@@ -8,8 +8,9 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/expense_provider.dart';
 import 'package:mpg_hr_mobile_app/services/expense_repository.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
+import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 class AdminExpensesScreen extends ConsumerStatefulWidget {
   const AdminExpensesScreen({super.key});
@@ -34,14 +35,14 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     final l10n = AppLocalizations.of(context)!;
     final expensesAsync = ref.watch(expensesProvider);
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.expenseClaimsTitle,
-          style: const TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700),
+          style: TextStyle(color: AppColors.textPrimary(context), fontSize: 18, fontWeight: FontWeight.w700),
         ),
         actions: [
           IconButton(
@@ -137,11 +138,11 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
                         contentPadding: const EdgeInsets.symmetric(vertical: 10),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppColors.grey200),
+                          borderSide: BorderSide(color: AppColors.border(context)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: AppColors.grey200),
+                          borderSide: BorderSide(color: AppColors.border(context)),
                         ),
                       ),
                     ),
@@ -244,9 +245,9 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,10 +274,14 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.grey900),
-            overflow: TextOverflow.ellipsis,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context)),
+              maxLines: 1,
+            ),
           ),
         ],
       ),
@@ -402,7 +407,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.surface(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _AdminExpenseDetailSheet(
         expense: e,
@@ -416,7 +421,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.surface(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _AdminExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider)),
     );
@@ -426,7 +431,7 @@ class _AdminExpensesScreenState extends ConsumerState<AdminExpensesScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.surface(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _AdminExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider), initial: e),
     );
@@ -472,9 +477,9 @@ class _AdminExpenseCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: InkWell(
         onTap: onTap,
@@ -511,7 +516,11 @@ class _AdminExpenseCard extends StatelessWidget {
                               radius: 10,
                               backgroundColor: AppColors.primary.withAlpha(26),
                               backgroundImage: expense.employeePhoto != null && expense.employeePhoto!.isNotEmpty
-                                  ? NetworkImage(expense.employeePhoto!)
+                                  ? CachedNetworkImageProvider(
+                                      expense.employeePhoto!,
+                                      maxWidth: 60,
+                                      maxHeight: 60,
+                                    )
                                   : null,
                               child: expense.employeePhoto == null || expense.employeePhoto!.isEmpty
                                   ? Text(
@@ -533,7 +542,7 @@ class _AdminExpenseCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: AppColors.grey100,
                                   borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: AppColors.grey300),
+                                  border: Border.all(color: AppColors.border(context)),
                                 ),
                                 child: Text(
                                   expense.employeeCode!,
@@ -714,16 +723,16 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(l10n.expenseDetailTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+              Text(l10n.expenseDetailTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
               IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
             ],
           ),
           const SizedBox(height: 20),
-          _detailRow(l10n.titleLabel, expense.title),
-          if (expense.employeeName != null) _detailRow(l10n.employeeLabel, expense.employeeName!),
-          _detailRow(l10n.categoryLabel, expense.category),
-          _detailRow(l10n.amountLabel, '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
-          _detailRow(l10n.expenseDateLabel, expense.date),
+          _detailRow(context, l10n.titleLabel, expense.title),
+          if (expense.employeeName != null) _detailRow(context, l10n.employeeLabel, expense.employeeName!),
+          _detailRow(context, l10n.categoryLabel, expense.category),
+          _detailRow(context, l10n.amountLabel, '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
+          _detailRow(context, l10n.expenseDateLabel, expense.date),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -743,7 +752,7 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
           ),
           if (expense.description != null && expense.description!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _detailRow(l10n.descriptionLabel, expense.description!),
+            _detailRow(context, l10n.descriptionLabel, expense.description!),
           ],
           if (expense.rejectionReason != null && expense.rejectionReason!.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -753,7 +762,7 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
           ],
           if (expense.paidAt != null && expense.paidAt!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _detailRow(l10n.paidAtLabel, expense.paidAt!),
+            _detailRow(context, l10n.paidAtLabel, expense.paidAt!),
           ],
           if (expense.receiptPath != null && expense.receiptPath!.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -798,7 +807,7 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _detailRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Column(
@@ -806,7 +815,7 @@ class _AdminExpenseDetailSheet extends StatelessWidget {
         children: [
           Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
           const SizedBox(height: 2),
-          Text(value, style: const TextStyle(fontSize: 13, color: AppColors.grey800)),
+          Text(value, style: TextStyle(fontSize: 13, color: AppColors.textPrimary(context))),
         ],
       ),
     );
@@ -984,7 +993,7 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(_isEditing ? l10n.editExpenseClaimTitle : l10n.newExpenseClaimTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                  Text(_isEditing ? l10n.editExpenseClaimTitle : l10n.newExpenseClaimTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
                   IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
                 ],
               ),
@@ -1054,7 +1063,7 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
                   decoration: BoxDecoration(
                     color: AppColors.backgroundLight,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.grey300),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1069,7 +1078,7 @@ class _AdminExpenseFormState extends ConsumerState<_AdminExpenseForm> {
                           const SizedBox(height: 4),
                           Text(
                             DateFormat('EEE, dd MMM yyyy').format(_expenseDate),
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.grey900),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context)),
                           ),
                         ],
                       ),

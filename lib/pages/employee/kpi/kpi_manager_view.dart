@@ -15,6 +15,7 @@ class KpiManagerView extends StatelessWidget {
     return Column(
       children: [
         KpiSharedComponents.buildSummaryCard(
+          context: context,
           title: l10n.branchAverageScore,
           score: data.metrics.branchAverage,
           subtitle: l10n.aggregatedFromTeam,

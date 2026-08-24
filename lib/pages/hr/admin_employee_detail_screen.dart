@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_employee_form_screen.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
@@ -76,16 +77,16 @@ class _AdminEmployeeDetailScreenState
     final detailAsync = ref.watch(employeeDetailProvider(widget.employee.id));
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.grey800),
+        iconTheme: IconThemeData(color: AppColors.textPrimary(context)),
         title: Text(
           AppLocalizations.of(context)!.employeeProfile,
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -196,12 +197,21 @@ class _AdminEmployeeDetailScreenState
                     ),
                     child: emp.avatar != null && emp.avatar!.isNotEmpty
                         ? ClipOval(
-                            child: Image.network(
-                              emp.avatar!.startsWith('http')
+                            child: CachedNetworkImage(
+                              imageUrl: emp.avatar!.startsWith('http')
                                   ? emp.avatar!
                                   : '${DioClient.storageUrl}/${emp.avatar!.startsWith('/') ? emp.avatar!.substring(1) : emp.avatar!}',
                               fit: BoxFit.cover,
-                              errorBuilder: (ctx, err, stack) => Center(
+                              memCacheWidth: 240,
+                              memCacheHeight: 240,
+                              placeholder: (ctx, url) => const Center(
+                                child: SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                                ),
+                              ),
+                              errorWidget: (ctx, url, err) => Center(
                                 child: Text(
                                   emp.name.isNotEmpty
                                       ? emp.name.substring(0, 1).toUpperCase()
@@ -274,10 +284,10 @@ class _AdminEmployeeDetailScreenState
               const SizedBox(height: 16),
               Text(
                 emp.name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.grey800,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
               if (emp.khmerName != null && emp.khmerName!.isNotEmpty) ...[
@@ -506,12 +516,26 @@ class _AdminEmployeeDetailScreenState
                     : '${DioClient.storageUrl}/${img.startsWith('/') ? img.substring(1) : img}';
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    url,
+                  child: CachedNetworkImage(
+                    imageUrl: url,
                     width: 80,
                     height: 80,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
+                    memCacheWidth: 200,
+                    memCacheHeight: 200,
+                    placeholder: (_, _) => Container(
+                      width: 80,
+                      height: 80,
+                      color: AppColors.grey100,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 1.5, color: AppColors.primary),
+                        ),
+                      ),
+                    ),
+                    errorWidget: (_, _, _) => Container(
                       width: 80,
                       height: 80,
                       color: AppColors.grey100,
@@ -556,7 +580,7 @@ class _AdminEmployeeDetailScreenState
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: ListTile(
                     leading: Container(
@@ -597,7 +621,7 @@ class _AdminEmployeeDetailScreenState
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface(context),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -606,7 +630,7 @@ class _AdminEmployeeDetailScreenState
                     offset: const Offset(0, 4),
                   ),
                 ],
-                border: Border.all(color: AppColors.grey200),
+                border: Border.all(color: AppColors.border(context)),
               ),
               child: Text(
                 emp.notes!,
@@ -648,7 +672,7 @@ class _AdminEmployeeDetailScreenState
                 return Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -657,7 +681,7 @@ class _AdminEmployeeDetailScreenState
                         offset: const Offset(0, 4),
                       ),
                     ],
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -680,10 +704,10 @@ class _AdminEmployeeDetailScreenState
                           Expanded(
                             child: Text(
                               bal.leaveTypeName,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                           ),
@@ -694,14 +718,17 @@ class _AdminEmployeeDetailScreenState
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildMiniStat(
+                            context,
                             l10n.allocated,
                             total.toStringAsFixed(1),
                           ),
                           _buildMiniStat(
+                            context,
                             l10n.used,
                             bal.usedDays.toStringAsFixed(1),
                           ),
                           _buildMiniStat(
+                            context,
                             l10n.remaining,
                             remaining.toStringAsFixed(1),
                             highlight: true,
@@ -729,7 +756,7 @@ class _AdminEmployeeDetailScreenState
                 return Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -738,7 +765,7 @@ class _AdminEmployeeDetailScreenState
                         offset: const Offset(0, 4),
                       ),
                     ],
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Row(
                     children: [
@@ -769,10 +796,10 @@ class _AdminEmployeeDetailScreenState
                           children: [
                             Text(
                               req.leaveType,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -832,7 +859,7 @@ class _AdminEmployeeDetailScreenState
                 return Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface(context),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -841,7 +868,7 @@ class _AdminEmployeeDetailScreenState
                         offset: const Offset(0, 4),
                       ),
                     ],
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Row(
                     children: [
@@ -851,10 +878,10 @@ class _AdminEmployeeDetailScreenState
                           children: [
                             Text(
                               formatDate(log.date),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -1055,7 +1082,7 @@ class _AdminEmployeeDetailScreenState
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
       ),
       child: Column(children: children),
     );
@@ -1082,9 +1109,9 @@ class _AdminEmployeeDetailScreenState
             child: Text(
               value ?? '—',
               textAlign: TextAlign.end,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.grey800,
+                color: AppColors.textPrimary(context),
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -1094,7 +1121,13 @@ class _AdminEmployeeDetailScreenState
     );
   }
 
-  Widget _buildMiniStat(String label, String value, {bool highlight = false}) {
+  Widget _buildMiniStat(
+    BuildContext context,
+    String label,
+    String value, {
+    bool highlight = false,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1112,7 +1145,9 @@ class _AdminEmployeeDetailScreenState
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: highlight ? AppColors.primary : AppColors.grey800,
+            color: highlight
+                ? AppColors.primary
+                : (isDark ? Colors.white : AppColors.grey800),
           ),
         ),
       ],
@@ -1120,20 +1155,23 @@ class _AdminEmployeeDetailScreenState
   }
 
   Widget _buildEmptyState(String message) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.grey200,
+        ),
       ),
       child: Center(
         child: Text(
           message,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: AppColors.grey400,
+            color: isDark ? AppColors.grey500 : AppColors.grey400,
             fontWeight: FontWeight.w500,
           ),
         ),

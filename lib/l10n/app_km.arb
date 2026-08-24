@@ -1,27 +1,36 @@
 {
   "@@locale": "km",
-  "myProfile": "ព័ត៌មានរូបខ្ញុំ",
+  "myProfile": "គណនីផ្ទាល់ខ្លួន",
   "loadingProfile": "កំពុងផ្ទុកប្រវត្តិរូប...",
   "failedToLoadProfile": "មិនអាចផ្ទុកព័ត៌មានលម្អិតបានទេ។",
-  "retry": "ព្យាយាមម្តងទៀត",
-  "editProfile": "កែប្រែព័ត៌មាន",
+  "retry": "ព្យាយាមម្ដងទៀត",
+  "editProfile": "កែប្រែព័ត៌មានផ្ទាល់ខ្លួន",
   "company": "ក្រុមហ៊ុន",
   "jobTitle": "តួនាទី",
   "department": "នាយកដ្ឋាន",
   "accessRoles": "សិទ្ធិប្រើប្រាស់",
-  "returnToAdminConsole": "ត្រឡប់ទៅកាន់ផ្ទាំងគ្រប់គ្រង",
+  "returnToAdminConsole": "ប្តូរទៅកាន់ផ្ទាំងគ្រប់គ្រង HR Admin",
   "logOut": "ចាកចេញ",
-  "logoutConfirmationDesc": "តើអ្នកប្រាកដជាចង់ចាកចេញពីគណនីរបស់អ្នកទេ?",
-  "language": "ភាសា",
-  "english": "អង់គ្លេស",
-  "khmer": "ខ្មែរ",
-  "welcomeBack": "សូមស្វាគមន៍",
+  "logoutConfirmationDesc": "អ្នកនឹងត្រូវចូលគណនីម្តងទៀត ដើម្បីមើលវត្តមាន ការឈប់សម្រាក និងបញ្ជីប្រាក់ខែរបស់អ្នកនៅលើឧបករណ៍នេះ។",
+  "language": "ភាសា (Language)",
+  "english": "អង់គ្លេស (English)",
+  "khmer": "ភាសាខ្មែរ (Khmer)",
+  "welcomeBack": "សូមស្វាគមន៍ការត្រលប់មកវិញ,",
   "loginIdentityHint": "user@email.com, 010123456, ឬ EMP01",
   "loginIdentityLabel": "អ៊ីមែល លេខទូរស័ព្ទ ឬ លេខសម្គាល់បុគ្គលិក",
-  "fieldRequired": "សូមបំពេញចន្លោះនេះ",
+  "fieldRequired": "តម្រូវឱ្យបំពេញ",
   "enterYourPassword": "បញ្ចូលពាក្យសម្ងាត់របស់អ្នក",
   "password": "ពាក្យសម្ងាត់",
-  "passwordRequired": "ពាក្យសម្ងាត់ *",
+  "passwordRequired": "សូមបញ្ចូលពាក្យសម្ងាត់",
+  "forgotPassword": "ភ្លេចពាក្យសម្ងាត់?",
+  "signInSubtitle": "ចូលគណនីដើម្បីបន្តទៅកន្លែងធ្វើការរបស់អ្នក",
+  "showPassword": "បង្ហាញពាក្យសម្ងាត់",
+  "hidePassword": "លាក់ពាក្យសម្ងាត់",
+  "tooManyAttempts": "ព្យាយាមចូលច្រើនដងពេក។ សូមរង់ចាំបន្តិចមុននឹងព្យាយាមម្តងទៀត។",
+  "resetPasswordTitle": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+  "resetPasswordDesc": "បញ្ចូលអ៊ីមែលដែលភ្ជាប់ជាមួយគណនីរបស់អ្នក យើងនឹងផ្ញើតំណសម្រាប់កំណត់ពាក្យសម្ងាត់ឡើងវិញ។",
+  "sendResetLink": "ផ្ញើតំណកំណត់ឡើងវិញ",
+  "resetLinkSent": "ប្រសិនបើអ៊ីមែលនេះមានក្នុងប្រព័ន្ធ តំណកំណត់ឡើងវិញត្រូវបានផ្ញើទៅហើយ។",
   "signIn": "ចូលគណនី",
   "or": "ឬ",
   "createAccount": "បង្កើតគណនី",
@@ -46,7 +55,7 @@
   "emailHint": "you@company.com",
   "emailRequired": "សូមបញ្ជាក់អ៊ីមែល",
   "validEmailRequired": "សូមបញ្ចូលអ៊ីមែលឱ្យបានត្រឹមត្រូវ",
-  "min8Chars": "យ៉ាងហោចណាស់ ៨ តួអក្សរ",
+  "min8Chars": "យ៉ាងហោចណាស់ 8 តួអក្សរ",
   "min8CharsRequired": "ត្រូវមានយ៉ាងហោចណាស់ ៨ តួអក្សរ",
   "confirmPassword": "បញ្ជាក់ពាក្យសម្ងាត់",
   "reEnterPassword": "បញ្ចូលពាក្យសម្ងាត់ម្ដងទៀត",
@@ -75,6 +84,14 @@
   "confirmClockOut": "បញ្ជាក់ការចេញពីធ្វើការ",
   "endOvertimeConfirm": "តើអ្នកពិតជាចង់បញ្ចប់ម៉ោងបន្ថែមមែនទេ?",
   "clockOutConfirm": "តើអ្នកពិតជាចង់ចេញពីធ្វើការថ្ងៃនេះមែនទេ? ម៉ោងធ្វើការរបស់អ្នកនឹងត្រូវបានកត់ត្រា។",
+  "earlyClockOutTitle": "ចេញមុនម៉ោង?",
+  "earlyClockOutBody": "វេនរបស់អ្នកនៅសល់ {duration} ទៀត។ សូមប្រាប់មូលហេតុ។",
+  "@earlyClockOutBody": {
+    "placeholders": { "duration": { "type": "String" } }
+  },
+  "earlyClockOutReasonHint": "ជ្រើសរើសមូលហេតុ",
+  "earlyClockOutDetailHint": "ព័ត៌មានបន្ថែម (ស្រេចចិត្ត)",
+  "earlyClockOutOtherHint": "សូមប្រាប់ប្រធានពីមូលហេតុ",
   "cancel": "បោះបង់",
   "clockOutBtn": "ចេញពីធ្វើការ",
   "overtimeEnded": "👋 បានបញ្ចប់ម៉ោងបន្ថែម!",
@@ -89,16 +106,16 @@
   "lateWarningDesc1": "ចំណាំ៖ អ្នកបានមកយឺត ",
   "lateWarningDesc2": " ដងក្នុងខែនេះ។ សូមមកឱ្យបានទាន់ពេលវេលា។",
   "overview": "ទិដ្ឋភាពទូទៅ",
-  "upcomingLeaves": "ការឈប់សម្រាកបន្ទាប់",
+  "upcomingLeaves": "ការឈប់សម្រាកបន្ទាប់ (Upcoming Leaves)",
   "recentActivity": "សកម្មភាពថ្មីៗ",
-  "activeTrainings": "វគ្គបណ្តុះបណ្តាល",
-  "companyAnnouncements": "សេចក្តីប្រកាស",
-  "readyToWork": "ត្រៀមខ្លួនរួចរាល់ឬនៅ?",
+  "activeTrainings": "វគ្គបណ្តុះបណ្តាលកំពុងរៀន (Trainings)",
+  "companyAnnouncements": "សេចក្តីជូនដំណឹងក្រុមហ៊ុន (Announcements)",
+  "readyToWork": "ត្រៀមខ្លួនធ្វើការងារ? (Ready to Work)",
   "overtimeStartedAt": "ម៉ោងបន្ថែមចាប់ផ្តើមនៅម៉ោង ",
   "overtimeCompleted": "ម៉ោងបន្ថែមបានបញ្ចប់",
   "clockedInAt": "ចូលធ្វើការនៅម៉ោង ",
   "activeDuration": "រយៈពេលសកម្ម: ",
-  "shiftCompleted": "វេនត្រូវបានបញ្ចប់",
+  "shiftCompleted": "បានបញ្ចប់វេនការងារ (Shift Done)",
   "worked": "បានធ្វើការ: ",
   "locationAccessRequired": "ទាមទារទីតាំង",
   "locationAccessDesc": "យើងត្រូវការទីតាំងដើម្បីផ្ទៀងផ្ទាត់ចម្ងាយរបស់អ្នក។",
@@ -120,26 +137,26 @@
   "viewMonthlyStatements": "មើលរបាយការណ៍",
   "history": "ប្រវត្តិ",
   "checkAttendanceLogs": "មើលកំណត់ត្រា",
-  "training": "វគ្គសិក្សា",
+  "training": "បណ្តុះបណ្តាល",
   "enrollInCourses": "ចុះឈ្មោះរៀន",
   "myKpis": "KPI របស់ខ្ញុំ",
   "performanceGoals": "គោលដៅការងារ",
   "holidays": "ថ្ងៃឈប់សម្រាក",
   "companyCalendar": "ប្រតិទិនក្រុមហ៊ុន",
-  "failedToLoadDashboard": "មិនអាចដំណើរការបានទេ",
-  "swipeToClockOutOT": "អូសដើម្បីចេញ (OT)",
-  "swipeToClockInOT": "អូសដើម្បីចូល (OT)",
-  "swipeToClockOut": "អូសដើម្បីចេញ",
-  "swipeToClockIn": "អូសដើម្បីចូល",
+  "failedToLoadDashboard": "បរាជ័យក្នុងការផ្ទុកផ្ទាំងគ្រប់គ្រង",
+  "swipeToClockOutOT": "អូសដើម្បីស្កេនចេញ (Clock Out OT)",
+  "swipeToClockInOT": "អូសដើម្បីស្កេនចូល (Clock In OT)",
+  "swipeToClockOut": "អូសដើម្បីស្កេនចេញ (Clock Out)",
+  "swipeToClockIn": "អូសដើម្បីស្កេនចូល (Clock In)",
   "quickFeatures": "មុខងាររហ័ស",
-  "requestCorrection": "ស្នើសុំកែតម្រូវ",
-  "requestCorrectionDesc": "ដាក់ពាក្យស្នើសុំដើម្បីកែតម្រូវភាពមិនប្រក្រតីនៅក្នុងកំណត់ត្រារបស់អ្នក។",
+  "requestCorrection": "ស្នើសុំកែតម្រូវម៉ោង (Request Correction)",
+  "requestCorrectionDesc": "ដាក់ពាក្យស្នើសុំដើម្បីកែតម្រូវភាពមិនប្រក្រតីនៃវត្តមានរបស់អ្នក។",
   "dateStr": "កាលបរិច្ឆេទ",
   "selectDate": "ជ្រើសរើសកាលបរិច្ឆេទ",
   "correctionType": "ប្រភេទនៃការកែតម្រូវ",
   "missedClockIn": "ភ្លេចចូលធ្វើការ",
   "missedClockOut": "ភ្លេចចេញពីធ្វើការ",
-  "wrongTime": "ម៉ោងខុស",
+  "wrongTime": "ម៉ោងមិនត្រឹមត្រូវ (Wrong Time)",
   "reason": "មូលហេតុ",
   "explainCorrectionReason": "ពន្យល់ពីមូលហេតុដែលអ្នកស្នើសុំការកែតម្រូវនេះ...",
   "submitRequest": "បញ្ជូនសំណើ",
@@ -192,7 +209,7 @@
   "invalidEmployeeId": "ការកំណត់អត្តសញ្ញាណបុគ្គលិកមិនត្រឹមត្រូវ",
   "leaveRequestSubmitted": "✅ ការស្នើសុំឈប់សម្រាកត្រូវបានបញ្ជូនដោយជោគជ័យ",
   "failedToSubmitLeave": "បរាជ័យក្នុងការបញ្ជូនការស្នើសុំឈប់សម្រាក",
-  "requestLeave": "ស្នើសុំឈប់សម្រាក",
+  "requestLeave": "ស្នើសុំច្បាប់ឈប់សម្រាក (Leave Request)",
   "submittingLeave": "កំពុងបញ្ជូនការស្នើសុំឈប់សម្រាក...",
   "noLeaveTypesConfigured": "មិនមានប្រភេទនៃការឈប់សម្រាកត្រូវបានកំណត់សម្រាប់ក្រុមហ៊ុនរបស់អ្នកទេ។",
   "leaveTypeLabel": "ប្រភេទនៃការឈប់សម្រាក",
@@ -250,9 +267,9 @@
   "no": "ទេ",
   "yesCancel": "បាទ/ចាស, បោះបង់",
   "leaveRequestCancelled": "✅ ការស្នើសុំត្រូវបានបោះបង់",
-  "noExpenseClaims": "មិនមានសំណើចំណាយទេ",
+  "noExpenseClaims": "គ្មានការទាមទារចំណាយទេ",
   "submitFirstExpense": "ដាក់ស្នើសំណើចំណាយដំបូងរបស់អ្នកដើម្បីចាប់ផ្តើម",
-  "loadingExpenses": "កំពុងដំណើរការចំណាយ...",
+  "loadingExpenses": "កំពុងផ្ទុកការចំណាយ...",
   "deleteClaim": "លុបសំណើ",
   "deleteClaimConfirm": "តើអ្នកចង់លុប \"{title}\" ជាអចិន្ត្រៃយ៍ឬទេ?",
   "@deleteClaimConfirm": {
@@ -266,24 +283,24 @@
   "failedToDelete": "បរាជ័យក្នុងការលុប",
   "expenseClaimDetails": "ព័ត៌មានលម្អិតអំពីសំណើចំណាយ",
   "title": "ចំណងជើង",
-  "category": "ប្រភេទ",
-  "amount": "ចំនួនទឹកប្រាក់",
+  "category": "ប្រភេទចំណាយ (Category)",
+  "amount": "ចំនួនទឹកប្រាក់ * (Amount)",
   "expenseDate": "កាលបរិច្ឆេទចំណាយ",
-  "statusLabel": "ស្ថានភាព: ",
+  "statusLabel": "ស្ថានភាព",
   "description": "ការពិពណ៌នា",
   "rejectionReason": "មូលហេតុនៃការបដិសេធ",
   "paidAt": "បានទូទាត់នៅ",
   "receipt": "វិក័យប័ត្រ",
   "editExpenseClaim": "កែសម្រួលសំណើចំណាយ",
   "newExpenseClaim": "សំណើចំណាយថ្មី",
-  "titleRequired": "ចំណងជើង *",
-  "titleHint": "ឧ. អាហារថ្ងៃត្រង់ជាមួយអតិថិជន, ថ្លៃតាក់ស៊ី",
+  "titleRequired": "តម្រូវឱ្យមានចំណងជើង",
+  "titleHint": "ឧ. អាហារថ្ងៃត្រង់",
   "titleError": "តម្រូវឱ្យមានចំណងជើង",
   "categoryRequired": "ប្រភេទ *",
   "amountRequired": "ចំនួនទឹកប្រាក់ *",
   "requiredError": "ទាមទារ",
-  "invalidAmount": "ចំនួនទឹកប្រាក់មិនត្រឹមត្រូវ",
-  "currency": "រូបិយប័ណ្ណ",
+  "invalidAmount": "ចំនួនប្រាក់មិនត្រឹមត្រូវ",
+  "currency": "រូបិយប័ណ្ណ (Currency)",
   "expenseDateRequired": "កាលបរិច្ឆេទចំណាយ *",
   "descriptionOptional": "ការពិពណ៌នា (ជាជម្រើស)",
   "receiptOptional": "វិក័យប័ត្រ (ជាជម្រើស)",
@@ -293,11 +310,11 @@
   "expenseClaimSubmitted": "✅ សំណើចំណាយត្រូវបានដាក់ស្នើ",
   "failedToUpdate": "បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាព",
   "failedToSubmit": "បរាជ័យក្នុងការដាក់ស្នើ",
-  "travel": "ការធ្វើដំណើរ",
+  "travel": "ការធ្វើដំណើរការងារ (Travel)",
   "meals": "អាហារ",
-  "supplies": "សម្ភារៈ",
-  "software": "កម្មវិធីកុំព្យូទ័រ",
-  "transport": "ការដឹកជញ្ជូន",
+  "supplies": "សម្ភារៈការិយាល័យ (Supplies)",
+  "software": "សូហ្វវែរ / កម្មវិធី (Software)",
+  "transport": "មធ្យោបាយធ្វើដំណើរ (Transport)",
   "accommodation": "កន្លែងស្នាក់នៅ",
   "other": "ផ្សេងៗ",
   "myTraining": "ការបណ្តុះបណ្តាលរបស់ខ្ញុំ",
@@ -319,7 +336,7 @@
   "loadingCourses": "កំពុងដំណើរការវគ្គសិក្សា...",
   "noEnrolledTrainings": "អ្នកមិនទាន់បានចុះឈ្មោះក្នុងវគ្គបណ្តុះបណ្តាលណាមួយទេ",
   "loadingEnrollments": "កំពុងដំណើរការទិន្នន័យ...",
-  "companyWide": "ទូទាំងក្រុមហ៊ុន",
+  "companyWide": "ទូទៅក្រុមហ៊ុន",
   "enrolled": "បានចុះឈ្មោះ",
   "enrollNow": "ចុះឈ្មោះឥឡូវនេះ",
   "courseProgress": "វឌ្ឍនភាពវគ្គសិក្សា",
@@ -333,10 +350,10 @@
   "policyDocument": "ឯកសារគោលការណ៍",
   "acknowledgedOn": "បានទទួលស្គាល់នៅ ",
   "iHaveReadAndAcknowledge": "ខ្ញុំបានអាន និងទទួលស្គាល់",
-  "holidayCalendar": "ប្រតិទិនថ្ងៃឈប់សម្រាក",
+  "holidayCalendar": "ប្រតិទិនឈប់សម្រាក",
   "holidaysThisMonth": "ថ្ងៃឈប់សម្រាកក្នុងខែនេះ",
   "noHolidaysThisMonth": "មិនមានថ្ងៃឈប់សម្រាកក្នុងខែនេះទេ",
-  "loadingHolidays": "កំពុងដំណើរការថ្ងៃឈប់សម្រាក...",
+  "loadingHolidays": "កំពុងផ្ទុកថ្ងៃឈប់សម្រាក...",
   "performanceKpis": "សូចនាករការអនុវត្ត(KPI)",
   "platformHealth": "សុខភាពប្រព័ន្ធ",
   "myPerf": "ការអនុវត្តរបស់ខ្ញុំ",
@@ -408,7 +425,9 @@
   "scoreLabel": "ពិន្ទុ៖ {score}%",
   "@scoreLabel": {
     "placeholders": {
-      "score": {"type": "num"}
+      "score": {
+        "type": "num"
+      }
     }
   },
   "overallSystemScore": "ពិន្ទុប្រព័ន្ធរួម",
@@ -423,12 +442,14 @@
   "companyHealthScore": "ពិន្ទុសុខភាពក្រុមហ៊ុន",
   "scoreExcellent": "ល្អប្រសើរ",
   "scoreGood": "ល្អ",
-  "scoreNeedsAttention": "ត្រូវការការយកចិត្តទុកដាក់",
+  "scoreNeedsAttention": "ត្រូវកែលម្អ (Needs Attention)",
   "scoreCritical": "ធ្ងន់ធ្ងរ",
   "kpisTrackedLiveData": "តាមដាន {count} KPIs • ទិន្នន័យជាក់ស្តែង",
   "@kpisTrackedLiveData": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "targetLabel": "គោលដៅ៖ ",
@@ -438,10 +459,7 @@
   "noCompanyKpisFound": "រកមិនឃើញ KPIs ក្រុមហ៊ុនទេ។",
   "noCompanyKpisDesc": "ទិន្នន័យនឹងបង្ហាញនៅពេលដែលបុគ្គលិក អវត្តមាន និងប្រាក់ខែត្រូវបានកំណត់។",
   "platformAdminTitle": "អ្នកគ្រប់គ្រងប្រព័ន្ធ",
-  "failedToLoadDashboard": "បរាជ័យក្នុងការផ្ទុកផ្ទាំងគ្រប់គ្រង",
-  "welcomeBack": "សូមស្វាគមន៍ការត្រលប់មកវិញ,",
   "platformAdministratorBadge": "🛡️ អ្នកគ្រប់គ្រងប្រព័ន្ធ",
-  "quickOperations": "ប្រតិបត្តិការរហ័ស",
   "menuCompanies": "ក្រុមហ៊ុន",
   "menuCompaniesDesc": "គ្រប់គ្រងការចុះឈ្មោះ",
   "menuRoles": "តួនាទី",
@@ -463,7 +481,9 @@
   "statCompaniesActive": "{count} សកម្ម",
   "@statCompaniesActive": {
     "placeholders": {
-      "count": {"type": "String"}
+      "count": {
+        "type": "String"
+      }
     }
   },
   "statTotalUsers": "អ្នកប្រើប្រាស់សរុប",
@@ -476,11 +496,13 @@
   "recentSupportTickets": "សំបុត្រជំនួយថ្មីៗ",
   "platformSettingsTitle": "ការកំណត់ប្រព័ន្ធ",
   "failedToLoadSettings": "បរាជ័យក្នុងការផ្ទុកការកំណត់",
-  "settingsSavedSuccess": "ការកំណត់បានរក្សាទុកដោយជោគជ័យ",
+  "settingsSavedSuccess": "✅ បានរក្សាទុកការកំណត់",
   "settingsFailed": "បរាជ័យ៖ {error}",
   "@settingsFailed": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "globalSettingsTitle": "ការកំណត់សកល",
@@ -492,10 +514,12 @@
   "saveSettings": "រក្សាទុកការកំណត់",
   "platformRolesTitle": "តួនាទីវេទិកា",
   "noSystemRolesFound": "រកមិនឃើញតួនាទីប្រព័ន្ធទេ",
-  "permissionsCount": "សិទ្ធិ {count}",
+  "permissionsCount": "{count} ការអនុញ្ញាត",
   "@permissionsCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "loadingRoles": "កំពុងផ្ទុកតួនាទី...",
@@ -506,14 +530,16 @@
   "coreSystemRolesWarning": "ឈ្មោះតួនាទីប្រព័ន្ធស្នូលមិនអាចផ្លាស់ប្តូរបានទេ។",
   "permissionsLabel": "សិទ្ធិ",
   "roleUpdatedSuccess": "តួនាទីត្រូវបានធ្វើបច្ចុប្បន្នភាព",
-  "roleCreatedSuccess": "តួនាទីត្រូវបានបង្កើត",
-  "saveChanges": "រក្សាទុកការផ្លាស់ប្តូរ",
+  "roleCreatedSuccess": "✅ បានបង្កើតតួនាទី",
+  "saveChanges": "រក្សាទុក",
   "btnCreateRole": "បង្កើតតួនាទី",
   "deleteRoleTitle": "លុបតួនាទី",
-  "deleteRoleConfirm": "តើអ្នកប្រាកដជាចង់លុបតួនាទី \"{roleName}\" ទេ?",
+  "deleteRoleConfirm": "លុបតួនាទី {name} មែនទេ?",
   "@deleteRoleConfirm": {
     "placeholders": {
-      "roleName": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "roleDeletedSuccess": "តួនាទីត្រូវបានលុប",
@@ -527,20 +553,26 @@
   "ticketMarkedAs": "សំបុត្រ #{id} ត្រូវបានសម្គាល់ជា {status}",
   "@ticketMarkedAs": {
     "placeholders": {
-      "id": {"type": "int"},
-      "status": {"type": "String"}
+      "id": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
     }
   },
   "platformAnnouncementsTitle": "ការជូនដំណឹងនៅលើវេទិកា",
   "failedToLoadAnnouncements": "បរាជ័យក្នុងការផ្ទុកការជូនដំណឹង",
   "noAnnouncementsYet": "មិនទាន់មានការជូនដំណឹងទេ",
   "statusPublished": "បានផ្សព្វផ្សាយ",
-  "statusDraft": "សេចក្តីព្រាង",
+  "statusDraft": "ព្រាង",
   "deleteAnnouncementTitle": "លុបការជូនដំណឹង",
-  "deleteAnnouncementConfirm": "តើអ្នកប្រាកដជាចង់លុប \"{title}\" ទេ?",
+  "deleteAnnouncementConfirm": "លុប \"{title}\"?",
   "@deleteAnnouncementConfirm": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "btnDelete": "លុប",
@@ -572,16 +604,13 @@
   "maritalDivorced": "លែងលះ",
   "maritalWidowed": "មេម៉ាយ",
   "dateOfBirthLabel": "ថ្ងៃខែឆ្នាំកំណើត",
-  "selectDate": "ជ្រើសរើសកាលបរិច្ឆេទ",
   "saveProfileBtn": "រក្សាទុកប្រវត្តិរូប",
   "profileUpdatedSuccess": "ប្រវត្តិរូបត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ",
   "updatePasswordTitle": "ធ្វើបច្ចុប្បន្នភាពពាក្យសម្ងាត់",
   "updatePasswordDesc": "ធានាថាគណនីរបស់អ្នកកំពុងប្រើពាក្យសម្ងាត់វែង និងចៃដន្យដើម្បីរក្សាសុវត្ថិភាព។",
   "currentPasswordLabel": "ពាក្យសម្ងាត់បច្ចុប្បន្ន",
   "newPasswordLabel": "ពាក្យសម្ងាត់ថ្មី",
-  "min8Chars": "យ៉ាងហោចណាស់ 8 តួអក្សរ",
   "confirmPasswordLabel": "បញ្ជាក់ពាក្យសម្ងាត់",
-  "passwordsDoNotMatch": "ពាក្យសម្ងាត់មិនត្រូវគ្នាទេ",
   "btnUpdatePassword": "ធ្វើបច្ចុប្បន្នភាពពាក្យសម្ងាត់",
   "passwordUpdatedSuccess": "ពាក្យសម្ងាត់ត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ",
   "testingDebuggingTitle": "ការធ្វើតេស្ត និងការកែកំហុស",
@@ -593,7 +622,9 @@
   "byUser": "ដោយ {name}",
   "@byUser": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "noDetailsAvailable": "មិនមានព័ត៌មានលម្អិតសម្រាប់កំណត់ហេតុនេះទេ",
@@ -612,39 +643,51 @@
   "suspendCompanyContent": "តើអ្នកប្រាកដជាចង់ផ្អាក \"{name}\" ទេ? វានឹងធ្វើឱ្យគណនីរបស់ពួកគេលែងសកម្ម។",
   "@suspendCompanyContent": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "companySuspendedSuccess": "{name} ត្រូវបានផ្អាក",
   "@companySuspendedSuccess": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "activateCompanyTitle": "ធ្វើឱ្យក្រុមហ៊ុនសកម្ម",
   "activateCompanyContent": "ធ្វើឱ្យ \"{name}\" សកម្ម?",
   "@activateCompanyContent": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "companyActivatedSuccess": "{name} ត្រូវបានធ្វើឱ្យសកម្ម",
   "@companyActivatedSuccess": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "deleteCompanyTitle": "លុបក្រុមហ៊ុន",
   "deleteCompanyContent": "លុប \"{name}\" ជាអចិន្ត្រៃយ៍? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",
   "@deleteCompanyContent": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "companyDeletedSuccess": "{name} ត្រូវបានលុប",
   "@companyDeletedSuccess": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "companyStatsTitle": "ស្ថិតិក្រុមហ៊ុន",
@@ -652,8 +695,7 @@
   "editCompanyTitle": "កែប្រែក្រុមហ៊ុន",
   "createCompanyTitle": "បង្កើតក្រុមហ៊ុន",
   "companyNameLabel": "ឈ្មោះក្រុមហ៊ុន",
-  "fieldRequired": "ទាមទារ",
-  "emailLabel": "អ៊ីមែល",
+  "emailLabel": "អាសយដ្ឋានអ៊ីមែល",
   "companyOwnerAccountTitle": "គណនីម្ចាស់ក្រុមហ៊ុន",
   "companyOwnerEditDesc": "ធ្វើបច្ចុប្បន្នភាពព័ត៌មានលម្អិតអំពីម្ចាស់ ឬបញ្ចូលពាក្យសម្ងាត់ថ្មីដើម្បីកំណត់សិទ្ធិចូលប្រើគណនីឡើងវិញ។",
   "companyOwnerCreateDesc": "គណនីត្រូវបានបង្កើតដោយស្វ័យប្រវត្តិសម្រាប់ម្ចាស់។ ទុកចន្លោះទទេដើម្បីប្រើអ៊ីមែលក្រុមហ៊ុន និងពាក្យសម្ងាត់ Password123! ជាលំនាំដើម។",
@@ -661,13 +703,12 @@
   "ownerLoginEmailLabel": "អ៊ីមែលចូលរហ័សរបស់ម្ចាស់",
   "newPasswordOptionalLabel": "ពាក្យសម្ងាត់ថ្មី (ស្រេចចិត្ត)",
   "ownerPasswordLabel": "ពាក្យសម្ងាត់ម្ចាស់",
-  "phoneLabel": "ទូរស័ព្ទ",
+  "phoneLabel": "លេខទូរស័ព្ទ",
   "addressLabel": "អាសយដ្ឋាន",
   "gettingLocation": "កំពុងទទួល...",
   "getLocation": "ទទួលទីតាំង",
   "timezoneLabel": "ល្វែងម៉ោង",
   "currencyLabel": "រូបិយប័ណ្ណ",
-  "statusLabel": "ស្ថានភាព",
   "socialMediaLinksTitle": "តំណភ្ជាប់ប្រព័ន្ធផ្សព្វផ្សាយសង្គម",
   "actionAdd": "បន្ថែម",
   "noSocialMediaLinks": "មិនមានតំណភ្ជាប់ប្រព័ន្ធផ្សព្វផ្សាយសង្គមត្រូវបានបន្ថែមទេ។",
@@ -684,7 +725,9 @@
   "ownerCredentialsGenerated": "ព័ត៌មានសម្ងាត់របស់ម្ចាស់ត្រូវបានបង្កើតសម្រាប់ \"{name}\"",
   "@ownerCredentialsGenerated": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "ownerEmailTitle": "អ៊ីមែលម្ចាស់",
@@ -742,7 +785,7 @@
   "noEmployeesYet": "មិនទាន់មានបុគ្គលិកទេ",
   "adjustFiltersHint": "សាកល្បងកែតម្រូវការស្វែងរក ឬចម្រោះរបស់អ្នកដើម្បីស្វែងរកអ្វីដែលអ្នកកំពុងរក។",
   "startBuildingTeamHint": "ចាប់ផ្តើមបង្កើតក្រុមការងាររបស់អ្នកដោយបន្ថែមបុគ្គលិកដំបូងរបស់អ្នក។",
-  "clearFilters": "លុបចម្រោះ",
+  "clearFilters": "សម្អាតតម្រង",
   "failedToLoadEmployees": "បរាជ័យក្នុងការផ្ទុកបុគ្គលិក",
   "checkConnectionTryAgain": "ពិនិត្យការតភ្ជាប់របស់អ្នក រួចសាកល្បងម្តងទៀត។",
   "tryAgain": "សាកល្បងម្តងទៀត",
@@ -756,14 +799,14 @@
   "tabLeaves": "ច្បាប់",
   "tabLogs": "កំណត់ត្រា",
   "tabContact": "ទំនាក់ទំនង",
-  "employmentDetails": "ព័ត៌មានការងារ",
+  "employmentDetails": "ព័ត៌មានការងារ (Employment Details)",
   "employeeId": "លេខសម្គាល់បុគ្គលិក",
   "employmentType": "ប្រភេទការងារ",
   "joinDate": "កាលបរិច្ឆេទចូលធ្វើការ",
   "personalDetails": "ព័ត៌មានផ្ទាល់ខ្លួន",
   "email": "អ៊ីមែល",
   "phone": "ទូរស័ព្ទ",
-  "gender": "ភេទ",
+  "gender": "ភេទ (Gender)",
   "notSpecified": "មិនបានបញ្ជាក់",
   "dob": "ថ្ងៃខែឆ្នាំកំណើត",
   "maritalStatus": "ស្ថានភាពគ្រួសារ",
@@ -790,7 +833,6 @@
   "employeeCreatedSuccess": "បានបង្កើតបុគ្គលិកដោយជោគជ័យ",
   "employeeUpdatedSuccess": "បានធ្វើបច្ចុប្បន្នភាពបុគ្គលិកដោយជោគជ័យ",
   "save": "រក្សាទុក",
-  "saving": "កំពុងរក្សាទុក...",
   "createEmployee": "បង្កើតបុគ្គលិក",
   "updateEmployee": "ធ្វើបច្ចុប្បន្នភាពបុគ្គលិក",
   "personalInformation": "ព័ត៌មានផ្ទាល់ខ្លួន",
@@ -801,22 +843,22 @@
   "addPhoneNumber": "បន្ថែមលេខទូរស័ព្ទ",
   "uploadIdImages": "បង្ហោះរូបភាពអត្តសញ្ញាណ",
   "employeeIdHint": "លេខសម្គាល់បុគ្គលិក (ទុកចោលដើម្បីបង្កើតស្វ័យប្រវត្តិ)",
-  "emailAddress": "អាសយដ្ឋានអ៊ីមែល",
+  "emailAddress": "អាសយដ្ឋានអ៊ីមែល (Email)",
   "emailAddressRequired": "អាសយដ្ឋានអ៊ីមែល *",
-  "male": "ប្រុស",
-  "female": "ស្រី",
+  "male": "ប្រុស (Male)",
+  "female": "ស្រី (Female)",
   "single": "នៅលីវ",
   "married": "រៀបការរួច",
   "divorced": "លែងលះ",
   "widowed": "មេម៉ាយ/ពោះម៉ាយ",
-  "dateOfBirth": "ថ្ងៃខែឆ្នាំកំណើត",
+  "dateOfBirth": "ថ្ងៃខែឆ្នាំកំណើត (DOB)",
   "tapToSelect": "ចុចដើម្បីជ្រើសរើស",
   "nationalIdPassport": "អត្តសញ្ញាណប័ណ្ណ / លិខិតឆ្លងដែន",
   "employmentDetailsRequired": "ព័ត៌មានការងារ",
   "employmentTypeRequired": "ប្រភេទការងារ *",
   "statusRequired": "ស្ថានភាព *",
   "hireDateRequired": "កាលបរិច្ឆេទចូលធ្វើការ *",
-  "probationEnd": "កាលបរិច្ឆេទបញ្ចប់ការសាកល្បង",
+  "probationEnd": "ថ្ងៃបញ្ចប់ការសាកល្បងការងារ (Probation End)",
   "terminationDate": "កាលបរិច្ឆេទបញ្ចប់ការងារ",
   "systemRoleRequired": "តួនាទីប្រព័ន្ធ *",
   "roleEmployee": "បុគ្គលិក",
@@ -887,7 +929,6 @@
   "allocatedDaysRequired": "ចំនួនថ្ងៃបានបម្រុងទុក *",
   "allocatedDays": "ចំនួនថ្ងៃបានបម្រុងទុក",
   "carriedForward": "ចំនួនថ្ងៃនៅសល់ពីឆ្នាំមុន",
-  "saveChanges": "រក្សាទុក",
   "balanceUpdated": "សមតុល្យត្រូវបានធ្វើបច្ចុប្បន្នភាព",
   "addLeaveBalance": "បន្ថែមសមតុល្យការឈប់សម្រាក",
   "addLeaveBalanceSubtitle": "ផ្តល់ចំនួនថ្ងៃទៅកាន់បុគ្គលិក",
@@ -953,7 +994,7 @@
   "shiftsAndCalendars": "វេនការងារ និងប្រតិទិន",
   "manageWorkSchedules": "គ្រប់គ្រងកាលវិភាគការងារ",
   "shiftsCount": "{count} វេនការងារ",
-  "loadingShifts": "កំពុងផ្ទុកវេនការងារ...",
+  "loadingShifts": "កំពុងផ្ទុកវេន...",
   "activeShiftBadge": "សកម្ម",
   "inactiveShiftBadge": "អសកម្ម",
   "overnightBadge": "ពេញមួយយប់",
@@ -964,7 +1005,7 @@
   "deleteShiftTitle": "លុបវេនការងារ?",
   "deleteShiftConfirmPrefix": "តើអ្នកប្រាកដជាចង់លុប\n",
   "deleteShiftConfirmSuffix": " មែនទេ?\n\nសកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",
-  "shiftDeletedSuccess": "✅ {name} ត្រូវបានលុបដោយជោគជ័យ",
+  "shiftDeletedSuccess": "✅ បានលុបវេន",
   "shiftDeleteFailed": "❌ បរាជ័យក្នុងការលុប៖ {error}",
   "assignEmployeesTitle": "ចាត់តាំងបុគ្គលិក",
   "assignEmployeesSubtitle": "{name} · បានជ្រើសរើស {count}",
@@ -1002,7 +1043,7 @@
   "weeklyScheduleTitle": "កាលវិភាគប្រចាំសប្តាហ៍",
   "copyMonToAll": "ចម្លងថ្ងៃចន្ទទៅថ្ងៃទាំងអស់",
   "selectOneWorkingDayError": "សូមជ្រើសរើសថ្ងៃធ្វើការយ៉ាងហោចណាស់មួយ",
-  "shiftCreatedSuccess": "បានបង្កើតវេនការងារដោយជោគជ័យ",
+  "shiftCreatedSuccess": "✅ បានបង្កើតវេន",
   "shiftUpdatedSuccess": "បានធ្វើបច្ចុប្បន្នភាពវេនការងារដោយជោគជ័យ",
   "shiftFailedError": "បរាជ័យ៖ {error}",
   "rulesAllowancesTitle": "វិធាន និងការអនុគ្រោះ",
@@ -1015,8 +1056,8 @@
   "activeScheduleSubtitle": "មានសម្រាប់ចាត់តាំងឲ្យបុគ្គលិក",
   "saveChangesBtn": "រក្សាទុកការផ្លាស់ប្តូរ",
   "createScheduleBtn": "បង្កើតកាលវិភាគ",
-  "startTimeLabel": "ចាប់ផ្តើម",
-  "endTimeLabel": "បញ្ចប់",
+  "startTimeLabel": "ម៉ោងចាប់ផ្តើម",
+  "endTimeLabel": "ម៉ោងបញ្ចប់",
   "scheduledDayOff": "ថ្ងៃឈប់សម្រាកដែលបានកំណត់",
   "dayOff": "ថ្ងៃឈប់សម្រាក",
   "payrollManagementTitle": "ការគ្រប់គ្រងប្រាក់បៀវត្សរ៍",
@@ -1026,10 +1067,13 @@
   "noPayrollRuns": "គ្មានប្រតិបត្តិការប្រាក់បៀវត្សរ៍ទេ",
   "loadingPayrollRuns": "កំពុងផ្ទុកប្រតិបត្តិការប្រាក់បៀវត្សរ៍...",
   "markCompletedBtn": "សម្គាល់ថាបានបញ្ចប់",
+  "payrollRuns": "ប្រតិបត្តិការប្រាក់បៀវត្សរ៍",
   "payrollRunTitle": "ប្រតិបត្តិការប្រាក់បៀវត្សរ៍ {period}",
   "@payrollRunTitle": {
     "placeholders": {
-      "period": { "type": "String" }
+      "period": {
+        "type": "String"
+      }
     }
   },
   "payrollRunPrompt": "តើអ្នកចង់សម្គាល់ប្រតិបត្តិការប្រាក់បៀវត្សរ៍នេះថាបានបញ្ចប់ ឬមើលប័ណ្ណបើកប្រាក់?",
@@ -1042,7 +1086,6 @@
   "payrollStartDayLabel": "ថ្ងៃចាប់ផ្តើមប្រាក់បៀវត្សរ៍ (1-31)",
   "workingDaysCalcTypeLabel": "ប្រភេទគណនាថ្ងៃធ្វើការ",
   "fixedWorkingDaysLabel": "ចំនួនថ្ងៃធ្វើការថេរក្នុងមួយរយៈពេល",
-  "currencyLabel": "រូបិយប័ណ្ណ (ឧ. USD)",
   "currencySymbolLabel": "និមិត្តសញ្ញារូបិយប័ណ្ណ (ឧ. $)",
   "overtimeSettingsTitle": "ការកំណត់ថែមម៉ោង (OT)",
   "enableOvertimePayLabel": "បើកការទូទាត់ប្រាក់ថែមម៉ោង",
@@ -1057,18 +1100,17 @@
   "calculationMethodLabel": "វិធីសាស្ត្រគណនា",
   "fixedPenaltyAmountLabel": "ចំនួនទឹកប្រាក់ពិន័យថេរ ($)",
   "perMinuteMultiplierLabel": "មេគុណក្នុងមួយនាទី (ឧ. 1.0 = ប្រាក់ខែពិត)",
-  "earlyLeavePenaltiesTitle": "ការពិន័យចេញមុនម៉ោង",
+  "earlyLeavePenaltiesTitle": "ការពិន័យពេលចេញមុន",
   "earlyLeaveGraceLabel": "ការអនុគ្រោះចេញមុនម៉ោង (នាទី)",
   "deductionTypeLabel": "ប្រភេទនៃការកាត់ប្រាក់",
   "preShiftEarlyClockInTitle": "ការថែមម៉ោងមុនវេន និង ការស្កេនចូលមុន",
-  "earlyClockInPolicyLabel": "គោលការណ៍ស្កេនចូលមុន",
+  "earlyClockInPolicyLabel": "គោលការណ៍បញ្ជាក់វត្តមានមុន",
   "preShiftOtMultiplierLabel": "មេគុណ OT មុនវេន",
   "maxAllowedEarlyMinutesLabel": "នាទីអនុញ្ញាតឲ្យចូលមុនអតិបរមា",
   "halfDaySettingsTitle": "ការកំណត់កន្លះថ្ងៃ",
   "halfDayMinHoursLabel": "ម៉ោងអប្បបរមាសំរាប់កន្លះថ្ងៃ",
   "halfDayDeductionPctLabel": "ភាគរយកាត់ប្រាក់កន្លះថ្ងៃ",
   "saveSettingsBtn": "រក្សាទុកការកំណត់",
-  "settingsSavedSuccess": "✅ បានរក្សាទុកការកំណត់",
   "loadingSettings": "កំពុងផ្ទុកការកំណត់...",
   "periodStartLabel": "ថ្ងៃចាប់ផ្តើម",
   "periodEndLabel": "ថ្ងៃបញ្ចប់",
@@ -1088,7 +1130,9 @@
   "notesLabel": "កំណត់ចំណាំ៖ {notes}",
   "@notesLabel": {
     "placeholders": {
-      "notes": {"type": "String"}
+      "notes": {
+        "type": "String"
+      }
     }
   },
   "hrStructureTitle": "រចនាសម្ព័ន្ធធនធានមនុស្ស",
@@ -1109,7 +1153,9 @@
   "deleteBranchConfirm": "តើអ្នកពិតជាចង់លុប {name} មែនទេ?",
   "@deleteBranchConfirm": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "searchDeptsHint": "ស្វែងរកនាយកដ្ឋាន...",
@@ -1117,7 +1163,9 @@
   "errorLoadingDepts": "មានបញ្ហាក្នុងការផ្ទុកនាយកដ្ឋាន៖ {error}",
   "@errorLoadingDepts": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noDeptsFound": "រកមិនឃើញនាយកដ្ឋានទេ",
@@ -1128,22 +1176,16 @@
   "deleteDeptConfirm": "លុបនាយកដ្ឋាន {name} មែនទេ?",
   "@deleteDeptConfirm": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "searchRolesHint": "ស្វែងរកតួនាទី...",
-  "loadingRoles": "កំពុងផ្ទុកតួនាទី...",
   "noRolesFound": "រកមិនឃើញតួនាទីទេ",
   "failedToLoadPositions": "បរាជ័យក្នុងការផ្ទុកតួនាទី",
   "addFirstRoleDesc": "បន្ថែមតួនាទីដំបូងរបស់អ្នកដើម្បីចាប់ផ្តើម",
   "addRoleBtn": "បន្ថែមតួនាទី",
-  "deleteRoleTitle": "លុបតួនាទី",
-  "deleteRoleConfirm": "លុបតួនាទី {name} មែនទេ?",
-  "@deleteRoleConfirm": {
-    "placeholders": {
-      "name": {"type": "String"}
-    }
-  },
   "searchTeamsHint": "ស្វែងរកក្រុម...",
   "loadingTeams": "កំពុងផ្ទុកក្រុម...",
   "noTeamsFound": "រកមិនឃើញក្រុមទេ",
@@ -1154,7 +1196,9 @@
   "deleteTeamConfirm": "លុបក្រុម {name} មែនទេ?",
   "@deleteTeamConfirm": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "searchOrgChartHint": "ស្វែងរកឈ្មោះ, តួនាទី, នាយកដ្ឋាន...",
@@ -1166,8 +1210,12 @@
   "orgChartStats": "មនុស្ស {count} នាក់ · {levels} កម្រិត",
   "@orgChartStats": {
     "placeholders": {
-      "count": {"type": "int"},
-      "levels": {"type": "int"}
+      "count": {
+        "type": "int"
+      },
+      "levels": {
+        "type": "int"
+      }
     }
   },
   "expandAll": "ពង្រីកទាំងអស់",
@@ -1178,9 +1226,6 @@
   "showLevel5": "បង្ហាញ ៥ កម្រិត",
   "branchNameLabel": "ឈ្មោះសាខា",
   "branchCodeLabel": "លេខកូដសាខា",
-  "addressLabel": "អាសយដ្ឋាន",
-  "phoneLabel": "លេខទូរស័ព្ទ",
-  "emailLabel": "អាសយដ្ឋានអ៊ីមែល",
   "branchManagerLabel": "អ្នកគ្រប់គ្រងសាខា",
   "latitudeLabel": "រយៈទទឹង",
   "longitudeLabel": "រយៈបណ្តោយ",
@@ -1202,9 +1247,6 @@
   "dedTypeLabel": "ប្រភេទនៃការកាត់ប្រាក់",
   "perMinuteLabel": "ក្នុងមួយនាទី",
   "fixedAmountLabel": "ចំនួនថេរ",
-  "halfDayLabel": "កន្លះថ្ងៃ",
-  "earlyLeavePenaltiesTitle": "ការពិន័យពេលចេញមុន",
-  "earlyClockInPolicyLabel": "គោលការណ៍បញ្ជាក់វត្តមានមុន",
   "ignorePolicyLabel": "មិនអើពើ (មិនមានប្រាក់បន្ថែម)",
   "treatAsOtPolicyLabel": "ចាត់ទុកជាការថែមម៉ោង",
   "paidOutsidePolicyLabel": "បង់ប្រាក់ខាងក្រៅ (គ្មានមេគុណ)",
@@ -1235,14 +1277,15 @@
   "allDepartmentsLabel": "នាយកដ្ឋានទាំងអស់",
   "allDeptsLabel": "នាយកដ្ឋានទាំងអស់",
   "allBranchesLabel": "សាខាទាំងអស់",
-  "retry": "ព្យាយាមម្តងទៀត",
   "perMinuteRateLabel": "អត្រាប្រចាំនាទី",
   "halfDayDeductionLabel": "កាត់ប្រាក់កន្លះថ្ងៃ",
   "ignoreNoExtraPayLabel": "មិនគិត (គ្មានប្រាក់បន្ថែម)",
   "payrollDetailTitle": "ប្រាក់បៀវត្សរ៍ {period}",
   "@payrollDetailTitle": {
     "placeholders": {
-      "period": { "type": "String" }
+      "period": {
+        "type": "String"
+      }
     }
   },
   "exportToExcelTooltip": "នាំចេញទៅ Excel",
@@ -1250,7 +1293,9 @@
   "payrollDetailError": "កំហុស: {error}",
   "@payrollDetailError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "totalGrossLabel": "ប្រាក់ខែសរុប",
@@ -1259,20 +1304,26 @@
   "employeesCountSuffix": "{count} នាក់បុគ្គលិក",
   "@employeesCountSuffix": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "noPayslipsFound": "រកមិនឃើញប្រាក់ខែទេ",
   "exportedToPath": "✅ បានរក្សាទុកនៅ {path}",
   "@exportedToPath": {
     "placeholders": {
-      "path": { "type": "String" }
+      "path": {
+        "type": "String"
+      }
     }
   },
   "exportFailed": "❌ ការនាំចេញបរាជ័យ: {error}",
   "@exportFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "basicSalaryLabel": "ប្រាក់ខែមូលដ្ឋាន",
@@ -1293,7 +1344,9 @@
   "branchPayrollTitle": "ប្រាក់ខែ {branch}",
   "@branchPayrollTitle": {
     "placeholders": {
-      "branch": { "type": "String" }
+      "branch": {
+        "type": "String"
+      }
     }
   },
   "branchCustomizationTitle": "ការកំណត់ផ្ទាល់ខ្លួនសាខា",
@@ -1311,7 +1364,9 @@
   "formulasSalaryExample": "{symbol}1,000/ខែ",
   "@formulasSalaryExample": {
     "placeholders": {
-      "symbol": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      }
     }
   },
   "formulasWorkHours": " ហើយធ្វើការ ៨ ម៉ោងក្នុងមួយថ្ងៃ។",
@@ -1320,23 +1375,35 @@
   "hourlyRateFormulaFixed": "អត្រាប្រចាំម៉ោង = (ប្រាក់ខែ / {fixedDays} ថ្ងៃថេរ) / ៨ ម៉ោង",
   "@hourlyRateFormulaFixed": {
     "placeholders": {
-      "fixedDays": { "type": "int" }
+      "fixedDays": {
+        "type": "int"
+      }
     }
   },
   "hourlyRateFormulaActual": "អត្រាប្រចាំម៉ោង = (ប្រាក់ខែ / ថ្ងៃធ្វើការពិតប្រាកដក្នុងខែ) / ៨ ម៉ោង",
   "hourlyRateExampleFixed": "ឧទាហរណ៍: ({symbol}1,000 ÷ {fixedDays} ថ្ងៃ) ÷ ៨ ម៉ោង = {symbol}{rate} ក្នុងម៉ោង។",
   "@hourlyRateExampleFixed": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "fixedDays": { "type": "int" },
-      "rate": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "fixedDays": {
+        "type": "int"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "hourlyRateExampleActual": "ឧទាហរណ៍: ({symbol}1,000 ÷ ២២ ថ្ងៃ) ÷ ៨ ម៉ោង = {symbol}{rate} ក្នុងម៉ោង។",
   "@hourlyRateExampleActual": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "rate": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "lateDeductionFormulaTitle": "រូបមន្តការកាត់ប្រាក់ចូលយឺត",
@@ -1346,93 +1413,153 @@
   "lateGraceDesc": "បុគ្គលិកមានរយៈពេលអនុគ្រោះ {grace} នាទី។ ប្រសិនបើបុគ្គលិកមកយឺតហួសពីរយៈពេលអនុគ្រោះ ការកាត់ប្រាក់ត្រូវបានគណនាដូចខាងក្រោម:",
   "@lateGraceDesc": {
     "placeholders": {
-      "grace": { "type": "int" }
+      "grace": {
+        "type": "int"
+      }
     }
   },
   "earlyLeaveGraceDesc": "បុគ្គលិកមានរយៈពេលអនុគ្រោះ {grace} នាទី។ ប្រសិនបើបុគ្គលិកចេញមុនម៉ោងហួសពីរយៈពេលអនុគ្រោះ ការកាត់ប្រាក់ត្រូវបានគណនាដូចខាងក្រោម:",
   "@earlyLeaveGraceDesc": {
     "placeholders": {
-      "grace": { "type": "int" }
+      "grace": {
+        "type": "int"
+      }
     }
   },
   "lateFormulaPerMinute": "ការកាត់ប្រាក់សរុប = (នាទីយឺត - {grace}) * (អត្រាប្រចាំម៉ោង / ៦០) * {rate} (មេគុណ)",
   "@lateFormulaPerMinute": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "rate": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "lateExamplePerMinute": "ឧទាហរណ៍ (យឺត ៣០ នាទី): (៣០ - {grace}ន ការអនុគ្រោះ) * ({symbol}{hourlyRate}/60) * {rate}x = {symbol}{amount} ត្រូវបានកាត់។",
   "@lateExamplePerMinute": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "symbol": { "type": "String" },
-      "hourlyRate": { "type": "String" },
-      "rate": { "type": "String" },
-      "amount": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "hourlyRate": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "lateFormulaFixed": "ការកាត់ប្រាក់សរុប = {symbol}{rate} (ការពិន័យថេរ)",
   "@lateFormulaFixed": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "rate": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "lateExampleFixed": "ឧទាហរណ៍: បុគ្គលិកមកយឺត ២០ នាទី (ហួសការអនុគ្រោះ {grace}ន)។ ពួកគេត្រូវកាត់ប្រាក់ {symbol}{rate}។",
   "@lateExampleFixed": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "symbol": { "type": "String" },
-      "rate": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "lateFormulaHalfDay": "ការកាត់ប្រាក់សរុប = ប្រាក់ខែកន្លះថ្ងៃ (ចំនួន: អត្រាប្រចាំថ្ងៃ / ២)",
   "lateExampleHalfDay": "ឧទាហរណ៍: បុគ្គលិកមកយឺត ២០ នាទី (ហួសការអនុគ្រោះ)។ ប្រាក់ខែកន្លះថ្ងៃ ({symbol}{amount}) ត្រូវបានកាត់។",
   "@lateExampleHalfDay": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "amount": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "earlyLeaveFormulaPerMinute": "ការកាត់ប្រាក់សរុប = (នាទីចេញមុន - {grace}) * (អត្រាប្រចាំម៉ោង / ៦០) * {rate} (មេគុណ)",
   "@earlyLeaveFormulaPerMinute": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "rate": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "earlyLeaveExamplePerMinute": "ឧទាហរណ៍ (ចេញមុន ៣០ នាទី): (៣០ - {grace}ន ការអនុគ្រោះ) * ({symbol}{hourlyRate}/60) * {rate}x = {symbol}{amount} ត្រូវបានកាត់។",
   "@earlyLeaveExamplePerMinute": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "symbol": { "type": "String" },
-      "hourlyRate": { "type": "String" },
-      "rate": { "type": "String" },
-      "amount": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "hourlyRate": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "earlyLeaveFormulaFixed": "ការកាត់ប្រាក់សរុប = {symbol}{rate} (ការពិន័យថេរ)",
   "@earlyLeaveFormulaFixed": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "rate": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "earlyLeaveExampleFixed": "ឧទាហរណ៍: បុគ្គលិកចេញមុន ២០ នាទី (ហួសការអនុគ្រោះ {grace}ន)។ ពួកគេត្រូវកាត់ប្រាក់ {symbol}{rate}។",
   "@earlyLeaveExampleFixed": {
     "placeholders": {
-      "grace": { "type": "int" },
-      "symbol": { "type": "String" },
-      "rate": { "type": "String" }
+      "grace": {
+        "type": "int"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
     }
   },
   "earlyLeaveFormulaHalfDay": "ការកាត់ប្រាក់សរុប = ប្រាក់ខែកន្លះថ្ងៃ (ចំនួន: អត្រាប្រចាំថ្ងៃ / ២)",
   "earlyLeaveExampleHalfDay": "ឧទាហរណ៍: បុគ្គលិកចេញមុន ២០ នាទី (ហួសការអនុគ្រោះ)។ ប្រាក់ខែកន្លះថ្ងៃ ({symbol}{amount}) ត្រូវបានកាត់។",
   "@earlyLeaveExampleHalfDay": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "amount": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "overtimeCalcTitle": "ការគណនាម៉ោងបន្ថែម",
@@ -1444,25 +1571,43 @@
   "otFormulaRegular": "ប្រាក់ OT = ម៉ោង OT * អត្រាប្រចាំម៉ោង * {multiplier}",
   "@otFormulaRegular": {
     "placeholders": {
-      "multiplier": { "type": "String" }
+      "multiplier": {
+        "type": "String"
+      }
     }
   },
   "otExampleRegular": "ឧទាហរណ៍ (OT ២ ម៉ោង): ២ ម៉ោង * {symbol}{hourlyRate} * {multiplier}x = {symbol}{amount} ប្រាក់សរុប។",
   "@otExampleRegular": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "hourlyRate": { "type": "String" },
-      "multiplier": { "type": "String" },
-      "amount": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "hourlyRate": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "otExampleFullDay": "ឧទាហរណ៍ (ធ្វើការ ៨ ម៉ោង): ៨ ម៉ោង * {symbol}{hourlyRate} * {multiplier}x = {symbol}{amount} ប្រាក់សរុប។",
   "@otExampleFullDay": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "hourlyRate": { "type": "String" },
-      "multiplier": { "type": "String" },
-      "amount": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "hourlyRate": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "earlyClockInPolicyTitle": "គោលការណ៍ស្កេនចូលមុន",
@@ -1470,21 +1615,32 @@
   "earlyClockInOtFormula": "ការស្កេនចូលមុនត្រូវបានចាត់ទុកជា OT។\nប្រាក់ = ម៉ោង OT មុនវេន (អតិបរមា {maxMins} នាទី) * អត្រាប្រចាំម៉ោង * {multiplier}",
   "@earlyClockInOtFormula": {
     "placeholders": {
-      "maxMins": { "type": "int" },
-      "multiplier": { "type": "String" }
+      "maxMins": {
+        "type": "int"
+      },
+      "multiplier": {
+        "type": "String"
+      }
     }
   },
   "earlyClockInOtExample": "ឧទាហរណ៍ (ចូលមុន ១ ម៉ោង): ១ ម៉ោង * {symbol}{hourlyRate} * {multiplier}x = {symbol}{amount} ប្រាក់សរុប។",
   "@earlyClockInOtExample": {
     "placeholders": {
-      "symbol": { "type": "String" },
-      "hourlyRate": { "type": "String" },
-      "multiplier": { "type": "String" },
-      "amount": { "type": "String" }
+      "symbol": {
+        "type": "String"
+      },
+      "hourlyRate": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "earlyClockInPaidOutsideFormula": "ការស្កេនចូលមុនត្រូវបើកប្រាក់ដោយខ្លួនឯង ខាងក្រៅប្រព័ន្ធប្រាក់ខែ។",
-
   "financeSection": "ហិរញ្ញវត្ថុ",
   "operationsSection": "ប្រតិបត្តិការ",
   "talentSection": "ទេពកោសល្យ",
@@ -1519,18 +1675,10 @@
   "moreHrStructure": "រចនាសម្ព័ន្ធ HR",
   "moreHrStructureDesc": "នាយកដ្ឋាន & សាខា",
   "logoutBtn": "ចាកចេញ",
-
   "rolesPermissionsTitle": "តួនាទី & សិទ្ធិ",
   "noCustomRoles": "គ្មានតួនាទីផ្ទាល់ខ្លួន",
-  "loadingRoles": "កំពុងផ្ទុកតួនាទី...",
-  "permissionsCount": "{count} ការអនុញ្ញាត",
-  "@permissionsCount": { "placeholders": { "count": { "type": "int" } } },
   "createRoleTitle": "បង្កើតតួនាទី",
-  "roleNameLabel": "ឈ្មោះតួនាទី",
-  "roleNameHint": "ឧ. អ្នកគ្រប់គ្រង HR",
   "createBtn": "បង្កើត",
-  "roleCreatedSuccess": "✅ បានបង្កើតតួនាទី",
-
   "sendNotificationTitle": "ផ្ញើការជូនដំណឹង",
   "recipientLabel": "អ្នកទទួល",
   "selectEmployeeHint": "ជ្រើសរើសបុគ្គលិក",
@@ -1541,7 +1689,6 @@
   "sendNotificationBtn": "ផ្ញើការជូនដំណឹង",
   "pleaseSelectEmployee": "សូមជ្រើសរើសបុគ្គលិក",
   "notificationSentSuccess": "✅ បានផ្ញើការជូនដំណឹង!",
-
   "reportsTitle": "របាយការណ៍ & ការវិភាគ",
   "generateReportTitle": "បង្កើតរបាយការណ៍",
   "selectReportTypeHint": "ជ្រើសរើសប្រភេទរបាយការណ៍ដើម្បីបង្កើត",
@@ -1559,19 +1706,41 @@
   "reportRecruitment": "ការជ្រើសរើស",
   "reportPerformance": "សមត្ថភាព",
   "reportFoundRecords": "រកឃើញ {total} កំណត់ត្រា",
-  "@reportFoundRecords": { "placeholders": { "total": { "type": "int" } } },
+  "@reportFoundRecords": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "reportLabelSuffix": "របាយការណ៍ {label}",
-  "@reportLabelSuffix": { "placeholders": { "label": { "type": "String" } } },
+  "@reportLabelSuffix": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "exportReportTooltip": "នាំចេញរបាយការណ៍",
   "noRecordsFound": "រកមិនឃើញកំណត់ត្រាសម្រាប់រយៈពេលនេះ។",
   "reportExportSuccess": "✅ បាននាំចេញរបាយការណ៍ដោយជោគជ័យ!",
   "reportExportFailed": "❌ ការនាំចេញបរាជ័យ: {error}",
-  "@reportExportFailed": { "placeholders": { "error": { "type": "String" } } },
+  "@reportExportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "couldNotOpenFile": "មិនអាចបើកឯកសារ: {message}",
-  "@couldNotOpenFile": { "placeholders": { "message": { "type": "String" } } },
-
+  "@couldNotOpenFile": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "holidaysTitle": "ថ្ងៃឈប់សម្រាក",
-  "loadingHolidays": "កំពុងផ្ទុកថ្ងៃឈប់សម្រាក...",
   "noHolidaysOnDay": "គ្មានថ្ងៃឈប់សម្រាកនៅថ្ងៃនេះ",
   "addHoliday": "បន្ថែមថ្ងៃឈប់សម្រាក",
   "editHoliday": "កែប្រែថ្ងៃឈប់សម្រាក",
@@ -1581,31 +1750,30 @@
   "holidayTypeCompany": "ក្រុមហ៊ុន",
   "holidayTypeNational": "ជាតិ (កម្ពុជា)",
   "holidayDescriptionLabel": "ការពិពណ៌នា",
-  "saveChangesBtn": "រក្សាទុកការផ្លាស់ប្តូរ",
   "createHolidayBtn": "បង្កើតថ្ងៃឈប់សម្រាក",
   "deleteHolidayTitle": "លុបថ្ងៃឈប់សម្រាក?",
   "deleteHolidayConfirm": "តើអ្នកពិតជាចង់លុប\n\"{name}\"?\n\nសកម្មភាពនេះមិនអាចត្រូវបានដកហូតវិញបានទេ។",
-  "@deleteHolidayConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@deleteHolidayConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "holidayDeletedSuccess": "✅ បានលុបថ្ងៃឈប់សម្រាកដោយជោគជ័យ",
   "pleaseFillRequired": "សូមបំពេញចន្លោះទាំងអស់ដែលត្រូវការ",
   "nationalBadge": "ជាតិ",
   "companyBadge": "ក្រុមហ៊ុន",
-
   "policiesTitle": "គោលនយោបាយ",
   "searchPoliciesHint": "ស្វែងរកគោលនយោបាយ...",
   "allStatus": "ស្ថានភាពទាំងអស់",
-  "statusDraft": "សេចក្តីព្រាង",
-  "statusPublished": "បានផ្សព្វផ្សាយ",
   "statusArchived": "បានរក្សាទុក",
   "allDepts": "នាយកដ្ឋានទាំងអស់",
-  "companyWide": "ទូទៅក្រុមហ៊ុន",
   "loadingPolicies": "កំពុងផ្ទុកគោលនយោបាយ...",
   "noPoliciesFound": "រកមិនឃើញគោលនយោបាយ។",
   "createPolicy": "បង្កើតគោលនយោបាយ",
   "editPolicy": "កែប្រែគោលនយោបាយ",
   "policyTitleLabel": "ចំណងជើង *",
-  "departmentLabel": "នាយកដ្ឋាន",
-  "statusLabel": "ស្ថានភាព",
   "versionLabel": "កំណែ *",
   "effectiveDateLabel": "ថ្ងៃចូលជាធរមាន",
   "nextReviewDateLabel": "ថ្ងៃត្រួតពិនិត្យបន្ទាប់ (ជាជម្រើស)",
@@ -1613,17 +1781,37 @@
   "updatePolicyBtn": "ធ្វើបច្ចុប្បន្នភាពគោលនយោបាយ",
   "createPolicyBtn": "បង្កើតគោលនយោបាយ",
   "policyEffectivePrefix": "ចូលជាធរមាន: {date}",
-  "@policyEffectivePrefix": { "placeholders": { "date": { "type": "String" } } },
+  "@policyEffectivePrefix": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "policyAcknowledged": "បានទទួលស្គាល់: {ack}/{target}",
-  "@policyAcknowledged": { "placeholders": { "ack": { "type": "int" }, "target": { "type": "int" } } },
+  "@policyAcknowledged": {
+    "placeholders": {
+      "ack": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
   "viewBtn": "មើល",
   "publishBtn": "ផ្សព្វផ្សាយ",
   "archiveBtn": "រក្សាទុក",
   "editBtn": "កែប្រែ",
   "deleteBtn": "លុប",
   "deletePolicyConfirm": "តើអ្នកពិតជាចង់លុប \"{title}\"?",
-  "@deletePolicyConfirm": { "placeholders": { "title": { "type": "String" } } },
-
+  "@deletePolicyConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "resourceDirectoryTitle": "ថតទ្រព្យធនធាន",
   "tabShifts": "វេន",
   "tabHolidays": "ថ្ងៃឈប់",
@@ -1631,7 +1819,6 @@
   "tabPolicies": "គោលនយោបាយ",
   "tabDocs": "ឯកសារ",
   "noShifts": "គ្មានវេន",
-  "loadingShifts": "កំពុងផ្ទុកវេន...",
   "noHolidays": "គ្មានថ្ងៃឈប់សម្រាក",
   "noAnnouncements": "គ្មានសេចក្តីប្រកាស",
   "noPolicies": "គ្មានគោលនយោបាយ",
@@ -1639,14 +1826,10 @@
   "addShiftTitle": "បន្ថែមវេន",
   "shiftNameLabel": "ឈ្មោះ",
   "shiftNameHint": "ឧ. វេនព្រឹក",
-  "startTimeLabel": "ម៉ោងចាប់ផ្តើម",
-  "endTimeLabel": "ម៉ោងបញ្ចប់",
   "assignShiftTitle": "ចាត់តាំងវេន",
   "employeeIdLabel": "លេខសម្គាល់បុគ្គលិក",
   "assignBtn": "ចាត់តាំង",
-  "shiftCreatedSuccess": "✅ បានបង្កើតវេន",
   "shiftAssignedSuccess": "✅ បានចាត់តាំងវេន",
-  "shiftDeletedSuccess": "✅ បានលុបវេន",
   "holidayCreatedSuccess": "✅ បានបង្កើតថ្ងៃឈប់សម្រាក",
   "deletedSuccess": "✅ បានលុប",
   "documentDeletedSuccess": "✅ បានលុបឯកសារ",
@@ -1654,28 +1837,41 @@
   "addHolidayTitle": "បន្ថែមថ្ងៃឈប់សម្រាក",
   "recurringBadge": "ប្រចាំឆ្នាំ",
   "fileSizeLabel": "ទំហំ: {size} KB",
-  "@fileSizeLabel": { "placeholders": { "size": { "type": "String" } } },
+  "@fileSizeLabel": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "deleteShiftConfirm": "លុបវេន \"{name}\"?",
-  "@deleteShiftConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@deleteShiftConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "deleteHolidayConfirmSimple": "លុបថ្ងៃឈប់សម្រាក \"{name}\"?",
-  "@deleteHolidayConfirmSimple": { "placeholders": { "name": { "type": "String" } } },
-  "deleteAnnouncementConfirm": "លុប \"{title}\"?",
-  "@deleteAnnouncementConfirm": { "placeholders": { "title": { "type": "String" } } },
-  "deleteShiftConfirm": "លុបវេន \"{name}\"?",
-  "@deleteShiftConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@deleteHolidayConfirmSimple": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "deleteDocumentConfirm": "លុបឯកសារ \"{title}\"?",
-  "@deleteDocumentConfirm": { "placeholders": { "title": { "type": "String" } } },
-
+  "@deleteDocumentConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "expenseClaimsTitle": "ការទាមទារចំណាយ",
   "newClaimTooltip": "ការទាមទារថ្មី",
   "refreshTooltip": "ផ្ទុកឡើងវិញ",
-  "filterAll": "ទាំងអស់",
-  "filterPending": "រង់ចាំ",
-  "filterApproved": "បានអនុម័ត",
-  "filterRejected": "បានបដិសេធ",
   "filterPaid": "បានទូទាត់",
-  "noExpenseClaims": "គ្មានការទាមទារចំណាយទេ",
-  "loadingExpenses": "កំពុងផ្ទុកការចំណាយ...",
   "expenseApprovedSuccess": "✅ បានអនុម័តការចំណាយ",
   "expenseMarkedPaidSuccess": "✅ បានកត់សម្គាល់ថាបានទូទាត់",
   "deleteClaimTitle": "លុបការទាមទារ",
@@ -1692,43 +1888,35 @@
   "paidPrefix": "បានទូទាត់៖ ",
   "markAsPaidBtn": "សម្គាល់ថាទូទាត់ហើយ",
   "expenseDetailTitle": "ព័ត៌មានលម្អិតចំណាយ",
-  "titleLabel": "ចំណងជើង",
   "employeeLabel": "បុគ្គលិក",
   "categoryLabel": "ប្រភេទ",
   "amountLabel": "ចំនួនទឹកប្រាក់",
   "expenseDateLabel": "កាលបរិច្ឆេទចំណាយ",
   "statusPrefix": "ស្ថានភាព៖ ",
-  "descriptionLabel": "ការពិពណ៌នា",
   "paidAtLabel": "ទូទាត់នៅ",
   "receiptLabel": "វិក្កយបត្រ",
   "editExpenseClaimTitle": "កែសម្រួលការទាមទារ",
   "newExpenseClaimTitle": "ការទាមទារថ្មី",
   "titleFieldLabel": "ចំណងជើង *",
-  "titleHint": "ឧ. អាហារថ្ងៃត្រង់",
-  "titleRequired": "តម្រូវឱ្យមានចំណងជើង",
   "categoryFieldLabel": "ប្រភេទ *",
-  "catTravel": "ការធ្វើដំណើរ",
-  "catMeals": "អាហារ",
-  "catSupplies": "សម្ភារៈ",
-  "catSoftware": "កម្មវិធី",
-  "catTransport": "ការដឹកជញ្ជូន",
-  "catAccommodation": "ការស្នាក់នៅ",
-  "catOther": "ផ្សេងៗ",
+  "catTravel": "ការធ្វើដំណើរ (Travel)",
+  "catMeals": "ថ្លៃអាហារ (Meals)",
+  "catSupplies": "សម្ភារៈការិយាល័យ (Supplies)",
+  "catSoftware": "សូហ្វវែរ / កម្មវិធី (Software)",
+  "catTransport": "មធ្យោបាយធ្វើដំណើរ (Transport)",
+  "catAccommodation": "ការស្នាក់នៅ (Accommodation)",
+  "catOther": "ផ្សេងៗ (Other)",
   "amountFieldLabel": "ចំនួនប្រាក់ *",
-  "invalidAmount": "ចំនួនប្រាក់មិនត្រឹមត្រូវ",
-  "currencyLabel": "រូបិយប័ណ្ណ",
   "descriptionOptionalLabel": "ការពិពណ៌នា (ជាជម្រើស)",
   "updateClaimBtn": "ធ្វើបច្ចុប្បន្នភាព",
   "submitClaimBtn": "បញ្ជូនការទាមទារ",
   "expenseClaimUpdatedSuccess": "✅ បានកែសម្រួលការទាមទារ",
   "expenseClaimSubmittedSuccess": "✅ បានបញ្ជូនការទាមទារ",
-
   "performanceTrainingTitle": "ការវាយតម្លៃ និងការបណ្តុះបណ្តាល",
   "tabReviews": "ការវាយតម្លៃ",
   "tabTraining": "ការបណ្តុះបណ្តាល",
   "createReviewTitle": "បង្កើតការវាយតម្លៃ",
   "editReviewTitle": "កែសម្រួលការវាយតម្លៃ",
-  "employeeRequired": "បុគ្គលិក *",
   "reviewerRequired": "អ្នកវាយតម្លៃ *",
   "periodRequired": "រយៈពេល *",
   "periodStartRequired": "ថ្ងៃចាប់ផ្តើម *",
@@ -1743,11 +1931,8 @@
   "areasForImprovementOptional": "ចំណុចត្រូវកែលម្អ (ជាជម្រើស)",
   "goalsOptional": "គោលដៅ (ជាជម្រើស)",
   "commentsOptional": "មតិយោបល់ (ជាជម្រើស)",
-  "statusLabel": "ស្ថានភាព",
-  "statusDraft": "ព្រាង",
   "statusSubmitted": "បានបញ្ជូន",
   "statusAcknowledged": "បានទទួលស្គាល់",
-  "statusCompleted": "បានបញ្ចប់",
   "statusCompleted": "បានបញ្ចប់",
   "overallRatingPrefix": "ចំណាត់ថ្នាក់រួម៖ ",
   "periodHint": "ឧ. ត្រីមាសទី ១ ២០២៤",
@@ -1764,7 +1949,6 @@
   "editTrainingTitle": "កែសម្រួលការបណ្តុះបណ្តាល",
   "replaceCoverImage": "ចុចដើម្បីជំនួសរូបភាពក្រប",
   "uploadCoverImage": "ចុចដើម្បីបញ្ចូលរូបភាពក្រប",
-  "departmentLabel": "នាយកដ្ឋាន",
   "levelLabel": "កម្រិត",
   "levelBeginner": "ដំបូង",
   "levelIntermediate": "មធ្យម",
@@ -1838,7 +2022,6 @@
   "stageOffer": "ផ្តល់ជូន",
   "stageHired": "បានជួល",
   "stageRejected": "បដិសេធ",
-  
   "companyAssetsTitle": "ទ្រព្យសម្បត្តិក្រុមហ៊ុន",
   "noAssetsFound": "រកមិនឃើញទ្រព្យសម្បត្តិទេ",
   "addFirstAssetDesc": "បន្ថែមទ្រព្យសម្បត្តិក្រុមហ៊ុនដំបូងរបស់អ្នកដើម្បីចាប់ផ្តើម",
@@ -1848,7 +2031,6 @@
   "fillInDetailsDesc": "សូមបំពេញព័ត៌មានលម្អិតខាងក្រោម",
   "basicDetailsTitle": "ព័ត៌មានលម្អិតមូលដ្ឋាន",
   "assetCodeRequired": "លេខកូដទ្រព្យសម្បត្តិ *",
-  "categoryLabel": "ប្រភេទ",
   "conditionLabel": "ស្ថានភាព",
   "conditionNew": "ថ្មី",
   "conditionGood": "ល្អ",
@@ -1865,15 +2047,12 @@
   "assetCodeAndNameRequired": "តម្រូវឱ្យមានលេខកូដទ្រព្យសម្បត្តិ និងឈ្មោះ",
   "assetUpdatedSuccess": "ទ្រព្យសម្បត្តិត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ",
   "assetCreatedSuccess": "ទ្រព្យសម្បត្តិត្រូវបានបង្កើតដោយជោគជ័យ",
-  "saveChangesBtn": "រក្សាទុកការផ្លាស់ប្តូរ",
   "createAssetBtn": "បង្កើតទ្រព្យសម្បត្តិ",
   "assignAssetTitle": "ចាត់តាំងទ្រព្យសម្បត្តិ",
   "transferAssetDesc": "ផ្ទេរទ្រព្យសម្បត្តិទៅឱ្យបុគ្គលិក",
-  "noEmployeesFound": "រកមិនឃើញបុគ្គលិកទេ",
   "assignToEmployeeRequired": "ចាត់តាំងទៅបុគ្គលិក *",
   "conditionAtAssignmentLabel": "ស្ថានភាពពេលចាត់តាំង",
   "conditionNoteHint": "កត់សម្គាល់ការឆ្កូតឬការខូចខាត...",
-  "pleaseSelectEmployee": "សូមជ្រើសរើសបុគ្គលិក",
   "assetAssignedSuccess": "ទ្រព្យសម្បត្តិត្រូវបានចាត់តាំងដោយជោគជ័យ",
   "confirmAssignmentBtn": "បញ្ជាក់ការចាត់តាំង",
   "deleteAssetTitle": "លុបទ្រព្យសម្បត្តិ",
@@ -1889,26 +2068,20 @@
   "assignedToLabel": "បានចាត់តាំងទៅ៖ {name}",
   "warrantyExpired": "ការធានាផុតកំណត់",
   "warrantyExpiringSoon": "ការធានាជិតផុតកំណត់",
-  "assignBtn": "ចាត់តាំង",
   "returnBtn": "ប្រគល់មកវិញ",
   "assignmentHistoryTitle": "ប្រវត្តិការចាត់តាំង",
   "noAssignmentHistory": "មិនមានប្រវត្តិការចាត់តាំងទេ",
   "noAssignmentHistoryDesc": "ទ្រព្យសម្បត្តិនេះមិនដែលត្រូវបានចាត់តាំងឱ្យនរណាម្នាក់ទេ។",
   "assignedDateLabel": "បានចាត់តាំង៖ {date}",
   "returnedDateLabel": "បានប្រគល់មកវិញ៖ {date}",
-  "notesLabel": "កំណត់ចំណាំ៖ {notes}",
-
-  "retry": "ព្យាយាមម្ដងទៀត",
-  "cancel": "បោះបង់",
   "loadingLabel": "កំពុងផ្ទុក...",
   "unpublishBtn": "ដករចេញ",
   "deleteTitle": "លុប",
   "announcementPublished": "✅ បានផ្សព្វផ្សាយ",
   "announcementUnpublished": "✅ បានដករចេញ",
   "operationSuccess": "✅ ប្រតិបត្តិការជោគជ័យ",
-  "fieldRequired": "តម្រូវឱ្យបំពេញ",
   "myShift": "វេនការងារ",
-  "recentPayslip": "ប្រកាសប្រាក់ខែថ្មីៗ",
+  "recentPayslip": "សន្លឹកបើកប្រាក់ខែថ្មីៗ (Payslip)",
   "pendingExpenses": "ការចំណាយរង់ចាំ",
   "noUpcomingLeaves": "មិនមានការសុំច្បាប់ល្អហើយ។",
   "noRecentAttendance": "មិនមានកំណត់ត្រាចូលធ្វើការថ្មីៗ។",
@@ -1919,12 +2092,220 @@
   "progress": "វឌ្ឍនភាព",
   "days": "ថ្ងៃ",
   "today": "ថ្ងៃនេះ",
-  "companyRules": "ច្បាប់របស់ក្រុមហ៊ុន",
+  "companyRules": "បទបញ្ជាផ្ទៃក្នុង",
   "companyRulesDesc": "មគ្គុទ្ទេសក៍ច្បាស់លាស់អំពីច្បាប់ប្រាក់ខែ ការចូលធ្វើការ និងអំឡើងការងាររបស់សាខារបស់អ្នក។",
   "viewingRulesFor": "មើលច្បាប់សម្រាប់",
   "noCompanyRules": "មិនមានច្បាប់ក្រុមហ៊ុនកំណត់ទេ។",
-  "companyDocuments": "ឯកសារក្រុមហ៊ុន",
-  "viewCompanyDocuments": "ចូលប្រើប្រាស់គ្រឿងសម្គាល់និងទម្រង់របស់ក្រុមហ៊ុន",
+  "viewCompanyDocuments": "ចូលមើលឯកសារ និងទម្រង់បែបបទក្រុមហ៊ុន",
   "readAndAcknowledge": "អាននិងទទួលស្គាល់គោលការណ៍",
-  "payrollAttendanceRules": "ច្បាប់ប្រាក់ខែ ការចូលធ្វើការ និង OT"
+  "payrollAttendanceRules": "ច្បាប់ប្រាក់ខែ ការចូលធ្វើការ និង OT",
+  "overtime": "ថែមម៉ោង (OT)",
+  "companyServices": "សេវាកម្មក្រុមហ៊ុន",
+  "moveCloserToBranch": "សូមចូលមកជិតសាខា ដើម្បីចុះឈ្មោះចូល។",
+  "locationNeedsAttention": "ទីតាំងត្រូវការការពិនិត្យ",
+  "noPayslipsYet": "មិនទាន់មានប័ណ្ណប្រាក់ខែ",
+  "preferences": "ការកំណត់ទូទៅ (Preferences)",
+  "themeAndAppearance": "ស្បែក និងរូបរាង (Theme & Appearance)",
+  "themeSubtitle": "Light, Dark ឬតាមប្រព័ន្ធ",
+  "languageSubtitle": "English • ភាសាខ្មែរ",
+  "accountAndInfo": "ព័ត៌មានគណនី",
+  "accountActions": "សកម្មភាពគណនី",
+  "privacyPolicy": "គោលការណ៍ឯកជនភាព (Privacy Policy)",
+  "privacyPolicySubtitle": "ស្វែងយល់ពីរបៀបការពារទិន្នន័យរបស់អ្នក",
+  "deleteAccount": "លុបគណនី (Delete Account)",
+  "deleteAccountSubtitle": "លុបគណនី និងទិន្នន័យរបស់អ្នកជាអចិន្ត្រៃយ៍",
+  "signOutSubtitle": "ចាកចេញពីគណនីលើទូរស័ព្ទនេះ",
+  "returnToAdminSubtitle": "ចូលទៅកាន់ផ្ទាំងគ្រប់គ្រងអ្នកគ្រប់គ្រង (Admin Dashboard)",
+  "editProfileSubtitle": "កែប្រែព័ត៌មានផ្ទាល់ខ្លួន និងធនាគារ",
+  "companyServicesAndTools": "សេវាកម្ម និងមុខងារ",
+  "featuresCount": "{count} មុខងារ",
+  "@featuresCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectTheme": "ជ្រើសរើស Theme",
+  "selectLanguage": "ជ្រើសរើសភាសា",
+  "lightTheme": "Light Mode (ពន្លឺ)",
+  "darkTheme": "Dark Mode (ងងឹត)",
+  "systemTheme": "System Default (តាមទូរស័ព្ទ)",
+  "lightThemeDesc": "ផ្ទៃភ្លឺច្បាស់ ងាយស្រួលមើល",
+  "darkThemeDesc": "ផ្ទៃងងឹត កាត់បន្ថយពន្លឺ និងសន្សំថ្ម",
+  "systemThemeDesc": "ផ្លាស់ប្តូរស្វ័យប្រវត្តិតាមការកំណត់ទូរស័ព្ទ",
+  "englishDesc": "English (United States)",
+  "khmerDesc": "ភាសាខ្មែរ (Cambodia)",
+  "attendkhAppVersion": "Version 1.0.0 • Production",
+  "filterUnread": "មិនទាន់អាន",
+  "filterAttendance": "វត្តមាន",
+  "filterAnnouncements": "សេចក្តីប្រកាស",
+  "filterPolicies": "គោលការណ៍",
+  "filterRequests": "សំណើ",
+  "filterRead": "បានអាន",
+  "timelineToday": "ថ្ងៃនេះ",
+  "timelineYesterday": "ម្សិលមិញ",
+  "timelineThisWeek": "សប្តាហ៍នេះ",
+  "timelineEarlier": "មុននេះ",
+  "searchNotificationsHint": "ស្វែងរកការជូនដំណឹង...",
+  "markAsRead": "សម្គាល់ថាបានអាន",
+  "markAsUnread": "សម្គាល់ថាមិនទាន់អាន",
+  "noMatchingNotifications": "មិនមានការជូនដំណឹងដែលត្រូវគ្នានោះទេ",
+  "allCaughtUp": "អ្នកបានអានការជូនដំណឹងទាំងអស់រួចរាល់ហើយ!",
+  "noFilterNotifications": "មិនមានការជូនដំណឹងនៅក្នុងប្រអប់នេះទេ",
+  "searchSuggestions": "សូមសាកល្បងស្វែងរកដោយប្រើពាក្យគន្លឹះផ្សេង ឬសម្អាតការស្វែងរក។",
+  "checkOtherTabs": "សូមពិនិត្យមើលផ្ទាំងផ្សេង ឬអូសចុះក្រោមដើម្បី refresh។",
+  "emptyNotificationsPrompt": "សេចក្តីប្រកាសក្រុមហ៊ុន បច្ចុប្បន្នភាពគោលការណ៍ និងដំណឹងវត្តមាន នឹងបង្ហាញនៅទីនេះ។",
+  "moreServices": "សេវាកម្មបន្ថែម",
+  "hrOperations": "ប្រតិបត្តិការ HR",
+  "financeAndAssets": "ហិរញ្ញវត្ថុ & ទ្រព្យសម្បត្តិ",
+  "navHome": "ទំព័រដើម",
+  "navLeave": "ច្បាប់ឈប់សម្រាក",
+  "navPayslip": "ប័ណ្ណប្រាក់ខែ",
+  "navMore": "ផ្សេងៗ",
+  "navHR": "HR រដ្ឋបាល",
+  "navPayroll": "បើកប្រាក់ខែ",
+  "navProfile": "គណនី",
+  "navCompanies": "ក្រុមហ៊ុន",
+  "itemAttendanceSubtitle": "ប្រវត្តិកត់ត្រាវត្តមាន",
+  "itemOvertimeSubtitle": "ស្នើសុំ និងតាមដានម៉ោងបន្ថែម (OT)",
+  "itemExpensesSubtitle": "សំណើសងប្រាក់ និងបង្កាន់ដៃ",
+  "itemTrainingSubtitle": "វគ្គបណ្តុះបណ្តាល និងជំនាញ",
+  "itemKpisSubtitle": "គោលដៅ និងការវាយតម្លៃ KPI",
+  "itemHolidaysSubtitle": "ប្រតិទិនថ្ងៃឈប់សម្រាក",
+  "itemRulesSubtitle": "បទបញ្ជាផ្ទៃក្នុង និងគោលការណ៍",
+  "itemPoliciesSubtitle": "គោលការណ៍ និងលក្ខខណ្ឌ",
+  "itemEmployees": "បុគ្គលិក",
+  "itemEmployeesSubtitle": "បញ្ជីឈ្មោះ និងព័ត៌មានបុគ្គលិក",
+  "itemHrStructure": "រចនាសម្ព័ន្ធ HR",
+  "itemHrStructureSubtitle": "នាយកដ្ឋាន និងមុខតំណែង",
+  "itemAdminAttendanceSubtitle": "កំណត់ត្រាស្កេនវត្តមានប្រចាំថ្ងៃ",
+  "itemAdminLeaveSubtitle": "ការអនុម័តច្បាប់ឈប់សម្រាក & សមតុល្យ",
+  "itemAdminOvertimeSubtitle": "ពិនិត្យ និងអនុម័តសំណើម៉ោងបន្ថែម (OT)",
+  "itemAdminShiftsSubtitle": "កាលវិភាគវេនការងារ និងម៉ោងធ្វើការ",
+  "itemAdminPayrollSubtitle": "ការគណនាប្រាក់ខែ និងប័ណ្ណប្រាក់ខែ",
+  "itemAdminExpensesSubtitle": "ពិនិត្យ និងអនុម័តសំណើសងប្រាក់ចំណាយ",
+  "itemBranchLocations": "សាខាក្រុមហ៊ុន",
+  "itemBranchLocationsSubtitle": "ទីតាំង GPS និងប្រព័ន្ធ Wi-Fi",
+  "itemKpiPerformance": "KPI & ការវាយតម្លៃ",
+  "itemKpiPerformanceSubtitle": "ការវាយតម្លៃសមិទ្ធផលប្រចាំត្រីមាស",
+  "itemAuditLogs": "Audit Logs",
+  "itemAuditLogsSubtitle": "កំណត់ត្រាសកម្មភាពគ្រប់គ្រងប្រព័ន្ធ",
+  "itemHolidayCalendar": "ប្រតិទិនថ្ងៃឈប់សម្រាក",
+  "itemHolidayCalendarSubtitle": "ថ្ងៃឈប់សម្រាកបុណ្យជាតិ និងក្រុមហ៊ុន",
+  "itemAnnouncements": "សេចក្តីប្រកាសព័ត៌មាន",
+  "itemAnnouncementsSubtitle": "ផ្សព្វផ្សាយដំណឹង និងសេចក្តីជូនដំណឹង",
+  "itemCompanyPolicies": "គោលការណ៍ក្រុមហ៊ុន",
+  "itemCompanyPoliciesSubtitle": "សៀវភៅគោលការណ៍ និងឯកសាររដ្ឋបាល",
+  "itemRolesPermissions": "Roles & សិទ្ធិ",
+  "itemRolesPermissionsSubtitle": "ការកំណត់កម្រិតសិទ្ធិចូលប្រើ",
+  "itemSupportTickets": "Support Tickets",
+  "itemSupportTicketsSubtitle": "ផ្នែកជំនួយ និងដោះស្រាយបញ្ហា",
+  "itemPlatformHealth": "Platform Health",
+  "itemPlatformHealthSubtitle": "ស្ថេរភាព និងស្ថានភាពប្រព័ន្ធ",
+  "itemGlobalAnnouncementsSubtitle": "ការប្រកាសទូទាំងប្រព័ន្ធ",
+  "itemPlatformSettings": "Platform Settings",
+  "itemPlatformSettingsSubtitle": "ការកំណត់រចនាសម្ព័ន្ធកម្មវិធី",
+  "workShifts": "វេនការងារ (Shifts)",
+  "companyAssets": "ទ្រព្យសម្បត្តិក្រុមហ៊ុន (Assets)",
+  "manageAssignedAssets": "គ្រប់គ្រងឧបករណ៍ និងសម្ភារៈ",
+  "recruitmentJobsDesc": "ដំណឹងជ្រើសរើស និងបេក្ខជន",
+  "performanceReviews": "ការវាយតម្លៃលទ្ធផល (Appraisals)",
+  "performanceReviewsDesc": "KPI និងការវាយតម្លៃបុគ្គលិក",
+  "summaryReports": "របាយការណ៍សង្ខេប",
+  "summaryReportsDesc": "ទិដ្ឋភាពទូទៅវត្តមាន និងប្រាក់ខែ",
+  "analyticsReports": "ការវិភាគ & ស្ថិតិ",
+  "analyticsReportsDesc": "HR insights & statistics",
+  "all": "ទាំងអស់",
+  "rejected": "បានបដិសេធ",
+  "total": "សរុប",
+  "clear": "សម្អាត (Clear)",
+  "allFiles": "ឯកសារទាំងអស់ (All Files)",
+  "wordDocuments": "ឯកសារ Word (Docs)",
+  "spreadsheets": "តារាងគណនា (Excel/Sheets)",
+  "images": "រូបភាព (Images)",
+  "documentsCount": "ឯកសារ (Documents)",
+  "availableFiles": "ឯកសារដែលមាន (Available Files)",
+  "searchFilesHint": "ស្វែងរកឯកសារ ទម្រង់បែបបទ...",
+  "corporateDocVaultSubtitle": "មជ្ឈមណ្ឌលឯកសារ និងធនធានក្រុមហ៊ុន",
+  "noFilesMatching": "មិនមានឯកសារដែលត្រូវនឹង",
+  "companyRulesSubtitle": "ក្រមសីលធម៌ និងគោលការណ៍ណែនាំបុគ្គលិក",
+  "searchRulesHint": "ស្វែងរកបទបញ្ជា ក្រមសីលធម៌...",
+  "regulationsAndPolicies": "បទប្បញ្ញត្តិ និងគោលការណ៍ (Policies)",
+  "guidelinesCount": "គោលការណ៍ណែនាំ",
+  "noRulesMatching": "មិនមានបទបញ្ជាដែលត្រូវនឹង",
+  "allPoliciesReadSuccess": "អបអរសាទរ! អ្នកបានអាន និងយល់ព្រមលើគោលការណ៍ចាំបាច់ទាំងអស់រួចរាល់ហើយ។",
+  "acknowledgedPoliciesEmpty": "គោលការណ៍ដែលអ្នកបានចុះហត្ថលេខា និងយល់ព្រម នឹងបង្ហាញនៅទីនេះ។",
+  "overtimeManagement": "គ្រប់គ្រងម៉ោងបន្ថែម (OT Management)",
+  "overtimeManagementSubtitle": "ស្នើសុំ និងតាមដានម៉ោងបន្ថែមការងារ (OT)",
+  "requestOT": "ស្នើសុំ OT (Request OT)",
+  "myHistory": "ប្រវត្តិស្នើសុំ (History)",
+  "shiftPolicyRules": "គោលការណ៍វេនការងារ និងបទបញ្ជា",
+  "shiftPolicyDesc": "អត្រាប្រាក់ម៉ោងបន្ថែម (OT) គិតបន្ទាប់ពីម៉ោងធ្វើការធម្មតា។ រាល់សំណើត្រូវមានការអនុម័តពីប្រធានផ្នែក។",
+  "selectDateLabel": "ជ្រើសរើសកាលបរិច្ឆេទ",
+  "timeWindow": "ចន្លោះម៉ោង (Time Window)",
+  "startTime": "ម៉ោងចាប់ផ្តើម",
+  "endTime": "ម៉ោងបញ្ចប់",
+  "calculatedDuration": "រយៈពេលសរុប (Duration)",
+  "overtimeReasonLabel": "មូលហេតុធ្វើការបន្ថែមម៉ោង (OT) *",
+  "overtimeReasonHint": "ឧទាហរណ៍៖ បញ្ចប់ការងារបន្ទាន់, ការងារបិទបញ្ជីប្រចាំខែ...",
+  "submitOTRequest": "បញ្ជូនសំណើ OT (Submit OT)",
+  "submittingRequest": "កំពុងបញ្ជូនសំណើ...",
+  "otSubmittedSuccess": "✅ បានបញ្ជូនសំណើថែមម៉ោង (OT) ដោយជោគជ័យ",
+  "noEmployeeProfileFound": "រកមិនឃើញព័ត៌មានបុគ្គលិកឡើយ",
+  "failedToSubmitRequest": "ការបញ្ជូនសំណើមិនបានសម្រេច",
+  "overtimeRequests": "សំណើម៉ោងបន្ថែម (OT Requests)",
+  "noOtRequests": "មិនមានសំណើថែមម៉ោង (OT) ឡើយ",
+  "noOtRequestsFilter": "មិនមានសំណើថែមម៉ោងក្នុងស្ថានភាពនេះទេ",
+  "kpiSubtitle": "តាមដានសូចនាករការងារ វត្តមាន និងគោលដៅ (KPIs)",
+  "loadingKpis": "កំពុងដំណើរការទិន្នន័យ KPI...",
+  "performanceGradeExcellent": "ល្អឥតខ្ចោះ (Excellent)",
+  "performanceGradeAverage": "មធ្យម (Average)",
+  "performanceGradeNeedsAttention": "ត្រូវកែលម្អ (Needs Attention)",
+  "overallScore": "ពិន្ទុសរុប (Overall Score)",
+  "multiTenantMetrics": "ទិន្នន័យគ្រប់គ្រងសាខា (Metrics)",
+  "payslipAndSalary": "សន្លឹកប្រាក់ខែ និងប្រាក់បៀវត្ស (Payslips)",
+  "paymentHistory": "ប្រវត្តិបើកប្រាក់បៀវត្ស (Payment History)",
+  "downloadLatestStatement": "ទាញយកប័ណ្ណប្រាក់ខែចុងក្រោយ (Download PDF)",
+  "netPaid": "ប្រាក់ខែជាក់ស្តែង (Net Paid)",
+  "statementSingular": "សន្លឹក",
+  "statementsPlural": "សន្លឹក",
+  "nextUpcomingHoliday": "ថ្ងៃឈប់សម្រាកបុណ្យបន្ទាប់",
+  "tomorrow": "ថ្ងៃស្អែក",
+  "passed": "បានកន្លងផុត",
+  "regularScheduleEnjoy": "សូមរីករាយជាមួយកាលវិភាគការងារធម្មតារបស់អ្នក!",
+  "refreshCourses": "ផ្ទុកវគ្គបណ្តុះបណ្តាលឡើងវិញ",
+  "browseAvailableCourses": "ស្វែងរកវគ្គបណ្តុះបណ្តាល (Courses)",
+  "noTrainingsEnrolledDesc": "អ្នកមិនទាន់បានចុះឈ្មោះក្នុងវគ្គបណ្តុះបណ្តាលណាមួយនៅឡើយទេ។ សូមស្វែងរកវគ្គសិក្សាដែលមានដើម្បីចាប់ផ្តើមរៀនសូត្រ។",
+  "newCoursesPublishedDesc": "វគ្គបណ្តុះបណ្តាលជំនាញវិជ្ជាជីវៈ និងសិក្ខាសាលាថ្មីៗពី HR នឹងបង្ហាញនៅទីនេះ។",
+  "claimExpense": "ស្នើសុំទូទាត់ចំណាយ (Claim Expense)",
+  "expenseTitleSubject": "ចំណងជើង / គោលបំណងចំណាយ *",
+  "statusPaid": "បានទូទាត់ (Paid)",
+  "personalAndContact": "ព័ត៌មានផ្ទាល់ខ្លួន និងទំនាក់ទំនង",
+  "branchLocation": "សាខាធ្វើការ (Branch Location)",
+  "jobTitleRole": "មុខតំណែង / តួនាទី (Job Title)",
+  "reportingManager": "ប្រធានគ្រប់គ្រងផ្ទាល់ (Manager)",
+  "joiningDate": "ថ្ងៃចូលបម្រើការងារ (Joining Date)",
+  "fullNameLatin": "ឈ្មោះពេញ (អក្សរឡាតាំង / English)",
+  "khmerNameOptional": "ឈ្មោះជាភាសាខ្មែរ (មិនបង្ខំ)",
+  "otherGender": "ផ្សេងៗ (Other)",
+  "dailyLogs": "កំណត់ត្រាប្រចាំថ្ងៃ (Daily Logs)",
+  "heavyTraffic": "ស្ទះចរាចរណ៍ខ្លាំង (Traffic)",
+  "heavyRain": "ភ្លៀងធ្លាក់ខ្លាំង (Rain)",
+  "vehicleIssue": "បញ្ហាយានជំនិះ (Vehicle Issue)",
+  "familyEmergency": "ការងារគ្រួសារបន្ទាន់ (Emergency)",
+  "healthIssue": "បញ្ហាសុខភាព (Health Issue)",
+  "otherReason": "មូលហេតុផ្សេងទៀត (Other)",
+  "daysFreeToBook": "ថ្ងៃអាចស្នើសុំបាន",
+  "daysLeft": "ថ្ងៃនៅសល់",
+  "awaitingApproval": "រង់ចាំការអនុម័ត (Pending)",
+  "leavesAndBalancesEmptyDesc": "សំណើឈប់សម្រាក និងសមតុល្យច្បាប់របស់អ្នកនឹងបង្ហាញនៅទីនេះ។",
+  "themeLight": "ពន្លឺ (Light)",
+  "themeDark": "ងងឹត (Dark)",
+  "themeAuto": "ស្វ័យប្រវត្តិ (Auto)",
+  "englishUs": "អង់គ្លេស - English (US)",
+  "khmerKm": "ភាសាខ្មែរ (Khmer)",
+  "descriptionPurpose": "ការពិពណ៌នា / គោលបំណង",
+  "attachReceipt": "ភ្ជាប់វិក្កយបត្រ (រូបថត/ឯកសារ)",
+  "refresh": "ផ្ទុកឡើងវិញ (Refresh)"
 }

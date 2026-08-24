@@ -53,15 +53,15 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.platformRolesTitle,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -106,7 +106,7 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
                   const SizedBox(height: 16),
                   Text(
                     'Failed to load roles',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -193,9 +193,9 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
         // ── Search Field ──
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: AppColors.border(context)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
@@ -207,7 +207,7 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
           child: TextField(
             controller: _searchCtrl,
             onChanged: (val) => setState(() => _searchTerm = val.trim().toLowerCase()),
-            style: const TextStyle(fontSize: 13.5, color: AppColors.grey900),
+            style: TextStyle(fontSize: 13.5, color: AppColors.textPrimary(context)),
             decoration: InputDecoration(
               hintText: 'Search roles or permissions...',
               hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
@@ -248,9 +248,9 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
             padding: const EdgeInsets.all(32),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface(context),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+              border: Border.all(color: AppColors.border(context)),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -280,7 +280,7 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -366,9 +366,9 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -409,10 +409,10 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
                         Flexible(
                           child: Text(
                             _formatName(r.name),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14.5,
-                              color: AppColors.grey900,
+                              color: AppColors.textPrimary(context),
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -509,7 +509,7 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.grey100,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.grey200),
+                      border: Border.all(color: AppColors.border(context)),
                     ),
                     child: Text(
                       '+${perms.length - 4} more',
@@ -565,10 +565,10 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
                     children: [
                       Text(
                         isEditing ? l10n.editRoleTitle : l10n.createNewRoleTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       IconButton(
@@ -588,11 +588,11 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
                       fillColor: isSystemRole ? AppColors.grey100 : AppColors.grey50,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.grey200),
+                        borderSide: BorderSide(color: AppColors.border(context)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.grey200),
+                        borderSide: BorderSide(color: AppColors.border(context)),
                       ),
                     ),
                   ),
@@ -610,10 +610,10 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
                     children: [
                       Text(
                         l10n.permissionsLabel,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       Text(
@@ -634,7 +634,7 @@ class _SuperAdminRolesScreenState extends ConsumerState<SuperAdminRolesScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.grey50,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.grey200),
+                      border: Border.all(color: AppColors.border(context)),
                     ),
                     padding: const EdgeInsets.all(12),
                     child: SingleChildScrollView(

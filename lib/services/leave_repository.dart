@@ -119,10 +119,10 @@ class LeaveRepository {
     final response = await _api.get('/company/leave/balances/mine');
     final data = response.data;
     if (data is List) {
-      return data.map((e) => LeaveBalance.fromJson(e as Map<String, dynamic>)).toList();
+      return data.whereType<Map<String, dynamic>>().map(LeaveBalance.fromJson).toList();
     }
-    if (data is Map && data['data'] != null) {
-      return (data['data'] as List).map((e) => LeaveBalance.fromJson(e as Map<String, dynamic>)).toList();
+    if (data is Map && data['data'] is List) {
+      return (data['data'] as List).whereType<Map<String, dynamic>>().map(LeaveBalance.fromJson).toList();
     }
     return [];
   }
@@ -132,10 +132,10 @@ class LeaveRepository {
     final response = await _api.get('/company/leave/types');
     final data = response.data;
     if (data is List) {
-      return data.map((e) => LeaveType.fromJson(e as Map<String, dynamic>)).toList();
+      return data.whereType<Map<String, dynamic>>().map(LeaveType.fromJson).toList();
     }
-    if (data is Map && data['data'] != null) {
-      return (data['data'] as List).map((e) => LeaveType.fromJson(e as Map<String, dynamic>)).toList();
+    if (data is Map && data['data'] is List) {
+      return (data['data'] as List).whereType<Map<String, dynamic>>().map(LeaveType.fromJson).toList();
     }
     return [];
   }
@@ -148,10 +148,10 @@ class LeaveRepository {
     );
     final data = response.data;
     if (data is List) {
-      return data.map((e) => LeaveRequest.fromJson(e as Map<String, dynamic>)).toList();
+      return data.whereType<Map<String, dynamic>>().map(LeaveRequest.fromJson).toList();
     }
-    if (data is Map && data['data'] != null) {
-      return (data['data'] as List).map((e) => LeaveRequest.fromJson(e as Map<String, dynamic>)).toList();
+    if (data is Map && data['data'] is List) {
+      return (data['data'] as List).whereType<Map<String, dynamic>>().map(LeaveRequest.fromJson).toList();
     }
     return [];
   }

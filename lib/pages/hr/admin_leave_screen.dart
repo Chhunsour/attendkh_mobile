@@ -6,6 +6,7 @@ import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 
 // ─── Color helpers ─────────────────────────────────────────────────────────
@@ -59,15 +60,15 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.leaveManagementTitle,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -86,7 +87,7 @@ class _AdminLeaveScreenState extends ConsumerState<AdminLeaveScreen>
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: Colors.white,
+            color: AppColors.surface(context),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: TabBar(
@@ -368,10 +369,10 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                     children: [
                       Text(
                         l10n.newLeaveRequest,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
-                          color: AppColors.grey800,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       Text(
@@ -537,9 +538,9 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                         ),
                         Text(
                           l10n.halfDay,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.grey800,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                         if (_halfDay) ...[
@@ -650,11 +651,11 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
                                 }
                               },
                         child: _loading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary(context),
                                   strokeWidth: 2,
                                 ),
                               )
@@ -678,17 +679,17 @@ class _AddRequestSheetState extends ConsumerState<_AddRequestSheet> {
     );
   }
 
-  InputDecoration _dropDec() => InputDecoration(
+  InputDecoration _dropDec([BuildContext? context]) => InputDecoration(
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     filled: true,
-    fillColor: AppColors.grey50,
+    fillColor: context != null ? (Theme.of(context).brightness == Brightness.dark ? AppColors.surfaceDarkElevated : AppColors.grey50) : AppColors.grey50,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.grey200),
+      borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.grey200),
+      borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
@@ -712,7 +713,7 @@ class _RequestCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.grey900.withAlpha(8),
+            color: AppColors.textPrimary(context).withAlpha(8),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -754,10 +755,12 @@ class _RequestCard extends ConsumerWidget {
                                 (request.employeePhoto != null &&
                                     request.employeePhoto!.isNotEmpty)
                                 ? DecorationImage(
-                                    image: NetworkImage(
+                                    image: CachedNetworkImageProvider(
                                       request.employeePhoto!.startsWith('http')
                                           ? request.employeePhoto!
                                           : '${DioClient.storageUrl}/${request.employeePhoto!.startsWith('/') ? request.employeePhoto!.substring(1) : request.employeePhoto!}',
+                                      maxWidth: 120,
+                                      maxHeight: 120,
                                     ),
                                     fit: BoxFit.cover,
                                   )
@@ -787,10 +790,10 @@ class _RequestCard extends ConsumerWidget {
                             children: [
                               Text(
                                 request.employeeName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
-                                  color: AppColors.grey800,
+                                  color: AppColors.textPrimary(context),
                                 ),
                               ),
                               Row(
@@ -1052,9 +1055,9 @@ class _RequestCard extends ConsumerWidget {
           SnackBar(
             content: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.check_circle_rounded,
-                  color: Colors.white,
+                  color: AppColors.textPrimary(context),
                   size: 16,
                 ),
                 const SizedBox(width: 8),
@@ -1170,7 +1173,7 @@ class _BalanceCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -1198,14 +1201,23 @@ class _BalanceCard extends ConsumerWidget {
                         balance.employeeAvatar!.isNotEmpty
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          balance.employeeAvatar!.startsWith('http')
+                        child: CachedNetworkImage(
+                          imageUrl: balance.employeeAvatar!.startsWith('http')
                               ? balance.employeeAvatar!
                               : '${DioClient.storageUrl}/${balance.employeeAvatar!.startsWith('/') ? balance.employeeAvatar!.substring(1) : balance.employeeAvatar!}',
                           width: 40,
                           height: 40,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) => Center(
+                          memCacheWidth: 120,
+                          memCacheHeight: 120,
+                          placeholder: (_, _) => const Center(
+                            child: SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 1.5, color: AppColors.primary),
+                            ),
+                          ),
+                          errorWidget: (_, _, _) => Center(
                             child: Text(
                               balance.employeeName.isNotEmpty
                                   ? balance.employeeName[0].toUpperCase()
@@ -1239,10 +1251,10 @@ class _BalanceCard extends ConsumerWidget {
                   children: [
                     Text(
                       balance.employeeName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
-                        color: AppColors.grey800,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     Row(
@@ -1371,9 +1383,9 @@ class _BalanceCard extends ConsumerWidget {
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
         child: Container(
           padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: AppColors.surface(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1392,10 +1404,10 @@ class _BalanceCard extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(
                 AppLocalizations.of(context)!.editBalanceTitle(b.employeeName),
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
-                  color: AppColors.grey800,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
               Text(
@@ -1569,9 +1581,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
     final List<int> selectedEmpIds = [];
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -1610,10 +1622,10 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                     children: [
                       Text(
                         AppLocalizations.of(context)!.addLeaveBalance,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
-                          color: AppColors.grey800,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       Text(
@@ -1788,7 +1800,7 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                         data: (emps) => Container(
                           constraints: const BoxConstraints(maxHeight: 200),
                           decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.grey200),
+                            border: Border.all(color: AppColors.border(context)),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListView.separated(
@@ -2033,11 +2045,11 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                                 }
                               },
                         child: _loading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary(context),
                                   strokeWidth: 2,
                                 ),
                               )
@@ -2065,17 +2077,17 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
     );
   }
 
-  InputDecoration _dropDec() => InputDecoration(
+  InputDecoration _dropDec([BuildContext? context]) => InputDecoration(
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     filled: true,
-    fillColor: AppColors.grey50,
+    fillColor: context != null ? (Theme.of(context).brightness == Brightness.dark ? AppColors.surfaceDarkElevated : AppColors.grey50) : AppColors.grey50,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.grey200),
+      borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.grey200),
+      borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
@@ -2177,9 +2189,9 @@ class _LeaveTypesTab extends ConsumerWidget {
         maxChildSize: 0.95,
         expand: false,
         builder: (_, scrollCtrl) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: AppColors.surface(context),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [
@@ -2200,10 +2212,10 @@ class _LeaveTypesTab extends ConsumerWidget {
                   isEdit
                       ? AppLocalizations.of(context)!.editLeaveType
                       : AppLocalizations.of(context)!.addLeaveType,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
-                    color: AppColors.grey800,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
               ),
@@ -2231,10 +2243,10 @@ class _LeaveTypesTab extends ConsumerWidget {
                           // ── General Information ──────────────────────────
                           Text(
                             AppLocalizations.of(context)!.generalInfo,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.grey800,
+                              color: AppColors.textPrimary(context),
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -2318,9 +2330,9 @@ class _LeaveTypesTab extends ConsumerWidget {
                                       ),
                                     ),
                                     child: sel
-                                        ? const Icon(
+                                        ? Icon(
                                             Icons.check_rounded,
-                                            color: Colors.white,
+                                            color: AppColors.textPrimary(context),
                                             size: 16,
                                           )
                                         : null,
@@ -2335,10 +2347,10 @@ class _LeaveTypesTab extends ConsumerWidget {
                           // ── Accrual & Balances ───────────────────────────
                           Text(
                             AppLocalizations.of(context)!.accrualAndBalances,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.grey800,
+                              color: AppColors.textPrimary(context),
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -2391,10 +2403,10 @@ class _LeaveTypesTab extends ConsumerWidget {
                           // ── Rules & Restrictions ─────────────────────────
                           Text(
                             AppLocalizations.of(context)!.rulesAndRestrictions,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.grey800,
+                              color: AppColors.textPrimary(context),
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -2465,10 +2477,10 @@ class _LeaveTypesTab extends ConsumerWidget {
                           // ── Toggles ──────────────────────────────────────
                           Text(
                             AppLocalizations.of(context)!.options,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.grey800,
+                              color: AppColors.textPrimary(context),
                             ),
                           ),
                           const SizedBox(height: 6),
@@ -2683,17 +2695,17 @@ class _LeaveTypesTab extends ConsumerWidget {
     );
   }
 
-  InputDecoration _dropDec() => InputDecoration(
+  InputDecoration _dropDec([BuildContext? context]) => InputDecoration(
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     filled: true,
-    fillColor: AppColors.grey50,
+    fillColor: context != null ? (Theme.of(context).brightness == Brightness.dark ? AppColors.surfaceDarkElevated : AppColors.grey50) : AppColors.grey50,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.grey200),
+      borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.grey200),
+      borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
@@ -2713,7 +2725,7 @@ class _LeaveTypeCard extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -2768,10 +2780,10 @@ class _LeaveTypeCard extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       type.name,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 14,
-                                        color: AppColors.grey800,
+                                        color: AppColors.textPrimary(context),
                                       ),
                                     ),
                                   ),
@@ -3074,8 +3086,8 @@ class _LeaveTypeCard extends ConsumerWidget {
                 RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    style: const TextStyle(
-                      color: AppColors.grey800,
+                    style: TextStyle(
+                      color: AppColors.textPrimary(context),
                       fontSize: 15,
                       height: 1.5,
                     ),
@@ -3105,8 +3117,8 @@ class _LeaveTypeCard extends ConsumerWidget {
                         ),
                         child: Text(
                           AppLocalizations.of(context)!.cancel,
-                          style: const TextStyle(
-                            color: AppColors.grey800,
+                          style: TextStyle(
+                            color: AppColors.textPrimary(context),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -3289,11 +3301,11 @@ class _SheetField extends StatelessWidget {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.grey200),
+          borderSide: BorderSide(color: AppColors.border(context)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.grey200),
+          borderSide: BorderSide(color: AppColors.border(context)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

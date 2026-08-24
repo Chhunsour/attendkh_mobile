@@ -86,8 +86,8 @@ class _CompanyScoreBanner extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [const Color(0xFF7C3AED), const Color(0xFF4F46E5)],
+        gradient: const LinearGradient(
+          colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -113,7 +113,7 @@ class _CompanyScoreBanner extends StatelessWidget {
                   value: (average.clamp(0, 100)) / 100.0,
                   strokeWidth: 7,
                   backgroundColor: Colors.white.withValues(alpha: 0.25),
-                  valueColor: AlwaysStoppedAnimation<Color>(
+                  valueColor: const AlwaysStoppedAnimation<Color>(
                     Colors.white,
                   ),
                 ),
@@ -234,7 +234,7 @@ class _OwnerKpiCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
@@ -272,10 +272,10 @@ class _OwnerKpiCard extends StatelessWidget {
                       children: [
                         Text(
                           kpi.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.grey900,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -320,12 +320,16 @@ class _OwnerKpiCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _formatValue(kpi.actual, kpi.unit),
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: color,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _formatValue(kpi.actual, kpi.unit),
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: color,
+                          ),
                         ),
                       ),
                       if (kpi.target != 0)

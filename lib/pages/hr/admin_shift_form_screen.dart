@@ -190,9 +190,9 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
     final dayLabels = [l10n.dayMo, l10n.dayTu, l10n.dayWe, l10n.dayTh, l10n.dayFr, l10n.daySa, l10n.daySu];
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         bottom: PreferredSize(
@@ -208,8 +208,8 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
           children: [
             Text(
               isEdit ? l10n.editScheduleTitle : l10n.newScheduleTitle,
-              style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.grey800),
+              style: TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context)),
             ),
             Text(
               isEdit ? l10n.editScheduleSubtitle : l10n.newScheduleSubtitle,
@@ -336,7 +336,7 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
               padding: EdgeInsets.fromLTRB(
                   16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface(context),
                 border: const Border(top: BorderSide(color: AppColors.grey100)),
                 boxShadow: [
                   BoxShadow(
@@ -394,11 +394,11 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -553,8 +553,8 @@ class _DayRow extends StatelessWidget {
                         children: [
                           _TimeChip(
                               time: fmtDisplay(startTime), onTap: onTapStart, color: accent),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 5),
                             child: Icon(Icons.arrow_forward_rounded,
                                 size: 11, color: AppColors.grey400),
                           ),
@@ -566,7 +566,7 @@ class _DayRow extends StatelessWidget {
                       // Break row
                       Row(
                         children: [
-                          Icon(Icons.coffee_rounded, size: 11, color: AppColors.grey400),
+                          const Icon(Icons.coffee_rounded, size: 11, color: AppColors.grey400),
                           const SizedBox(width: 4),
                           _TimeChip(
                             time: breakStart != null ? fmtDisplay(breakStart!) : AppLocalizations.of(context)!.startTimeLabel,
@@ -575,8 +575,8 @@ class _DayRow extends StatelessWidget {
                             small: true,
                             placeholder: breakStart == null,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 3),
                             child:
                                 Text('–', style: TextStyle(fontSize: 10, color: AppColors.grey400)),
                           ),

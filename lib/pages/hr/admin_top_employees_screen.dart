@@ -32,10 +32,10 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
     final topEmployeesAsync = ref.watch(topEmployeesProvider(monthStr));
 
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Solid light background instead of gradient
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        title: const Text('Top Employees Leaderboard'),
-        backgroundColor: Colors.white,
+        title: Text('Top Employees Leaderboard', style: TextStyle(color: AppColors.textPrimary(context))),
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: true,
       ),
@@ -242,16 +242,16 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                         return Container(
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: AppColors.surface(context),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withAlpha(10),
+                                color: Colors.black.withValues(alpha: 0.04),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
                             ],
-                            border: Border.all(color: Colors.grey[100]!),
+                            border: Border.all(color: AppColors.border(context)),
                           ),
                           padding: const EdgeInsets.all(16),
                           child: Row(
@@ -320,10 +320,10 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                                   children: [
                                     Text(
                                       emp.name,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w900,
                                         fontSize: 16,
-                                        color: Colors.black87,
+                                        color: AppColors.textPrimary(context),
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,

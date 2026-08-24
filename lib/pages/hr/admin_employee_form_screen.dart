@@ -16,6 +16,7 @@ InputDecoration _fieldDecor(
   String label, {
   IconData? icon,
   Widget? suffixIcon,
+  BuildContext? context,
 }) {
   return InputDecoration(
     labelText: label,
@@ -24,22 +25,22 @@ InputDecoration _fieldDecor(
         : null,
     suffixIcon: suffixIcon,
     filled: true,
-    fillColor: AppColors.surfaceLight,
+    fillColor: context != null ? AppColors.surface(context) : AppColors.surfaceLight,
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: AppColors.grey200),
+      borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: AppColors.grey200),
+      borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: AppColors.primary, width: 2),
+      borderSide: const BorderSide(color: AppColors.primary, width: 2),
     ),
-    labelStyle: TextStyle(fontSize: 14, color: AppColors.grey500),
-    floatingLabelStyle: TextStyle(
+    labelStyle: const TextStyle(fontSize: 14, color: AppColors.grey500),
+    floatingLabelStyle: const TextStyle(
       fontSize: 12,
       color: AppColors.primary,
       fontWeight: FontWeight.w600,
@@ -90,7 +91,7 @@ class _Section extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.backgroundLight,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: AppColors.border(context)),
           ),
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -276,7 +277,7 @@ class _AdminEmployeeFormScreenState
       builder: (ctx, child) => Theme(
         data: Theme.of(
           ctx,
-        ).copyWith(colorScheme: ColorScheme.light(primary: AppColors.primary)),
+        ).copyWith(colorScheme: const ColorScheme.light(primary: AppColors.primary)),
         child: child!,
       ),
     );
@@ -294,7 +295,7 @@ class _AdminEmployeeFormScreenState
       builder: (ctx, child) => Theme(
         data: Theme.of(
           ctx,
-        ).copyWith(colorScheme: ColorScheme.light(primary: AppColors.primary)),
+        ).copyWith(colorScheme: const ColorScheme.light(primary: AppColors.primary)),
         child: child!,
       ),
     );
@@ -479,9 +480,9 @@ class _AdminEmployeeFormScreenState
           SnackBar(
             content: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.check_circle_outline,
-                  color: Colors.white,
+                  color: AppColors.textPrimary(context),
                   size: 18,
                 ),
                 const SizedBox(width: 8),
@@ -532,16 +533,16 @@ class _AdminEmployeeFormScreenState
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.grey800),
+        iconTheme: IconThemeData(color: AppColors.textPrimary(context)),
         title: Text(
           isEditing ? l10n.editEmployee : l10n.addEmployee,
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 17,
             fontWeight: FontWeight.w700,
           ),
@@ -681,7 +682,7 @@ class _AdminEmployeeFormScreenState
                     }),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.add_rounded,
                           size: 16,
                           color: AppColors.primary,
@@ -689,7 +690,7 @@ class _AdminEmployeeFormScreenState
                         const SizedBox(width: 6),
                         Text(
                           l10n.addPhoneNumber,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: AppColors.primary,
@@ -785,14 +786,14 @@ class _AdminEmployeeFormScreenState
                                 ),
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: AppColors.danger,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.close,
                                     size: 12,
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary(context),
                                   ),
                                 ),
                               ),
@@ -819,7 +820,7 @@ class _AdminEmployeeFormScreenState
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.upload_outlined,
                             size: 16,
                             color: AppColors.grey500,
@@ -827,7 +828,7 @@ class _AdminEmployeeFormScreenState
                           const SizedBox(width: 8),
                           Text(
                             l10n.uploadIdImages,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: AppColors.grey600,
@@ -1022,10 +1023,10 @@ class _AdminEmployeeFormScreenState
                           isEditing
                               ? l10n.resetPasswordHint
                               : l10n.createAccountHint,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.grey800,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                       ),
@@ -1142,10 +1143,10 @@ class _AdminEmployeeFormScreenState
                                     ? emp.firstName![0].toUpperCase()
                                     : 'E')
                               : 'E',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppColors.textPrimary(context),
                           ),
                         )
                       : null,
@@ -1159,7 +1160,7 @@ class _AdminEmployeeFormScreenState
                       color: AppColors.surfaceLight,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.camera_alt_rounded,
                       size: 14,
                       color: AppColors.primary,
@@ -1178,8 +1179,8 @@ class _AdminEmployeeFormScreenState
                   isEditing
                       ? '${widget.employee!.firstName ?? ''} ${widget.employee!.lastName ?? ''}'
                       : l10n.newEmployee,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: AppColors.textPrimary(context),
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1263,13 +1264,13 @@ class _AdminEmployeeFormScreenState
     return DropdownButtonFormField<T>(
       initialValue: value,
       decoration: _fieldDecor(label),
-      style: const TextStyle(fontSize: 14, color: AppColors.grey800),
+      style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
       items: [
         DropdownMenuItem<T>(
           value: null,
           child: Text(
             l10n?.none ?? '— None —',
-            style: TextStyle(color: AppColors.grey400),
+            style: const TextStyle(color: AppColors.grey400),
           ),
         ),
         ...items.entries.map(
@@ -1289,11 +1290,11 @@ class _AdminEmployeeFormScreenState
       data: (depts) => DropdownButtonFormField<int>(
         initialValue: _departmentId,
         decoration: _fieldDecor('Department', icon: Icons.business_outlined),
-        style: const TextStyle(fontSize: 14, color: AppColors.grey800),
+        style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
         items: [
           DropdownMenuItem<int>(
             value: null,
-            child: Text(l10n.none, style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.none, style: const TextStyle(color: AppColors.grey400)),
           ),
           ...depts.map(
             (d) => DropdownMenuItem(value: d.id, child: Text(d.name)),
@@ -1312,11 +1313,11 @@ class _AdminEmployeeFormScreenState
       data: (pos) => DropdownButtonFormField<int>(
         initialValue: _positionId,
         decoration: _fieldDecor('Position', icon: Icons.work_outline),
-        style: const TextStyle(fontSize: 14, color: AppColors.grey800),
+        style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
         items: [
           DropdownMenuItem<int>(
             value: null,
-            child: Text(l10n.none, style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.none, style: const TextStyle(color: AppColors.grey400)),
           ),
           ...pos.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))),
         ],
@@ -1333,11 +1334,11 @@ class _AdminEmployeeFormScreenState
       data: (branches) => DropdownButtonFormField<int>(
         initialValue: _branchId,
         decoration: _fieldDecor('Branch', icon: Icons.location_city_outlined),
-        style: const TextStyle(fontSize: 14, color: AppColors.grey800),
+        style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
         items: [
           DropdownMenuItem<int>(
             value: null,
-            child: Text(l10n.none, style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.none, style: const TextStyle(color: AppColors.grey400)),
           ),
           ...branches.map(
             (b) => DropdownMenuItem(value: b.id, child: Text(b.name)),
@@ -1356,11 +1357,11 @@ class _AdminEmployeeFormScreenState
       data: (teams) => DropdownButtonFormField<int>(
         initialValue: _teamId,
         decoration: _fieldDecor('Team', icon: Icons.group_outlined),
-        style: const TextStyle(fontSize: 14, color: AppColors.grey800),
+        style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
         items: [
           DropdownMenuItem<int>(
             value: null,
-            child: Text(l10n.none, style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.none, style: const TextStyle(color: AppColors.grey400)),
           ),
           ...teams.map(
             (t) => DropdownMenuItem(value: t.id, child: Text(t.name)),
@@ -1382,11 +1383,11 @@ class _AdminEmployeeFormScreenState
           'Direct Manager',
           icon: Icons.manage_accounts_outlined,
         ),
-        style: const TextStyle(fontSize: 14, color: Colors.black87),
+        style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
         items: [
           DropdownMenuItem<int>(
             value: null,
-            child: Text(l10n.none, style: TextStyle(color: AppColors.grey400)),
+            child: Text(l10n.none, style: const TextStyle(color: AppColors.grey400)),
           ),
           ...employees
               .where((e) => e.id != widget.employee?.id)
@@ -1406,7 +1407,7 @@ class _AdminEmployeeFormScreenState
 
   Widget _fieldError(String label) => InputDecorator(
     decoration: _fieldDecor(label),
-    child: Text(
+    child: const Text(
       'Error loading',
       style: TextStyle(color: AppColors.danger, fontSize: 13),
     ),

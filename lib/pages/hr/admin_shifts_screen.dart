@@ -7,8 +7,8 @@ import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
+import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 // ─── Accent colors (work on white backgrounds) ───────────────────────────────
 const _cardAccents = [
@@ -65,15 +65,15 @@ class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen>
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.shiftsAndCalendars,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -114,7 +114,7 @@ class _AdminShiftsScreenState extends ConsumerState<AdminShiftsScreen>
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: Colors.white,
+            color: AppColors.surface(context),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: TabBar(
@@ -323,7 +323,7 @@ class _ShiftCard extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -382,10 +382,10 @@ class _ShiftCard extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       shift.name,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 15,
-                                        color: AppColors.grey800,
+                                        color: AppColors.textPrimary(context),
                                       ),
                                     ),
                                   ),
@@ -432,8 +432,8 @@ class _ShiftCard extends ConsumerWidget {
                                     const SizedBox(width: 5),
                                     _Badge(
                                       label: l10n.overnightBadge,
-                                      color: Color(0xFF4F46E5),
-                                      bg: Color(0xFFEEF2FF),
+                                      color: const Color(0xFF4F46E5),
+                                      bg: const Color(0xFFEEF2FF),
                                     ),
                                   ],
                                 ],
@@ -468,8 +468,8 @@ class _ShiftCard extends ConsumerWidget {
                   ),
 
                   // ── Divider ──────────────────────────────────────────
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14),
                     child: Divider(height: 1, color: AppColors.grey100),
                   ),
 
@@ -524,7 +524,7 @@ class _ShiftCard extends ConsumerWidget {
                                     // Time range
                                     Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.schedule_rounded,
                                           size: 11,
                                           color: AppColors.grey500,
@@ -546,7 +546,7 @@ class _ShiftCard extends ConsumerWidget {
                                   const SizedBox(height: 3),
                                   Row(
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.coffee_rounded,
                                         size: 10,
                                         color: AppColors.grey400,
@@ -598,16 +598,16 @@ class _ShiftCard extends ConsumerWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.person_add_alt_1_rounded,
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary(context),
                                   size: 13,
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
                                   l10n.assign,
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary(context),
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -664,7 +664,7 @@ class _ShiftCard extends ConsumerWidget {
 
                 Text(
                   l10n.deleteShiftTitle,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 12),
@@ -672,8 +672,8 @@ class _ShiftCard extends ConsumerWidget {
                 RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    style: const TextStyle(
-                      color: AppColors.grey800,
+                    style: TextStyle(
+                      color: AppColors.textPrimary(context),
                       fontSize: 15,
                       height: 1.5,
                     ),
@@ -710,7 +710,7 @@ class _ShiftCard extends ConsumerWidget {
                         child: Text(
                           l10n.cancel,
                           style: TextStyle(
-                            color: AppColors.grey800,
+                            color: AppColors.textPrimary(context),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -969,9 +969,9 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
     }
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         children: [
@@ -1013,10 +1013,10 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                     children: [
                       Text(
                         l10n.assignEmployeesTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
-                          color: AppColors.grey800,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       Text(
@@ -1162,7 +1162,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
               decoration: BoxDecoration(
                 color: AppColors.grey50,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.grey200),
+                border: Border.all(color: AppColors.border(context)),
               ),
               child: TextField(
                 controller: _searchCtrl,
@@ -1407,7 +1407,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                                                 ),
                                                 child: Text(
                                                   l10n.assignedBadge,
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                     fontSize: 10,
                                                     fontWeight: FontWeight.w700,
                                                     color: AppColors.success,
@@ -1494,7 +1494,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
               MediaQuery.of(context).padding.bottom + 12,
             ),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface(context),
               border: const Border(top: BorderSide(color: AppColors.grey100)),
               boxShadow: [
                 BoxShadow(
@@ -1520,7 +1520,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                     ),
                     child: Text(
                       l10n.cancel,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -1729,14 +1729,14 @@ class _EmptyState extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
-                color: AppColors.grey800,
+                color: AppColors.textPrimary(context),
               ),
             ),
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.createFirstShiftDesc,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.grey500, fontSize: 14),
+              style: const TextStyle(color: AppColors.grey500, fontSize: 14),
             ),
             const SizedBox(height: 24),
             FilledButton.icon(
@@ -1755,7 +1755,7 @@ class _EmptyState extends StatelessWidget {
               icon: const Icon(Icons.add_rounded),
               label: Text(
                 AppLocalizations.of(context)!.createFirstShiftBtn,
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -1791,7 +1791,7 @@ class _ErrorState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context)!.failedToLoadShifts,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 16,
               color: AppColors.grey700,
@@ -1800,7 +1800,7 @@ class _ErrorState extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             AppLocalizations.of(context)!.checkConnectionRetry,
-            style: TextStyle(color: AppColors.grey500, fontSize: 13),
+            style: const TextStyle(color: AppColors.grey500, fontSize: 13),
           ),
           const SizedBox(height: 20),
           OutlinedButton.icon(
@@ -1817,7 +1817,7 @@ class _ErrorState extends StatelessWidget {
             icon: const Icon(Icons.refresh_rounded),
             label: Text(
               AppLocalizations.of(context)!.tryAgain,
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -1862,7 +1862,7 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
             decoration: BoxDecoration(
               color: AppColors.surfaceLight,
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: AppColors.grey200),
+              border: Border.all(color: AppColors.border(context)),
             ),
             child: Text(
               '${d['short']}: $start - $end',
@@ -1929,11 +1929,11 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                   fillColor: AppColors.backgroundLight,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.grey200),
+                    borderSide: BorderSide(color: AppColors.border(context)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: AppColors.grey200),
+                    borderSide: BorderSide(color: AppColors.border(context)),
                   ),
                 ),
               ),
@@ -1961,7 +1961,7 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                             decoration: BoxDecoration(
                               color: AppColors.surfaceLight,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.grey200),
+                              border: Border.all(color: AppColors.border(context)),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2020,10 +2020,10 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                                           Text(
                                             item.employeeName ??
                                                 'Employee #${item.employeeId}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 15,
-                                              color: AppColors.grey800,
+                                              color: AppColors.textPrimary(context),
                                             ),
                                           ),
                                           Row(
@@ -2135,10 +2135,10 @@ class _ShiftAssignmentsTabState extends ConsumerState<_ShiftAssignmentsTab> {
                                           Text(
                                             item.shiftName ??
                                                 'Shift #${item.shiftId}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 12,
-                                              color: AppColors.grey800,
+                                              color: AppColors.textPrimary(context),
                                             ),
                                           ),
                                           Text(

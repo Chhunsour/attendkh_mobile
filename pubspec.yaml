@@ -14,7 +14,6 @@ dependencies:
 
   # UI
   cupertino_icons: ^1.0.8
-  google_fonts: ^6.2.1
   flutter_svg: ^2.0.17
   shimmer: ^3.0.0
   cached_network_image: ^3.4.1
@@ -50,7 +49,6 @@ dependencies:
   # Location & Camera
   geolocator: ^14.0.2
   geocoding: ^4.0.0
-  camera: ^0.12.0+2
 
   # Utilities
   intl: ^0.20.2
@@ -84,18 +82,92 @@ flutter:
 
   assets:
     - assets/images/
-
+    - assets/fonts/
 
   fonts:
-    - family: Inter
+    - family: GoogleSansFlex
       fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/GoogleSansFlex-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/GoogleSansFlex-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/GoogleSansFlex-Light.ttf
+          weight: 300
+        - asset: assets/fonts/GoogleSansFlex-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Inter-Medium.ttf
+        - asset: assets/fonts/GoogleSansFlex-Medium.ttf
           weight: 500
-        - asset: assets/fonts/Inter-SemiBold.ttf
+        - asset: assets/fonts/GoogleSansFlex-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Inter-Bold.ttf
+        - asset: assets/fonts/GoogleSansFlex-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/GoogleSansFlex-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/GoogleSansFlex-Black.ttf
+          weight: 900
+    - family: GoogleSans
+      fonts:
+        - asset: assets/fonts/GoogleSans-Regular.ttf
+          weight: 100
+        - asset: assets/fonts/GoogleSans-Regular.ttf
+          weight: 200
+        - asset: assets/fonts/GoogleSans-Regular.ttf
+          weight: 300
+        - asset: assets/fonts/GoogleSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/GoogleSans-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/GoogleSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/GoogleSans-Medium.ttf
+          weight: 600
+        - asset: assets/fonts/GoogleSans-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/GoogleSans-MediumItalic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/GoogleSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/GoogleSans-Bold.ttf
+          weight: 800
+        - asset: assets/fonts/GoogleSans-Bold.ttf
+          weight: 900
+        - asset: assets/fonts/GoogleSans-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/GoogleSans-BoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: assets/fonts/GoogleSans-BoldItalic.ttf
+          weight: 900
+          style: italic
+    - family: KantumruyPro
+      fonts:
+        - asset: assets/fonts/KantumruyPro-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/KantumruyPro-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/KantumruyPro-Light.ttf
+          weight: 300
+        - asset: assets/fonts/KantumruyPro-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/KantumruyPro-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/KantumruyPro-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/KantumruyPro-Bold.ttf
+          weight: 700
+    - family: NotoSansKhmer
+      fonts:
+        - asset: assets/fonts/NotoSansKhmer-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansKhmer-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansKhmer-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSansKhmer-Bold.ttf
           weight: 700
 
 flutter_launcher_icons:

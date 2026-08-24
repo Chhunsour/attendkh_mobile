@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/providers/expense_provider.dart';
 import 'package:mpg_hr_mobile_app/services/expense_repository.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
@@ -25,29 +28,25 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   Widget build(BuildContext context) {
     final expensesAsync = ref.watch(expensesProvider);
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final expenses = expensesAsync.valueOrNull ?? const <ExpenseData>[];
+    final bool empty = expenses.isEmpty;
+
+    double sumOf(String status) => expenses
+        .where((e) => e.status.toLowerCase() == status)
+        .fold<double>(0, (sum, e) => sum + e.amount);
+    int countOf(String status) =>
+        expenses.where((e) => e.status.toLowerCase() == status).length;
+
+    final filtered = _statusFilter == 'all'
+        ? expenses
+        : expenses
+              .where((e) => e.status.toLowerCase() == _statusFilter)
+              .toList();
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: false,
-        title: Text(
-          l10n.expenses,
-          style: const TextStyle(
-            color: AppColors.grey900,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
-            tooltip: 'Refresh',
-            onPressed: () => ref.invalidate(expensesProvider),
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.bg(context),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddExpenseSheet(context, ref),
         backgroundColor: AppColors.primary,
@@ -57,139 +56,112 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
         icon: const Icon(Icons.add_rounded, size: 20),
         label: const Text(
           'Claim Expense',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
         ),
       ),
-      body: expensesAsync.when(
-        data: (expenses) {
-          final pending = expenses.where((e) => e.status == 'pending').toList();
-          final approved = expenses.where((e) => e.status == 'approved' || e.status == 'paid').toList();
-
-          final totalPendingAmount = pending.fold<double>(0, (sum, e) => sum + e.amount);
-          final totalApprovedAmount = approved.fold<double>(0, (sum, e) => sum + e.amount);
-
-          final filtered = expenses.where((e) {
-            if (_statusFilter == 'all') return true;
-            return e.status.toLowerCase() == _statusFilter.toLowerCase();
-          }).toList();
-
-          return RefreshIndicator(
-            onRefresh: () async => ref.invalidate(expensesProvider),
-            color: AppColors.primary,
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: RefreshIndicator(
+          onRefresh: () async => ref.invalidate(expensesProvider),
+          color: AppColors.primary,
+          // The hero runs under the status bar, so the spinner has to drop
+          // below it rather than sit on the notch.
+          edgeOffset: MediaQuery.paddingOf(context).top + 8,
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
+              SliverToBoxAdapter(
+                child: _buildHero(
+                  context,
+                  l10n,
+                  isDark,
+                  pending: sumOf('pending'),
+                  approved: sumOf('approved'),
+                  paid: sumOf('paid'),
+                  claims: expenses.length,
+                  loading: expensesAsync.isLoading && empty,
+                ),
               ),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-              children: [
-                // ── Overview Metric Cards ──
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildMetricCard(
-                        title: 'Total Claims',
-                        value: '${expenses.length}',
-                        icon: Icons.receipt_long_rounded,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _buildMetricCard(
-                        title: 'Pending',
-                        value: '\$${totalPendingAmount.toStringAsFixed(0)}',
-                        icon: Icons.hourglass_top_rounded,
-                        color: AppColors.warning,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _buildMetricCard(
-                        title: 'Approved',
-                        value: '\$${totalApprovedAmount.toStringAsFixed(0)}',
-                        icon: Icons.check_circle_outline_rounded,
-                        color: AppColors.success,
-                      ),
-                    ),
-                  ],
-                ),
 
-                const SizedBox(height: 16),
-
-                // ── Status Filter Chips Strip ──
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    children: [
-                      _buildFilterChip('All', 'all', expenses.length),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('Pending', 'pending', pending.length),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('Approved', 'approved', expenses.where((e) => e.status == 'approved').length),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('Paid', 'paid', expenses.where((e) => e.status == 'paid').length),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('Rejected', 'rejected', expenses.where((e) => e.status == 'rejected').length),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // ── Claims List ──
-                if (filtered.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+              if (expensesAsync.hasError && empty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _errorState(l10n),
+                )
+              else if (expensesAsync.isLoading && empty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: LoadingIndicator(message: l10n.loadingExpenses),
+                )
+              else ...[
+                // Filters bleed to the screen edge so the last chip does not
+                // look clipped by the page gutter.
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 16),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
                         children: [
-                          Icon(Icons.receipt_outlined, size: 56, color: AppColors.grey300),
-                          const SizedBox(height: 12),
-                          Text(
-                            l10n.noExpenseClaims,
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.grey700),
+                          _buildFilterChip('All', 'all', expenses.length),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                            'Pending',
+                            'pending',
+                            countOf('pending'),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l10n.submitFirstExpense,
-                            style: const TextStyle(fontSize: 12, color: AppColors.grey500),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                            'Approved',
+                            'approved',
+                            countOf('approved'),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('Paid', 'paid', countOf('paid')),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                            'Rejected',
+                            'rejected',
+                            countOf('rejected'),
                           ),
                         ],
                       ),
                     ),
+                  ),
+                ),
+
+                if (filtered.isEmpty)
+                  SliverToBoxAdapter(
+                    child: _emptyState(context, l10n, isDark, empty),
                   )
                 else
-                  ...filtered.map((e) {
-                    final statusColor = _statusColor(e.status);
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: _ExpenseCard(
-                        expense: e,
-                        statusColor: statusColor,
-                        onTap: () => _showDetailModal(context, e, statusColor),
-                        onEdit: e.status == 'pending' ? () => _showEditExpenseSheet(context, ref, e) : null,
-                        onDelete: e.status == 'pending' ? () => _deleteExpense(context, ref, e) : null,
-                      ),
-                    );
-                  }),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                    sliver: SliverList.separated(
+                      itemCount: filtered.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 10),
+                      itemBuilder: (context, i) {
+                        final e = filtered[i];
+                        final statusColor = _statusColor(e.status);
+                        return _ExpenseCard(
+                          expense: e,
+                          statusColor: statusColor,
+                          onTap: () => _showDetailModal(context, e, statusColor),
+                          onEdit: e.status == 'pending'
+                              ? () => _showEditExpenseSheet(context, ref, e)
+                              : null,
+                          onDelete: e.status == 'pending'
+                              ? () => _deleteExpense(context, ref, e)
+                              : null,
+                        );
+                      },
+                    ),
+                  ),
               ],
-            ),
-          );
-        },
-        loading: () => LoadingIndicator(message: l10n.loadingExpenses),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: AppColors.grey400),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => ref.invalidate(expensesProvider),
-                icon: const Icon(Icons.refresh),
-                label: Text(l10n.retry),
-              ),
             ],
           ),
         ),
@@ -197,51 +169,350 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     );
   }
 
-  Widget _buildMetricCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
+  // ── Gradient hero: same slab as the dashboard. The headline is the money
+  // still owed to you, which is the only figure anyone opens this page for. ──
+  Widget _buildHero(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isDark, {
+    required double pending,
+    required double approved,
+    required double paid,
+    required int claims,
+    required bool loading,
   }) {
+    final baseColor = isDark
+        ? const Color(0xFF0A2472)
+        : const Color(0xFF0B2A80);
+
+    String money(double v) => '\$${v.toStringAsFixed(v % 1 == 0 ? 0 : 2)}';
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [baseColor, Color.lerp(baseColor, AppColors.primary, 0.6)!],
+        ),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: AppColors.primary.withValues(alpha: isDark ? 0.34 : 0.28),
+            blurRadius: 30,
+            offset: const Offset(0, 14),
           ),
         ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -120,
+            right: -90,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -40,
+            right: -40,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              MediaQuery.paddingOf(context).top + 6,
+              16,
+              24,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _heroIconButton(
+                      Icons.arrow_back_ios_new_rounded,
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go(AppRoutes.main);
+                        }
+                      },
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        l10n.expenses,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                    ),
+                    _heroIconButton(
+                      Icons.refresh_rounded,
+                      onTap: () => ref.invalidate(expensesProvider),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 22),
+
+                if (loading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 26),
+                    child: Center(
+                      child: SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  )
+                else ...[
+                  Text(
+                    'AWAITING REIMBURSEMENT',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.1,
+                      color: Colors.white.withValues(alpha: 0.65),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            money(pending),
+                            style: const TextStyle(
+                              fontSize: 44,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              height: 1.0,
+                              letterSpacing: -1.4,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 5),
+                        child: Text(
+                          claims == 1 ? 'across 1 claim' : 'across $claims claims',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: 0.75),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _heroStat(
+                          'Claims',
+                          '$claims',
+                          const Color(0xFF93C5FD),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _heroStat(
+                          'Approved',
+                          money(approved),
+                          const Color(0xFF6EE7B7),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _heroStat(
+                          'Paid',
+                          money(paid),
+                          const Color(0xFF7DD3FC),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _heroIconButton(IconData icon, {required VoidCallback onTap}) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.14),
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox(
+          width: 38,
+          height: 38,
+          child: Icon(icon, size: 18, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _heroStat(String label, String value, Color valueColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.grey500,
-                  fontWeight: FontWeight.w600,
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 3),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(
+                color: valueColor,
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _emptyState(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isDark,
+    bool noClaimsAtAll,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 30, 24, 60),
+      child: Column(
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: isDark ? 0.18 : 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.receipt_long_rounded,
+              size: 32,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            noClaimsAtAll
+                ? l10n.noExpenseClaims
+                : 'No ${_capitalizeFilter()} claims',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary(context),
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            noClaimsAtAll
+                ? l10n.submitFirstExpense
+                : 'Nothing under this status yet.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12.5,
+              color: isDark ? AppColors.grey400 : AppColors.grey500,
+            ),
+          ),
+          if (noClaimsAtAll) ...[
+            const SizedBox(height: 18),
+            FilledButton.icon(
+              onPressed: () => _showAddExpenseSheet(context, ref),
+              icon: const Icon(Icons.add_rounded, size: 19),
+              label: Text(l10n.claimExpense),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 13,
+                ),
+                shape: const StadiumBorder(),
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13.5,
                 ),
               ),
-              Icon(icon, size: 16, color: color),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
             ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _capitalizeFilter() =>
+      _statusFilter[0].toUpperCase() + _statusFilter.substring(1);
+
+  Widget _errorState(AppLocalizations l10n) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 48, color: AppColors.grey400),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () => ref.invalidate(expensesProvider),
+            icon: const Icon(Icons.refresh),
+            label: Text(l10n.retry),
           ),
         ],
       ),
@@ -249,23 +520,27 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   }
 
   Widget _buildFilterChip(String label, String value, int count) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = _statusFilter == value;
     return InkWell(
       onTap: () => setState(() => _statusFilter = value),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      borderRadius: BorderRadius.circular(24),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.grey200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-            ),
-          ],
+          color: isSelected ? AppColors.primary : (isDark ? AppColors.surfaceDark : Colors.white),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: isSelected ? AppColors.primary : (isDark ? AppColors.borderDark : AppColors.grey200)),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: isDark ? 0.35 : 0.22),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -273,9 +548,9 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? Colors.white : AppColors.grey700,
+                fontSize: 12.5,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? Colors.white : (isDark ? AppColors.grey300 : AppColors.grey700),
               ),
             ),
             if (count > 0) ...[
@@ -283,7 +558,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white.withValues(alpha: 0.25) : AppColors.grey100,
+                  color: isSelected ? Colors.white.withValues(alpha: 0.25) : (isDark ? AppColors.surfaceDarkElevated : AppColors.grey100),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -291,7 +566,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : AppColors.grey600,
+                    color: isSelected ? Colors.white : (isDark ? AppColors.grey400 : AppColors.grey600),
                   ),
                 ),
               ),
@@ -317,20 +592,22 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   }
 
   void _showAddExpenseSheet(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _ExpenseForm(onSubmitted: () => ref.invalidate(expensesProvider)),
     );
   }
 
   void _showEditExpenseSheet(BuildContext context, WidgetRef ref, ExpenseData e) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _ExpenseForm(
         onSubmitted: () => ref.invalidate(expensesProvider),
@@ -340,10 +617,11 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
   }
 
   void _showDetailModal(BuildContext context, ExpenseData e, Color statusColor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => _ExpenseDetailSheet(expense: e, statusColor: statusColor),
     );
@@ -411,14 +689,15 @@ class _ExpenseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: isDark ? AppColors.borderDark : AppColors.grey200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -451,22 +730,39 @@ class _ExpenseCard extends StatelessWidget {
                       children: [
                         Text(
                           expense.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.grey900),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: AppColors.textPrimary(context),
+                          ),
                         ),
                         const SizedBox(height: 3),
                         Row(
                           children: [
-                            Text(expense.date, style: const TextStyle(fontSize: 11.5, color: AppColors.grey500)),
+                            Text(
+                              expense.date,
+                              style: const TextStyle(fontSize: 11.5, color: AppColors.grey500),
+                            ),
                             const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                color: AppColors.grey100,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                _getCategoryL10n(expense.category, l10n),
-                                style: const TextStyle(fontSize: 10, color: AppColors.grey600, fontWeight: FontWeight.w500),
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: isDark ? AppColors.surfaceDarkElevated : AppColors.grey100,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  _getCategoryL10n(expense.category, l10n),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: isDark ? AppColors.grey400 : AppColors.grey600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
                             ),
                             if (expense.receiptPath != null && expense.receiptPath!.isNotEmpty) ...[
@@ -483,7 +779,7 @@ class _ExpenseCard extends StatelessWidget {
                     children: [
                       Text(
                         '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.grey900),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary(context)),
                       ),
                       const SizedBox(height: 4),
                       Container(
@@ -633,16 +929,16 @@ class _ExpenseDetailSheet extends StatelessWidget {
             children: [
               Text(
                 l10n.expenseClaimDetails,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
               ),
               IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
             ],
           ),
           const SizedBox(height: 16),
-          _detailRow(l10n.title, expense.title),
-          _detailRow(l10n.category, expense.category),
-          _detailRow(l10n.amount, '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
-          _detailRow(l10n.expenseDate, expense.date),
+          _detailRow(context, l10n.title, expense.title),
+          _detailRow(context, l10n.category, expense.category),
+          _detailRow(context, l10n.amount, '${_currencySymbol(expense.currency)}${expense.amount.toStringAsFixed(2)}'),
+          _detailRow(context, l10n.expenseDate, expense.date),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -663,7 +959,7 @@ class _ExpenseDetailSheet extends StatelessWidget {
           ),
           if (expense.description != null && expense.description!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _detailRow(l10n.description, expense.description!),
+            _detailRow(context, l10n.description, expense.description!),
           ],
           if (expense.rejectionReason != null && expense.rejectionReason!.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -673,7 +969,7 @@ class _ExpenseDetailSheet extends StatelessWidget {
           ],
           if (expense.paidAt != null && expense.paidAt!.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _detailRow(l10n.paidAt, expense.paidAt!),
+            _detailRow(context, l10n.paidAt, expense.paidAt!),
           ],
           if (expense.receiptPath != null && expense.receiptPath!.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -696,7 +992,7 @@ class _ExpenseDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _detailRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Column(
@@ -704,7 +1000,7 @@ class _ExpenseDetailSheet extends StatelessWidget {
         children: [
           Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.grey500)),
           const SizedBox(height: 2),
-          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.grey900)),
+          Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary(context))),
         ],
       ),
     );
@@ -868,6 +1164,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -886,7 +1183,10 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                 child: Container(
                   width: 40,
                   height: 4,
-                  decoration: BoxDecoration(color: AppColors.grey300, borderRadius: BorderRadius.circular(2)),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.grey700 : AppColors.grey300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
               const SizedBox(height: 18),
@@ -895,10 +1195,10 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                 children: [
                   Text(
                     _isEditing ? 'Edit Expense Claim' : 'New Expense Claim',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, size: 20, color: AppColors.grey500),
+                    icon: Icon(Icons.close_rounded, size: 20, color: isDark ? AppColors.grey400 : AppColors.grey500),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -909,11 +1209,11 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
               TextFormField(
                 controller: _titleCtrl,
                 decoration: InputDecoration(
-                  labelText: 'Title / Subject *',
+                  labelText: l10n.expenseTitleSubject,
                   filled: true,
-                  fillColor: AppColors.grey50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
+                  fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                 ),
                 validator: (val) => val == null || val.trim().isEmpty ? l10n.fieldRequired : null,
               ),
@@ -926,21 +1226,22 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                     flex: 3,
                     child: DropdownButtonFormField<String>(
                       initialValue: _category,
+                      dropdownColor: isDark ? AppColors.surfaceDarkElevated : Colors.white,
                       decoration: InputDecoration(
-                        labelText: 'Category',
+                        labelText: l10n.category,
                         filled: true,
-                        fillColor: AppColors.grey50,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
+                        fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                       ),
-                      items: const [
-                        DropdownMenuItem(value: 'Travel', child: Text('Travel')),
-                        DropdownMenuItem(value: 'Meals', child: Text('Meals')),
-                        DropdownMenuItem(value: 'Transport', child: Text('Transport')),
-                        DropdownMenuItem(value: 'Supplies', child: Text('Supplies')),
-                        DropdownMenuItem(value: 'Software', child: Text('Software')),
-                        DropdownMenuItem(value: 'Accommodation', child: Text('Accommodation')),
-                        DropdownMenuItem(value: 'Other', child: Text('Other')),
+                      items: [
+                        DropdownMenuItem(value: 'Travel', child: Text(l10n.catTravel)),
+                        DropdownMenuItem(value: 'Meals', child: Text(l10n.catMeals)),
+                        DropdownMenuItem(value: 'Transport', child: Text(l10n.catTransport)),
+                        DropdownMenuItem(value: 'Supplies', child: Text(l10n.catSupplies)),
+                        DropdownMenuItem(value: 'Software', child: Text(l10n.catSoftware)),
+                        DropdownMenuItem(value: 'Accommodation', child: Text(l10n.catAccommodation)),
+                        DropdownMenuItem(value: 'Other', child: Text(l10n.catOther)),
                       ],
                       onChanged: (v) => setState(() => _category = v!),
                     ),
@@ -950,12 +1251,13 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                     flex: 2,
                     child: DropdownButtonFormField<String>(
                       initialValue: _currency,
+                      dropdownColor: isDark ? AppColors.surfaceDarkElevated : Colors.white,
                       decoration: InputDecoration(
-                        labelText: 'Currency',
+                        labelText: l10n.currency,
                         filled: true,
-                        fillColor: AppColors.grey50,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
+                        fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                       ),
                       items: const [
                         DropdownMenuItem(value: 'USD', child: Text('USD (\$)')),
@@ -977,12 +1279,12 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                       controller: _amountCtrl,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
-                        labelText: 'Amount *',
+                        labelText: l10n.amount,
                         prefixIcon: const Icon(Icons.attach_money_rounded, size: 18),
                         filled: true,
-                        fillColor: AppColors.grey50,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
+                        fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                       ),
                       validator: (val) {
                         if (val == null || val.trim().isEmpty) return l10n.fieldRequired;
@@ -999,16 +1301,16 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                         decoration: BoxDecoration(
-                          color: AppColors.grey50,
+                          color: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               DateFormat('yyyy-MM-dd').format(_expenseDate),
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey900),
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary(context)),
                             ),
                             const Icon(Icons.calendar_month_rounded, size: 18, color: AppColors.primary),
                           ],
@@ -1025,11 +1327,11 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                 controller: _descCtrl,
                 maxLines: 2,
                 decoration: InputDecoration(
-                  labelText: 'Description / Purpose',
+                  labelText: l10n.descriptionPurpose,
                   filled: true,
-                  fillColor: AppColors.grey50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.grey200)),
+                  fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
                 ),
               ),
               const SizedBox(height: 14),
@@ -1068,7 +1370,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm> {
                   OutlinedButton.icon(
                     onPressed: _pickReceipt,
                     icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
-                    label: const Text('Attach Receipt (Photo/File)'),
+                    label: Text(l10n.attachReceipt),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,
                       side: const BorderSide(color: AppColors.primary),

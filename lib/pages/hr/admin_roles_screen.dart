@@ -10,20 +10,19 @@ class AdminRolesScreen extends ConsumerWidget {
   const AdminRolesScreen({super.key});
 
   @override
-  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final rolesAsync = ref.watch(rolesProvider);
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.rolesPermissionsTitle,
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -42,14 +41,14 @@ class AdminRolesScreen extends ConsumerWidget {
                       final r = items[i];
                       return Container(
                         padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                        decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
                         child: Row(
                           children: [
                             Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.infoLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.shield, color: AppColors.info, size: 22)),
                             const SizedBox(width: 14),
                             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               Text(r.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                              if (r.permissionsCount != null) Text(l10n.permissionsCount(r.permissionsCount!), style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                              if (r.permissionsCount != null) Text(l10n.permissionsCount(r.permissionsCount!), style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
                             ])),
                             const Icon(Icons.chevron_right, color: AppColors.grey400),
                           ],

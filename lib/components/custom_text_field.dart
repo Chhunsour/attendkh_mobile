@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 
-/// Reusable text field for auth screens.
-///
-/// Features:
-/// - Rounded border (16 radius)
-/// - Icon prefix
-/// - Optional suffix (e.g. visibility toggle)
-/// - Height ~56
-/// - Light grey border, white/off-white fill
+/// Reusable text field with full Light & Dark mode adaptation.
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String? hintText;
@@ -21,6 +14,10 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final void Function(String)? onFieldSubmitted;
   final bool autofocus;
+  final bool enabled;
+
+  /// iOS/Android password-manager integration (see [AutofillHints]).
+  final Iterable<String>? autofillHints;
 
   const CustomTextField({
     super.key,
@@ -35,75 +32,99 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.onFieldSubmitted,
     this.autofocus = false,
+    this.enabled = true,
+    this.autofillHints,
   });
 
-  // ── Design token constants (matches login-screen spec) ──
-  static const _borderRadius = 16.0;
-  static const _height = 56.0;
-  static const _borderColor = AppColors.grey200;
-  static const _fillColor = AppColors.grey50;
-  static const _textColor = AppColors.grey900;
-  static const _hintColor = AppColors.grey400;
-  static const _iconColor = AppColors.grey400;
-  static const _primaryColor = AppColors.primary;
+  static const _borderRadius = 14.0;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: _height,
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        textInputAction: textInputAction,
-        autofocus: autofocus,
-        onFieldSubmitted: onFieldSubmitted,
-        validator: validator,
-        style: const TextStyle(
-          fontSize: 16,
-          
-          color: _textColor,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final fillColor = isDark ? AppColors.surfaceDarkElevated : AppColors.grey50;
+    final borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
+    final textColor = isDark ? Colors.white : AppColors.grey900;
+    final hintColor = isDark ? AppColors.grey500 : AppColors.grey400;
+    final iconColor = isDark ? const Color(0xFF94A3B8) : AppColors.grey500;
+
+    // ponytail: no fixed height — the field grows with Dynamic Type / large
+    // accessibility text sizes instead of clipping (Apple HIG: support Dynamic Type).
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      autofocus: autofocus,
+      enabled: enabled,
+      onFieldSubmitted: onFieldSubmitted,
+      validator: validator,
+      autofillHints: autofillHints,
+      // Never send secrets to the keyboard's learning dictionary / suggestion strip.
+      autocorrect: !obscureText,
+      enableSuggestions: !obscureText,
+      textCapitalization: TextCapitalization.none,
+      style: TextStyle(
+        fontSize: 15.5,
+        fontWeight: FontWeight.w500,
+        color: textColor,
+      ),
+      decoration: InputDecoration(
+        hintText: hintText,
+        labelText: labelText,
+        hintStyle: TextStyle(
+          color: hintColor,
+          fontSize: 14.5,
+          fontWeight: FontWeight.w400,
         ),
-        decoration: InputDecoration(
-          hintText: hintText,
-          labelText: labelText,
-          hintStyle: const TextStyle(
-            color: _hintColor,
-            fontSize: 16,
-            
-          ),
-          labelStyle: const TextStyle(
-            color: _hintColor,
-            fontSize: 14,
-            
-            fontWeight: FontWeight.w500,
-          ),
-          prefixIcon: Icon(prefixIcon, color: _iconColor, size: 22),
-          suffixIcon: suffix,
-          filled: true,
-          fillColor: _fillColor,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: _borderColor),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: _borderColor),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: _primaryColor, width: 2),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: AppColors.danger),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_borderRadius),
-            borderSide: const BorderSide(color: AppColors.danger, width: 2),
-          ),
+        labelStyle: TextStyle(
+          color: hintColor,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+        floatingLabelStyle: const TextStyle(
+          color: AppColors.primary,
+          fontSize: 13.5,
+          fontWeight: FontWeight.w600,
+        ),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.only(left: 14, right: 10),
+          child: Icon(prefixIcon, color: iconColor, size: 21),
+        ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 46),
+        suffixIcon: suffix,
+        filled: true,
+        fillColor: fillColor,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_borderRadius),
+          borderSide: BorderSide(color: borderColor, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_borderRadius),
+          borderSide: BorderSide(color: borderColor, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_borderRadius),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.6),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_borderRadius),
+          borderSide: BorderSide(color: borderColor, width: 1),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_borderRadius),
+          borderSide: const BorderSide(color: AppColors.danger, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(_borderRadius),
+          borderSide: const BorderSide(color: AppColors.danger, width: 1.6),
+        ),
+        errorStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: AppColors.danger,
         ),
       ),
     );

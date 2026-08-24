@@ -23,7 +23,7 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -55,15 +55,15 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
     );
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.attendanceLogsTitle,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -89,7 +89,7 @@ class _AdminAttendanceScreenState extends ConsumerState<AdminAttendanceScreen>
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: Colors.white,
+            color: AppColors.surface(context),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: TabBar(
@@ -208,177 +208,198 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
         return RefreshIndicator(
           color: const Color(0xFF10B981),
           onRefresh: () async => ref.invalidate(allAttendanceLogsProvider),
-          child: ListView(
+          child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
             ),
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-            children: [
-              // ── Overview Metric Cards ──
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Total',
-                      value: '$total',
-                      icon: Icons.list_alt_rounded,
-                      color: const Color(0xFF6366F1),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Present',
-                      value: '$present',
-                      icon: Icons.check_circle_rounded,
-                      color: const Color(0xFF10B981),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Late',
-                      value: '$lateCount',
-                      icon: Icons.timer_outlined,
-                      color: const Color(0xFFF59E0B),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Absent',
-                      value: '$absent',
-                      icon: Icons.cancel_outlined,
-                      color: const Color(0xFFEF4444),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'On Leave',
-                      value: '$onLeave',
-                      icon: Icons.beach_access_rounded,
-                      color: const Color(0xFF8B5CF6),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 14),
-
-              // ── Search Field ──
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.grey200),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchCtrl,
-                  onChanged: (val) =>
-                      setState(() => _searchQuery = val.trim().toLowerCase()),
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    color: AppColors.grey900,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Search employee name...',
-                    hintStyle: const TextStyle(
-                      color: AppColors.grey400,
-                      fontSize: 13,
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.search_rounded,
-                      color: AppColors.grey400,
-                      size: 18,
-                    ),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(
-                              Icons.clear_rounded,
-                              color: AppColors.grey400,
-                              size: 16,
-                            ),
-                            onPressed: () {
-                              _searchCtrl.clear();
-                              setState(() => _searchQuery = '');
-                            },
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // ── Status Filter Chips ──
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterChip('all', 'All ($total)'),
-                    _buildFilterChip('present', 'Present ($present)'),
-                    _buildFilterChip('late', 'Late ($lateCount)'),
-                    _buildFilterChip('absent', 'Absent ($absent)'),
-                    _buildFilterChip('on_leave', 'On Leave ($onLeave)'),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 14),
-
-              // ── List of Records ──
-              if (filteredItems.isEmpty)
-                Container(
-                  padding: const EdgeInsets.all(32),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: AppColors.grey200.withValues(alpha: 0.7),
-                    ),
-                  ),
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                sliver: SliverToBoxAdapter(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
-                        Icons.fingerprint_rounded,
-                        size: 48,
-                        color: AppColors.grey300,
+                      // ── Overview Metric Cards ──
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildMetricCard(
+                              title: 'Total',
+                              value: '$total',
+                              icon: Icons.list_alt_rounded,
+                              color: const Color(0xFF6366F1),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildMetricCard(
+                              title: 'Present',
+                              value: '$present',
+                              icon: Icons.check_circle_rounded,
+                              color: const Color(0xFF10B981),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildMetricCard(
+                              title: 'Late',
+                              value: '$lateCount',
+                              icon: Icons.timer_outlined,
+                              color: const Color(0xFFF59E0B),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildMetricCard(
+                              title: 'Absent',
+                              value: '$absent',
+                              icon: Icons.cancel_outlined,
+                              color: const Color(0xFFEF4444),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _buildMetricCard(
+                              title: 'On Leave',
+                              value: '$onLeave',
+                              icon: Icons.beach_access_rounded,
+                              color: const Color(0xFF8B5CF6),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _searchQuery.isNotEmpty
-                            ? 'No logs matching "$_searchQuery"'
-                            : l10n.noAttendanceRecords,
-                        style: const TextStyle(
-                          color: AppColors.grey600,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+
+                      const SizedBox(height: 14),
+
+                      // ── Search Field ──
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.surface(context),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border(context)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.02),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
+                        child: TextField(
+                          controller: _searchCtrl,
+                          onChanged: (val) =>
+                              setState(() => _searchQuery = val.trim().toLowerCase()),
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            color: AppColors.textPrimary(context),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Search employee name...',
+                            hintStyle: const TextStyle(
+                              color: AppColors.grey400,
+                              fontSize: 13,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search_rounded,
+                              color: AppColors.grey400,
+                              size: 18,
+                            ),
+                            suffixIcon: _searchQuery.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(
+                                      Icons.clear_rounded,
+                                      color: AppColors.grey400,
+                                      size: 16,
+                                    ),
+                                    onPressed: () {
+                                      _searchCtrl.clear();
+                                      setState(() => _searchQuery = '');
+                                    },
+                                  )
+                                : null,
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
                       ),
+
+                      const SizedBox(height: 10),
+
+                      // ── Status Filter Chips ──
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildFilterChip('all', 'All ($total)'),
+                            _buildFilterChip('present', 'Present ($present)'),
+                            _buildFilterChip('late', 'Late ($lateCount)'),
+                            _buildFilterChip('absent', 'Absent ($absent)'),
+                            _buildFilterChip('on_leave', 'On Leave ($onLeave)'),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 14),
                     ],
+                  ),
+                ),
+              ),
+
+              // ── Lazy Virtualized List of Records ──
+              if (filteredItems.isEmpty)
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+                  sliver: SliverToBoxAdapter(
+                    child: Container(
+                      padding: const EdgeInsets.all(32),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppColors.surface(context),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: AppColors.grey200.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.fingerprint_rounded,
+                            size: 48,
+                            color: AppColors.grey300,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            _searchQuery.isNotEmpty
+                                ? 'No logs matching "$_searchQuery"'
+                                : l10n.noAttendanceRecords,
+                            style: const TextStyle(
+                              color: AppColors.grey600,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 )
               else
-                ...filteredItems.map(
-                  (c) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _buildAttendanceCard(context, ref, c, l10n),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+                  sliver: SliverList.builder(
+                    itemCount: filteredItems.length,
+                    itemBuilder: (context, index) {
+                      final c = filteredItems[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: _buildAttendanceCard(context, ref, c, l10n),
+                      );
+                    },
                   ),
                 ),
             ],
@@ -427,7 +448,7 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -517,9 +538,9 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -560,10 +581,10 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                         children: [
                           Text(
                             c.employeeName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14.5,
-                              color: AppColors.grey900,
+                              color: AppColors.textPrimary(context),
                             ),
                           ),
                           const SizedBox(height: 1),
@@ -628,10 +649,10 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                               c.clockIn != null
                                   ? formatTime(c.clockIn)
                                   : '--:--',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                           ],
@@ -652,10 +673,10 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
                               c.clockOut != null
                                   ? formatTime(c.clockOut)
                                   : '--:--',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.grey800,
+                                color: AppColors.textPrimary(context),
                               ),
                             ),
                           ],
@@ -757,7 +778,7 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -777,10 +798,10 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
               children: [
                 Text(
                   c.employeeName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 IconButton(
@@ -798,12 +819,12 @@ class _DailyLogsTabState extends ConsumerState<_DailyLogsTab> {
             ),
             const SizedBox(height: 14),
             if (c.clockInPhoto != null) ...[
-              const Text(
+              Text(
                 'Clock-In Photo Verification',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
-                  color: AppColors.grey800,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
               const SizedBox(height: 8),
@@ -1003,7 +1024,7 @@ class _CorrectionsTab extends ConsumerWidget {
                   return Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface(context),
                       borderRadius: BorderRadius.circular(18),
                       border: Border.all(
                         color: AppColors.grey200.withValues(alpha: 0.8),
@@ -1041,10 +1062,10 @@ class _CorrectionsTab extends ConsumerWidget {
                                 children: [
                                   Text(
                                     c.employeeName,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14.5,
-                                      color: AppColors.grey900,
+                                      color: AppColors.textPrimary(context),
                                     ),
                                   ),
                                   const SizedBox(height: 1),
@@ -1098,10 +1119,10 @@ class _CorrectionsTab extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       '${l10n.inTime}: ${formatTime(c.clockIn)}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11.5,
                                         fontWeight: FontWeight.bold,
-                                        color: AppColors.grey800,
+                                        color: AppColors.textPrimary(context),
                                       ),
                                     ),
                                   ),
@@ -1109,10 +1130,10 @@ class _CorrectionsTab extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       '${l10n.outTime}: ${formatTime(c.clockOut)}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11.5,
                                         fontWeight: FontWeight.bold,
-                                        color: AppColors.grey800,
+                                        color: AppColors.textPrimary(context),
                                       ),
                                     ),
                                   ),
@@ -1337,9 +1358,9 @@ class _ManualAttendanceModalState
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
         top: 16,
@@ -1370,12 +1391,12 @@ class _ManualAttendanceModalState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Manual Attendance Entry',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.grey900,
+                      color: AppColors.textPrimary(context),
                     ),
                   ),
                   IconButton(
@@ -1505,11 +1526,11 @@ class _ManualAttendanceModalState
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

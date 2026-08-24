@@ -71,7 +71,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
           appBar: _buildAppBar(context, unreadCount, l10n),
           body: IndexedStack(
             index: _selectedIndex,
@@ -94,7 +94,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   PreferredSizeWidget _buildAppBar(BuildContext context, int unreadCount, AppLocalizations l10n) {
     final titles = _getTitles(l10n);
     return AppBar(
-      backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       title: Row(
@@ -111,8 +111,8 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           const SizedBox(width: 10),
           Text(
             titles[_selectedIndex],
-            style: const TextStyle(
-              color: AppColors.grey800,
+            style: TextStyle(
+              color: AppColors.textPrimary(context),
               fontSize: 18,
               fontWeight: FontWeight.w700,
               
@@ -128,7 +128,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
             clipBehavior: Clip.none,
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications_outlined, color: AppColors.grey800, size: 26),
+                icon: Icon(Icons.notifications_outlined, color: AppColors.textPrimary(context), size: 26),
                 onPressed: () async {
                   context.push(AppRoutes.notifications);
                   // Reset count after viewing
@@ -216,9 +216,15 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 28),
             decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
+              color: AppColors.surface(context),
               borderRadius: BorderRadius.circular(24),
-              boxShadow: [BoxShadow(color: AppColors.grey900.withAlpha(30), blurRadius: 30, offset: const Offset(0, 10))],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -229,7 +235,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                   child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 4),
                 ),
                 const SizedBox(height: 16),
-                Text(l10n.switchingBranchView, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.grey800)),
+                Text(l10n.switchingBranchView, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context))),
               ],
             ),
           ),
@@ -285,13 +291,16 @@ class _NavItem extends StatelessWidget {
             ),
             Icon(icon, color: color, size: 22),
             const SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 10,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                ),
               ),
             ),
           ],

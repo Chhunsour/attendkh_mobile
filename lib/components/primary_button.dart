@@ -31,54 +31,63 @@ class _PrimaryButtonState extends State<PrimaryButton> {
 
   static const _height = 55.0;
   static const _radius = 18.0;
-  static const _bgColor = AppColors.primary;
-  static final _shadowColor = AppColors.primary.withAlpha(77); // ~30 % opacity
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final shadowColor = AppColors.primary.withValues(alpha: isDark ? 0.45 : 0.30);
+
     return AnimatedScale(
-      scale: _isPressed ? 0.96 : 1.0,
+      scale: _isPressed ? 0.97 : 1.0,
       duration: const Duration(milliseconds: 120),
-      curve: Curves.easeOut,
+      curve: Curves.easeOutCubic,
       child: SizedBox(
         width: double.infinity,
         height: _height,
-        child: DecoratedBox(
+        child: Container(
           decoration: BoxDecoration(
+            gradient: widget.onPressed != null && !widget.isLoading
+                ? AppColors.primaryGradient
+                : null,
+            color: widget.onPressed == null || widget.isLoading
+                ? (isDark ? AppColors.grey800 : AppColors.grey300)
+                : null,
             borderRadius: BorderRadius.circular(_radius),
-            boxShadow: [
-              BoxShadow(
-                color: _shadowColor,
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            border: Border.all(
+              color: Colors.white.withValues(alpha: isDark ? 0.18 : 0.25),
+              width: 1,
+            ),
+            boxShadow: widget.onPressed != null && !widget.isLoading
+                ? [
+                    BoxShadow(
+                      color: shadowColor,
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ]
+                : null,
           ),
-          child: GestureDetector(
-            onTapDown: (_) => setState(() => _isPressed = true),
-            onTapUp: (_) {
-              setState(() => _isPressed = false);
-              if (!widget.isLoading && widget.onPressed != null) {
-                widget.onPressed!();
-              }
-            },
-            onTapCancel: () => setState(() => _isPressed = false),
+          child: Listener(
+            onPointerDown: (_) => setState(() => _isPressed = true),
+            onPointerUp: (_) => setState(() => _isPressed = false),
+            onPointerCancel: (_) => setState(() => _isPressed = false),
             child: ElevatedButton(
-              onPressed: null, // gesture handled by GestureDetector above
+              onPressed: widget.isLoading ? null : widget.onPressed,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _bgColor,
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: _bgColor.withAlpha(200),
+                disabledBackgroundColor: Colors.transparent,
                 disabledForegroundColor: Colors.white70,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(_radius),
                 ),
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 textStyle: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 16.5,
                   fontWeight: FontWeight.w700,
-                  
+                  letterSpacing: 0.3,
                 ),
               ),
               child: AnimatedSwitcher(
@@ -86,16 +95,21 @@ class _PrimaryButtonState extends State<PrimaryButton> {
                 child: widget.isLoading
                     ? const SizedBox(
                         key: ValueKey('loading'),
-                        height: 24,
-                        width: 24,
+                        height: 22,
+                        width: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
                           color: Colors.white,
                         ),
                       )
-                    : Text(
-                        widget.label,
-                        key: ValueKey('label-${widget.label}'),
+                    : FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          widget.label,
+                          key: ValueKey('label-${widget.label}'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
               ),
             ),

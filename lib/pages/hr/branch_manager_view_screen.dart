@@ -41,9 +41,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: const SizedBox.shrink(),
@@ -66,8 +66,8 @@ class BranchManagerViewScreen extends ConsumerWidget {
                 children: [
                   Text(
                     branchName,
-                    style: const TextStyle(
-                      color: AppColors.grey800,
+                    style: TextStyle(
+                      color: AppColors.textPrimary(context),
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       
@@ -147,7 +147,6 @@ class BranchManagerViewScreen extends ConsumerWidget {
                               color: Colors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              
                             ),
                           ),
                           Text(
@@ -168,10 +167,10 @@ class BranchManagerViewScreen extends ConsumerWidget {
               // ── KPI Cards ─────────────────────────────────────────────────
               Text(
                 l10n.branchOverview,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey800,
+                  color: AppColors.textPrimary(context),
                   
                 ),
               ),
@@ -182,17 +181,17 @@ class BranchManagerViewScreen extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: _buildKpiCard(l10n.staff, kpi.totalEmployees.toString(), Icons.people_rounded, const Color(0xFF3B82F6))),
+                        Expanded(child: _buildKpiCard(context, l10n.staff, kpi.totalEmployees.toString(), Icons.people_rounded, const Color(0xFF3B82F6))),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildKpiCard(l10n.onLeave, kpi.pendingLeaves.toString(), Icons.event_busy_rounded, const Color(0xFFEF4444))),
+                        Expanded(child: _buildKpiCard(context, l10n.onLeave, kpi.pendingLeaves.toString(), Icons.event_busy_rounded, const Color(0xFFEF4444))),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(child: _buildKpiCard(l10n.todaysAttendance, kpi.todayAttendance.toString(), Icons.check_circle_rounded, const Color(0xFF10B981))),
+                        Expanded(child: _buildKpiCard(context, l10n.todaysAttendance, kpi.todayAttendance.toString(), Icons.check_circle_rounded, const Color(0xFF10B981))),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildKpiCard(l10n.pendingLeaves, kpi.pendingLeaves.toString(), Icons.pending_actions_rounded, const Color(0xFFF59E0B))),
+                        Expanded(child: _buildKpiCard(context, l10n.pendingLeaves, kpi.pendingLeaves.toString(), Icons.pending_actions_rounded, const Color(0xFFF59E0B))),
                       ],
                     ),
                   ],
@@ -218,10 +217,10 @@ class BranchManagerViewScreen extends ConsumerWidget {
               // ── Quick Operations Grid ─────────────────────────────────────
               Text(
                 l10n.branchOperations,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey800,
+                  color: AppColors.textPrimary(context),
                   
                 ),
               ),
@@ -231,9 +230,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.45,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 2.15,
                 children: [
                   _buildGridItem(
                     context,
@@ -287,10 +286,10 @@ class BranchManagerViewScreen extends ConsumerWidget {
               // ── Pending Leaves Quick List ─────────────────────────────────
               Text(
                 l10n.pendingLeaveRequests,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey800,
+                  color: AppColors.textPrimary(context),
                   
                 ),
               ),
@@ -303,9 +302,9 @@ class BranchManagerViewScreen extends ConsumerWidget {
                     return Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.surface(context),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.grey200),
+                        border: Border.all(color: AppColors.border(context)),
                       ),
                       child: Center(
                         child: Text(
@@ -316,7 +315,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
                     );
                   }
                   return Column(
-                    children: pending.map((req) => _buildLeaveRequestTile(req)).toList(),
+                    children: pending.map((req) => _buildLeaveRequestTile(context, req)).toList(),
                   );
                 },
                 loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: Color(0xFF0052FF)))),
@@ -395,13 +394,13 @@ class BranchManagerViewScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildKpiCard(String title, String value, IconData icon, Color color) {
+  Widget _buildKpiCard(BuildContext context, String title, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 10, offset: const Offset(0, 4)),
         ],
@@ -420,7 +419,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
               children: [
                 Text(title, style: const TextStyle(fontSize: 11, color: AppColors.grey500)),
                 const SizedBox(height: 2),
-                Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
               ],
             ),
           ),
@@ -438,37 +437,72 @@ class BranchManagerViewScreen extends ConsumerWidget {
     String? routePath,
     VoidCallback? onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       onTap: onTap ?? () {
         if (routePath != null) context.push(routePath);
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? AppColors.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.grey200),
+          border: Border.all(
+            color: isDark ? AppColors.borderDark : AppColors.grey200.withValues(alpha: 0.8),
+            width: 1,
+          ),
           boxShadow: [
-            BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 10, offset: const Offset(0, 4)),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(color: color.withAlpha(20), shape: BoxShape.circle),
-              child: Icon(icon, color: color, size: 18),
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: isDark ? 0.18 : 0.10),
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Icon(icon, color: color, size: 19),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800)),
-                const SizedBox(height: 2),
-                Text(description, style: const TextStyle(fontSize: 10, color: AppColors.grey500)),
-              ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : AppColors.grey900,
+                      letterSpacing: -0.2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (description.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: isDark ? AppColors.grey400 : AppColors.grey500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
         ),
@@ -476,7 +510,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLeaveRequestTile(AdminLeaveRequestData req) {
+  Widget _buildLeaveRequestTile(BuildContext context, AdminLeaveRequestData req) {
     final statusColor = req.status == 'pending'
         ? AppColors.warning
         : req.status == 'approved'
@@ -487,10 +521,10 @@ class BranchManagerViewScreen extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.grey200),
-        boxShadow: [BoxShadow(color: AppColors.grey900.withAlpha(5), blurRadius: 8, offset: const Offset(0, 2))],
+        border: Border.all(color: AppColors.border(context)),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Row(
         children: [
@@ -510,7 +544,7 @@ class BranchManagerViewScreen extends ConsumerWidget {
               children: [
                 Text(
                   req.employeeName,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                 ),
                 const SizedBox(height: 2),
                 Text(

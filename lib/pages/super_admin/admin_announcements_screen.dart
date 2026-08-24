@@ -37,15 +37,15 @@ class _AdminAnnouncementsScreenState
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.platformAnnouncementsTitle,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -99,10 +99,10 @@ class _AdminAnnouncementsScreenState
             const SizedBox(height: 16),
             Text(
               l10n.failedToLoadAnnouncements,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey900,
+                color: AppColors.textPrimary(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -189,9 +189,9 @@ class _AdminAnnouncementsScreenState
         // ── Search Field ──
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface(context),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: AppColors.border(context)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
@@ -203,7 +203,7 @@ class _AdminAnnouncementsScreenState
           child: TextField(
             controller: _searchCtrl,
             onChanged: (val) => setState(() => _searchTerm = val.trim().toLowerCase()),
-            style: const TextStyle(fontSize: 13.5, color: AppColors.grey900),
+            style: TextStyle(fontSize: 13.5, color: AppColors.textPrimary(context)),
             decoration: InputDecoration(
               hintText: 'Search announcements...',
               hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
@@ -244,9 +244,9 @@ class _AdminAnnouncementsScreenState
             padding: const EdgeInsets.all(32),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface(context),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+              border: Border.all(color: AppColors.border(context)),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -276,7 +276,7 @@ class _AdminAnnouncementsScreenState
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -357,9 +357,9 @@ class _AdminAnnouncementsScreenState
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -417,7 +417,7 @@ class _AdminAnnouncementsScreenState
               PopupMenuButton<String>(
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                color: Colors.white,
+                color: AppColors.textPrimary(context),
                 surfaceTintColor: Colors.transparent,
                 elevation: 8,
                 icon: const Icon(
@@ -463,10 +463,10 @@ class _AdminAnnouncementsScreenState
           const SizedBox(height: 10),
           Text(
             a.title,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 15,
-              color: AppColors.grey900,
+              color: AppColors.textPrimary(context),
             ),
           ),
           const SizedBox(height: 4),
@@ -632,9 +632,9 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
         top: 14,
@@ -659,10 +659,10 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
             children: [
               Text(
                 _isEditing ? l10n.editAnnouncementTitle : l10n.createAnnouncementTitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey900,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
               IconButton(
@@ -694,14 +694,14 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
                   decoration: BoxDecoration(
                     color: AppColors.grey50,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.grey200),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         l10n.publishImmediatelyLabel,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.grey800),
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                       ),
                       Switch(
                         value: _isPublished,
@@ -768,11 +768,11 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

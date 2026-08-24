@@ -9,7 +9,7 @@ class AppException implements Exception {
   const AppException({required this.message, this.statusCode, this.data});
 
   @override
-  String toString() => 'AppException: $message (status: $statusCode)';
+  String toString() => message;
 }
 
 class NetworkException extends AppException {
@@ -38,7 +38,7 @@ class ValidationException extends AppException {
   });
 
   @override
-  String toString() => 'ValidationException: $message, errors: $errors';
+  String toString() => message;
 }
 
 class ServerException extends AppException {
@@ -68,7 +68,7 @@ AppException mapDioException(DioException e) {
 
   switch (statusCode) {
     case 400:
-      return AppException(message: 'Bad request', statusCode: 400);
+      return const AppException(message: 'Bad request', statusCode: 400);
     case 401:
       return const UnauthorizedException();
     case 403:
@@ -88,8 +88,8 @@ AppException mapDioException(DioException e) {
         }
       }
       return ValidationException(
-        message: specificMessage ?? (rawData is Map<String, dynamic> ? rawData['message'] : null) ?? 'These credentials do not match our records.',
-        errors: errors?.map((k, v) => MapEntry(k, (v is List ? v : [v]).cast<String>())) ?? {},
+        message: specificMessage ?? (rawData is Map<String, dynamic> ? rawData['message'] : null) ?? 'Validation error occurred.',
+        errors: errors?.map((k, v) => MapEntry(k, (v is List ? v.map((e) => e.toString()).toList() : [v.toString()]))) ?? {},
       );
     case 500:
     case 502:

@@ -37,15 +37,15 @@ class _AdminOvertimeScreenState extends ConsumerState<AdminOvertimeScreen>
     );
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
-        title: const Text(
+        title: Text(
           'Overtime Approvals',
           style: TextStyle(
-            color: AppColors.grey900,
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -60,7 +60,7 @@ class _AdminOvertimeScreenState extends ConsumerState<AdminOvertimeScreen>
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
-            color: Colors.white,
+            color: AppColors.surface(context),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             alignment: Alignment.centerLeft,
             child: TabBar(
@@ -209,6 +209,7 @@ class _OvertimeListTab extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: _buildMetricCard(
+                      context: context,
                       title: 'Pending',
                       value: '$pendingTotal',
                       icon: Icons.hourglass_top_rounded,
@@ -218,6 +219,7 @@ class _OvertimeListTab extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _buildMetricCard(
+                      context: context,
                       title: 'Approved',
                       value: '$approvedTotal',
                       icon: Icons.check_circle_rounded,
@@ -227,6 +229,7 @@ class _OvertimeListTab extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _buildMetricCard(
+                      context: context,
                       title: 'Rejected',
                       value: '$rejectedTotal',
                       icon: Icons.cancel_rounded,
@@ -243,9 +246,9 @@ class _OvertimeListTab extends ConsumerWidget {
                   padding: const EdgeInsets.all(32),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface(context),
                     borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+                    border: Border.all(color: AppColors.border(context)),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -272,9 +275,9 @@ class _OvertimeListTab extends ConsumerWidget {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface(context),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+                      border: Border.all(color: AppColors.border(context)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.02),
@@ -324,7 +327,7 @@ class _OvertimeListTab extends ConsumerWidget {
                                 children: [
                                   Text(
                                     request.employeeName ?? 'Unknown Employee',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.grey900),
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary(context)),
                                   ),
                                   const SizedBox(height: 2),
                                   Row(
@@ -356,7 +359,7 @@ class _OvertimeListTab extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.grey50,
+                            color: Theme.of(context).brightness == Brightness.dark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -373,7 +376,7 @@ class _OvertimeListTab extends ConsumerWidget {
                                       const SizedBox(height: 2),
                                       Text(
                                         '${request.startTime} - ${request.endTime}',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.grey900),
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary(context)),
                                       ),
                                     ],
                                   ),
@@ -475,6 +478,7 @@ class _OvertimeListTab extends ConsumerWidget {
   }
 
   Widget _buildMetricCard({
+    required BuildContext context,
     required String title,
     required String value,
     required IconData icon,
@@ -483,7 +487,7 @@ class _OvertimeListTab extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [

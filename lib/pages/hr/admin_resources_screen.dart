@@ -36,15 +36,15 @@ class _AdminResourcesScreenState extends ConsumerState<AdminResourcesScreen> wit
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Text(
           l10n.resourceDirectoryTitle,
-          style: const TextStyle(
-            color: AppColors.grey800,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -53,7 +53,7 @@ class _AdminResourcesScreenState extends ConsumerState<AdminResourcesScreen> wit
       body: Column(
         children: [
           Container(
-            color: AppColors.surfaceLight,
+            color: AppColors.surface(context),
             child: TabBar(
               controller: _tabController,
               isScrollable: true,
@@ -107,15 +107,15 @@ class _ShiftsTab extends ConsumerWidget {
                     final s = items[i];
                     return Container(
                       padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                      decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
                       child: Row(
                         children: [
                           Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.secondaryLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.schedule, color: AppColors.secondary, size: 22)),
                           const SizedBox(width: 14),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text(s.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                            Text('${s.startTime} – ${s.endTime}', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
-                            if (s.employeesCount != null) Text(l10n.permissionsCount(s.employeesCount!), style: TextStyle(fontSize: 11, color: AppColors.grey400)),
+                            Text('${s.startTime} – ${s.endTime}', style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
+                            if (s.employeesCount != null) Text(l10n.permissionsCount(s.employeesCount!), style: const TextStyle(fontSize: 11, color: AppColors.grey400)),
                           ])),
                           IconButton(icon: const Icon(Icons.person_add, size: 20, color: AppColors.secondary), onPressed: () => _assignShift(context, ref, s.id)),
                           IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger), onPressed: () => _deleteShift(context, ref, s.id, s.name)),
@@ -230,14 +230,14 @@ class _HolidaysTab extends ConsumerWidget {
                     final h = items[i];
                     return Container(
                       padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                      decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
                       child: Row(
                         children: [
                           Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.successLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.celebration, color: AppColors.success, size: 22)),
                           const SizedBox(width: 14),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             Text(h.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                            Text(h.date, style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                            Text(h.date, style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
                             if (h.isRecurring) Container(margin: const EdgeInsets.only(top: 4), padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: AppColors.infoLight, borderRadius: BorderRadius.circular(4)), child: Text(l10n.recurringBadge, style: const TextStyle(fontSize: 10, color: AppColors.info))),
                           ])),
                           IconButton(icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.danger), onPressed: () => _deleteHoliday(context, ref, h.id, h.name)),
@@ -356,7 +356,7 @@ class _AnnouncementsTab extends ConsumerWidget {
             final a = items[i];
             return Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+              decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Expanded(child: Text(a.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),
@@ -364,7 +364,7 @@ class _AnnouncementsTab extends ConsumerWidget {
                 ]),
                 if (a.content.isNotEmpty) ...[
                   const SizedBox(height: 4),
-                  Text(a.content, style: TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(a.content, style: const TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 2, overflow: TextOverflow.ellipsis),
                 ],
                 const SizedBox(height: 8),
                 Row(children: [
@@ -425,17 +425,17 @@ class _PoliciesTab extends ConsumerWidget {
             final p = items[i];
             return Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+              decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
               child: Row(
                 children: [
                   Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.infoLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.policy, color: AppColors.info, size: 22)),
                   const SizedBox(width: 14),
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(p.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                    Text(p.department?.name ?? l10n.companyWide, style: TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(p.department?.name ?? l10n.companyWide, style: const TextStyle(fontSize: 12, color: AppColors.grey500), maxLines: 1, overflow: TextOverflow.ellipsis),
                   ])),
                   PopupMenuButton<String>(
-                    icon: Icon(Icons.more_vert, color: AppColors.grey400, size: 20),
+                    icon: const Icon(Icons.more_vert, color: AppColors.grey400, size: 20),
                     onSelected: (action) async {
                       try {
                         if (action == 'publish') { await repo.publishPolicy(p.id); }
@@ -481,7 +481,7 @@ class _DocumentsTab extends ConsumerWidget {
             final d = items[i];
             return Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+              decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.border(context))),
               child: Row(
                 children: [
                   Container(width: 44, height: 44, decoration: BoxDecoration(color: AppColors.warningLight, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.description, color: AppColors.warning, size: 22)),

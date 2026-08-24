@@ -37,7 +37,11 @@ class _State extends State<AdminHolidaysScreen> {
       });
     } catch (e) {
       setState(() => _loading = false);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger),
+        );
+      }
     }
   }
 
@@ -49,10 +53,20 @@ class _State extends State<AdminHolidaysScreen> {
   void _showForm([HolidayData? item, DateTime? selectedDate]) {
     final isEdit = item != null;
     final nameCtrl = TextEditingController(text: isEdit ? item.name : '');
-    final dateCtrl = TextEditingController(text: isEdit ? item.date : (selectedDate != null ? DateFormat('yyyy-MM-dd').format(selectedDate) : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 1)))));
-    final descCtrl = TextEditingController(text: isEdit ? (item.description ?? '') : '');
+    final dateCtrl = TextEditingController(
+      text: isEdit
+          ? item.date
+          : (selectedDate != null
+                ? DateFormat('yyyy-MM-dd').format(selectedDate)
+                : DateFormat(
+                    'yyyy-MM-dd',
+                  ).format(DateTime.now().add(const Duration(days: 1)))),
+    );
+    final descCtrl = TextEditingController(
+      text: isEdit ? (item.description ?? '') : '',
+    );
     String selectedType = isEdit ? item.type : 'company';
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -61,30 +75,60 @@ class _State extends State<AdminHolidaysScreen> {
         builder: (ctx, setSheetState) {
           final l10n = AppLocalizations.of(ctx)!;
           return Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            ),
             child: Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(color: AppColors.surfaceLight, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+              decoration: const BoxDecoration(
+                color: AppColors.surfaceLight,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(isEdit ? l10n.editHoliday : l10n.addHoliday, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                    Text(
+                      isEdit ? l10n.editHoliday : l10n.addHoliday,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary(context),
+                      ),
+                    ),
                     const SizedBox(height: 24),
-                    TextField(controller: nameCtrl, decoration: InputDecoration(labelText: l10n.holidayNameLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), keyboardType: TextInputType.text),
+                    TextField(
+                      controller: nameCtrl,
+                      decoration: InputDecoration(
+                        labelText: l10n.holidayNameLabel,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      keyboardType: TextInputType.text,
+                    ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: dateCtrl,
                       readOnly: true,
                       decoration: InputDecoration(
                         labelText: l10n.holidayDateLabel,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        suffixIcon: const Icon(Icons.calendar_today, size: 20, color: Colors.grey),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        suffixIcon: const Icon(
+                          Icons.calendar_today,
+                          size: 20,
+                          color: Colors.grey,
+                        ),
                       ),
                       onTap: () async {
-                        final defaultDate = selectedDate ?? DateTime.now().add(const Duration(days: 1));
-                        final initDate = DateTime.tryParse(dateCtrl.text) ?? defaultDate;
+                        final defaultDate =
+                            selectedDate ??
+                            DateTime.now().add(const Duration(days: 1));
+                        final initDate =
+                            DateTime.tryParse(dateCtrl.text) ?? defaultDate;
                         final picked = await showDatePicker(
                           context: context,
                           initialDate: initDate,
@@ -92,32 +136,73 @@ class _State extends State<AdminHolidaysScreen> {
                           lastDate: DateTime(2030),
                         );
                         if (picked != null) {
-                          dateCtrl.text = DateFormat('yyyy-MM-dd').format(picked);
+                          dateCtrl.text = DateFormat(
+                            'yyyy-MM-dd',
+                          ).format(picked);
                         }
                       },
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       initialValue: selectedType,
-                      decoration: InputDecoration(labelText: l10n.holidayTypeLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+                      decoration: InputDecoration(
+                        labelText: l10n.holidayTypeLabel,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                       items: [
-                        DropdownMenuItem(value: 'company', child: Text(l10n.holidayTypeCompany)),
-                        DropdownMenuItem(value: 'national', child: Text(l10n.holidayTypeNational)),
+                        DropdownMenuItem(
+                          value: 'company',
+                          child: Text(l10n.holidayTypeCompany),
+                        ),
+                        DropdownMenuItem(
+                          value: 'national',
+                          child: Text(l10n.holidayTypeNational),
+                        ),
                       ],
                       onChanged: (val) {
-                        if (val != null) setSheetState(() => selectedType = val);
+                        if (val != null) {
+                          setSheetState(() => selectedType = val);
+                        }
                       },
                     ),
                     const SizedBox(height: 16),
-                    TextField(controller: descCtrl, decoration: InputDecoration(labelText: l10n.holidayDescriptionLabel, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), keyboardType: TextInputType.text),
+                    TextField(
+                      controller: descCtrl,
+                      decoration: InputDecoration(
+                        labelText: l10n.holidayDescriptionLabel,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      keyboardType: TextInputType.text,
+                    ),
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                         onPressed: () async {
-                          if (nameCtrl.text.trim().isEmpty || dateCtrl.text.trim().isEmpty) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.pleaseFillRequired, style: const TextStyle(color: Colors.white)), backgroundColor: AppColors.danger)); return; }
+                          if (nameCtrl.text.trim().isEmpty ||
+                              dateCtrl.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  l10n.pleaseFillRequired,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                backgroundColor: AppColors.danger,
+                              ),
+                            );
+                            return;
+                          }
                           try {
                             if (isEdit) {
                               final data = {
@@ -126,197 +211,227 @@ class _State extends State<AdminHolidaysScreen> {
                                 'type': selectedType,
                                 'description': descCtrl.text.trim(),
                               };
-                              await AdminOperationsRepository().updateHoliday(item.id, data);
+                              await AdminOperationsRepository().updateHoliday(
+                                item.id,
+                                data,
+                              );
                             } else {
-                              await AdminOperationsRepository().createHoliday(name: nameCtrl.text.trim(), date: dateCtrl.text.trim(), type: selectedType, description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim());
+                              await AdminOperationsRepository().createHoliday(
+                                name: nameCtrl.text.trim(),
+                                date: dateCtrl.text.trim(),
+                                type: selectedType,
+                                description: descCtrl.text.trim().isEmpty
+                                    ? null
+                                    : descCtrl.text.trim(),
+                              );
                             }
                             if (ctx.mounted) Navigator.pop(ctx);
                             _fetchData();
                           } catch (e) {
                             if (!mounted) return;
-                            if (ctx.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('❌ $e'), backgroundColor: AppColors.danger));
+                            if (ctx.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('❌ $e'),
+                                  backgroundColor: AppColors.danger,
+                                ),
+                              );
+                            }
                           }
                         },
-                        child: Text(isEdit ? l10n.saveChangesBtn : l10n.createHolidayBtn, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                        child: Text(
+                          isEdit ? l10n.saveChangesBtn : l10n.createHolidayBtn,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
             ),
           );
-        }
-      )
+        },
+      ),
     );
   }
 
   void _confirmDelete(int id, String name) {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (ctx) {
-      return Dialog(
-        backgroundColor: AppColors.surfaceLight,
-        surfaceTintColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Delete Icon
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: AppColors.danger.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.delete_forever_rounded,
-                  color: AppColors.danger,
-                  size: 40,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                "Delete Holiday?",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: const TextStyle(
-                    color: AppColors.grey800,
-                    fontSize: 15,
-                    height: 1.5,
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: AppColors.surfaceLight,
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Delete Icon
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: AppColors.danger.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  children: [
-                    const TextSpan(
-                      text: "Are you sure you want to delete\n",
+                  child: const Icon(
+                    Icons.delete_forever_rounded,
+                    color: AppColors.danger,
+                    size: 40,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  "Delete Holiday?",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 12),
+
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: TextStyle(
+                      color: AppColors.textPrimary(context),
+                      fontSize: 15,
+                      height: 1.5,
                     ),
-                    TextSpan(
-                      text: '"$name"',
-                      style: const TextStyle(
-                        color: AppColors.danger,
-                        fontWeight: FontWeight.bold,
+                    children: [
+                      const TextSpan(text: "Are you sure you want to delete\n"),
+                      TextSpan(
+                        text: '"$name"',
+                        style: const TextStyle(
+                          color: AppColors.danger,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const TextSpan(
+                        text: "?\n\nThis action cannot be undone.",
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: Colors.grey),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(
+                            color: AppColors.textPrimary(context),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                    const TextSpan(
-                      text: "?\n\nThis action cannot be undone.",
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(ctx);
+
+                          try {
+                            await AdminOperationsRepository().deleteHoliday(id);
+
+                            _fetchData();
+
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "✅ Holiday deleted successfully",
+                                  ),
+                                  backgroundColor: AppColors.success,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("❌ $e"),
+                                  backgroundColor: AppColors.danger,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        icon: const Icon(Icons.delete_outline),
+                        label: const Text("Delete"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.danger,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-
-              const SizedBox(height: 28),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        side: const BorderSide(
-                          color: Colors.grey,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
-                          color: AppColors.grey800,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () async {
-                        Navigator.pop(ctx);
-
-                        try {
-                          await AdminOperationsRepository()
-                              .deleteHoliday(id);
-
-                          _fetchData();
-
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content:
-                                    Text("✅ Holiday deleted successfully"),
-                                backgroundColor: AppColors.success,
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("❌ $e"),
-                                backgroundColor: AppColors.danger,
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      icon: const Icon(Icons.delete_outline),
-                      label: const Text("Delete"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.danger,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
-    final selectedHolidays = _selectedDay != null ? _getHolidaysForDay(_selectedDay!) : <HolidayData>[];
+    final selectedHolidays = _selectedDay != null
+        ? _getHolidaysForDay(_selectedDay!)
+        : <HolidayData>[];
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: Text(l10n.holidaysTitle, style: const TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text(
+          l10n.holidaysTitle,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.add, color: AppColors.primary), onPressed: () => _showForm(null, _selectedDay))
+          IconButton(
+            icon: const Icon(Icons.add, color: AppColors.primary),
+            onPressed: () => _showForm(null, _selectedDay),
+          ),
         ],
       ),
       body: _loading
@@ -324,7 +439,9 @@ class _State extends State<AdminHolidaysScreen> {
           : Column(
               children: [
                 Container(
-                  color: AppColors.surfaceLight,
+                  color: isDark
+                      ? AppColors.surfaceDark
+                      : AppColors.surfaceLight,
                   child: TableCalendar<HolidayData>(
                     firstDay: DateTime.utc(2020, 1, 1),
                     lastDay: DateTime.utc(2030, 12, 31),
@@ -343,27 +460,82 @@ class _State extends State<AdminHolidaysScreen> {
                       });
                     },
                     eventLoader: _getHolidaysForDay,
-                    calendarStyle: const CalendarStyle(
-                      todayDecoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                      selectedDecoration: BoxDecoration(color: AppColors.grey800, shape: BoxShape.circle),
-                      markerDecoration: BoxDecoration(color: Colors.transparent),
+                    calendarStyle: CalendarStyle(
+                      todayDecoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.7),
+                        shape: BoxShape.circle,
+                      ),
+                      selectedDecoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      markerDecoration: const BoxDecoration(
+                        color: Colors.transparent,
+                      ),
+                      defaultTextStyle: TextStyle(
+                        color: isDark ? Colors.white : AppColors.grey800,
+                      ),
+                      weekendTextStyle: TextStyle(
+                        color: isDark ? AppColors.grey400 : AppColors.grey600,
+                      ),
+                    ),
+                    headerStyle: HeaderStyle(
+                      titleTextStyle: TextStyle(
+                        color: isDark ? Colors.white : AppColors.grey900,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      formatButtonTextStyle: TextStyle(
+                        color: isDark ? Colors.white : AppColors.grey800,
+                        fontSize: 12,
+                      ),
+                      formatButtonDecoration: BoxDecoration(
+                        border: Border.all(
+                          color: isDark
+                              ? AppColors.borderDark
+                              : AppColors.grey300,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      leftChevronIcon: Icon(
+                        Icons.chevron_left,
+                        color: isDark ? Colors.white : AppColors.grey700,
+                      ),
+                      rightChevronIcon: Icon(
+                        Icons.chevron_right,
+                        color: isDark ? Colors.white : AppColors.grey700,
+                      ),
                     ),
                     calendarBuilders: CalendarBuilders(
                       defaultBuilder: (context, day, focusedDay) {
                         final hols = _getHolidaysForDay(day);
                         if (hols.isNotEmpty) {
-                          bool isNational = hols.any((h) => h.type == 'national');
+                          bool isNational = hols.any(
+                            (h) => h.type == 'national',
+                          );
                           return Container(
                             margin: const EdgeInsets.all(6.0),
                             decoration: BoxDecoration(
-                              color: isNational ? AppColors.dangerLight : AppColors.infoLight,
+                              color: isDark
+                                  ? (isNational
+                                        ? AppColors.danger.withValues(
+                                            alpha: 0.25,
+                                          )
+                                        : AppColors.info.withValues(
+                                            alpha: 0.25,
+                                          ))
+                                  : (isNational
+                                        ? AppColors.dangerLight
+                                        : AppColors.infoLight),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             alignment: Alignment.center,
                             child: Text(
                               '${day.day}',
                               style: TextStyle(
-                                color: isNational ? AppColors.danger : AppColors.info,
+                                color: isNational
+                                    ? AppColors.danger
+                                    : AppColors.info,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -377,15 +549,23 @@ class _State extends State<AdminHolidaysScreen> {
                             bottom: 1,
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: events.map((e) => Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 1.0),
-                                width: 5.0,
-                                height: 5.0,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: e.type == 'national' ? AppColors.danger : AppColors.info,
-                                  ),
-                              )).toList(),
+                              children: events
+                                  .map(
+                                    (e) => Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 1.0,
+                                      ),
+                                      width: 5.0,
+                                      height: 5.0,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: e.type == 'national'
+                                            ? AppColors.danger
+                                            : AppColors.info,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
                             ),
                           );
                         }
@@ -397,39 +577,119 @@ class _State extends State<AdminHolidaysScreen> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: selectedHolidays.isEmpty
-                      ? Center(child: Text(l10n.noHolidaysOnDay, style: const TextStyle(color: AppColors.grey500)))
+                      ? Center(
+                          child: Text(
+                            l10n.noHolidaysOnDay,
+                            style: const TextStyle(color: AppColors.grey500),
+                          ),
+                        )
                       : ListView.separated(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           itemCount: selectedHolidays.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 12),
+                          separatorBuilder: (_, _) =>
+                              const SizedBox(height: 12),
                           itemBuilder: (context, i) {
                             final e = selectedHolidays[i];
                             final isNational = e.type == 'national';
-                            final bgColor = isNational ? AppColors.dangerLight : AppColors.infoLight;
-                            final textColor = isNational ? AppColors.danger : AppColors.info;
-                            final borderColor = isNational ? AppColors.danger.withAlpha(80) : AppColors.info.withAlpha(80);
+                            final bgColor = isDark
+                                ? (isNational
+                                      ? AppColors.danger.withValues(alpha: 0.15)
+                                      : AppColors.info.withValues(alpha: 0.15))
+                                : (isNational
+                                      ? AppColors.dangerLight
+                                      : AppColors.infoLight);
+                            final textColor = isDark
+                                ? (isNational
+                                      ? const Color(0xFFFCA5A5)
+                                      : const Color(0xFF93C5FD))
+                                : (isNational
+                                      ? AppColors.danger
+                                      : AppColors.info);
+                            final borderColor = isNational
+                                ? AppColors.danger.withAlpha(80)
+                                : AppColors.info.withAlpha(80);
 
                             return Container(
-                              decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: borderColor)),
+                              decoration: BoxDecoration(
+                                color: bgColor,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: borderColor),
+                              ),
                               child: ListTile(
                                 title: Row(
                                   children: [
-                                    Expanded(child: Text(e.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: textColor))),
+                                    Expanded(
+                                      child: Text(
+                                        e.name,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15,
+                                          color: textColor,
+                                        ),
+                                      ),
+                                    ),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(color: isNational ? AppColors.danger.withAlpha(40) : AppColors.info.withAlpha(40), borderRadius: BorderRadius.circular(8)),
-                                      child: Text(e.type == 'national' ? l10n.nationalBadge : l10n.companyBadge, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor)),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isNational
+                                            ? AppColors.danger.withValues(
+                                                alpha: isDark ? 0.3 : 0.15,
+                                              )
+                                            : AppColors.info.withValues(
+                                                alpha: isDark ? 0.3 : 0.15,
+                                              ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        e.type == 'national'
+                                            ? l10n.nationalBadge
+                                            : l10n.companyBadge,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: textColor,
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
                                 subtitle: e.description?.isNotEmpty == true
-                                    ? Text(e.description!, style: TextStyle(color: textColor.withValues(alpha: 0.8), fontSize: 13))
+                                    ? Text(
+                                        e.description!,
+                                        style: TextStyle(
+                                          color: textColor.withValues(
+                                            alpha: 0.8,
+                                          ),
+                                          fontSize: 13,
+                                        ),
+                                      )
                                     : null,
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    IconButton(icon: Icon(Icons.edit, color: textColor.withValues(alpha: 0.6), size: 20), onPressed: () => _showForm(e)),
-                                    IconButton(icon: Icon(Icons.delete, color: textColor, size: 20), onPressed: () => _confirmDelete(e.id, e.name)),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.edit,
+                                        color: textColor.withValues(alpha: 0.6),
+                                        size: 20,
+                                      ),
+                                      onPressed: () => _showForm(e),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.delete,
+                                        color: textColor,
+                                        size: 20,
+                                      ),
+                                      onPressed: () =>
+                                          _confirmDelete(e.id, e.name),
+                                    ),
                                   ],
                                 ),
                               ),

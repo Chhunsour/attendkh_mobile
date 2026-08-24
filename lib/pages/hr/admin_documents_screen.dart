@@ -5,8 +5,9 @@ import 'package:open_filex/open_filex.dart';
 import 'package:intl/intl.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/documents_repository.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
+import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 
 class AdminDocumentsScreen extends StatefulWidget {
   const AdminDocumentsScreen({super.key});
@@ -77,9 +78,9 @@ class _State extends State<AdminDocumentsScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         height: MediaQuery.of(ctx).size.height * 0.85,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: AppColors.surface(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           children: [
@@ -99,10 +100,10 @@ class _State extends State<AdminDocumentsScreen> {
                             children: [
                               Text(
                                 doc.title,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.grey900,
+                                  color: AppColors.textPrimary(context),
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -142,10 +143,17 @@ class _State extends State<AdminDocumentsScreen> {
                         doc.downloadUrl != null)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          doc.downloadUrl!,
+                        child: CachedNetworkImage(
+                          imageUrl: doc.downloadUrl!,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, _, _) => const Center(
+                          memCacheWidth: 800,
+                          placeholder: (_, _) => const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(40),
+                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                            ),
+                          ),
+                          errorWidget: (_, _, _) => const Center(
                             child: Padding(
                               padding: EdgeInsets.all(40),
                               child: Text('Cannot load image preview'),
@@ -197,9 +205,9 @@ class _State extends State<AdminDocumentsScreen> {
                       const SizedBox(height: 4),
                       Text(
                         doc.description!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.grey800,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -283,7 +291,7 @@ class _State extends State<AdminDocumentsScreen> {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontSize: 14, color: AppColors.grey800),
+              style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)),
             ),
           ),
         ],
@@ -303,9 +311,15 @@ class _State extends State<AdminDocumentsScreen> {
       }
 
       final dir = await getApplicationDocumentsDirectory();
-      final savePath = '${dir.path}/${doc.fileName ?? 'document_${doc.id}'}';
+      final rawName = doc.fileName ?? 'document_${doc.id}';
+      final safeName = rawName.replaceAll(RegExp(r'[^\w\.\-]'), '_');
+      final savePath = '${dir.path}/$safeName';
 
-      await _repo.downloadDocument(doc.id, savePath);
+      await _repo.downloadDocument(
+        doc.id,
+        savePath,
+        downloadUrl: doc.downloadUrl,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -362,9 +376,9 @@ class _State extends State<AdminDocumentsScreen> {
             ),
             child: Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              decoration: BoxDecoration(
+                color: AppColors.surface(context),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -373,10 +387,10 @@ class _State extends State<AdminDocumentsScreen> {
                   children: [
                     Text(
                       isEdit ? 'Edit Document' : 'Upload Document',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -509,7 +523,7 @@ class _State extends State<AdminDocumentsScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.backgroundLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.grey300),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -656,10 +670,10 @@ class _State extends State<AdminDocumentsScreen> {
                         },
                         child: Text(
                           isEdit ? 'Update Document' : 'Upload Document',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppColors.textPrimary(context),
                           ),
                         ),
                       ),
@@ -734,15 +748,15 @@ class _State extends State<AdminDocumentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Documents',
           style: TextStyle(
-            color: AppColors.grey800,
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -837,9 +851,9 @@ class _State extends State<AdminDocumentsScreen> {
                       final doc = _documents[i];
                       return Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.surface(context),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.grey200),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -1053,7 +1067,7 @@ class _State extends State<AdminDocumentsScreen> {
           if (_lastPage > 1)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: Colors.white,
+              color: AppColors.surface(context),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1077,10 +1091,10 @@ class _State extends State<AdminDocumentsScreen> {
                       ),
                       Text(
                         '$_currentPage / $_lastPage',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey800,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       IconButton(

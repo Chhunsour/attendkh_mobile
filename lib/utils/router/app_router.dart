@@ -502,7 +502,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.notificationDetail,
         builder: (context, state) {
-          final notification = state.extra as NotificationItem;
+          final notification = state.extra is NotificationItem
+              ? (state.extra as NotificationItem)
+              : NotificationItem(
+                  id: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+                  type: 'general',
+                  title: 'Notification Details',
+                  body: '',
+                  isRead: true,
+                  createdAt: '',
+                );
           return NotificationDetailScreen(notification: notification);
         },
       ),

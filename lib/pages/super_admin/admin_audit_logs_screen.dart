@@ -78,15 +78,15 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.auditLogsTitle,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -128,10 +128,10 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
             const SizedBox(height: 16),
             Text(
               l10n.failedToLoadAuditLogs,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey900,
+                color: AppColors.textPrimary(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -175,141 +175,164 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
       return matchesSearch && matchesEvent;
     }).toList();
 
-    return ListView(
+    return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-      children: [
-        // ── Overview Metric Cards ──
-        Row(
-          children: [
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Total Logs',
-                value: '${payload.logs.length}',
-                icon: Icons.receipt_long_rounded,
-                color: const Color(0xFF6366F1),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Created',
-                value: '$createCount',
-                icon: Icons.add_circle_outline_rounded,
-                color: const Color(0xFF10B981),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Updated',
-                value: '$updateCount',
-                icon: Icons.edit_rounded,
-                color: const Color(0xFF0EA5E9),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildMetricCard(
-                title: 'Deleted',
-                value: '$deleteCount',
-                icon: Icons.delete_outline_rounded,
-                color: const Color(0xFFEF4444),
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 16),
-
-        // ── Search Field ──
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.grey200),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: TextField(
-            controller: _searchCtrl,
-            onChanged: (val) => setState(() => _searchTerm = val.trim().toLowerCase()),
-            style: const TextStyle(fontSize: 13.5, color: AppColors.grey900),
-            decoration: InputDecoration(
-              hintText: 'Search action, user, or model...',
-              hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
-              prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 18),
-              suffixIcon: _searchTerm.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear_rounded, color: AppColors.grey400, size: 16),
-                      onPressed: () {
-                        _searchCtrl.clear();
-                        setState(() => _searchTerm = '');
-                      },
-                    )
-                  : null,
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // ── Event Filter Chips ──
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _buildFilterChip('All (${payload.logs.length})', 'all'),
-              const SizedBox(width: 8),
-              _buildFilterChip('Created ($createCount)', 'created'),
-              const SizedBox(width: 8),
-              _buildFilterChip('Updated ($updateCount)', 'updated'),
-              const SizedBox(width: 8),
-              _buildFilterChip('Deleted ($deleteCount)', 'deleted'),
-              ...payload.events
-                  .where((e) => e != 'created' && e != 'updated' && e != 'deleted')
-                  .map((e) => Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: _buildFilterChip(e[0].toUpperCase() + e.substring(1), e),
-                      )),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // ── List of Logs ──
-        if (filtered.isEmpty)
-          Container(
-            padding: const EdgeInsets.all(32),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
-            ),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          sliver: SliverToBoxAdapter(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.history_toggle_off_rounded, size: 48, color: AppColors.grey300),
-                const SizedBox(height: 12),
-                Text(
-                  _searchTerm.isNotEmpty ? 'No audit records matching "$_searchTerm"' : l10n.noAuditLogsYet,
-                  style: const TextStyle(color: AppColors.grey600, fontSize: 14, fontWeight: FontWeight.w500),
-                  textAlign: TextAlign.center,
+                // ── Overview Metric Cards ──
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Total Logs',
+                        value: '${payload.logs.length}',
+                        icon: Icons.receipt_long_rounded,
+                        color: const Color(0xFF6366F1),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Created',
+                        value: '$createCount',
+                        icon: Icons.add_circle_outline_rounded,
+                        color: const Color(0xFF10B981),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Updated',
+                        value: '$updateCount',
+                        icon: Icons.edit_rounded,
+                        color: const Color(0xFF0EA5E9),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Deleted',
+                        value: '$deleteCount',
+                        icon: Icons.delete_outline_rounded,
+                        color: const Color(0xFFEF4444),
+                      ),
+                    ),
+                  ],
                 ),
+
+                const SizedBox(height: 16),
+
+                // ── Search Field ──
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface(context),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border(context)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (val) => setState(() => _searchTerm = val.trim().toLowerCase()),
+                    style: TextStyle(fontSize: 13.5, color: AppColors.textPrimary(context)),
+                    decoration: InputDecoration(
+                      hintText: 'Search actions, users, resources...',
+                      hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
+                      prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 18),
+                      suffixIcon: _searchTerm.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear_rounded, color: AppColors.grey400, size: 16),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                setState(() => _searchTerm = '');
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // ── Event Filter Chips ──
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildFilterChip('All (${payload.logs.length})', 'all'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Created ($createCount)', 'created'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Updated ($updateCount)', 'updated'),
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Deleted ($deleteCount)', 'deleted'),
+                      ...payload.events
+                          .where((e) => e != 'created' && e != 'updated' && e != 'deleted')
+                          .map((e) => Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: _buildFilterChip(e[0].toUpperCase() + e.substring(1), e),
+                              )),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
               ],
+            ),
+          ),
+        ),
+
+        // ── Lazy Virtualized List of Logs ──
+        if (filtered.isEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+            sliver: SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.surface(context),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.border(context)),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.history_toggle_off_rounded, size: 48, color: AppColors.grey300),
+                    const SizedBox(height: 12),
+                    Text(
+                      _searchTerm.isNotEmpty ? 'No audit records matching "$_searchTerm"' : l10n.noAuditLogsYet,
+                      style: const TextStyle(color: AppColors.grey600, fontSize: 14, fontWeight: FontWeight.w500),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
           )
         else
-          ...filtered.map((log) => _buildLogCard(log, l10n)),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+            sliver: SliverList.builder(
+              itemCount: filtered.length,
+              itemBuilder: (context, index) {
+                final log = filtered[index];
+                return _buildLogCard(log, l10n);
+              },
+            ),
+          ),
       ],
     );
   }
@@ -323,7 +346,7 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -416,9 +439,9 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -457,10 +480,10 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                           Flexible(
                             child: Text(
                               _formatAction(log.action),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13.5,
-                                color: AppColors.grey900,
+                                color: AppColors.textPrimary(context),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -501,7 +524,7 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                           ],
                           if (log.subjectType != null && log.subjectType!.isNotEmpty) ...[
                             const SizedBox(width: 6),
-                            Text('•', style: TextStyle(color: AppColors.grey400, fontSize: 11)),
+                            const Text('•', style: TextStyle(color: AppColors.grey400, fontSize: 11)),
                             const SizedBox(width: 6),
                             Flexible(
                               child: Text(
@@ -623,10 +646,10 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                       const SizedBox(width: 8),
                       Text(
                         l10n.changesTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                     ],
@@ -646,7 +669,7 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.grey50,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.grey200),
+                  border: Border.all(color: AppColors.border(context)),
                 ),
                 child: ListView.separated(
                   shrinkWrap: true,
@@ -716,9 +739,9 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                         else
                           Text(
                             newValue,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
-                              color: AppColors.grey900,
+                              color: AppColors.textPrimary(context),
                               fontWeight: FontWeight.w600,
                             ),
                           ),

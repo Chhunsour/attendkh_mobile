@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
@@ -44,11 +45,13 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     final profileAsync = ref.watch(profileProvider);
     final unreadCountAsync = ref.watch(unreadCountProvider);
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
         elevation: 0,
         centerTitle: false,
         title: Row(
@@ -72,8 +75,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               children: [
                 Text(
                   l10n.platformAdminTitle,
-                  style: const TextStyle(
-                    color: AppColors.grey900,
+                  style: TextStyle(
+                    color: AppColors.textPrimary(context),
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -95,7 +98,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             icon: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.notifications_outlined, color: AppColors.grey700),
+                Icon(
+                  Icons.notifications_outlined,
+                  color: isDark ? AppColors.grey300 : AppColors.grey700,
+                ),
                 if (unreadCountAsync.valueOrNull != null && unreadCountAsync.valueOrNull! > 0)
                   Positioned(
                     right: -2,
@@ -108,8 +114,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                       ),
                       child: Text(
                         '${unreadCountAsync.valueOrNull}',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: AppColors.textPrimary(context),
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
                         ),
@@ -135,7 +141,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                 ),
                 child: CircleAvatar(
                   radius: 17,
-                  backgroundColor: AppColors.grey100,
+                  backgroundColor:
+                      isDark ? AppColors.surfaceDarkElevated : AppColors.grey100,
                   backgroundImage: profileAsync.value?.photoUrl != null
                       ? CachedNetworkImageProvider(
                           profileAsync.value!.photoUrl!,
@@ -159,7 +166,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           ref.invalidate(unreadCountProvider);
         },
         child: dashAsync.when(
-          loading: () => _buildLoading(),
+          loading: () => _buildLoading(context),
           error: (err, _) => _buildError(err, ref, l10n),
           data: (data) => _buildContent(context, data, authState, l10n),
         ),
@@ -168,39 +175,43 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   }
 
   // ── Loading ────────────────────────────────────────────────────────────────
-  Widget _buildLoading() {
+  Widget _buildLoading(BuildContext context) {
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(16),
       children: [
-        _shimmerBox(height: 120, radius: 22),
+        _shimmerBox(context, height: 120, radius: 22),
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: _shimmerBox(height: 110, radius: 18)),
+            Expanded(child: _shimmerBox(context, height: 110, radius: 18)),
             const SizedBox(width: 12),
-            Expanded(child: _shimmerBox(height: 110, radius: 18)),
+            Expanded(child: _shimmerBox(context, height: 110, radius: 18)),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _shimmerBox(height: 110, radius: 18)),
+            Expanded(child: _shimmerBox(context, height: 110, radius: 18)),
             const SizedBox(width: 12),
-            Expanded(child: _shimmerBox(height: 110, radius: 18)),
+            Expanded(child: _shimmerBox(context, height: 110, radius: 18)),
           ],
         ),
         const SizedBox(height: 20),
-        _shimmerBox(height: 180, radius: 18),
+        _shimmerBox(context, height: 180, radius: 18),
       ],
     );
   }
 
-  Widget _shimmerBox({required double height, double radius = 12}) {
+  Widget _shimmerBox(
+    BuildContext context, {
+    required double height,
+    double radius = 12,
+  }) {
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(radius),
       ),
       child: const _ShimmerEffect(),
@@ -227,7 +238,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             const SizedBox(height: 16),
             Text(
               l10n.failedToLoadDashboard,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.grey900),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
             ),
             const SizedBox(height: 6),
             Text(
@@ -282,7 +293,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             children: [
               Text(
                 l10n.platformStatistics,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -405,8 +416,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF0F172A),
-            Color(0xFF1E293B),
+            Color(0xFF1E1E1E),
+            Color(0xFF282828),
           ],
         ),
         borderRadius: BorderRadius.circular(22),
@@ -456,10 +467,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
+                const Text(
                   'Multi-Company HR Tenant & Global System Administration',
                   style: TextStyle(
-                    color: const Color(0xFF94A3B8),
+                    color: Color(0xFF94A3B8),
                     fontSize: 11.5,
                     height: 1.3,
                   ),
@@ -534,18 +545,32 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color iconBg = isDark
+        ? const Color(0xFF242424)
+        : const Color(0xFFF1F5F9);
+    final Color iconBorder = isDark
+        ? const Color(0xFF333333)
+        : const Color(0xFFE2E8F0);
+    final Color iconColor = isDark
+        ? const Color(0xFF93C5FD)
+        : AppColors.primary;
+
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface(context),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+          border: Border.all(color: AppColors.border(context)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.02),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -554,20 +579,22 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
+                color: iconBg,
+                borderRadius: BorderRadius.circular(11),
+                border: Border.all(color: iconBorder, width: 1),
               ),
-              child: Icon(icon, color: color, size: 18),
+              child: Icon(icon, color: iconColor, size: 19),
             ),
             const SizedBox(height: 6),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: AppColors.grey800,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary(context),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -587,10 +614,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           const SizedBox(width: 6),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.bold,
-              color: AppColors.grey900,
+              color: AppColors.textPrimary(context),
             ),
           ),
         ],
@@ -631,7 +658,7 @@ class _KpiCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
@@ -671,10 +698,10 @@ class _KpiCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: AppColors.grey900,
+              color: AppColors.textPrimary(context),
             ),
           ),
           const SizedBox(height: 2),
@@ -712,9 +739,9 @@ class _ActivityTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.7)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -741,10 +768,10 @@ class _ActivityTile extends StatelessWidget {
               children: [
                 Text(
                   item.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 2),

@@ -26,15 +26,15 @@ class AdminSettingsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface(context),
         elevation: 0,
         centerTitle: false,
         title: Text(
           l10n.platformSettingsTitle,
-          style: const TextStyle(
-            color: AppColors.grey900,
+          style: TextStyle(
+            color: AppColors.textPrimary(context),
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -73,10 +73,10 @@ class AdminSettingsScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             Text(
               l10n.failedToLoadSettings,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.grey900,
+                color: AppColors.textPrimary(context),
               ),
             ),
             const SizedBox(height: 8),
@@ -205,10 +205,10 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
           TextFormField(
             controller: ctrl,
             keyboardType: keyboardType,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13.5,
               fontWeight: FontWeight.w600,
-              color: AppColors.grey900,
+              color: AppColors.textPrimary(context),
             ),
             decoration: InputDecoration(
               isDense: true,
@@ -216,11 +216,11 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.grey200),
+                borderSide: BorderSide(color: AppColors.border(context)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.grey200),
+                borderSide: BorderSide(color: AppColors.border(context)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -250,8 +250,8 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF0F172A),
-                Color(0xFF1E293B),
+                Color(0xFF1E1E1E),
+                Color(0xFF282828),
               ],
             ),
             borderRadius: BorderRadius.circular(22),
@@ -286,10 +286,10 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'System Parameters',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary(context),
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -399,9 +399,9 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -431,10 +431,10 @@ class _SettingsEditorState extends ConsumerState<_SettingsEditor> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     const SizedBox(height: 2),

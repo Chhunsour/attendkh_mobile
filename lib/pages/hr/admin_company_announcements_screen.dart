@@ -84,9 +84,9 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
             padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
             child: Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              decoration: BoxDecoration(
+                color: AppColors.surface(context),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -95,7 +95,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                   children: [
                     Text(
                       isEdit ? 'Edit Announcement' : 'New Announcement',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                     ),
                     const SizedBox(height: 24),
 
@@ -171,7 +171,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                         decoration: BoxDecoration(
                           color: AppColors.backgroundLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.grey300),
+                          border: Border.all(color: AppColors.border(context)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -284,9 +284,9 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         height: MediaQuery.of(ctx).size.height * 0.85,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: AppColors.surface(context),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           children: [
@@ -299,7 +299,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                     children: [
                       const Icon(Icons.campaign_rounded, color: AppColors.primary, size: 22),
                       const SizedBox(width: 8),
-                      const Text('Announcement Preview', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                      Text('Announcement Preview', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
                     ],
                   ),
                   IconButton(
@@ -340,7 +340,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Text(a.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.grey900)),
+                    Text(a.title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
                     const SizedBox(height: 12),
                     Container(
                       width: double.infinity,
@@ -348,9 +348,9 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.backgroundLight,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey200),
+                        border: Border.all(color: AppColors.border(context)),
                       ),
-                      child: Text(a.content, style: const TextStyle(fontSize: 14, color: AppColors.grey800, height: 1.5)),
+                      child: Text(a.content, style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context), height: 1.5)),
                     ),
                     const SizedBox(height: 16),
                     _infoRow('Author', a.authorName ?? 'Unknown'),
@@ -436,7 +436,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(width: 100, child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey500))),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 14, color: AppColors.grey800))),
+          Expanded(child: Text(value, style: TextStyle(fontSize: 14, color: AppColors.textPrimary(context)))),
         ],
       ),
     );
@@ -516,12 +516,12 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surface(context),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Announcements', style: TextStyle(color: AppColors.grey800, fontSize: 18, fontWeight: FontWeight.w700)),
+        title: Text('Announcements', style: TextStyle(color: AppColors.textPrimary(context), fontSize: 18, fontWeight: FontWeight.w700)),
         actions: [
           IconButton(icon: const Icon(Icons.add, color: AppColors.primary), onPressed: () => _showForm()),
         ],
@@ -530,7 +530,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            color: Colors.white,
+            color: AppColors.surface(context),
             child: Column(
               children: [
                 TextField(
@@ -585,9 +585,9 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                           final a = _announcements[i];
                           return Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: AppColors.surface(context),
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.grey200),
+                              border: Border.all(color: AppColors.border(context)),
                             ),
                             padding: const EdgeInsets.all(16),
                             child: Column(
@@ -693,7 +693,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
           if (_lastPage > 1)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: Colors.white,
+              color: AppColors.surface(context),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -704,7 +704,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                         icon: const Icon(Icons.chevron_left, color: AppColors.grey600),
                         onPressed: _currentPage > 1 ? () => _changePage(_currentPage - 1) : null,
                       ),
-                      Text('$_currentPage / $_lastPage', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.grey800)),
+                      Text('$_currentPage / $_lastPage', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
                       IconButton(
                         icon: const Icon(Icons.chevron_right, color: AppColors.grey600),
                         onPressed: _currentPage < _lastPage ? () => _changePage(_currentPage + 1) : null,

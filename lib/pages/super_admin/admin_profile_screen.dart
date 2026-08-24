@@ -10,6 +10,8 @@ import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
+import 'package:mpg_hr_mobile_app/components/dialogs/delete_account_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
 
@@ -201,7 +203,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
     final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: AppColors.bg(context),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -235,8 +237,8 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF0F172A),
-                      Color(0xFF1E293B),
+                      Color(0xFF1E1E1E),
+                      Color(0xFF282828),
                     ],
                   ),
                 ),
@@ -272,10 +274,10 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 child: (_photo == null && profileAsync.value?.photoUrl == null)
                                     ? Text(
                                         _initials(authState.userName ?? 'A'),
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 28,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                          color: AppColors.textPrimary(context),
                                         ),
                                       )
                                     : null,
@@ -300,10 +302,10 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                       const SizedBox(height: 10),
                       Text(
                         authState.userName ?? 'Super Admin',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 19,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       const SizedBox(height: 3),
@@ -630,7 +632,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                             child: DropdownButton<String>(
                               value: ref.watch(localeProvider).languageCode,
                               icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.grey500),
-                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: AppColors.grey900),
+                              style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                               items: [
                                 DropdownMenuItem(value: 'en', child: Text(l10n.english)),
                                 DropdownMenuItem(value: 'km', child: Text(l10n.khmer)),
@@ -643,6 +645,15 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                             ),
                           ),
                         ),
+                        Divider(height: 1, color: AppColors.border(context)),
+                        _buildSettingsTile(
+                          icon: Icons.privacy_tip_outlined,
+                          title: 'Privacy Policy',
+                          onTap: () => launchUrl(
+                            Uri.parse('https://attendkh.com/privacy-policy'),
+                            mode: LaunchMode.inAppBrowserView,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -653,12 +664,12 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.surface(context),
                       borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.danger.withValues(alpha: 0.25)),
+                      border: Border.all(color: AppColors.border(context)),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.danger.withValues(alpha: 0.04),
+                          color: Colors.black.withValues(alpha: 0.02),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -677,10 +688,10 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: AppColors.danger.withValues(alpha: 0.1),
+                                  color: AppColors.primary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Icon(Icons.logout_rounded, color: AppColors.danger, size: 20),
+                                child: const Icon(Icons.logout_rounded, color: AppColors.primary, size: 20),
                               ),
                               const SizedBox(width: 14),
                               Text(
@@ -688,8 +699,74 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 style: const TextStyle(
                                   fontSize: 14.5,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.danger,
+                                  color: AppColors.primary,
                                 ),
+                              ),
+                              const Spacer(),
+                              const Icon(Icons.chevron_right_rounded, color: AppColors.grey400, size: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // ── Delete Account Tile (Guideline 5.1.1 v) ──
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface(context),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColors.danger.withValues(alpha: 0.35)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.danger.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => showDeleteAccountConfirmation(context, ref),
+                        borderRadius: BorderRadius.circular(18),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: AppColors.danger.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.delete_forever_rounded, color: AppColors.danger, size: 20),
+                              ),
+                              const SizedBox(width: 14),
+                              const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Delete Account',
+                                    style: TextStyle(
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.danger,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Permanently delete account and data',
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      color: AppColors.grey500,
+                                    ),
+                                  ),
+                                ],
                               ),
                               const Spacer(),
                               const Icon(Icons.chevron_right_rounded, color: AppColors.danger, size: 20),
@@ -717,9 +794,9 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+        border: Border.all(color: AppColors.border(context)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -751,10 +828,10 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.grey900,
+                          color: AppColors.textPrimary(context),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -831,10 +908,10 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                 const SizedBox(height: 1),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.grey900,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
               ],
@@ -870,10 +947,10 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey900,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
             ),
@@ -896,11 +973,11 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
       fillColor: AppColors.grey50,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.grey200),
+        borderSide: BorderSide(color: AppColors.border(context)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

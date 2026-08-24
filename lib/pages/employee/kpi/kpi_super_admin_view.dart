@@ -42,8 +42,8 @@ class KpiSuperAdminView extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF0F172A),
-                Color(0xFF1E293B),
+                Color(0xFF1E1E1E),
+                Color(0xFF282828),
               ],
             ),
             borderRadius: BorderRadius.circular(22),
@@ -161,9 +161,9 @@ class KpiSuperAdminView extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface(context),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.grey200.withValues(alpha: 0.8)),
+            border: Border.all(color: AppColors.border(context)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
@@ -190,10 +190,10 @@ class KpiSuperAdminView extends StatelessWidget {
                   children: [
                     Text(
                       l10n.platformSummary,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.grey900,
+                        color: AppColors.textPrimary(context),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -223,10 +223,10 @@ class KpiSuperAdminView extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 l10n.platformStrategicKpis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.grey900,
+                  color: AppColors.textPrimary(context),
                 ),
               ),
             ],
