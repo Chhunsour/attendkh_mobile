@@ -9,15 +9,26 @@ final topEmployeeRepositoryProvider = Provider<TopEmployeeRepository>((ref) {
 class TopEmployeeRepository extends ApiRepository {
   Future<Map<String, dynamic>> getTopEmployees(String month) async {
     final response = await get('/company/top-employees?month=$month');
-    if (response.isSuccess) {
-      final Map<String, dynamic> data = response.data['data'];
+    if (response.isSuccess && response.data != null) {
+      final rawData = response.data;
+      final Map<String, dynamic> data = rawData is Map<String, dynamic>
+          ? ((rawData['data'] is Map<String, dynamic>) ? rawData['data'] as Map<String, dynamic> : rawData)
+          : {};
       
       Map<String, dynamic> parsedData = {};
       data.forEach((categoryKey, categoryData) {
-        parsedData[categoryKey] = {
-          'by_amount': (categoryData['by_amount'] as List).map((e) => TopEmployee.fromJson(e)).toList(),
-          'by_hours': (categoryData['by_hours'] as List).map((e) => TopEmployee.fromJson(e)).toList(),
-        };
+        if (categoryData is Map) {
+          final byAmountList = categoryData['by_amount'];
+          final byHoursList = categoryData['by_hours'];
+          parsedData[categoryKey] = {
+            'by_amount': (byAmountList is List)
+                ? byAmountList.map((e) => TopEmployee.fromJson(Map<String, dynamic>.from(e as Map))).toList()
+                : <TopEmployee>[],
+            'by_hours': (byHoursList is List)
+                ? byHoursList.map((e) => TopEmployee.fromJson(Map<String, dynamic>.from(e as Map))).toList()
+                : <TopEmployee>[],
+          };
+        }
       });
       return parsedData;
     }

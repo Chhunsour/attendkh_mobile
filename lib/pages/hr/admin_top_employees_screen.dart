@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/providers/top_employees_provider.dart';
 import 'package:mpg_hr_mobile_app/models/top_employee.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -550,6 +552,61 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
     );
   }
 
+  String? _resolveAvatarUrl(String? avatar) {
+    if (avatar == null || avatar.trim().isEmpty) return null;
+    final trimmed = avatar.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    final cleanPath = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
+    return '${DioClient.storageUrl}/$cleanPath';
+  }
+
+  Widget _buildAvatarWidget(TopEmployee emp, {required double radius, required Color badgeColor, bool isFirst = false}) {
+    final avatarUrl = _resolveAvatarUrl(emp.avatar);
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: badgeColor.withValues(alpha: 0.18),
+      child: avatarUrl != null
+          ? ClipOval(
+              child: CachedNetworkImage(
+                imageUrl: avatarUrl,
+                width: radius * 2,
+                height: radius * 2,
+                fit: BoxFit.cover,
+                memCacheWidth: (radius * 4).toInt(),
+                memCacheHeight: (radius * 4).toInt(),
+                placeholder: (ctx, url) => Center(
+                  child: SizedBox(
+                    width: radius,
+                    height: radius,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.5,
+                      color: badgeColor,
+                    ),
+                  ),
+                ),
+                errorWidget: (ctx, url, err) => Text(
+                  emp.name.isNotEmpty ? emp.name[0].toUpperCase() : '?',
+                  style: TextStyle(
+                    fontSize: radius * 0.75,
+                    fontWeight: FontWeight.bold,
+                    color: badgeColor,
+                  ),
+                ),
+              ),
+            )
+          : Text(
+              emp.name.isNotEmpty ? emp.name[0].toUpperCase() : '?',
+              style: TextStyle(
+                fontSize: radius * 0.75,
+                fontWeight: FontWeight.bold,
+                color: badgeColor,
+              ),
+            ),
+    );
+  }
+
   Widget _buildPodiumColumn({
     required int rank,
     required TopEmployee emp,
@@ -567,22 +624,11 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
         const SizedBox(height: 4),
 
         // Avatar
-        CircleAvatar(
+        _buildAvatarWidget(
+          emp,
           radius: isFirst ? 28 : 22,
-          backgroundColor: badgeColor.withValues(alpha: 0.18),
-          backgroundImage: emp.avatar != null && emp.avatar!.isNotEmpty
-              ? NetworkImage(emp.avatar!)
-              : null,
-          child: emp.avatar == null || emp.avatar!.isEmpty
-              ? Text(
-                  emp.name.isNotEmpty ? emp.name[0].toUpperCase() : '?',
-                  style: TextStyle(
-                    fontSize: isFirst ? 18 : 14,
-                    fontWeight: FontWeight.bold,
-                    color: badgeColor,
-                  ),
-                )
-              : null,
+          badgeColor: badgeColor,
+          isFirst: isFirst,
         ),
         const SizedBox(height: 8),
 
@@ -685,22 +731,10 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
           const SizedBox(width: 12),
 
           // Avatar
-          CircleAvatar(
+          _buildAvatarWidget(
+            emp,
             radius: 16,
-            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-            backgroundImage: emp.avatar != null && emp.avatar!.isNotEmpty
-                ? NetworkImage(emp.avatar!)
-                : null,
-            child: emp.avatar == null || emp.avatar!.isEmpty
-                ? Text(
-                    emp.name.isNotEmpty ? emp.name[0].toUpperCase() : '?',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  )
-                : null,
+            badgeColor: AppColors.primary,
           ),
           const SizedBox(width: 10),
 
