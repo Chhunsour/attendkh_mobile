@@ -4,6 +4,9 @@ class AdminAnnouncement {
   final int id;
   final String title;
   final String body;
+  final String priority;
+  final String audience;
+  final String? expiresAt;
   final bool isPublished;
   final String? createdAt;
   final String? updatedAt;
@@ -12,6 +15,9 @@ class AdminAnnouncement {
     required this.id,
     required this.title,
     required this.body,
+    this.priority = 'normal',
+    this.audience = 'all',
+    this.expiresAt,
     required this.isPublished,
     this.createdAt,
     this.updatedAt,
@@ -22,7 +28,12 @@ class AdminAnnouncement {
       id: json['id'] as int? ?? 0,
       title: json['title'] as String? ?? '',
       body: json['content'] as String? ?? '',
-      isPublished: json['is_published'] as bool? ?? false,
+      priority: json['priority'] as String? ?? 'normal',
+      audience: json['audience'] as String? ?? 'all',
+      expiresAt: json['expires_at'] as String?,
+      isPublished: (json['is_published'] is bool)
+          ? json['is_published'] as bool
+          : (json['is_published'] == 1 || json['is_published'] == '1'),
       createdAt: json['created_at'] as String?,
       updatedAt: json['updated_at'] as String?,
     );
@@ -31,6 +42,9 @@ class AdminAnnouncement {
   Map<String, dynamic> toJson() => {
         'title': title,
         'content': body,
+        'priority': priority,
+        'audience': audience,
+        if (expiresAt != null) 'expires_at': expiresAt,
         'is_published': isPublished,
       };
 }

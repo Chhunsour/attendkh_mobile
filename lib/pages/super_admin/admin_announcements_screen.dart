@@ -31,6 +31,44 @@ class _AdminAnnouncementsScreenState
     super.dispose();
   }
 
+  Future<void> _togglePublishStatus(AdminAnnouncement announcement) async {
+    try {
+      final updatedData = {
+        'title': announcement.title,
+        'content': announcement.body,
+        'priority': announcement.priority,
+        'audience': announcement.audience,
+        'is_published': !announcement.isPublished,
+      };
+
+      await AdminAnnouncementsRepository().updateAnnouncement(announcement.id, updatedData);
+      ref.invalidate(adminAnnouncementsProvider);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              !announcement.isPublished
+                  ? 'Announcement published & broadcasted!'
+                  : 'Announcement unpublished (moved to drafts)',
+            ),
+            backgroundColor: !announcement.isPublished ? AppColors.success : AppColors.grey700,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update status: $e'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final announcementsAsync = ref.watch(adminAnnouncementsProvider);
@@ -136,15 +174,24 @@ class _AdminAnnouncementsScreenState
   ) {
     final publishedCount = announcements.where((a) => a.isPublished).length;
     final draftCount = announcements.where((a) => !a.isPublished).length;
+    final urgentCount = announcements.where((a) => a.priority == 'urgent' || a.priority == 'high').length;
 
     var filtered = announcements.where((a) {
       final matchesSearch =
           a.title.toLowerCase().contains(_searchTerm) ||
           a.body.toLowerCase().contains(_searchTerm);
-      final matchesStatus =
-          _statusFilter == 'all' ||
-          (_statusFilter == 'published' && a.isPublished) ||
-          (_statusFilter == 'draft' && !a.isPublished);
+      
+      bool matchesStatus = true;
+      if (_statusFilter == 'published') {
+        matchesStatus = a.isPublished;
+      } else if (_statusFilter == 'draft') {
+        matchesStatus = !a.isPublished;
+      } else if (_statusFilter == 'urgent') {
+        matchesStatus = (a.priority == 'urgent' || a.priority == 'high');
+      } else if (_statusFilter == 'owners') {
+        matchesStatus = (a.audience == 'owners');
+      }
+
       return matchesSearch && matchesStatus;
     }).toList();
 
@@ -163,7 +210,7 @@ class _AdminAnnouncementsScreenState
                 color: const Color(0xFF0EA5E9),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Expanded(
               child: _buildMetricCard(
                 title: 'Published',
@@ -172,13 +219,22 @@ class _AdminAnnouncementsScreenState
                 color: const Color(0xFF10B981),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Expanded(
               child: _buildMetricCard(
                 title: 'Drafts',
                 value: '$draftCount',
                 icon: Icons.edit_note_rounded,
                 color: const Color(0xFFF59E0B),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildMetricCard(
+                title: 'Urgent',
+                value: '$urgentCount',
+                icon: Icons.warning_amber_rounded,
+                color: const Color(0xFFEF4444),
               ),
             ),
           ],
@@ -226,14 +282,22 @@ class _AdminAnnouncementsScreenState
         const SizedBox(height: 12),
 
         // ── Status Filter Chips ──
-        Row(
-          children: [
-            _buildFilterChip('All (${announcements.length})', 'all'),
-            const SizedBox(width: 8),
-            _buildFilterChip('Published ($publishedCount)', 'published'),
-            const SizedBox(width: 8),
-            _buildFilterChip('Drafts ($draftCount)', 'draft'),
-          ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: [
+              _buildFilterChip('All (${announcements.length})', 'all'),
+              const SizedBox(width: 8),
+              _buildFilterChip('Published ($publishedCount)', 'published'),
+              const SizedBox(width: 8),
+              _buildFilterChip('Drafts ($draftCount)', 'draft'),
+              const SizedBox(width: 8),
+              _buildFilterChip('Urgent ($urgentCount)', 'urgent'),
+              const SizedBox(width: 8),
+              _buildFilterChip('👑 Owners', 'owners'),
+            ],
+          ),
         ),
 
         const SizedBox(height: 16),
@@ -274,10 +338,10 @@ class _AdminAnnouncementsScreenState
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
         color: AppColors.surface(context),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: color.withValues(alpha: 0.18)),
         boxShadow: [
           BoxShadow(
@@ -296,19 +360,19 @@ class _AdminAnnouncementsScreenState
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   color: AppColors.grey500,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              Icon(icon, size: 16, color: color),
+              Icon(icon, size: 14, color: color),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             value,
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: color,
             ),
@@ -353,13 +417,29 @@ class _AdminAnnouncementsScreenState
     AdminAnnouncement a,
     AppLocalizations l10n,
   ) {
+    final priorityColor = switch (a.priority) {
+      'urgent' => const Color(0xFFEF4444),
+      'high' => const Color(0xFFF59E0B),
+      'low' => const Color(0xFF64748B),
+      _ => const Color(0xFF10B981),
+    };
+
+    final priorityLabel = switch (a.priority) {
+      'urgent' => '🔴 Urgent',
+      'high' => '🟡 High',
+      'low' => '🔵 Low',
+      _ => '🟢 Normal',
+    };
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border(context)),
+        border: Border.all(
+          color: a.priority == 'urgent' ? const Color(0xFFEF4444).withValues(alpha: 0.3) : AppColors.border(context),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -373,47 +453,76 @@ class _AdminAnnouncementsScreenState
         children: [
           Row(
             children: [
+              // Priority Badge
               Container(
-                width: 38,
-                height: 38,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                 decoration: BoxDecoration(
-                  color: (a.isPublished ? const Color(0xFF0EA5E9) : const Color(0xFFF59E0B)).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.campaign_rounded,
-                  color: a.isPublished ? const Color(0xFF0EA5E9) : const Color(0xFFF59E0B),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: (a.isPublished ? const Color(0xFF10B981) : const Color(0xFFF59E0B)).withValues(alpha: 0.12),
+                  color: priorityColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.circle,
-                      size: 5.5,
-                      color: a.isPublished ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      a.isPublished ? l10n.statusPublished : l10n.statusDraft,
-                      style: TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.bold,
-                        color: a.isPublished ? const Color(0xFF047857) : const Color(0xFFD97706),
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  priorityLabel,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.bold,
+                    color: priorityColor,
+                  ),
                 ),
               ),
+              const SizedBox(width: 6),
+
+              // Audience Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                decoration: BoxDecoration(
+                  color: (a.audience == 'owners' ? const Color(0xFF8B5CF6) : const Color(0xFF0EA5E9)).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  a.audience == 'owners' ? '👑 Owners Only' : '🌐 All Users',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.bold,
+                    color: a.audience == 'owners' ? const Color(0xFF8B5CF6) : const Color(0xFF0284C7),
+                  ),
+                ),
+              ),
+
               const Spacer(),
+
+              // Quick Publish / Draft Switch
+              GestureDetector(
+                onTap: () => _togglePublishStatus(a),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                  decoration: BoxDecoration(
+                    color: (a.isPublished ? const Color(0xFF10B981) : const Color(0xFFF59E0B)).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        size: 5.5,
+                        color: a.isPublished ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        a.isPublished ? 'Published' : 'Draft',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                          color: a.isPublished ? const Color(0xFF047857) : const Color(0xFFD97706),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 4),
+
               PopupMenuButton<String>(
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -428,6 +537,8 @@ class _AdminAnnouncementsScreenState
                 onSelected: (action) {
                   if (action == 'edit') {
                     _showCreateEditDialog(announcement: a);
+                  } else if (action == 'toggle') {
+                    _togglePublishStatus(a);
                   } else if (action == 'delete') {
                     _confirmDelete(a);
                   }
@@ -435,10 +546,10 @@ class _AdminAnnouncementsScreenState
                 itemBuilder: (_) => [
                   PopupMenuItem(
                     value: 'edit',
-                    height: 42,
+                    height: 40,
                     child: Row(
                       children: [
-                        const Icon(Icons.edit_rounded, size: 18, color: Color(0xFF0EA5E9)),
+                        const Icon(Icons.edit_rounded, size: 17, color: Color(0xFF0EA5E9)),
                         const SizedBox(width: 10),
                         Text(
                           l10n.actionEdit,
@@ -451,13 +562,35 @@ class _AdminAnnouncementsScreenState
                       ],
                     ),
                   ),
+                  PopupMenuItem(
+                    value: 'toggle',
+                    height: 40,
+                    child: Row(
+                      children: [
+                        Icon(
+                          a.isPublished ? Icons.unpublished_outlined : Icons.publish_rounded,
+                          size: 17,
+                          color: a.isPublished ? const Color(0xFFF59E0B) : const Color(0xFF10B981),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          a.isPublished ? 'Unpublish (Draft)' : 'Publish Now',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   const PopupMenuDivider(),
                   PopupMenuItem(
                     value: 'delete',
-                    height: 42,
+                    height: 40,
                     child: Row(
                       children: [
-                        const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.danger),
+                        const Icon(Icons.delete_outline_rounded, size: 17, color: AppColors.danger),
                         const SizedBox(width: 10),
                         Text(
                           l10n.btnDelete,
@@ -574,6 +707,8 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleCtrl;
   late final TextEditingController _bodyCtrl;
+  String _priority = 'normal';
+  String _audience = 'all';
   bool _isPublished = false;
   bool _isSaving = false;
 
@@ -585,6 +720,8 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
     final a = widget.announcement;
     _titleCtrl = TextEditingController(text: a?.title ?? '');
     _bodyCtrl = TextEditingController(text: a?.body ?? '');
+    _priority = a?.priority ?? 'normal';
+    _audience = a?.audience ?? 'all';
     _isPublished = a?.isPublished ?? true;
   }
 
@@ -604,6 +741,8 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
       final data = {
         'title': _titleCtrl.text.trim(),
         'content': _bodyCtrl.text.trim(),
+        'priority': _priority,
+        'audience': _audience,
         'is_published': _isPublished,
       };
 
@@ -642,6 +781,71 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
     }
   }
 
+  Widget _buildPriorityChip(String label, String value, Color color) {
+    final isSelected = _priority == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _priority = value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withValues(alpha: 0.15) : AppColors.grey50,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected ? color : AppColors.border(context),
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? color : AppColors.textPrimary(context),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAudienceChip(String label, String value, IconData icon) {
+    final isSelected = _audience == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _audience = value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF0EA5E9).withValues(alpha: 0.12) : AppColors.grey50,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected ? const Color(0xFF0EA5E9) : AppColors.border(context),
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 14, color: isSelected ? const Color(0xFF0EA5E9) : AppColors.grey500),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? const Color(0xFF0EA5E9) : AppColors.textPrimary(context),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -656,121 +860,162 @@ class _AnnouncementFormSheetState extends ConsumerState<_AnnouncementFormSheet> 
         right: 20,
         bottom: MediaQuery.of(context).padding.bottom + MediaQuery.of(context).viewInsets.bottom + 20,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.grey300,
-              borderRadius: BorderRadius.circular(2),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.grey300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _isEditing ? l10n.editAnnouncementTitle : l10n.createAnnouncementTitle,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary(context),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close_rounded, color: AppColors.grey500),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Form(
-            key: _formKey,
-            child: Column(
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextFormField(
-                  controller: _titleCtrl,
-                  validator: (v) => v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
-                  decoration: _inputDecoration(l10n.titleLabel),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _bodyCtrl,
-                  maxLines: 4,
-                  validator: (v) => v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
-                  decoration: _inputDecoration(l10n.bodyLabel),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.grey50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border(context)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        l10n.publishImmediatelyLabel,
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
-                      ),
-                      Switch(
-                        value: _isPublished,
-                        activeThumbColor: const Color(0xFF0EA5E9),
-                        onChanged: (v) => setState(() => _isPublished = v),
-                      ),
-                    ],
+                Text(
+                  _isEditing ? l10n.editAnnouncementTitle : l10n.createAnnouncementTitle,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary(context),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 48,
-                        child: OutlinedButton(
-                          onPressed: _isSaving ? null : () => Navigator.pop(context),
-                          style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: Text(l10n.cancel, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: SizedBox(
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: _isSaving ? null : _save,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0EA5E9),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 2,
-                          ),
-                          child: _isSaving
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                )
-                              : Text(
-                                  _isEditing ? l10n.btnUpdateAnnouncement : l10n.btnCreateAnnouncement,
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ],
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, color: AppColors.grey500),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: _titleCtrl,
+                    validator: (v) => v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
+                    decoration: _inputDecoration(l10n.titleLabel),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Priority Level Selector
+                  const Text(
+                    'Priority Level',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.grey700),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      _buildPriorityChip('Normal', 'normal', const Color(0xFF10B981)),
+                      const SizedBox(width: 6),
+                      _buildPriorityChip('High', 'high', const Color(0xFFF59E0B)),
+                      const SizedBox(width: 6),
+                      _buildPriorityChip('Urgent', 'urgent', const Color(0xFFEF4444)),
+                      const SizedBox(width: 6),
+                      _buildPriorityChip('Low', 'low', const Color(0xFF64748B)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Target Audience Selector
+                  const Text(
+                    'Target Audience',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.grey700),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      _buildAudienceChip('All Users', 'all', Icons.public_rounded),
+                      const SizedBox(width: 8),
+                      _buildAudienceChip('Owners Only', 'owners', Icons.workspace_premium_rounded),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextFormField(
+                    controller: _bodyCtrl,
+                    maxLines: 4,
+                    validator: (v) => v == null || v.trim().isEmpty ? l10n.fieldRequired : null,
+                    decoration: _inputDecoration(l10n.bodyLabel),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.grey50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border(context)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          l10n.publishImmediatelyLabel,
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
+                        ),
+                        Switch(
+                          value: _isPublished,
+                          activeThumbColor: const Color(0xFF0EA5E9),
+                          onChanged: (v) => setState(() => _isPublished = v),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: OutlinedButton(
+                            onPressed: _isSaving ? null : () => Navigator.pop(context),
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: Text(l10n.cancel, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _isSaving ? null : _save,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0EA5E9),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              elevation: 2,
+                            ),
+                            child: _isSaving
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : Text(
+                                    _isEditing ? l10n.btnUpdateAnnouncement : l10n.btnCreateAnnouncement,
+                                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
