@@ -237,8 +237,8 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF1E1E1E),
-                      Color(0xFF282828),
+                      Color(0xFF0F172A), // Dark Slate
+                      Color(0xFF1E293B), // Dark Charcoal
                     ],
                   ),
                 ),
@@ -258,7 +258,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 border: Border.all(color: const Color(0xFF6366F1), width: 3),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
+                                    color: Colors.black.withValues(alpha: 0.35),
                                     blurRadius: 14,
                                     offset: const Offset(0, 4),
                                   ),
@@ -274,10 +274,10 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                                 child: (_photo == null && profileAsync.value?.photoUrl == null)
                                     ? Text(
                                         _initials(authState.userName ?? 'A'),
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 28,
                                           fontWeight: FontWeight.bold,
-                                          color: AppColors.textPrimary(context),
+                                          color: Colors.white,
                                         ),
                                       )
                                     : null,
@@ -302,10 +302,10 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                       const SizedBox(height: 10),
                       Text(
                         authState.userName ?? 'Super Admin',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 19,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary(context),
+                          color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 3),
@@ -322,7 +322,7 @@ class _AdminProfileScreenState extends ConsumerState<AdminProfileScreen> {
                         decoration: BoxDecoration(
                           color: const Color(0xFF6366F1).withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.4)),
+                          border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.5)),
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
