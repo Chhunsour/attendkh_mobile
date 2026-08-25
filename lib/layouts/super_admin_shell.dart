@@ -68,6 +68,20 @@ class SuperAdminShell extends ConsumerWidget {
                 color: const Color(0xFF0EA5E9),
                 routePath: AppRoutes.adminAnnouncements,
               ),
+              const MoreItem(
+                title: 'Login History & Security',
+                subtitle: 'Track IP addresses and device authentication logs',
+                icon: Icons.key_rounded,
+                color: Color(0xFF0EA5E9),
+                routePath: AppRoutes.adminLoginHistory,
+              ),
+              const MoreItem(
+                title: 'System Health & Server',
+                subtitle: 'Monitor Cloudways server, storage and queue jobs',
+                icon: Icons.health_and_safety_outlined,
+                color: Color(0xFF10B981),
+                routePath: AppRoutes.adminSystemHealth,
+              ),
               MoreItem(
                 title: l10n.itemAuditLogs,
                 subtitle: l10n.itemAuditLogsSubtitle,

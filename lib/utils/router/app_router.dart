@@ -35,6 +35,8 @@ import 'package:mpg_hr_mobile_app/pages/super_admin/admin_audit_logs_screen.dart
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_support_tickets_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_settings_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/super_admin_roles_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/super_admin/admin_login_history_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/super_admin/admin_system_health_screen.dart';
 
 // Company Admin imports
 import 'package:mpg_hr_mobile_app/pages/hr/admin_holidays_screen.dart';
@@ -133,6 +135,8 @@ class AppRoutes {
   static const adminCompanies = '/admin/companies';
   static const adminAnnouncements = '/admin/announcements';
   static const adminAuditLogs = '/admin/audit-logs';
+  static const adminLoginHistory = '/admin/login-history';
+  static const adminSystemHealth = '/admin/system-health';
   static const adminSupportTickets = '/admin/support-tickets';
   static const adminSettings = '/admin/settings';
   // Branch impersonation
@@ -377,6 +381,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.adminAuditLogs,
         builder: (context, state) => const AdminAuditLogsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminLoginHistory,
+        builder: (context, state) => const AdminLoginHistoryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.adminSystemHealth,
+        builder: (context, state) => const AdminSystemHealthScreen(),
       ),
       GoRoute(
         path: AppRoutes.adminSettings,
