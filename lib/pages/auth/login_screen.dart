@@ -227,43 +227,51 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             // Top Bar (Controls)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                // Subtle badge
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: (isDark ? Colors.white : AppColors.primary).withValues(alpha: isDark ? 0.08 : 0.08),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: (isDark ? Colors.white : AppColors.primary).withValues(alpha: isDark ? 0.12 : 0.15),
+                                // Subtle badge — Flexible so it shrinks on narrow screens
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: (isDark ? Colors.white : AppColors.primary).withValues(alpha: isDark ? 0.08 : 0.08),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: (isDark ? Colors.white : AppColors.primary).withValues(alpha: isDark ? 0.12 : 0.15),
+                                      ),
                                     ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Container(
-                                        width: 6,
-                                        height: 6,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFF10B981),
-                                          shape: BoxShape.circle,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 6,
+                                          height: 6,
+                                          decoration: const BoxDecoration(
+                                            color: Color(0xFF10B981),
+                                            shape: BoxShape.circle,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        'HR & Attendance',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          color: isDark ? Colors.white70 : AppColors.primary,
-                                          letterSpacing: 0.2,
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: Text(
+                                            'HR & Attendance',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w700,
+                                              color: isDark ? Colors.white70 : AppColors.primary,
+                                              letterSpacing: 0.2,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
 
-                                // Switches
+                                const SizedBox(width: 8),
+
+                                // Switches — compact mode hides text labels on small screens
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                                   decoration: BoxDecoration(
@@ -288,9 +296,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      ThemeSwitchButton(isDarkHeader: isDark),
+                                      ThemeSwitchButton(isDarkHeader: isDark, compact: true),
                                       const SizedBox(width: 4),
-                                      LanguageSwitchButton(isDark: isDark),
+                                      LanguageSwitchButton(isDark: isDark, compact: true),
                                     ],
                                   ),
                                 ),

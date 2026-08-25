@@ -131,6 +131,131 @@ class _AdminHolidaysScreenState extends State<AdminHolidaysScreen> {
     return list;
   }
 
+  void _showYearPicker() {
+    HapticFeedback.mediumImpact();
+    final currentYear = DateTime.now().year;
+    final years = List.generate(11, (i) => currentYear - 5 + i);
+    final scrollController = ScrollController(
+      initialScrollOffset: (years.indexOf(_selectedYear)).clamp(0, years.length - 1) * 56.0,
+    );
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 20,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle pill
+              Center(
+                child: Container(
+                  width: 40, height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.black12,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                'Select Year',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary(ctx),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 280,
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: years.length,
+                  itemBuilder: (ctx, i) {
+                    final year = years[i];
+                    final isSelected = year == _selectedYear;
+                    return GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() {
+                          _selectedYear = year;
+                          _focusedDay = DateTime(year, _focusedDay.month, 1);
+                        });
+                        Navigator.pop(ctx);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? const Color(0xFFF59E0B).withValues(alpha: isDark ? 0.25 : 0.15)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFFF59E0B) : Colors.transparent,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '$year',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                                color: isSelected
+                                    ? const Color(0xFFD97706)
+                                    : AppColors.textPrimary(ctx),
+                              ),
+                            ),
+                            if (year == currentYear)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  'Current',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            if (isSelected && year != currentYear)
+                              const Icon(Icons.check_circle_rounded, color: Color(0xFFF59E0B), size: 20),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _showForm([HolidayData? item, DateTime? selectedDate]) {
     HapticFeedback.mediumImpact();
     final isEdit = item != null;
@@ -758,53 +883,39 @@ class _AdminHolidaysScreenState extends State<AdminHolidaysScreen> {
                               ],
                             ),
 
-                            // Year Stepper
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.18),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      HapticFeedback.selectionClick();
-                                      setState(() {
-                                        _selectedYear--;
-                                        _focusedDay = DateTime(_selectedYear, _focusedDay.month, 1);
-                                      });
-                                    },
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(4.0),
-                                      child: Icon(Icons.chevron_left, color: Colors.white, size: 18),
-                                    ),
+                            // Year Picker Chip
+                            GestureDetector(
+                              onTap: _showYearPicker,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.22),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.3),
+                                    width: 1,
                                   ),
-                                  Text(
-                                    '$_selectedYear',
-                                    style: const TextStyle(
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '$_selectedYear',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 14,
+                                        letterSpacing: 0.3,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    const Icon(
+                                      Icons.expand_more_rounded,
                                       color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
+                                      size: 18,
                                     ),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      HapticFeedback.selectionClick();
-                                      setState(() {
-                                        _selectedYear++;
-                                        _focusedDay = DateTime(_selectedYear, _focusedDay.month, 1);
-                                      });
-                                    },
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(4.0),
-                                      child: Icon(Icons.chevron_right, color: Colors.white, size: 18),
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ],

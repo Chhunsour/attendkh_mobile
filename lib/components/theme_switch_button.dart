@@ -27,11 +27,6 @@ class ThemeSwitchButton extends ConsumerWidget {
       ThemeMode.system => Icons.brightness_auto_rounded,
     };
 
-    final String label = switch (themeMode) {
-      ThemeMode.light => 'Light',
-      ThemeMode.dark => 'Dark',
-      ThemeMode.system => 'Auto',
-    };
 
     final Color effectiveFg = isDarkHeader
         ? Colors.white
@@ -41,7 +36,7 @@ class ThemeSwitchButton extends ConsumerWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () => _showThemeSelectionSheet(context, ref),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         child: Container(
           // Apple HIG: minimum 44pt hit target.
           constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
@@ -54,49 +49,33 @@ class ThemeSwitchButton extends ConsumerWidget {
                 ? Colors.white.withAlpha(35)
                 : (isDark
                     ? AppColors.surfaceDarkElevated
-                    : AppColors.primary.withAlpha(20)),
-            borderRadius: BorderRadius.circular(20),
+                    : AppColors.primary.withAlpha(18)),
+            borderRadius: BorderRadius.circular(22),
             border: Border.all(
               color: isDarkHeader
                   ? Colors.white.withAlpha(60)
                   : (isDark
                       ? AppColors.borderDark
-                      : AppColors.primary.withAlpha(50)),
+                      : AppColors.primary.withAlpha(45)),
               width: 1,
             ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                transitionBuilder: (child, anim) => ScaleTransition(
-                  scale: anim,
-                  child: child,
-                ),
-                child: Icon(
-                  icon,
-                  key: ValueKey(themeMode),
-                  size: 15,
-                  color: isDarkHeader
-                      ? Colors.amberAccent
-                      : (themeMode == ThemeMode.light
-                          ? const Color(0xFFF59E0B)
-                          : effectiveFg),
-                ),
-              ),
-              if (!compact) ...[
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: effectiveFg,
-                  ),
-                ),
-              ],
-            ],
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            transitionBuilder: (child, anim) => ScaleTransition(
+              scale: anim,
+              child: child,
+            ),
+            child: Icon(
+              icon,
+              key: ValueKey(themeMode),
+              size: 16,
+              color: isDarkHeader
+                  ? Colors.amberAccent
+                  : (themeMode == ThemeMode.light
+                      ? const Color(0xFFF59E0B)
+                      : effectiveFg),
+            ),
           ),
         ),
       ),

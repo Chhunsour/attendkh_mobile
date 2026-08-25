@@ -83,6 +83,8 @@ flutter:
   assets:
     - assets/images/
     - assets/fonts/
+    - assets/images/flag_km.svg
+    - assets/images/flag_en.svg
 
   fonts:
     - family: GoogleSansFlex

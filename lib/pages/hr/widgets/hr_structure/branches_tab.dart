@@ -417,15 +417,17 @@ class _BranchesTabState extends ConsumerState<BranchesTab> {
   }
 
   Widget _buildItem(BuildContext context, WidgetRef ref, BranchData item) {
+    final active = item.isActive ?? true;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface(context),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(5),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withAlpha(8),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
         border: Border.all(color: AppColors.border(context)),
@@ -433,22 +435,22 @@ class _BranchesTabState extends ConsumerState<BranchesTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Row
+          // Header Row: Full width for Title & Status
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 8, 12),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: AppColors.secondaryLight,
+                    color: const Color(0xFF6366F1).withAlpha(20),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.business_rounded,
-                    color: AppColors.secondary,
+                    color: Color(0xFF6366F1),
                     size: 22,
                   ),
                 ),
@@ -457,129 +459,77 @@ class _BranchesTabState extends ConsumerState<BranchesTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+                        item.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: AppColors.textPrimary(context),
+                          height: 1.25,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
-                          Expanded(
-                            child: Text(
-                              item.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
-                                color: AppColors.textPrimary(context),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
-                              vertical: 3,
+                              vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: (item.isActive ?? true)
+                              color: active
                                   ? const Color(0xFFDCFCE7)
                                   : AppColors.grey100,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              (item.isActive ?? true) ? 'ACTIVE' : 'INACTIVE',
+                              active ? 'ACTIVE' : 'INACTIVE',
                               style: TextStyle(
-                                fontSize: 9,
+                                fontSize: 9.5,
                                 fontWeight: FontWeight.w800,
-                                color: (item.isActive ?? true)
+                                color: active
                                     ? const Color(0xFF16A34A)
                                     : AppColors.grey500,
-                                letterSpacing: 0.5,
+                                letterSpacing: 0.4,
                               ),
                             ),
                           ),
+                          if (item.code != null && item.code!.isNotEmpty) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.grey100,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                item.code!,
+                                style: const TextStyle(
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.grey600,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ],
                   ),
-                ),
-                // Actions
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.edit_rounded,
-                        size: 18,
-                        color: AppColors.secondary,
-                      ),
-                      onPressed: () => showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (_) => BranchFormDialog(branch: item),
-                      ),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.payments_rounded,
-                        size: 18,
-                        color: Colors.teal,
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BranchPayrollSettingsScreen(
-                              branchId: item.id,
-                              branchName: item.name,
-                            ),
-                          ),
-                        );
-                      },
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.menu_book_rounded,
-                        size: 18,
-                        color: AppColors.primary,
-                      ),
-                      onPressed: () async {
-                        final s = await ref.read(
-                          branchFormulasProvider(item.id).future,
-                        );
-                        if (context.mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => FormulasScreen(settings: s),
-                            ),
-                          );
-                        }
-                      },
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete_rounded,
-                        size: 18,
-                        color: AppColors.danger,
-                      ),
-                      onPressed: () =>
-                          _deleteItem(context, ref, item.id, item.name),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  ],
                 ),
               ],
             ),
           ),
 
           // Divider
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Divider(height: 1, color: AppColors.grey100),
-          ),
+          const Divider(height: 1, color: AppColors.grey100),
 
           // Info Rows
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
             child: Column(
               children: [
                 if (item.address != null && item.address!.isNotEmpty)
@@ -593,7 +543,7 @@ class _BranchesTabState extends ConsumerState<BranchesTab> {
                     Icons.gps_fixed_rounded,
                     'Coords: ${item.latitude!.toStringAsFixed(6)}, ${item.longitude!.toStringAsFixed(6)} (Radius: ${item.allowedRadiusMeters ?? 100}m)',
                   ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -630,7 +580,107 @@ class _BranchesTabState extends ConsumerState<BranchesTab> {
               ],
             ),
           ),
+
+          // Dedicated Bottom Actions Toolbar
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.grey50,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(16),
+              ),
+              border: Border(
+                top: BorderSide(color: AppColors.border(context).withAlpha(120)),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildActionBtn(
+                  icon: Icons.edit_outlined,
+                  label: 'Edit',
+                  color: const Color(0xFF6366F1),
+                  onTap: () => showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => BranchFormDialog(branch: item),
+                  ),
+                ),
+                _buildActionBtn(
+                  icon: Icons.payments_outlined,
+                  label: 'Payroll',
+                  color: Colors.teal,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BranchPayrollSettingsScreen(
+                          branchId: item.id,
+                          branchName: item.name,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                _buildActionBtn(
+                  icon: Icons.menu_book_outlined,
+                  label: 'Formulas',
+                  color: const Color(0xFFF59E0B),
+                  onTap: () async {
+                    final s = await ref.read(
+                      branchFormulasProvider(item.id).future,
+                    );
+                    if (context.mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => FormulasScreen(settings: s),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                _buildActionBtn(
+                  icon: Icons.delete_outline_rounded,
+                  label: 'Delete',
+                  color: AppColors.danger,
+                  onTap: () => _deleteItem(context, ref, item.id, item.name),
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionBtn({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 15, color: color),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

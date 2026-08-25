@@ -247,6 +247,7 @@ class _RegisterCompanyScreenState
                             // ── Top Navigation Bar ──
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Material(
                                   color: isDark
@@ -280,27 +281,35 @@ class _RegisterCompanyScreenState
                                   ),
                                 ),
 
-                                // Top Step Indicator Badge
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: (isDark ? Colors.white : AppColors.primary).withValues(alpha: isDark ? 0.08 : 0.08),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: (isDark ? Colors.white : AppColors.primary).withValues(alpha: isDark ? 0.12 : 0.15),
+                                const SizedBox(width: 8),
+
+                                // Top Step Indicator Badge — Flexible so it shrinks on narrow screens
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: (isDark ? Colors.white : AppColors.primary).withValues(alpha: isDark ? 0.08 : 0.08),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: (isDark ? Colors.white : AppColors.primary).withValues(alpha: isDark ? 0.12 : 0.15),
+                                      ),
                                     ),
-                                  ),
-                                  child: Text(
-                                    _step == 1 ? 'Step 1: Admin Profile' : 'Step 2: Company Info',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: isDark ? Colors.white70 : AppColors.primary,
+                                    child: Text(
+                                      _step == 1 ? 'Step 1: Admin Profile' : 'Step 2: Company Info',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: isDark ? Colors.white70 : AppColors.primary,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                   ),
                                 ),
 
-                                // Switches
+                                const SizedBox(width: 8),
+
+                                // Switches — compact mode hides text labels on small screens
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                                   decoration: BoxDecoration(
@@ -317,9 +326,9 @@ class _RegisterCompanyScreenState
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      ThemeSwitchButton(isDarkHeader: isDark),
+                                      ThemeSwitchButton(isDarkHeader: isDark, compact: true),
                                       const SizedBox(width: 4),
-                                      LanguageSwitchButton(isDark: isDark),
+                                      LanguageSwitchButton(isDark: isDark, compact: true),
                                     ],
                                   ),
                                 ),
