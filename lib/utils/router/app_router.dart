@@ -66,6 +66,7 @@ import 'package:mpg_hr_mobile_app/pages/hr/admin_company_announcements_screen.da
 import 'package:mpg_hr_mobile_app/pages/hr/company_owner_profile_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/notifications_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/notification_detail_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/support/user_support_tickets_screen.dart';
 import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/branch_manager_view_screen.dart';
 
@@ -96,6 +97,7 @@ class AppRoutes {
   static const companyRules = '/main/company-rules';
   static const companyPolicies = '/main/policies';
   static const companyDocuments = '/main/documents';
+  static const userSupportTickets = '/main/support-tickets';
 
   // Super Admin
   static const admin = '/admin';
@@ -343,6 +345,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.companyDocuments,
         builder: (context, state) => const DocumentsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.userSupportTickets,
+        builder: (context, state) => const UserSupportTicketsScreen(),
       ),
       GoRoute(
         path: AppRoutes.profile,

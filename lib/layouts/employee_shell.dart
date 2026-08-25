@@ -117,6 +117,13 @@ class EmployeeShell extends ConsumerWidget {
                 color: const Color(0xFFEF4444),
                 routePath: AppRoutes.notifications,
               ),
+              const MoreItem(
+                title: 'Help & Support Desk',
+                subtitle: 'Submit support tickets directly to Super Admin',
+                icon: Icons.support_agent_rounded,
+                color: Color(0xFF10B981),
+                routePath: AppRoutes.userSupportTickets,
+              ),
             ],
           ),
         ),
