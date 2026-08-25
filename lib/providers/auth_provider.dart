@@ -43,6 +43,10 @@ class AuthState {
       roles.contains('admin') ||
       roles.contains('company_owner');
   bool get isBranchManager => roles.contains('branch_manager');
+  bool get isHrManager => roles.contains('hr_manager');
+  bool get isDepartmentHead => roles.contains('department_head');
+  bool get isManager =>
+      isCompanyAdmin || isBranchManager || isHrManager || isDepartmentHead;
 
   /// True when the auth state has enough data to consider the user logged in
   bool get hasLocalSession =>
@@ -341,4 +345,12 @@ final isSuperAdminProvider = Provider<bool>((ref) {
 
 final isBranchManagerProvider = Provider<bool>((ref) {
   return ref.watch(authProvider).isBranchManager;
+});
+
+final isHrManagerProvider = Provider<bool>((ref) {
+  return ref.watch(authProvider).isHrManager;
+});
+
+final isDepartmentHeadProvider = Provider<bool>((ref) {
+  return ref.watch(authProvider).isDepartmentHead;
 });

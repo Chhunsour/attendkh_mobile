@@ -229,7 +229,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return target;
         }
         if (isVisitingCompanyAdmin &&
-            !(authState.isCompanyAdmin || authState.isBranchManager)) {
+            !(authState.isCompanyAdmin || authState.isManager)) {
           final target = authState.isSuperAdmin
               ? AppRoutes.adminDashboard
               : AppRoutes.main;
@@ -243,7 +243,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             location != AppRoutes.profile &&
             location != AppRoutes.editProfile &&
             (authState.isSuperAdmin ||
-                (authState.isCompanyAdmin && !authState.isBranchManager))) {
+                (authState.isCompanyAdmin && !authState.isManager))) {
           final target = authState.isSuperAdmin
               ? AppRoutes.adminDashboard
               : AppRoutes.companyAdmin;

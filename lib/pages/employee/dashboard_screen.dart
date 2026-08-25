@@ -724,7 +724,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                         _buildQuickActionsGrid(
                           context,
                           l10n,
-                          authState.isBranchManager,
+                          authState.isManager,
                         ),
                         const SizedBox(height: 26),
                         summaryAsync.maybeWhen(
@@ -2047,13 +2047,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   Widget _buildQuickActionsGrid(
     BuildContext context,
     AppLocalizations l10n,
-    bool isBranchManager,
+    bool isManager,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final Color line = isDark ? AppColors.borderDark : AppColors.borderLight;
 
     final items = <_QuickAction>[
-      if (isBranchManager)
+      if (isManager)
         _QuickAction(
           label: l10n.managerPortal,
           icon: Icons.admin_panel_settings_rounded,
@@ -2084,7 +2084,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         color: AppColors.warning,
         onTap: () => context.push(AppRoutes.expense),
       ),
-      if (!isBranchManager)
+      if (!isManager)
         _QuickAction(
           label: l10n.holidays,
           icon: Icons.celebration_rounded,
@@ -2093,9 +2093,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         ),
       _QuickAction(
         label: l10n.more,
-        icon: Icons.grid_view_rounded,
-        color: isDark ? AppColors.grey400 : AppColors.grey500,
-        onTap: () => _showMoreServicesSheet(context, l10n, isBranchManager),
+        icon: Icons.apps_rounded,
+        color: AppColors.primary,
+        onTap: () => _showMoreServicesSheet(context, l10n, isManager),
       ),
     ];
 
@@ -2187,7 +2187,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
   void _showMoreServicesSheet(
     BuildContext context,
     AppLocalizations l10n,
-    bool isBranchManager,
+    bool isManager,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final Color sheetIconBg = isDark
