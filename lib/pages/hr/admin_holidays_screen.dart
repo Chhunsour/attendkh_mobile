@@ -1220,6 +1220,7 @@ class _AdminHolidaysScreenState extends State<AdminHolidaysScreen> {
         lastDay: DateTime.utc(2030, 12, 31),
         focusedDay: _focusedDay,
         calendarFormat: _calendarFormat,
+        availableGestures: AvailableGestures.horizontalSwipe,
         availableCalendarFormats: const {
           CalendarFormat.month: 'Month',
           CalendarFormat.twoWeeks: '2 Weeks',

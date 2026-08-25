@@ -172,256 +172,257 @@ class _AdminEmployeeDetailScreenState
           Icons.help_outline_rounded,
         );
 
-    return Column(
-      children: [
-        // ── Top Profile Header ──────────────────────────────────────────────
-        Container(
-          width: double.infinity,
-          color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-          child: Column(
-            children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withAlpha(15),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: cfg.color.withAlpha(60),
-                        width: 3,
+    // ── NestedScrollView: profile header scrolls away; TabBar pins ──────────
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        SliverToBoxAdapter(
+          child: Container(
+            width: double.infinity,
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            child: Column(
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withAlpha(15),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: cfg.color.withAlpha(60),
+                          width: 3,
+                        ),
                       ),
-                    ),
-                    child: emp.avatar != null && emp.avatar!.isNotEmpty
-                        ? ClipOval(
-                            child: CachedNetworkImage(
-                              imageUrl: emp.avatar!.startsWith('http')
-                                  ? emp.avatar!
-                                  : '${DioClient.storageUrl}/${emp.avatar!.startsWith('/') ? emp.avatar!.substring(1) : emp.avatar!}',
-                              fit: BoxFit.cover,
-                              memCacheWidth: 240,
-                              memCacheHeight: 240,
-                              placeholder: (ctx, url) => const Center(
-                                child: SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                      child: emp.avatar != null && emp.avatar!.isNotEmpty
+                          ? ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl: emp.avatar!.startsWith('http')
+                                    ? emp.avatar!
+                                    : '${DioClient.storageUrl}/${emp.avatar!.startsWith('/') ? emp.avatar!.substring(1) : emp.avatar!}',
+                                fit: BoxFit.cover,
+                                memCacheWidth: 240,
+                                memCacheHeight: 240,
+                                placeholder: (ctx, url) => const Center(
+                                  child: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                                  ),
                                 ),
-                              ),
-                              errorWidget: (ctx, url, err) => Center(
-                                child: Text(
-                                  emp.name.isNotEmpty
-                                      ? emp.name.substring(0, 1).toUpperCase()
-                                      : 'E',
-                                  style: const TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.primary,
+                                errorWidget: (ctx, url, err) => Center(
+                                  child: Text(
+                                    emp.name.isNotEmpty
+                                        ? emp.name.substring(0, 1).toUpperCase()
+                                        : 'E',
+                                    style: const TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.primary,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          )
-                        : Center(
-                            child: Text(
-                              emp.name.isNotEmpty
-                                  ? emp.name.substring(0, 1).toUpperCase()
-                                  : 'E',
-                              style: const TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.primary,
+                            )
+                          : Center(
+                              child: Text(
+                                emp.name.isNotEmpty
+                                    ? emp.name.substring(0, 1).toUpperCase()
+                                    : 'E',
+                                style: const TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.primary,
+                                ),
                               ),
                             ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cfg.bg,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: cfg.color.withAlpha(60),
+                            width: 1.5,
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(8),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(cfg.icon, size: 10, color: cfg.color),
+                            const SizedBox(width: 4),
+                            Text(
+                              status.replaceAll('_', ' ').toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                                color: cfg.color,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  emp.name,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary(context),
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 4,
-                    child: Container(
+                ),
+                if (emp.khmerName != null && emp.khmerName!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    emp.khmerName!,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.grey500,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
+                        horizontal: 8,
+                        vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: cfg.bg,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: cfg.color.withAlpha(60),
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(8),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(cfg.icon, size: 10, color: cfg.color),
-                          const SizedBox(width: 4),
-                          Text(
-                            status.replaceAll('_', ' ').toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                              color: cfg.color,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        emp.position != null
+                            ? '${emp.position}${emp.positionLevel != null ? ' (${emp.positionLevel})' : ''}'
+                            : l10n.noPosition,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                emp.name,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary(context),
+                    const SizedBox(width: 8),
+                    Text(
+                      emp.department ?? l10n.noDepartment,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.grey500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              if (emp.khmerName != null && emp.khmerName!.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  emp.khmerName!,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.grey500,
-                  ),
+                const SizedBox(height: 10),
+                // ── Quick info badges: type, branch, team ──
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    if (emp.employmentType != null)
+                      _buildQuickBadge(
+                        Icons.work_outline_rounded,
+                        _capitalize(emp.employmentType!),
+                        AppColors.secondary,
+                        AppColors.secondary.withAlpha(15),
+                      ),
+                    if (emp.branch != null)
+                      _buildQuickBadge(
+                        Icons.location_on_outlined,
+                        emp.branch!,
+                        AppColors.grey600,
+                        AppColors.grey50,
+                      ),
+                    if (emp.team != null)
+                      _buildQuickBadge(
+                        Icons.group_outlined,
+                        emp.team!,
+                        AppColors.grey600,
+                        AppColors.grey50,
+                      ),
+                  ],
                 ),
               ],
-              const SizedBox(height: 6),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      emp.position != null
-                          ? '${emp.position}${emp.positionLevel != null ? ' (${emp.positionLevel})' : ''}'
-                          : l10n.noPosition,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    emp.department ?? l10n.noDepartment,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.grey500,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              // ── Quick info badges: type, branch, team ──
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  if (emp.employmentType != null)
-                    _buildQuickBadge(
-                      Icons.work_outline_rounded,
-                      _capitalize(emp.employmentType!),
-                      AppColors.secondary,
-                      AppColors.secondary.withAlpha(15),
-                    ),
-                  if (emp.branch != null)
-                    _buildQuickBadge(
-                      Icons.location_on_outlined,
-                      emp.branch!,
-                      AppColors.grey600,
-                      AppColors.grey50,
-                    ),
-                  if (emp.team != null)
-                    _buildQuickBadge(
-                      Icons.group_outlined,
-                      emp.team!,
-                      AppColors.grey600,
-                      AppColors.grey50,
-                    ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
 
-        // ── Tab Bar Navigation ─────────────────────────────────────────────
-        Container(
-          color: Colors.white,
-          child: TabBar(
-            controller: _tabController,
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.grey500,
-            indicatorColor: AppColors.primary,
-            indicatorWeight: 3,
-            indicatorSize: TabBarIndicatorSize.tab,
-            labelStyle: const TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
+        // ── Sticky Tab Bar ─────────────────────────────────────────────────
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _StickyTabBarDelegate(
+            TabBar(
+              controller: _tabController,
+              labelColor: AppColors.primary,
+              unselectedLabelColor: AppColors.grey500,
+              indicatorColor: AppColors.primary,
+              indicatorWeight: 3,
+              indicatorSize: TabBarIndicatorSize.tab,
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+              tabs: [
+                Tab(
+                  text: l10n.tabInfo,
+                  icon: const Icon(Icons.info_outline_rounded, size: 20),
+                ),
+                Tab(
+                  text: l10n.tabLeaves,
+                  icon: const Icon(Icons.calendar_today_rounded, size: 20),
+                ),
+                Tab(
+                  text: l10n.tabLogs,
+                  icon: const Icon(Icons.history_rounded, size: 20),
+                ),
+                Tab(
+                  text: l10n.tabContact,
+                  icon: const Icon(Icons.contact_phone_rounded, size: 20),
+                ),
+              ],
             ),
-            unselectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-            ),
-            tabs: [
-              Tab(
-                text: l10n.tabInfo,
-                icon: const Icon(Icons.info_outline_rounded, size: 20),
-              ),
-              Tab(
-                text: l10n.tabLeaves,
-                icon: const Icon(Icons.calendar_today_rounded, size: 20),
-              ),
-              Tab(
-                text: l10n.tabLogs,
-                icon: const Icon(Icons.history_rounded, size: 20),
-              ),
-              Tab(
-                text: l10n.tabContact,
-                icon: const Icon(Icons.contact_phone_rounded, size: 20),
-              ),
-            ],
-          ),
-        ),
-
-        // ── Tab Views ──────────────────────────────────────────────────────
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildInfoTab(emp, l10n),
-              _buildLeavesTab(emp, l10n),
-              _buildAttendanceTab(emp, l10n),
-              _buildEmergencyTab(emp, l10n),
-            ],
           ),
         ),
       ],
+      // ── Tab Views ────────────────────────────────────────────────────────
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildInfoTab(emp, l10n),
+          _buildLeavesTab(emp, l10n),
+          _buildAttendanceTab(emp, l10n),
+          _buildEmergencyTab(emp, l10n),
+        ],
+      ),
     );
   }
 
@@ -1024,7 +1025,7 @@ class _AdminEmployeeDetailScreenState
     final rel = contact?['relationship'] as String?;
     final phone = contact?['phone'] as String?;
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1255,4 +1256,33 @@ class _AdminEmployeeDetailScreenState
       ),
     );
   }
+}
+
+/// Delegate that pins the [TabBar] as a sticky header inside [NestedScrollView].
+class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
+  const _StickyTabBarDelegate(this.tabBar);
+
+  final TabBar tabBar;
+
+  @override
+  double get minExtent => tabBar.preferredSize.height;
+
+  @override
+  double get maxExtent => tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: Colors.white,
+      child: tabBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_StickyTabBarDelegate oldDelegate) =>
+      tabBar != oldDelegate.tabBar;
 }
