@@ -171,14 +171,14 @@ class ProfileRepository {
   }) async {
     try {
       final Map<String, dynamic> data = {
-        'name': name,
-        'full_name': fullName,
-        'khmer_name': khmerName,
-        'email': email,
-        'phone': phone,
-        'gender': gender,
-        'date_of_birth': dateOfBirth,
-        'address': address,
+        'name': ?name,
+        'full_name': ?fullName,
+        'khmer_name': ?khmerName,
+        'email': ?email,
+        'phone': ?phone,
+        'gender': ?gender,
+        'date_of_birth': ?dateOfBirth,
+        'address': ?address,
         'marital_status': ?maritalStatus,
         'bank_name': ?bankName,
         'bank_account': ?bankAccount,
