@@ -417,7 +417,7 @@ class _AdminAnnouncementsScreenState
               PopupMenuButton<String>(
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                color: AppColors.textPrimary(context),
+                color: AppColors.surface(context),
                 surfaceTintColor: Colors.transparent,
                 elevation: 8,
                 icon: const Icon(
@@ -440,7 +440,14 @@ class _AdminAnnouncementsScreenState
                       children: [
                         const Icon(Icons.edit_rounded, size: 18, color: Color(0xFF0EA5E9)),
                         const SizedBox(width: 10),
-                        Text(l10n.actionEdit, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                        Text(
+                          l10n.actionEdit,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary(context),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -452,7 +459,14 @@ class _AdminAnnouncementsScreenState
                       children: [
                         const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.danger),
                         const SizedBox(width: 10),
-                        Text(l10n.btnDelete, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.danger)),
+                        Text(
+                          l10n.btnDelete,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.danger,
+                          ),
+                        ),
                       ],
                     ),
                   ),

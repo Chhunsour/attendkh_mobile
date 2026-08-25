@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-// removed
+import 'package:url_launcher/url_launcher.dart';
 import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -33,6 +33,21 @@ String _getLogoUrl(String logo) {
     cleanPath = cleanPath.substring(1);
   }
   return '${DioClient.storageUrl}/$cleanPath';
+}
+
+Color _getPlanColor(String? plan) {
+  switch ((plan ?? 'starter').toLowerCase()) {
+    case 'trial':
+      return const Color(0xFFF59E0B);
+    case 'professional':
+    case 'pro':
+      return const Color(0xFF6366F1);
+    case 'enterprise':
+      return const Color(0xFF8B5CF6);
+    case 'starter':
+    default:
+      return const Color(0xFF10B981);
+  }
 }
 
 class CompanyLogoImage extends StatelessWidget {
@@ -577,6 +592,23 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
               ),
               const SizedBox(width: 8),
               Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: _getPlanColor(company.plan).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: _getPlanColor(company.plan).withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  (company.plan ?? 'starter').toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    color: _getPlanColor(company.plan),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: (isActive ? AppColors.success : AppColors.danger).withValues(alpha: 0.12),
@@ -607,7 +639,7 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                color: AppColors.textPrimary(context),
+                color: AppColors.surface(context),
                 surfaceTintColor: Colors.transparent,
                 elevation: 8,
                 position: PopupMenuPosition.under,
@@ -628,6 +660,12 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                 onSelected: (action) {
                   if (action == 'edit') {
                     _showCreateEditDialog(context, ref, company: company);
+                  } else if (action == 'impersonate') {
+                    _confirmImpersonate(context, company);
+                  } else if (action == 'announcement') {
+                    _showSendAnnouncementDialog(context, company);
+                  } else if (action == 'reset_password') {
+                    _confirmResetOwnerPassword(context, ref, company);
                   } else if (action == 'suspend') {
                     _confirmSuspend(context, ref, company);
                   } else if (action == 'activate') {
@@ -646,7 +684,68 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                       children: [
                         const Icon(Icons.edit_rounded, size: 18, color: Color(0xFF6366F1)),
                         const SizedBox(width: 10),
-                        Text(l10n.actionEdit, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                        Text(
+                          l10n.actionEdit,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'impersonate',
+                    height: 42,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.login_rounded, size: 18, color: Color(0xFF059669)),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Login as Company',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'announcement',
+                    height: 42,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.campaign_rounded, size: 18, color: Color(0xFFD97706)),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Send Broadcast',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'reset_password',
+                    height: 42,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.lock_reset_rounded, size: 18, color: Color(0xFF8B5CF6)),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Reset Password',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary(context),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -657,7 +756,14 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                       children: [
                         const Icon(Icons.bar_chart_rounded, size: 18, color: Color(0xFF0EA5E9)),
                         const SizedBox(width: 10),
-                        Text(l10n.actionStats, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                        Text(
+                          l10n.actionStats,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary(context),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -669,7 +775,14 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                         children: [
                           const Icon(Icons.block_rounded, size: 18, color: AppColors.danger),
                           const SizedBox(width: 10),
-                          Text(l10n.actionSuspend, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.danger)),
+                          Text(
+                            l10n.actionSuspend,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.danger,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -681,7 +794,14 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                         children: [
                           const Icon(Icons.check_circle_rounded, size: 18, color: AppColors.success),
                           const SizedBox(width: 10),
-                          Text(l10n.actionActivate, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.success)),
+                          Text(
+                            l10n.actionActivate,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.success,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -693,7 +813,14 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
                       children: [
                         const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.danger),
                         const SizedBox(width: 10),
-                        Text(l10n.actionDelete, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.danger)),
+                        Text(
+                          l10n.actionDelete,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.danger,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -701,7 +828,410 @@ class _AdminCompaniesScreenState extends ConsumerState<AdminCompaniesScreen> {
               ),
             ],
           ),
+          if ((company.phone != null && company.phone!.isNotEmpty) ||
+              (company.address != null && company.address!.isNotEmpty) ||
+              (company.businessType != null && company.businessType!.isNotEmpty)) ...[
+            const SizedBox(height: 10),
+            const Divider(height: 1, thickness: 0.7, color: AppColors.grey100),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                if (company.phone != null && company.phone!.isNotEmpty)
+                  InkWell(
+                    onTap: () => _launchExternal(context, 'tel:${company.phone}'),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.grey50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.border(context)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.phone_rounded, size: 13, color: Color(0xFF10B981)),
+                          const SizedBox(width: 4),
+                          Text(
+                            company.phone!,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary(context),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                if ((company.address != null && company.address!.isNotEmpty) ||
+                    (company.mapUrl != null && company.mapUrl!.isNotEmpty))
+                  InkWell(
+                    onTap: () => _launchCompanyMap(context, company),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.grey50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.border(context)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.location_on_rounded, size: 13, color: Color(0xFFEF4444)),
+                          const SizedBox(width: 4),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 160),
+                            child: Text(
+                              company.address ?? 'View on Map',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textPrimary(context),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (company.telegramEnabled == true &&
+                    company.telegramBotToken != null &&
+                    company.telegramBotToken!.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.send_rounded, size: 12, color: Color(0xFF0284C7)),
+                        SizedBox(width: 4),
+                        Text(
+                          'Telegram Bot',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0284C7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (company.businessType != null && company.businessType!.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.grey100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      company.businessType!,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.grey600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ],
+      ),
+    );
+  }
+
+  Future<void> _launchExternal(BuildContext context, String urlString) async {
+    try {
+      final uri = Uri.parse(urlString);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not open link')),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error opening link: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _launchCompanyMap(BuildContext context, AdminCompany company) async {
+    if (company.mapUrl != null && company.mapUrl!.isNotEmpty) {
+      await _launchExternal(context, company.mapUrl!);
+      return;
+    }
+    if (company.latitude != null && company.longitude != null) {
+      await _launchExternal(
+        context,
+        'https://www.google.com/maps/search/?api=1&query=${company.latitude},${company.longitude}',
+      );
+      return;
+    }
+    if (company.address != null && company.address!.isNotEmpty) {
+      await _launchExternal(
+        context,
+        'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(company.address!)}',
+      );
+    }
+  }
+
+  Future<void> _confirmResetOwnerPassword(
+    BuildContext context,
+    WidgetRef ref,
+    AdminCompany company,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.lock_reset_rounded, color: Color(0xFF6366F1), size: 22),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Reset Password',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary(context),
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Generate a new password for the owner account of "${company.name}"?',
+          style: const TextStyle(fontSize: 13.5, color: AppColors.grey600),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6366F1),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Reset Password'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      try {
+        final result = await AdminCompaniesRepository().resetOwnerPassword(company.id);
+        if (context.mounted) {
+          final ownerEmail = result['email']?.toString() ?? company.email ?? '';
+          final ownerPassword = result['password']?.toString() ?? '';
+          _showCompanyCreatedDialog(
+            context: context,
+            companyName: company.name,
+            email: ownerEmail,
+            password: ownerPassword,
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to reset password: $e'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _confirmImpersonate(
+    BuildContext context,
+    AdminCompany company,
+  ) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.login_rounded, color: Color(0xFF059669)),
+            SizedBox(width: 8),
+            Text('Login as Company'),
+          ],
+        ),
+        content: Text(
+          'Login into "${company.name}" workspace as Company Owner to inspect and manage their system?',
+          style: const TextStyle(fontSize: 13.5, color: AppColors.grey600),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF059669),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Impersonate'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      try {
+        await AdminCompaniesRepository().impersonateCompany(company.id);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Authenticated into ${company.name} workspace!'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to impersonate: $e'),
+              backgroundColor: AppColors.danger,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _showSendAnnouncementDialog(
+    BuildContext context,
+    AdminCompany company,
+  ) async {
+    final titleCtrl = TextEditingController();
+    final msgCtrl = TextEditingController();
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface(ctx),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.campaign_rounded, color: Color(0xFFD97706), size: 24),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Broadcast to ${company.name}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary(ctx),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: titleCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Notification Title',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: msgCtrl,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: 'Message Body',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 46,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (titleCtrl.text.trim().isEmpty || msgCtrl.text.trim().isEmpty) return;
+                    Navigator.pop(ctx);
+                    try {
+                      await AdminCompaniesRepository().sendAnnouncement(
+                        company.id,
+                        title: titleCtrl.text.trim(),
+                        message: msgCtrl.text.trim(),
+                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Broadcast sent to ${company.name} staff!'),
+                            backgroundColor: AppColors.success,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Failed to send broadcast: $e'),
+                            backgroundColor: AppColors.danger,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFD97706),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Send Broadcast', style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -925,8 +1455,19 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
   late final TextEditingController _telegramBotTokenCtrl;
   late final TextEditingController _telegramChatIdCtrl;
   late final TextEditingController _mapUrlCtrl;
+  late final TextEditingController _maxEmployeesCtrl;
   String _selectedTimezone = 'Asia/Phnom_Penh';
   String _selectedCurrency = 'USD';
+  String _selectedPlan = 'starter';
+  DateTime? _planExpiresAt;
+  List<String> _enabledModules = [
+    'attendance',
+    'leave',
+    'payroll',
+    'recruitment',
+    'performance',
+    'assets',
+  ];
   String _status = 'active';
   bool _isSaving = false;
   bool _isLoadingLocation = false;
@@ -970,6 +1511,12 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     );
     _telegramChatIdCtrl = TextEditingController(text: c?.telegramChatId ?? '');
     _mapUrlCtrl = TextEditingController(text: c?.mapUrl ?? '');
+    _maxEmployeesCtrl = TextEditingController(text: c?.maxEmployees?.toString() ?? '');
+    _selectedPlan = c?.plan ?? 'starter';
+    _planExpiresAt = c?.planExpiresAt != null ? DateTime.tryParse(c!.planExpiresAt!) : null;
+    if (c?.enabledModules != null && c!.enabledModules!.isNotEmpty) {
+      _enabledModules = List<String>.from(c.enabledModules!);
+    }
     _isVatRegistered = c?.isVatRegistered ?? false;
     _telegramEnabled = c?.telegramEnabled ?? false;
     _latitude = c?.latitude;
@@ -1006,6 +1553,7 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
     _telegramBotTokenCtrl.dispose();
     _telegramChatIdCtrl.dispose();
     _mapUrlCtrl.dispose();
+    _maxEmployeesCtrl.dispose();
     super.dispose();
   }
 
@@ -1179,6 +1727,10 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
         'map_url': _mapUrlCtrl.text.trim(),
         'latitude': _latitude,
         'longitude': _longitude,
+        'plan': _selectedPlan,
+        'plan_expires_at': _planExpiresAt != null ? "${_planExpiresAt!.year.toString().padLeft(4, '0')}-${_planExpiresAt!.month.toString().padLeft(2, '0')}-${_planExpiresAt!.day.toString().padLeft(2, '0')}" : null,
+        'max_employees': _maxEmployeesCtrl.text.trim().isNotEmpty ? int.tryParse(_maxEmployeesCtrl.text.trim()) : null,
+        'enabled_modules': _enabledModules,
       };
 
       if (_adminNameCtrl.text.trim().isNotEmpty) {
@@ -2284,6 +2836,172 @@ class _CompanyFormSheetState extends ConsumerState<_CompanyFormSheet> {
                       ),
                     ),
                     const SizedBox(height: 14),
+
+                    // Subscription Plan & Module Access Card
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface(context),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.border(context)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.workspace_premium_rounded, size: 20, color: Color(0xFF6366F1)),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Subscription & Module Access',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary(context),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          // Plan selection dropdown
+                          const Text(
+                            'Subscription Plan',
+                            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                          ),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            initialValue: ['trial', 'starter', 'professional', 'enterprise'].contains(_selectedPlan) ? _selectedPlan : 'starter',
+                            isExpanded: true,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
+                              filled: true,
+                              fillColor: AppColors.backgroundLight,
+                            ),
+                            items: const [
+                              DropdownMenuItem(value: 'trial', child: Text('Trial (30 Days)')),
+                              DropdownMenuItem(value: 'starter', child: Text('Starter')),
+                              DropdownMenuItem(value: 'professional', child: Text('Professional')),
+                              DropdownMenuItem(value: 'enterprise', child: Text('Enterprise')),
+                            ],
+                            onChanged: (v) {
+                              if (v != null) setState(() => _selectedPlan = v);
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          // Expiry Date & Max Employees (Row)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Plan Expiry Date', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                    const SizedBox(height: 6),
+                                    InkWell(
+                                      onTap: () async {
+                                        final now = DateTime.now();
+                                        final picked = await showDatePicker(
+                                          context: context,
+                                          initialDate: _planExpiresAt ?? now.add(const Duration(days: 30)),
+                                          firstDate: now.subtract(const Duration(days: 365)),
+                                          lastDate: now.add(const Duration(days: 3650)),
+                                        );
+                                        if (picked != null) setState(() => _planExpiresAt = picked);
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.backgroundLight,
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: AppColors.border(context)),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              _planExpiresAt != null
+                                                  ? "${_planExpiresAt!.year}-${_planExpiresAt!.month.toString().padLeft(2, '0')}-${_planExpiresAt!.day.toString().padLeft(2, '0')}"
+                                                  : 'Unlimited',
+                                              style: const TextStyle(fontSize: 12.5),
+                                            ),
+                                            const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.grey500),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Max Staff Limit', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.grey600)),
+                                    const SizedBox(height: 6),
+                                    TextField(
+                                      controller: _maxEmployeesCtrl,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                        hintText: 'e.g. 50',
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                        filled: true,
+                                        fillColor: AppColors.backgroundLight,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          const Text(
+                            'Enabled Modules',
+                            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.grey600),
+                          ),
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              'attendance',
+                              'leave',
+                              'payroll',
+                              'recruitment',
+                              'performance',
+                              'assets',
+                            ].map((mod) {
+                              final isSelected = _enabledModules.contains(mod);
+                              return FilterChip(
+                                label: Text(
+                                  mod[0].toUpperCase() + mod.substring(1),
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    color: isSelected ? const Color(0xFF6366F1) : AppColors.grey600,
+                                  ),
+                                ),
+                                selected: isSelected,
+                                selectedColor: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                                checkmarkColor: const Color(0xFF6366F1),
+                                onSelected: (val) {
+                                  setState(() {
+                                    if (val) {
+                                      _enabledModules.add(mod);
+                                    } else {
+                                      _enabledModules.remove(mod);
+                                    }
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
                     // Status dropdown (after Telegram — matches web)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2665,50 +3383,305 @@ class _CompanyStatsSheetState extends State<_CompanyStatsSheet> {
                   )
                 : SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: _stats.entries.map((e) {
-                        final value = e.value.toString();
-                        final label = e.key
-                            .replaceAll('_', ' ')
-                            .split(' ')
-                            .map((w) => w[0].toUpperCase() + w.substring(1))
-                            .join(' ');
-                        return Container(
-                          width: (MediaQuery.of(context).size.width - 52) / 2,
-                          padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Subscription Plan Overview Card
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: AppColors.grey50,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.border(context)),
+                            gradient: LinearGradient(
+                              colors: [
+                                _getPlanColor(widget.company.plan).withValues(alpha: 0.12),
+                                _getPlanColor(widget.company.plan).withValues(alpha: 0.04),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: _getPlanColor(widget.company.plan).withValues(alpha: 0.25)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                value,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary(context),
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.workspace_premium_rounded, color: _getPlanColor(widget.company.plan), size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '${(widget.company.plan ?? 'starter').toUpperCase()} PLAN',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 13,
+                                          color: _getPlanColor(widget.company.plan),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (widget.company.maxEmployees != null)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        'Quota: ${widget.company.maxEmployees} staff',
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.grey700),
+                                      ),
+                                    ),
+                                ],
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                label,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.grey500,
-                                  fontWeight: FontWeight.w500,
+                              if (widget.company.planExpiresAt != null) ...[
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Expires on: ${widget.company.planExpiresAt}',
+                                  style: const TextStyle(fontSize: 11.5, color: AppColors.grey600),
                                 ),
-                              ),
+                              ],
+                              if (widget.company.enabledModules != null && widget.company.enabledModules!.isNotEmpty) ...[
+                                const SizedBox(height: 10),
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 4,
+                                  children: widget.company.enabledModules!.map((m) => Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.8),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      m,
+                                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: AppColors.grey700),
+                                    ),
+                                  )).toList(),
+                                ),
+                              ],
                             ],
                           ),
-                        );
-                      }).toList(),
+                        ),
+
+                        // Core metrics grid
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            _buildStatTile(
+                              context,
+                              'Total Employees',
+                              _stats['total_employees']?.toString() ?? '0',
+                              Icons.people_alt_rounded,
+                              const Color(0xFF6366F1),
+                            ),
+                            _buildStatTile(
+                              context,
+                              'Active Employees',
+                              _stats['active_employees']?.toString() ?? '0',
+                              Icons.check_circle_rounded,
+                              const Color(0xFF10B981),
+                            ),
+                            _buildStatTile(
+                              context,
+                              'Departments',
+                              _stats['total_departments']?.toString() ?? '0',
+                              Icons.domain_rounded,
+                              const Color(0xFFF59E0B),
+                            ),
+                            _buildStatTile(
+                              context,
+                              'Branches',
+                              _stats['total_branches']?.toString() ?? '0',
+                              Icons.storefront_rounded,
+                              const Color(0xFF0EA5E9),
+                            ),
+                            _buildStatTile(
+                              context,
+                              'Teams',
+                              _stats['total_teams']?.toString() ?? '0',
+                              Icons.groups_rounded,
+                              const Color(0xFF8B5CF6),
+                            ),
+                          ],
+                        ),
+
+                        // Owner card if available
+                        if (_stats['owner'] is Map) ...[
+                          const SizedBox(height: 18),
+                          Text(
+                            'Company Owner',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary(context),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: AppColors.grey50,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: AppColors.border(context)),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.person_rounded, color: Color(0xFF6366F1), size: 22),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        (_stats['owner'] as Map)['name']?.toString() ?? 'Owner',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          color: AppColors.textPrimary(context),
+                                        ),
+                                      ),
+                                      Text(
+                                        (_stats['owner'] as Map)['email']?.toString() ?? '',
+                                        style: const TextStyle(fontSize: 12, color: AppColors.grey500),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+
+                        // Branches breakdown
+                        if (_stats['branches'] is List && (_stats['branches'] as List).isNotEmpty) ...[
+                          const SizedBox(height: 18),
+                          Text(
+                            'Branches (${(_stats['branches'] as List).length})',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary(context),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          ...(_stats['branches'] as List).map((b) {
+                            final bMap = b is Map ? b : {};
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.grey50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.border(context)),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.location_city_rounded, size: 20, color: Color(0xFF0EA5E9)),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          bMap['name']?.toString() ?? 'Branch',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                            color: AppColors.textPrimary(context),
+                                          ),
+                                        ),
+                                        if (bMap['address'] != null && bMap['address'].toString().isNotEmpty)
+                                          Text(
+                                            bMap['address'].toString(),
+                                            style: const TextStyle(fontSize: 11.5, color: AppColors.grey500),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (bMap['phone'] != null && bMap['phone'].toString().isNotEmpty)
+                                    Text(
+                                      bMap['phone'].toString(),
+                                      style: const TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF10B981),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                        const SizedBox(height: 20),
+                      ],
                     ),
                   ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatTile(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      width: (MediaQuery.of(context).size.width - 52) / 2,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.grey50,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary(context),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 16, color: color),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11.5,
+              color: AppColors.grey500,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

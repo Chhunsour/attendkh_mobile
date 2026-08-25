@@ -11,6 +11,10 @@ class AdminCompany {
   final String? currency;
   final List<dynamic>? socialMedia;
   final String? status;
+  final String? plan;
+  final String? planExpiresAt;
+  final int? maxEmployees;
+  final List<String>? enabledModules;
   final String? logo;
   final String? createdAt;
   final String? businessType;
@@ -34,6 +38,10 @@ class AdminCompany {
     this.currency,
     this.socialMedia,
     this.status,
+    this.plan,
+    this.planExpiresAt,
+    this.maxEmployees,
+    this.enabledModules,
     this.logo,
     this.createdAt,
     this.businessType,
@@ -59,6 +67,11 @@ class AdminCompany {
           .toList();
     }
 
+    List<String>? parsedModules;
+    if (json['enabled_modules'] is List) {
+      parsedModules = (json['enabled_modules'] as List).map((e) => e.toString()).toList();
+    }
+
     return AdminCompany(
       id: json['id'] as int? ?? 0,
       name: json['name'] as String? ?? '',
@@ -69,6 +82,10 @@ class AdminCompany {
       currency: json['currency'] as String?,
       socialMedia: parsedSocialMedia,
       status: json['status'] as String? ?? 'active',
+      plan: json['plan'] as String? ?? 'starter',
+      planExpiresAt: json['plan_expires_at'] as String?,
+      maxEmployees: json['max_employees'] as int?,
+      enabledModules: parsedModules,
       logo: json['logo'] as String?,
       createdAt: json['created_at'] as String?,
       businessType: json['business_type'] as String?,
@@ -97,6 +114,10 @@ class AdminCompany {
     'currency': currency,
     'social_media': socialMedia,
     'status': status,
+    'plan': plan,
+    'plan_expires_at': planExpiresAt,
+    'max_employees': maxEmployees,
+    'enabled_modules': enabledModules,
   };
 }
 
@@ -121,7 +142,6 @@ class AdminCompaniesRepository {
   /// GET /api/v1/admin/companies
   Future<List<AdminCompany>> getCompanies() async {
     final response = await _api.get('/admin/companies');
-    // API may return { data: [...] } envelope or paginated { data: { data: [...] } }
     List<dynamic> list;
     if (response.data is List) {
       list = response.data as List<dynamic>;
@@ -144,7 +164,6 @@ class AdminCompaniesRepository {
   }
 
   /// POST /api/v1/admin/companies
-  /// Supports JSON data (no file) or FormData with file uploads.
   Future<AdminCompanyCreationResult> createCompany(
     Map<String, dynamic> data, {
     String? logoPath,
@@ -177,7 +196,6 @@ class AdminCompaniesRepository {
   }
 
   /// PUT /api/v1/admin/companies/{id}
-  /// Supports JSON data (no file) or FormData with file uploads.
   Future<AdminCompany> updateCompany(
     int id,
     Map<String, dynamic> data, {
@@ -203,7 +221,6 @@ class AdminCompaniesRepository {
   /// Unwrap single-entity response that may be { data: { ... } }
   Map<String, dynamic> _unwrapSingle(dynamic raw) {
     if (raw is Map<String, dynamic>) {
-      // Check if it's an envelope with a nested 'data' field
       if (raw.containsKey('data') && raw['data'] is Map<String, dynamic>) {
         return raw['data'] as Map<String, dynamic>;
       }
@@ -225,6 +242,34 @@ class AdminCompaniesRepository {
   /// DELETE /api/v1/admin/companies/{id}
   Future<void> deleteCompany(int id) async {
     await _api.delete('/admin/companies/$id');
+  }
+
+  /// POST /api/v1/admin/companies/{id}/reset-owner-password
+  Future<Map<String, dynamic>> resetOwnerPassword(int id, {String? password}) async {
+    final response = await _api.post(
+      '/admin/companies/$id/reset-owner-password',
+      data: password != null ? {'password': password} : {},
+    );
+    final data = _unwrapSingle(response.data);
+    if (data['owner'] is Map) {
+      return Map<String, dynamic>.from(data['owner'] as Map);
+    }
+    return data;
+  }
+
+  /// POST /api/v1/admin/companies/{id}/impersonate
+  Future<Map<String, dynamic>> impersonateCompany(int id) async {
+    final response = await _api.post('/admin/companies/$id/impersonate');
+    final data = _unwrapSingle(response.data);
+    return data;
+  }
+
+  /// POST /api/v1/admin/companies/{id}/announcement
+  Future<void> sendAnnouncement(int id, {required String title, required String message}) async {
+    await _api.post(
+      '/admin/companies/$id/announcement',
+      data: {'title': title, 'message': message},
+    );
   }
 
   /// GET /api/v1/admin/companies/{id}/stats

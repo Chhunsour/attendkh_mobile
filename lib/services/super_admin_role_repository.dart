@@ -27,12 +27,16 @@ class SuperAdminRoleRepository {
 
   Future<RoleData> createRole(String name, List<String> permissions) async {
     final response = await _api.post('/admin/roles', data: {'name': name, 'permissions': permissions});
-    return RoleData.fromJson(response.data as Map<String, dynamic>);
+    final map = response.data as Map<String, dynamic>;
+    final roleJson = (map['data'] is Map<String, dynamic>) ? map['data'] as Map<String, dynamic> : map;
+    return RoleData.fromJson(roleJson);
   }
 
   Future<RoleData> updateRole(int id, String name, List<String> permissions) async {
     final response = await _api.put('/admin/roles/$id', data: {'name': name, 'permissions': permissions});
-    return RoleData.fromJson(response.data as Map<String, dynamic>);
+    final map = response.data as Map<String, dynamic>;
+    final roleJson = (map['data'] is Map<String, dynamic>) ? map['data'] as Map<String, dynamic> : map;
+    return RoleData.fromJson(roleJson);
   }
 
   Future<void> deleteRole(int id) async {

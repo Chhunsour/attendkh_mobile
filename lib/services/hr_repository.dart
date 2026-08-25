@@ -507,6 +507,7 @@ class RoleData {
   final String name;
   final String? guardName;
   final int? permissionsCount;
+  final int? usersCount;
   final List<String>? permissions;
 
   const RoleData({
@@ -514,6 +515,7 @@ class RoleData {
     required this.name,
     this.guardName,
     this.permissionsCount,
+    this.usersCount,
     this.permissions,
   });
 
@@ -523,6 +525,7 @@ class RoleData {
       name: json['name'] as String? ?? '',
       guardName: json['guard_name'] as String?,
       permissionsCount: json['permissions_count'] as int?,
+      usersCount: json['users_count'] as int?,
       permissions: (json['permissions'] as List<dynamic>?)?.cast<String>(),
     );
   }
