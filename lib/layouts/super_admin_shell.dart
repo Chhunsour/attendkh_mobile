@@ -4,13 +4,13 @@ import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/layouts/bottom_nav_shell.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/super_admin/admin_companies_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/super_admin/admin_profile_screen.dart';
+import 'package:mpg_hr_mobile_app/pages/super_admin/admin_support_tickets_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/shared/more_screen.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 
 /// Bottom navigation shell for Super Admin.
 ///
-/// Tabs: Home | Companies | More | Profile
+/// Tabs: Home | Companies | Support | More
 class SuperAdminShell extends ConsumerWidget {
   const SuperAdminShell({super.key});
 
@@ -31,6 +31,12 @@ class SuperAdminShell extends ConsumerWidget {
           filledIcon: Icons.business_rounded,
           label: l10n.navCompanies,
           screen: const AdminCompaniesScreen(),
+        ),
+        NavItem(
+          outlineIcon: Icons.support_agent_outlined,
+          filledIcon: Icons.support_agent_rounded,
+          label: l10n.itemSupportTickets,
+          screen: const AdminSupportTicketsScreen(),
         ),
         NavItem(
           outlineIcon: Icons.apps_outlined,
@@ -98,12 +104,6 @@ class SuperAdminShell extends ConsumerWidget {
               ),
             ],
           ),
-        ),
-        NavItem(
-          outlineIcon: Icons.person_outline,
-          filledIcon: Icons.person,
-          label: l10n.navProfile,
-          screen: const AdminProfileScreen(showBackButton: false),
         ),
       ],
     );
