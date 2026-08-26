@@ -157,52 +157,22 @@ class LeaveTypesTab extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: LeaveSheetField(
-                                  controller: nameCtrl,
-                                  label: AppLocalizations.of(
-                                    context,
-                                  )!.nameRequired,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                width: 100,
-                                child: LeaveSheetField(
-                                  controller: codeCtrl,
-                                  label: AppLocalizations.of(context)!.code,
-                                ),
-                              ),
-                            ],
+                          LeaveSheetField(
+                            controller: nameCtrl,
+                            label: AppLocalizations.of(
+                              context,
+                            )!.nameRequired,
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: LeaveSheetField(
-                                  controller: daysCtrl,
-                                  label: AppLocalizations.of(
-                                    context,
-                                  )!.daysPerYear,
-                                  keyboard:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
+                          LeaveSheetField(
+                            controller: daysCtrl,
+                            label: AppLocalizations.of(
+                              context,
+                            )!.daysPerYear,
+                            keyboard:
+                                const TextInputType.numberWithOptions(
+                                  decimal: true,
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: LeaveSheetField(
-                                  controller: sortOrderCtrl,
-                                  label: AppLocalizations.of(
-                                    context,
-                                  )!.sortOrder,
-                                  keyboard: TextInputType.number,
-                                ),
-                              ),
-                            ],
                           ),
                           const SizedBox(height: 12),
                           Text(
@@ -253,32 +223,7 @@ class LeaveTypesTab extends ConsumerWidget {
 
                           const SizedBox(height: 20),
 
-                          // ── Accrual & Balances ───────────────────────────
-                          Text(
-                            AppLocalizations.of(context)!.accrualAndBalances,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary(context),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          CheckboxListTile(
-                            value: isProrated,
-                            onChanged: (v) =>
-                                setSt(() => isProrated = v ?? false),
-                            title: Text(
-                              AppLocalizations.of(context)!.prorateAccrual,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero,
-                            controlAffinity: ListTileControlAffinity.leading,
-                            activeColor: AppColors.primary,
-                          ),
+                          // ── Carry Forward ────────────────────────────────
                           CheckboxListTile(
                             value: carryForward,
                             onChanged: (v) =>
@@ -306,80 +251,6 @@ class LeaveTypesTab extends ConsumerWidget {
                             ),
                             const SizedBox(height: 8),
                           ],
-
-                          const SizedBox(height: 12),
-
-                          // ── Rules & Restrictions ─────────────────────────
-                          Text(
-                            AppLocalizations.of(context)!.rulesAndRestrictions,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary(context),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          LeaveSheetField(
-                            controller: noticeCtrl,
-                            label: AppLocalizations.of(
-                              context,
-                            )!.noticePeriodDays,
-                            keyboard: TextInputType.number,
-                          ),
-                          const SizedBox(height: 12),
-                          LeaveSheetField(
-                            controller: minTenureCtrl,
-                            label: AppLocalizations.of(context)!.minTenureDays,
-                            keyboard: TextInputType.number,
-                          ),
-                          const SizedBox(height: 12),
-                          LeaveSheetField(
-                            controller: maxConsecutiveCtrl,
-                            label: AppLocalizations.of(
-                              context,
-                            )!.maxConsecutiveDays,
-                            keyboard: TextInputType.number,
-                          ),
-                          const SizedBox(height: 12),
-
-                          // Gender restriction
-                          Text(
-                            AppLocalizations.of(context)!.genderRestriction,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.grey700,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          DropdownButtonFormField<String>(
-                            initialValue: genderSpecific,
-                            decoration: _dropDec(context),
-                            items: [
-                              DropdownMenuItem(
-                                value: 'all',
-                                child: Text(
-                                  AppLocalizations.of(context)!.allGenders,
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: 'male',
-                                child: Text(
-                                  AppLocalizations.of(context)!.maleOnly,
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: 'female',
-                                child: Text(
-                                  AppLocalizations.of(context)!.femaleOnly,
-                                  style: const TextStyle(fontSize: 13),
-                                ),
-                              ),
-                            ],
-                            onChanged: (v) => setSt(() => genderSpecific = v!),
-                          ),
 
                           const SizedBox(height: 16),
 
@@ -603,24 +474,6 @@ class LeaveTypesTab extends ConsumerWidget {
       ),
     );
   }
-
-  InputDecoration _dropDec([BuildContext? context]) => InputDecoration(
-    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-    filled: true,
-    fillColor: context != null ? (Theme.of(context).brightness == Brightness.dark ? AppColors.surfaceDarkElevated : AppColors.grey50) : AppColors.grey50,
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: context != null ? AppColors.border(context) : AppColors.grey200),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.primary, width: 2),
-    ),
-  );
 }
 
 class _LeaveTypeCard extends ConsumerWidget {
