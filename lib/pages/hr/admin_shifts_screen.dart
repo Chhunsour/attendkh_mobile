@@ -1075,6 +1075,7 @@ class _AssignShiftSheetState extends ConsumerState<_AssignShiftSheet> {
                     ),
                   ),
                   items: shifts
+                      .where((s) => s.isActive)
                       .map(
                         (s) => DropdownMenuItem(
                           value: s.id,
@@ -2677,6 +2678,7 @@ class _EditShiftAssignmentModalState
                     fillColor: isDark ? AppColors.surfaceDarkElevated : AppColors.grey50,
                   ),
                   items: shifts
+                      .where((s) => s.isActive)
                       .map((s) => DropdownMenuItem(value: s.id, child: Text(s.name)))
                       .toList(),
                   onChanged: (val) => setState(() => _selectedShiftId = val),
