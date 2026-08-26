@@ -247,6 +247,69 @@ class _AdminShiftFormScreenState extends ConsumerState<AdminShiftFormScreen> {
                             ),
                             validator: (v) => v!.trim().isEmpty ? l10n.nameRequiredError : null,
                           ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.grey50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.border(context)),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: _isActive
+                                        ? AppColors.success.withAlpha(20)
+                                        : AppColors.grey100,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    _isActive
+                                        ? Icons.check_circle_rounded
+                                        : Icons.cancel_rounded,
+                                    size: 18,
+                                    color: _isActive ? AppColors.success : AppColors.grey400,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.activeStatusTitle,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.grey700,
+                                        ),
+                                      ),
+                                      const Text(
+                                        'Ready for employee shift assignments',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.grey400,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Transform.scale(
+                                  scale: 0.85,
+                                  child: Switch(
+                                    value: _isActive,
+                                    onChanged: (v) => setState(() => _isActive = v),
+                                    activeThumbColor: AppColors.success,
+                                    trackOutlineColor:
+                                        WidgetStateProperty.all(Colors.transparent),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
