@@ -12,7 +12,11 @@ import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 const _systemRoles = [
   'super_admin',
   'company_owner',
+  'company_admin',
+  'admin',
+  'hr_manager',
   'branch_manager',
+  'department_head',
   'employee',
 ];
 

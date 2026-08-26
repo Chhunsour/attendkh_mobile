@@ -2297,6 +2297,15 @@ class AppLocalizationsKm extends AppLocalizations {
   String get roleBranchManager => 'អ្នកគ្រប់គ្រងសាខា';
 
   @override
+  String get roleDepartmentHead => 'ប្រធានផ្នែក';
+
+  @override
+  String get roleHrManager => 'អ្នកគ្រប់គ្រងធនធានមនុស្ស';
+
+  @override
+  String get roleAdmin => 'អ្នកគ្រប់គ្រង';
+
+  @override
   String get roleCompanyAdmin => 'អ្នកគ្រប់គ្រងក្រុមហ៊ុន';
 
   @override

@@ -2288,6 +2288,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleBranchManager => 'Branch Manager';
 
   @override
+  String get roleDepartmentHead => 'Department Head';
+
+  @override
+  String get roleHrManager => 'HR Manager';
+
+  @override
+  String get roleAdmin => 'Admin';
+
+  @override
   String get roleCompanyAdmin => 'Company Admin';
 
   @override

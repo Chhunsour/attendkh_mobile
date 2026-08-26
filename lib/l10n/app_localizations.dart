@@ -4484,6 +4484,24 @@ abstract class AppLocalizations {
   /// **'Branch Manager'**
   String get roleBranchManager;
 
+  /// No description provided for @roleDepartmentHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Department Head'**
+  String get roleDepartmentHead;
+
+  /// No description provided for @roleHrManager.
+  ///
+  /// In en, this message translates to:
+  /// **'HR Manager'**
+  String get roleHrManager;
+
+  /// No description provided for @roleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get roleAdmin;
+
   /// No description provided for @roleCompanyAdmin.
   ///
   /// In en, this message translates to:

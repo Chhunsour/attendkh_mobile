@@ -914,7 +914,10 @@ class _AdminEmployeeFormScreenState
                     required: true,
                     items: {
                       'employee': l10n.roleEmployee,
+                      'department_head': l10n.roleDepartmentHead,
+                      'hr_manager': l10n.roleHrManager,
                       'branch_manager': l10n.roleBranchManager,
+                      'admin': l10n.roleAdmin,
                       'company_admin': l10n.roleCompanyAdmin,
                       'company_owner': l10n.roleCompanyOwner,
                     },
