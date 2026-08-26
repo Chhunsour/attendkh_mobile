@@ -2303,6 +2303,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get roleCompanyOwner => 'Company Owner';
 
   @override
+  String get accessRestricted => 'Access Restricted';
+
+  @override
+  String get accessRestrictedMessage =>
+      'You do not have permission to access this section with your current role. Please contact your company administrator to request access.';
+
+  @override
+  String get permissionRequired => 'Permission Required';
+
+  @override
+  String get activeSession => 'Active Session';
+
+  @override
+  String get goToDashboard => 'Go to Dashboard';
+
+  @override
   String get payrollAndBank => 'Payroll & Bank';
 
   @override

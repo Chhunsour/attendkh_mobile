@@ -2312,6 +2312,22 @@ class AppLocalizationsKm extends AppLocalizations {
   String get roleCompanyOwner => 'ម្ចាស់ក្រុមហ៊ុន';
 
   @override
+  String get accessRestricted => 'សិទ្ធិចូលប្រើត្រូវបានកំណត់';
+
+  @override
+  String get accessRestrictedMessage =>
+      'អ្នកមិនមានសិទ្ធិចូលប្រើផ្នែកនេះទេជាមួយតួនាទីបច្ចុប្បន្នរបស់អ្នក។ សូមទាក់ទងអ្នកគ្រប់គ្រងក្រុមហ៊ុនរបស់អ្នកដើម្បីស្នើសុំសិទ្ធិ។';
+
+  @override
+  String get permissionRequired => 'ទាមទារសិទ្ធិ';
+
+  @override
+  String get activeSession => 'សម័យដំណើរការ';
+
+  @override
+  String get goToDashboard => 'ទៅកាន់ផ្ទាំងគ្រប់គ្រង';
+
+  @override
   String get payrollAndBank => 'ប្រាក់ខែ និងធនាគារ';
 
   @override

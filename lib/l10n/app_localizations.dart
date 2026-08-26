@@ -4514,6 +4514,36 @@ abstract class AppLocalizations {
   /// **'Company Owner'**
   String get roleCompanyOwner;
 
+  /// No description provided for @accessRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Access Restricted'**
+  String get accessRestricted;
+
+  /// No description provided for @accessRestrictedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to access this section with your current role. Please contact your company administrator to request access.'**
+  String get accessRestrictedMessage;
+
+  /// No description provided for @permissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission Required'**
+  String get permissionRequired;
+
+  /// No description provided for @activeSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Session'**
+  String get activeSession;
+
+  /// No description provided for @goToDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Dashboard'**
+  String get goToDashboard;
+
   /// No description provided for @payrollAndBank.
   ///
   /// In en, this message translates to:

@@ -68,6 +68,7 @@ import 'package:mpg_hr_mobile_app/pages/notifications_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/notification_detail_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/support/user_support_tickets_screen.dart';
 import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
+import 'package:mpg_hr_mobile_app/pages/shared/access_restricted_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/branch_manager_view_screen.dart';
 
 /// Route paths
@@ -80,6 +81,7 @@ class AppRoutes {
   static const register = '/register';
   static const verifyEmail = '/verify-email';
   static const companySelect = '/company-select';
+  static const accessRestricted = '/access-restricted';
 
   // Company-side
   static const main = '/main';
@@ -228,15 +230,39 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
           return target;
         }
-        if (isVisitingCompanyAdmin &&
-            !(authState.isCompanyAdmin || authState.isManager)) {
-          final target = authState.isSuperAdmin
-              ? AppRoutes.adminDashboard
-              : AppRoutes.main;
-          debugPrint(
-            '🚫 Security Alert: unauthorized access to company-admin route → redirect to $target',
-          );
-          return target;
+        if (isVisitingCompanyAdmin) {
+          if (!(authState.isCompanyAdmin || authState.isManager)) {
+            final target = authState.isSuperAdmin
+                ? AppRoutes.adminDashboard
+                : AppRoutes.main;
+            debugPrint(
+              '🚫 Security Alert: unauthorized access to company-admin route → redirect to $target',
+            );
+            return target;
+          }
+
+          // Granular submodule protection within /company-admin
+          final isPayrollRoute = location == AppRoutes.adminPayroll ||
+              location.startsWith('/company-admin/payroll') ||
+              location == AppRoutes.adminExpenses ||
+              location == AppRoutes.adminAssets ||
+              location == AppRoutes.adminSummary ||
+              location == AppRoutes.adminReports;
+
+          final isStructureRoute = location == AppRoutes.hrStructure;
+          final isOwnerRoute = location == AppRoutes.adminRoles ||
+              location == AppRoutes.adminTopEmployees ||
+              location == AppRoutes.companyOwnerProfile;
+
+          if (isPayrollRoute && !authState.isCompanyAdmin) {
+            return AppRoutes.accessRestricted;
+          }
+          if (isStructureRoute && !(authState.isCompanyAdmin || authState.isHrManager)) {
+            return AppRoutes.accessRestricted;
+          }
+          if (isOwnerRoute && !(authState.isCompanyOwner || authState.isSuperAdmin)) {
+            return AppRoutes.accessRestricted;
+          }
         }
         if (isVisitingEmployee &&
             location != AppRoutes.kpi &&
@@ -257,6 +283,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: AppRoutes.accessRestricted,
+        builder: (context, state) => const AccessRestrictedScreen(),
+      ),
       GoRoute(
         path: AppRoutes.splash,
         builder: (context, state) => const SplashScreen(),

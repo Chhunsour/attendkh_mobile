@@ -29,23 +29,34 @@ class CompanyAdminShell extends ConsumerWidget {
         (kpi?.totalEmployees ?? 0);
     String? count(int n) => n > 0 ? '$n' : null;
 
-    return BottomNavShell(
-      items: [
-        NavItem(
-          outlineIcon: Icons.home_outlined,
-          filledIcon: Icons.home,
-          label: l10n.navHome,
-          screen: const CompanyAdminDashboardScreen(),
-        ),
-        NavItem(
-          outlineIcon: Icons.people_outline_rounded,
-          filledIcon: Icons.people_rounded,
-          label: l10n.navHR,
-          screen: MoreScreen(
-            title: l10n.hrOperations,
-            header: const HrOpsSummary(),
-            footer: const HrUpcomingHolidays(),
-            items: [
+    final isCompanyAdmin = authState.isCompanyAdmin;
+    final isHrManager = authState.isHrManager;
+    final isBranchManager = authState.isBranchManager;
+
+    final canManageStructure = isCompanyAdmin || isHrManager;
+    final canManageEmployees = isCompanyAdmin || isHrManager || isBranchManager;
+    final canManageShifts = isCompanyAdmin || isHrManager || isBranchManager;
+    final canViewPayroll = isCompanyAdmin;
+    final canViewReports = isCompanyAdmin;
+    final canManageRecruitment = isCompanyAdmin || isHrManager;
+
+    final navItems = <NavItem>[
+      NavItem(
+        outlineIcon: Icons.home_outlined,
+        filledIcon: Icons.home,
+        label: l10n.navHome,
+        screen: const CompanyAdminDashboardScreen(),
+      ),
+      NavItem(
+        outlineIcon: Icons.people_outline_rounded,
+        filledIcon: Icons.people_rounded,
+        label: l10n.navHR,
+        screen: MoreScreen(
+          title: l10n.hrOperations,
+          header: const HrOpsSummary(),
+          footer: const HrUpcomingHolidays(),
+          items: [
+            if (canManageEmployees)
               MoreItem(
                 title: l10n.itemEmployees,
                 subtitle: l10n.itemEmployeesSubtitle,
@@ -54,6 +65,7 @@ class CompanyAdminShell extends ConsumerWidget {
                 routePath: AppRoutes.adminEmployees,
                 badgeText: count(employeesCount),
               ),
+            if (canManageStructure)
               MoreItem(
                 title: l10n.itemHrStructure,
                 subtitle: l10n.itemHrStructureSubtitle,
@@ -61,29 +73,30 @@ class CompanyAdminShell extends ConsumerWidget {
                 color: const Color(0xFF6366F1),
                 routePath: AppRoutes.hrStructure,
               ),
-              MoreItem(
-                title: l10n.filterAttendance,
-                subtitle: l10n.itemAdminAttendanceSubtitle,
-                icon: Icons.fingerprint_rounded,
-                color: const Color(0xFF10B981),
-                routePath: AppRoutes.adminAttendance,
-              ),
-              MoreItem(
-                title: l10n.leaveRequests,
-                subtitle: l10n.itemAdminLeaveSubtitle,
-                icon: Icons.event_busy_outlined,
-                color: const Color(0xFFEF4444),
-                routePath: AppRoutes.adminLeave,
-                badgeText: count(kpi?.pendingLeaves ?? 0),
-                badgeIsAlert: true,
-              ),
-              MoreItem(
-                title: l10n.overtime,
-                subtitle: l10n.itemAdminOvertimeSubtitle,
-                icon: Icons.more_time_rounded,
-                color: const Color(0xFFF59E0B),
-                routePath: AppRoutes.adminOvertime,
-              ),
+            MoreItem(
+              title: l10n.filterAttendance,
+              subtitle: l10n.itemAdminAttendanceSubtitle,
+              icon: Icons.fingerprint_rounded,
+              color: const Color(0xFF10B981),
+              routePath: AppRoutes.adminAttendance,
+            ),
+            MoreItem(
+              title: l10n.leaveRequests,
+              subtitle: l10n.itemAdminLeaveSubtitle,
+              icon: Icons.event_busy_outlined,
+              color: const Color(0xFFEF4444),
+              routePath: AppRoutes.adminLeave,
+              badgeText: count(kpi?.pendingLeaves ?? 0),
+              badgeIsAlert: true,
+            ),
+            MoreItem(
+              title: l10n.overtime,
+              subtitle: l10n.itemAdminOvertimeSubtitle,
+              icon: Icons.more_time_rounded,
+              color: const Color(0xFFF59E0B),
+              routePath: AppRoutes.adminOvertime,
+            ),
+            if (canManageShifts)
               MoreItem(
                 title: l10n.workShifts,
                 subtitle: l10n.itemAdminShiftsSubtitle,
@@ -91,9 +104,10 @@ class CompanyAdminShell extends ConsumerWidget {
                 color: const Color(0xFF8B5CF6),
                 routePath: AppRoutes.adminShifts,
               ),
-            ],
-          ),
+          ],
         ),
+      ),
+      if (canViewPayroll)
         NavItem(
           outlineIcon: Icons.account_balance_wallet_outlined,
           filledIcon: Icons.account_balance_wallet_rounded,
@@ -132,15 +146,15 @@ class CompanyAdminShell extends ConsumerWidget {
             ],
           ),
         ),
-
-        NavItem(
-          outlineIcon: Icons.apps_outlined,
-          filledIcon: Icons.apps_rounded,
-          label: l10n.navMore,
-          screen: MoreScreen(
-            title: l10n.companyServices,
-            showPreferences: true,
-            items: [
+      NavItem(
+        outlineIcon: Icons.apps_outlined,
+        filledIcon: Icons.apps_rounded,
+        label: l10n.navMore,
+        screen: MoreScreen(
+          title: l10n.companyServices,
+          showPreferences: true,
+          items: [
+            if (canManageRecruitment)
               MoreItem(
                 title: l10n.recruitment,
                 subtitle: l10n.recruitmentJobsDesc,
@@ -149,28 +163,29 @@ class CompanyAdminShell extends ConsumerWidget {
                 routePath: AppRoutes.adminRecruitment,
                 badgeText: count(kpi?.openJobs ?? 0),
               ),
+            MoreItem(
+              title: l10n.performanceReviews,
+              subtitle: l10n.performanceReviewsDesc,
+              icon: Icons.trending_up_rounded,
+              color: const Color(0xFFA855F7),
+              routePath: AppRoutes.adminPerformance,
+            ),
+            if (isOwner)
               MoreItem(
-                title: l10n.performanceReviews,
-                subtitle: l10n.performanceReviewsDesc,
-                icon: Icons.trending_up_rounded,
-                color: const Color(0xFFA855F7),
-                routePath: AppRoutes.adminPerformance,
+                title: l10n.moreTopEmployees,
+                subtitle: l10n.moreTopEmployeesDesc,
+                icon: Icons.emoji_events_rounded,
+                color: const Color(0xFFF59E0B),
+                routePath: AppRoutes.adminTopEmployees,
               ),
-              if (isOwner)
-                MoreItem(
-                  title: l10n.moreTopEmployees,
-                  subtitle: l10n.moreTopEmployeesDesc,
-                  icon: Icons.emoji_events_rounded,
-                  color: const Color(0xFFF59E0B),
-                  routePath: AppRoutes.adminTopEmployees,
-                ),
-              MoreItem(
-                title: l10n.menuKPIs,
-                subtitle: l10n.itemKpisSubtitle,
-                icon: Icons.track_changes_outlined,
-                color: const Color(0xFF10B981),
-                routePath: AppRoutes.kpi,
-              ),
+            MoreItem(
+              title: l10n.menuKPIs,
+              subtitle: l10n.itemKpisSubtitle,
+              icon: Icons.track_changes_outlined,
+              color: const Color(0xFF10B981),
+              routePath: AppRoutes.kpi,
+            ),
+            if (canViewReports)
               MoreItem(
                 title: l10n.summaryReports,
                 subtitle: l10n.summaryReportsDesc,
@@ -178,6 +193,7 @@ class CompanyAdminShell extends ConsumerWidget {
                 color: const Color(0xFF6366F1),
                 routePath: AppRoutes.adminSummary,
               ),
+            if (canViewReports)
               MoreItem(
                 title: l10n.analyticsReports,
                 subtitle: l10n.analyticsReportsDesc,
@@ -185,52 +201,53 @@ class CompanyAdminShell extends ConsumerWidget {
                 color: const Color(0xFF14B8A6),
                 routePath: AppRoutes.adminReports,
               ),
-              MoreItem(
-                title: l10n.companyDocuments,
-                subtitle: l10n.viewCompanyDocuments,
-                icon: Icons.folder_open_rounded,
-                color: const Color(0xFFF59E0B),
-                routePath: AppRoutes.adminDocuments,
-              ),
-              MoreItem(
-                title: l10n.announcements,
-                subtitle: l10n.itemAnnouncementsSubtitle,
-                icon: Icons.campaign_outlined,
-                color: const Color(0xFF0EA5E9),
-                routePath: AppRoutes.adminCompanyAnnouncements,
-              ),
-              MoreItem(
-                title: l10n.companyPolicies,
-                subtitle: l10n.itemCompanyPoliciesSubtitle,
-                icon: Icons.book_outlined,
-                color: const Color(0xFF3B82F6),
-                routePath: AppRoutes.adminPolicies,
-              ),
-              MoreItem(
-                title: l10n.holidayCalendar,
-                subtitle: l10n.itemHolidayCalendarSubtitle,
-                icon: Icons.celebration_outlined,
-                color: const Color(0xFFF59E0B),
-                routePath: AppRoutes.adminHolidays,
-              ),
-              MoreItem(
-                title: l10n.notifications,
-                subtitle: l10n.notifications,
-                icon: Icons.notifications_none_rounded,
-                color: const Color(0xFFEF4444),
-                routePath: AppRoutes.notifications,
-              ),
-              const MoreItem(
-                title: 'Help & Support Desk',
-                subtitle: 'Submit support tickets directly to Super Admin',
-                icon: Icons.support_agent_rounded,
-                color: Color(0xFF10B981),
-                routePath: AppRoutes.userSupportTickets,
-              ),
-            ],
-          ),
+            MoreItem(
+              title: l10n.companyDocuments,
+              subtitle: l10n.viewCompanyDocuments,
+              icon: Icons.folder_open_rounded,
+              color: const Color(0xFFF59E0B),
+              routePath: AppRoutes.adminDocuments,
+            ),
+            MoreItem(
+              title: l10n.announcements,
+              subtitle: l10n.itemAnnouncementsSubtitle,
+              icon: Icons.campaign_outlined,
+              color: const Color(0xFF0EA5E9),
+              routePath: AppRoutes.adminCompanyAnnouncements,
+            ),
+            MoreItem(
+              title: l10n.companyPolicies,
+              subtitle: l10n.itemCompanyPoliciesSubtitle,
+              icon: Icons.book_outlined,
+              color: const Color(0xFF3B82F6),
+              routePath: AppRoutes.adminPolicies,
+            ),
+            MoreItem(
+              title: l10n.holidayCalendar,
+              subtitle: l10n.itemHolidayCalendarSubtitle,
+              icon: Icons.celebration_outlined,
+              color: const Color(0xFFF59E0B),
+              routePath: AppRoutes.adminHolidays,
+            ),
+            MoreItem(
+              title: l10n.notifications,
+              subtitle: l10n.notifications,
+              icon: Icons.notifications_none_rounded,
+              color: const Color(0xFFEF4444),
+              routePath: AppRoutes.notifications,
+            ),
+            const MoreItem(
+              title: 'Help & Support Desk',
+              subtitle: 'Submit support tickets directly to Super Admin',
+              icon: Icons.support_agent_rounded,
+              color: Color(0xFF10B981),
+              routePath: AppRoutes.userSupportTickets,
+            ),
+          ],
         ),
-      ],
-    );
+      ),
+    ];
+
+    return BottomNavShell(items: navItems);
   }
 }
