@@ -429,7 +429,9 @@ class _CompanyAdminDashboardScreenState
     final label = branchSwitchState.activeBranchName ?? l10n.allBranchesLabel;
     final tint = scoped ? AppColors.primary : AppColors.textSecondary(context);
 
-    return PopupMenuButton<BranchData?>(
+    const clearBranchSentinel = BranchData(id: -1, name: '');
+
+    return PopupMenuButton<BranchData>(
       tooltip: l10n.selectBranch,
       offset: const Offset(0, 40),
       padding: EdgeInsets.zero,
@@ -471,7 +473,7 @@ class _CompanyAdminDashboardScreenState
         ),
       ),
       onSelected: (branch) async {
-        if (branch == null) {
+        if (branch.id == -1) {
           ref.read(branchSwitchProvider.notifier).exitBranchView();
         } else {
           await ref.read(branchSwitchProvider.notifier).switchToBranch(branch);
@@ -479,7 +481,7 @@ class _CompanyAdminDashboardScreenState
         ref.invalidate(dashboardStatsProvider);
       },
       itemBuilder: (context) => [
-        PopupMenuItem<BranchData?>(
+        PopupMenuItem<BranchData>(
           enabled: false,
           height: 30,
           child: Text(
@@ -492,8 +494,8 @@ class _CompanyAdminDashboardScreenState
           ),
         ),
         if (branchSwitchState.isActive)
-          PopupMenuItem<BranchData?>(
-            value: null,
+          PopupMenuItem<BranchData>(
+            value: clearBranchSentinel,
             child: Row(
               children: [
                 const Icon(Icons.clear, size: 16, color: AppColors.danger),
@@ -509,7 +511,7 @@ class _CompanyAdminDashboardScreenState
             ),
           ),
         ...branches.map(
-          (b) => PopupMenuItem<BranchData?>(
+          (b) => PopupMenuItem<BranchData>(
             value: b,
             child: Row(
               children: [
