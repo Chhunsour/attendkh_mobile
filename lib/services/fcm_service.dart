@@ -248,18 +248,41 @@ class FcmService {
     }
   }
 
+  Map<String, dynamic>? _pendingNotificationData;
+  Map<String, dynamic>? get pendingNotificationData => _pendingNotificationData;
+
+  void consumePendingNotification() {
+    if (_pendingNotificationData != null) {
+      final data = _pendingNotificationData!;
+      _pendingNotificationData = null;
+      handleNotificationDataRouting(data);
+    }
+  }
+
   void handleNotificationDataRouting(Map<String, dynamic> data) {
-    if (rootNavigatorKey.currentContext == null) return;
+    if (rootNavigatorKey.currentContext == null) {
+      _pendingNotificationData = data;
+      return;
+    }
     final context = rootNavigatorKey.currentContext!;
+
+    // If still on splash or login, stash the notification to consume after navigation completes
+    try {
+      final currentRoute = GoRouter.of(context).routeInformationProvider.value.uri.toString();
+      if (currentRoute == AppRoutes.splash || currentRoute == AppRoutes.login) {
+        _pendingNotificationData = data;
+        return;
+      }
+    } catch (_) {}
 
     AppLogger.i('Routing push notification payload: $data');
 
-    // First navigate to notifications list as a fallback/history
-    context.push(AppRoutes.notifications);
-
     // Extract type to determine deep link
     final String? type = data['type'];
-    if (type == null) return;
+    if (type == null) {
+      context.push(AppRoutes.notifications);
+      return;
+    }
 
     // Deep link mapping
     switch (type) {
@@ -293,7 +316,7 @@ class FcmService {
         context.push(AppRoutes.employeeHolidays);
         break;
       default:
-        // Already on notifications screen, do nothing
+        context.push(AppRoutes.notifications);
         break;
     }
   }

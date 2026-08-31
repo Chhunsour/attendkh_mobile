@@ -73,6 +73,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       } else {
         context.go(AppRoutes.main);
       }
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        FcmService.instance.consumePendingNotification();
+      });
     } else {
       context.go(AppRoutes.login);
     }
