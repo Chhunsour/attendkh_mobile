@@ -101,14 +101,10 @@ String formatDurationSeconds(int? totalSeconds) {
   final minutes = (s % 3600) ~/ 60;
   final seconds = s % 60;
   if (hours > 0) {
-    if (minutes > 0 && seconds > 0) return '${hours}h ${minutes}m ${seconds}s';
-    if (minutes > 0) return '${hours}h ${minutes}m';
-    if (seconds > 0) return '${hours}h ${seconds}s';
-    return '${hours}h';
+    return '${hours}h ${minutes}m ${seconds}s';
   }
   if (minutes > 0) {
-    if (seconds > 0) return '${minutes}m ${seconds}s';
-    return '${minutes}m';
+    return '${minutes}m ${seconds}s';
   }
   return '${seconds}s';
 }

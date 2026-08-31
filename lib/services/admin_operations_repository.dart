@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:path_provider/path_provider.dart';
 
 // ── Common Models ────────────────────────────────────────────────────────────
@@ -811,84 +813,149 @@ class PayrollRunDetailData {
 
 // ── Admin Payslip Detail ────────────────────────────────────────────────────
 class AdminPayslipDetailData {
+  final int? id;
+  final int? employeeId;
+  final String employeeCode;
   final String employeeName;
+  final String? khmerName;
+  final String? photoUrl;
   final String department;
+  final String position;
+  final String branch;
   final double netSalary;
   final double basicSalary;
   final double overtimePay;
   final double allowances;
   final double otherEarnings;
+  final double leaveEncashmentAmount;
   final double grossSalary;
   final double taxDeduction;
   final double insuranceDeduction;
   final double lateDeduction;
   final double earlyLeaveDeduction;
+  final double unpaidLeaveDeduction;
   final double otherDeductions;
   final double totalDeductions;
   final int workingDays;
   final int presentDays;
   final int lateDays;
+  final int lateMinutes;
+  final int earlyLeaveDays;
+  final int earlyLeaveMinutes;
   final int overtimeHours;
 
   const AdminPayslipDetailData({
+    this.id,
+    this.employeeId,
+    this.employeeCode = '',
     required this.employeeName,
+    this.khmerName,
+    this.photoUrl,
     required this.department,
+    this.position = '',
+    this.branch = '',
     required this.netSalary,
     required this.basicSalary,
     required this.overtimePay,
     required this.allowances,
     required this.otherEarnings,
+    this.leaveEncashmentAmount = 0,
     required this.grossSalary,
     required this.taxDeduction,
     required this.insuranceDeduction,
     required this.lateDeduction,
     this.earlyLeaveDeduction = 0,
+    this.unpaidLeaveDeduction = 0,
     required this.otherDeductions,
     required this.totalDeductions,
     required this.workingDays,
     required this.presentDays,
     required this.lateDays,
+    this.lateMinutes = 0,
+    this.earlyLeaveDays = 0,
+    this.earlyLeaveMinutes = 0,
     required this.overtimeHours,
   });
 
   factory AdminPayslipDetailData.fromJson(Map<String, dynamic> json) {
+    final emp = json['employee'] is Map<String, dynamic> ? json['employee'] as Map<String, dynamic> : null;
+    
+    // Resolve employee name
+    String resolvedName = '';
+    if (emp != null) {
+      if (emp['full_name'] != null && emp['full_name'].toString().trim().isNotEmpty) {
+        resolvedName = emp['full_name'].toString().trim();
+      } else if (emp['name'] != null && emp['name'].toString().trim().isNotEmpty) {
+        resolvedName = emp['name'].toString().trim();
+      } else if (emp['first_name'] != null) {
+        resolvedName = '${emp['first_name']} ${emp['last_name'] ?? ''}'.trim();
+      }
+    }
+    if (resolvedName.isEmpty && json['employee_name'] != null) {
+      resolvedName = json['employee_name'].toString().trim();
+    }
+    if (resolvedName.isEmpty) {
+      resolvedName = 'Employee';
+    }
+
+    final khmerName = emp?['khmer_name']?.toString().trim();
+    final employeeCode = emp?['employee_id']?.toString() ?? json['employee_code']?.toString() ?? '';
+    
+    // Resolve photo url
+    String? photoUrl = emp?['photo_url']?.toString() ?? emp?['profile_photo_url']?.toString() ?? emp?['photo']?.toString();
+    if (photoUrl != null && photoUrl.trim().isNotEmpty) {
+      final clean = photoUrl.trim();
+      if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+        final cleanPath = clean.startsWith('/') ? clean.substring(1) : clean;
+        photoUrl = '${DioClient.storageUrl}/$cleanPath';
+      }
+    } else {
+      photoUrl = null;
+    }
+
+    final department = json['department'] as String? ??
+        emp?['department']?['name'] as String? ??
+        '';
+
+    final position = json['position'] as String? ??
+        emp?['position']?['name'] as String? ??
+        '';
+
+    final branch = json['branch'] as String? ??
+        emp?['branch']?['name'] as String? ??
+        '';
+
     return AdminPayslipDetailData(
-      employeeName:
-          json['employee_name'] as String? ??
-          json['employee']?['name'] as String? ??
-          (json['employee'] != null && json['employee']['first_name'] != null
-              ? '${json['employee']['first_name']} ${json['employee']['last_name'] ?? ''}'
-                    .trim()
-              : null) ??
-          '',
-      department:
-          json['department'] as String? ??
-          json['employee']?['department']?['name'] as String? ??
-          '',
+      id: json['id'] is int ? json['id'] as int : int.tryParse(json['id']?.toString() ?? ''),
+      employeeId: json['employee_id'] is int ? json['employee_id'] as int : int.tryParse(json['employee_id']?.toString() ?? ''),
+      employeeCode: employeeCode,
+      employeeName: resolvedName,
+      khmerName: khmerName != null && khmerName.isNotEmpty ? khmerName : null,
+      photoUrl: photoUrl,
+      department: department,
+      position: position,
+      branch: branch,
       netSalary: double.tryParse(json['net_salary']?.toString() ?? '') ?? 0,
       basicSalary: double.tryParse(json['basic_salary']?.toString() ?? '') ?? 0,
       overtimePay: double.tryParse(json['overtime_pay']?.toString() ?? '') ?? 0,
       allowances: double.tryParse(json['allowances']?.toString() ?? '') ?? 0,
-      otherEarnings:
-          double.tryParse(json['other_earnings']?.toString() ?? '') ?? 0,
+      otherEarnings: double.tryParse(json['other_earnings']?.toString() ?? '') ?? 0,
+      leaveEncashmentAmount: double.tryParse(json['leave_encashment_amount']?.toString() ?? '') ?? 0,
       grossSalary: double.tryParse(json['gross_salary']?.toString() ?? '') ?? 0,
-      taxDeduction:
-          double.tryParse(json['tax_deduction']?.toString() ?? '') ?? 0,
-      insuranceDeduction:
-          double.tryParse(json['insurance_deduction']?.toString() ?? '') ?? 0,
-      lateDeduction:
-          double.tryParse(json['late_deduction']?.toString() ?? '') ?? 0,
-      earlyLeaveDeduction:
-          double.tryParse(json['early_leave_deduction']?.toString() ?? '') ?? 0,
-      otherDeductions:
-          double.tryParse(json['other_deductions']?.toString() ?? '') ?? 0,
-      totalDeductions:
-          double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0,
+      taxDeduction: double.tryParse(json['tax_deduction']?.toString() ?? '') ?? 0,
+      insuranceDeduction: double.tryParse(json['insurance_deduction']?.toString() ?? '') ?? 0,
+      lateDeduction: double.tryParse(json['late_deduction']?.toString() ?? '') ?? 0,
+      earlyLeaveDeduction: double.tryParse(json['early_leave_deduction']?.toString() ?? '') ?? 0,
+      unpaidLeaveDeduction: double.tryParse(json['unpaid_leave_deduction']?.toString() ?? '') ?? 0,
+      otherDeductions: double.tryParse(json['other_deductions']?.toString() ?? '') ?? 0,
+      totalDeductions: double.tryParse(json['total_deductions']?.toString() ?? '') ?? 0,
       workingDays: int.tryParse(json['working_days']?.toString() ?? '') ?? 0,
       presentDays: int.tryParse(json['present_days']?.toString() ?? '') ?? 0,
       lateDays: int.tryParse(json['late_days']?.toString() ?? '') ?? 0,
-      overtimeHours:
-          int.tryParse(json['overtime_hours']?.toString() ?? '') ?? 0,
+      lateMinutes: int.tryParse(json['late_minutes']?.toString() ?? '') ?? 0,
+      earlyLeaveDays: int.tryParse(json['early_leave_days']?.toString() ?? '') ?? 0,
+      earlyLeaveMinutes: int.tryParse(json['early_leave_minutes']?.toString() ?? '') ?? 0,
+      overtimeHours: int.tryParse(json['overtime_hours']?.toString() ?? '') ?? 0,
     );
   }
 }
@@ -1170,8 +1237,13 @@ class AdminOperationsRepository {
     return _parseList(data, AdminAttendanceRecord.fromJson);
   }
 
-  Future<List<AttendanceCorrectionData>> getAttendanceCorrections() async {
-    final response = await _api.get('/company/attendance/corrections');
+  Future<List<AttendanceCorrectionData>> getAttendanceCorrections({int? branchId}) async {
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get(
+      '/company/attendance/corrections',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
     return _parseList(response.data, AttendanceCorrectionData.fromJson);
   }
 
@@ -1385,8 +1457,13 @@ class AdminOperationsRepository {
     },
   );
 
-  Future<List<ShiftAssignmentData>> getShiftAssignments() async {
-    final response = await _api.get('/company/shifts/assignments');
+  Future<List<ShiftAssignmentData>> getShiftAssignments({int? branchId}) async {
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get(
+      '/company/shifts/assignments',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
     return _parseList(response.data, ShiftAssignmentData.fromJson);
   }
 
@@ -1454,8 +1531,14 @@ class AdminOperationsRepository {
       _api.put('/company/leave/types/$id', data: data);
 
   // ── Leave Balances (Admin) ──────────────────────────────────────────────
-  Future<List<LeaveBalanceData>> getLeaveBalances() async {
-    final response = await _api.get('/company/leave/balances');
+  Future<List<LeaveBalanceData>> getLeaveBalances({int? year, int? branchId}) async {
+    final queryParams = <String, dynamic>{};
+    if (year != null) queryParams['year'] = year;
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get(
+      '/company/leave/balances',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
 
     dynamic data = response.data;
     if (data is Map<String, dynamic> && data['balances'] != null) {
@@ -1540,8 +1623,13 @@ class AdminOperationsRepository {
       );
 
   // ── Payroll (Admin) ─────────────────────────────────────────────────────
-  Future<List<PayrollRunData>> getPayrollRuns() async {
-    final response = await _api.get('/company/payroll/runs');
+  Future<List<PayrollRunData>> getPayrollRuns({int? branchId}) async {
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    final response = await _api.get(
+      '/company/payroll/runs',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
     return _parseList(response.data, PayrollRunData.fromJson);
   }
 
@@ -1620,15 +1708,39 @@ class AdminOperationsRepository {
     );
   }
 
-  Future<String> exportPayroll(String period) async {
-    final dir = await getApplicationDocumentsDirectory();
+  Future<String> _getExportDirectory() async {
+    try {
+      if (Platform.isAndroid) {
+        final publicDownload = Directory('/storage/emulated/0/Download');
+        if (await publicDownload.exists()) {
+          return publicDownload.path;
+        }
+        final ext = await getExternalStorageDirectory();
+        if (ext != null && await ext.exists()) {
+          return ext.path;
+        }
+      } else if (Platform.isIOS || Platform.isMacOS) {
+        final docs = await getApplicationDocumentsDirectory();
+        return docs.path;
+      }
+    } catch (_) {}
+    final fallback = await getApplicationDocumentsDirectory();
+    return fallback.path;
+  }
+
+  Future<String> exportPayroll(String period, {int? branchId}) async {
+    final exportDir = await _getExportDirectory();
     final filename =
         'payroll_${period}_${DateTime.now().millisecondsSinceEpoch}.xlsx';
-    final savePath = '${dir.path}/$filename';
+    final savePath = '$exportDir/$filename';
+
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
 
     await _api.download(
       '/company/payroll/export/$period',
       savePath,
+      data: queryParams.isNotEmpty ? queryParams : null,
       method: 'GET',
     );
     return savePath;
@@ -1680,11 +1792,11 @@ class AdminOperationsRepository {
     String format = 'excel',
     Map<String, dynamic>? params,
   }) async {
-    final dir = await getApplicationDocumentsDirectory();
+    final exportDir = await _getExportDirectory();
     final ext = format == 'pdf' ? 'pdf' : (format == 'csv' ? 'csv' : 'xlsx');
     final filename =
         '${type}_report_${DateTime.now().millisecondsSinceEpoch}.$ext';
-    final savePath = '${dir.path}/$filename';
+    final savePath = '$exportDir/$filename';
 
     await _api.download(
       '/company/reports/export',

@@ -1289,17 +1289,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
     String? caption;
     String headline;
-    String? meta;
+    DateTime? inDt;
     if (isClockedIn) {
       caption = l10n.clockedInAt.trim();
       headline = _formatTime(today!.clockIn);
-      final inDt = _parseDateTime(today.clockIn, today.date);
-      if (inDt != null) {
-        final elapsedSeconds = DateTime.now().difference(inDt).inSeconds;
-        meta = '${l10n.activeDuration}${formatDurationSeconds(elapsedSeconds > 0 ? elapsedSeconds : 0)}';
-      } else if (today.workHours != null) {
-        meta = l10n.activeDuration + formatDurationHoursWithSeconds(today.workHours);
-      }
+      inDt = _parseDateTime(today.clockIn, today.date);
     } else if (isCompleted) {
       caption = l10n.shiftCompleted;
       headline = _formatCompletedDuration(today);
@@ -1469,25 +1463,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
                     onSwipe: () {},
                   ),
                 ] else ...[
-                  if (meta != null) ...[
+                  if (isClockedIn && (inDt != null || today?.workHours != null)) ...[
                     const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: accent.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        meta,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: accent,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                    _RealtimeActiveDurationBadge(
+                      clockInTime: inDt,
+                      fallbackWorkHours: today?.workHours,
+                      accent: accent,
+                      activeDurationLabel: l10n.activeDuration,
                     ),
                   ],
                   const SizedBox(height: 20),
@@ -3087,6 +3069,108 @@ class _PulsingStatusDotState extends State<_PulsingStatusDot>
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _RealtimeActiveDurationBadge extends StatefulWidget {
+  final DateTime? clockInTime;
+  final num? fallbackWorkHours;
+  final Color accent;
+  final String activeDurationLabel;
+
+  const _RealtimeActiveDurationBadge({
+    required this.clockInTime,
+    required this.fallbackWorkHours,
+    required this.accent,
+    required this.activeDurationLabel,
+  });
+
+  @override
+  State<_RealtimeActiveDurationBadge> createState() =>
+      _RealtimeActiveDurationBadgeState();
+}
+
+class _RealtimeActiveDurationBadgeState
+    extends State<_RealtimeActiveDurationBadge> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTicker();
+  }
+
+  void _startTicker() {
+    _ticker?.cancel();
+    if (widget.clockInTime != null) {
+      _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _RealtimeActiveDurationBadge oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.clockInTime != widget.clockInTime) {
+      _startTicker();
+    }
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  String _formatLiveDuration() {
+    if (widget.clockInTime != null) {
+      final elapsedSeconds =
+          DateTime.now().difference(widget.clockInTime!).inSeconds;
+      final safeSeconds = elapsedSeconds > 0 ? elapsedSeconds : 0;
+      return '${widget.activeDurationLabel}${_formatHMS(safeSeconds)}';
+    }
+    if (widget.fallbackWorkHours != null) {
+      final totalSeconds = (widget.fallbackWorkHours!.abs() * 3600).round();
+      return '${widget.activeDurationLabel}${_formatHMS(totalSeconds)}';
+    }
+    return '';
+  }
+
+  String _formatHMS(int totalSeconds) {
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
+    if (hours > 0) {
+      return '${hours}h ${minutes}m ${seconds}s';
+    }
+    if (minutes > 0) {
+      return '${minutes}m ${seconds}s';
+    }
+    return '${seconds}s';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final text = _formatLiveDuration();
+    if (text.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: widget.accent.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 12,
+          color: widget.accent,
+          fontWeight: FontWeight.w700,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
       ),
     );
   }

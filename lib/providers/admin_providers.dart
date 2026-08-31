@@ -197,7 +197,8 @@ final allAttendanceLogsProvider = FutureProvider.autoDispose.family<List<AdminAt
 });
 
 final attendanceCorrectionsProvider = FutureProvider.autoDispose<List<AttendanceCorrectionData>>((ref) {
-  return ref.watch(adminOpsRepositoryProvider).getAttendanceCorrections();
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+  return ref.watch(adminOpsRepositoryProvider).getAttendanceCorrections(branchId: activeBranchId);
 });
 
 final allLeaveRequestsProvider = FutureProvider.autoDispose<List<AdminLeaveRequestData>>((ref) {
@@ -210,7 +211,8 @@ final leaveTypesProvider = FutureProvider<List<LeaveTypeData>>((ref) {
 });
 
 final leaveBalancesProvider = FutureProvider.autoDispose<List<LeaveBalanceData>>((ref) {
-  return ref.watch(adminOpsRepositoryProvider).getLeaveBalances();
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+  return ref.watch(adminOpsRepositoryProvider).getLeaveBalances(branchId: activeBranchId);
 });
 
 final shiftsProvider = FutureProvider.autoDispose<List<ShiftData>>((ref) {
@@ -249,7 +251,8 @@ final trainingCoursesProvider = FutureProvider.autoDispose<List<TrainingCourseDa
 });
 
 final payrollRunsProvider = FutureProvider.autoDispose<List<PayrollRunData>>((ref) {
-  return ref.watch(adminOpsRepositoryProvider).getPayrollRuns();
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+  return ref.watch(adminOpsRepositoryProvider).getPayrollRuns(branchId: activeBranchId);
 });
 
 final payrollSettingsProvider = FutureProvider.autoDispose<PayrollSettingsData>((ref) {
@@ -279,7 +282,8 @@ final orgChartProvider = FutureProvider.autoDispose<List<OrgNode>>((ref) {
 
 // ── Shift Assignments Provider ──────────────────────────────────────────────
 final shiftAssignmentsProvider = FutureProvider.autoDispose<List<ShiftAssignmentData>>((ref) {
-  return ref.watch(adminOpsRepositoryProvider).getShiftAssignments();
+  final activeBranchId = ref.watch(branchSwitchProvider).activeBranchId;
+  return ref.watch(adminOpsRepositoryProvider).getShiftAssignments(branchId: activeBranchId);
 });
 
 // ── Company Leave Summary Provider ──────────────────────────────────────────

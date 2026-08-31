@@ -126,8 +126,14 @@ class ExpenseRepository {
       : _api = api ?? ApiRepository(),
         _dio = dio ?? DioClient.instance;
 
-  Future<List<ExpenseData>> getExpenses() async {
-    final response = await _api.get('/company/expenses');
+  Future<List<ExpenseData>> getExpenses({int? branchId, String? status}) async {
+    final queryParams = <String, dynamic>{};
+    if (branchId != null) queryParams['branch_id'] = branchId;
+    if (status != null && status.isNotEmpty) queryParams['status'] = status;
+    final response = await _api.get(
+      '/company/expenses',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
     final data = response.data;
     if (data is List) return data.map((e) => ExpenseData.fromJson(e as Map<String, dynamic>)).toList();
     if (data is Map && data['data'] != null) return (data['data'] as List).map((e) => ExpenseData.fromJson(e as Map<String, dynamic>)).toList();

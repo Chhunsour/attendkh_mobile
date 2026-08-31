@@ -5,6 +5,7 @@ import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
 import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'formulas_screen.dart';
@@ -480,7 +481,18 @@ class _PayrollRunsTab extends ConsumerWidget {
                                     textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 6),
+                                IconButton(
+                                  onPressed: () => _exportPayrollRun(context, ref, r.period),
+                                  icon: const Icon(Icons.download_rounded, size: 18, color: AppColors.primary),
+                                  style: IconButton.styleFrom(
+                                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    padding: const EdgeInsets.all(8),
+                                  ),
+                                  tooltip: 'Export Payroll Excel',
+                                ),
+                                const SizedBox(width: 6),
                                 IconButton(
                                   onPressed: () => _confirmDeleteRun(context, ref, r),
                                   icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.danger),
@@ -512,6 +524,73 @@ class _PayrollRunsTab extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  void _exportPayrollRun(BuildContext context, WidgetRef ref, String period) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final activeBranchId = ref.read(branchSwitchProvider).activeBranchId;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              ),
+              SizedBox(width: 12),
+              Text('Exporting payroll spreadsheet...'),
+            ],
+          ),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      final path = await ref.read(adminOpsRepositoryProvider).exportPayroll(period, branchId: activeBranchId);
+      final fileName = path.split('/').last;
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.exportedToPath(fileName)),
+            backgroundColor: AppColors.success,
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'OPEN',
+              textColor: Colors.white,
+              onPressed: () => OpenFilex.open(path),
+            ),
+          ),
+        );
+      }
+
+      final openResult = await OpenFilex.open(path);
+      if (openResult.type != ResultType.done && context.mounted) {
+        String msg = 'Saved to: $path';
+        if (openResult.type == ResultType.noAppToOpen) {
+          msg = 'File saved to Downloads folder ($fileName).\nPlease install Microsoft Excel or Google Sheets to view .xlsx files.';
+        } else if (openResult.message.isNotEmpty) {
+          msg = 'Saved to: $path\n${openResult.message}';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: AppColors.warning,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.exportFailed(e.toString())),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
+    }
   }
 
   void _confirmDeleteRun(BuildContext context, WidgetRef ref, PayrollRunData run) {
