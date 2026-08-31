@@ -1,6 +1,6 @@
+import 'package:url_launcher/url_launcher.dart';
+import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:open_filex/open_filex.dart';
 
 class PayslipData {
   final int? id;
@@ -29,13 +29,13 @@ class PayslipData {
     required this.netPay,
     required this.grossPay,
     required this.basicSalary,
-    required this.overtimePay,
-    required this.allowances,
-    required this.taxDeduction,
-    required this.insuranceDeduction,
-    required this.lateDeduction,
+    this.overtimePay = 0,
+    this.allowances = 0,
+    this.taxDeduction = 0,
+    this.insuranceDeduction = 0,
+    this.lateDeduction = 0,
     this.earlyLeaveDeduction = 0,
-    required this.totalDeductions,
+    this.totalDeductions = 0,
     this.payDate,
     this.status = 'draft',
     this.workingDays = 0,
@@ -62,14 +62,10 @@ class PayslipData {
   factory PayslipData.fromJson(Map<String, dynamic> json) {
     return PayslipData(
       id: _parseInt(json['id']),
-      period:
-          json['payroll_period'] as String? ??
-          json['pay_period'] as String? ??
-          json['period'] as String? ??
-          '',
+      period: (json['payroll_period'] ?? json['period'] ?? '') as String,
       netPay: _parseDouble(json['net_salary'] ?? json['net_pay']),
       grossPay: _parseDouble(json['gross_salary'] ?? json['gross_pay']),
-      basicSalary: _parseDouble(json['basic_salary']),
+      basicSalary: _parseDouble(json['basic_salary'] ?? json['base_salary']),
       overtimePay: _parseDouble(json['overtime_pay']),
       allowances: _parseDouble(json['allowances']),
       taxDeduction: _parseDouble(json['tax_deduction']),
@@ -77,8 +73,8 @@ class PayslipData {
       lateDeduction: _parseDouble(json['late_deduction']),
       earlyLeaveDeduction: _parseDouble(json['early_leave_deduction']),
       totalDeductions: _parseDouble(json['total_deductions']),
-      payDate: json['pay_date'] as String? ?? json['paid_at'] as String?,
-      status: json['status'] as String? ?? 'draft',
+      payDate: json['pay_date'] as String?,
+      status: (json['status'] ?? 'draft') as String,
       workingDays: _parseInt(json['working_days']),
       presentDays: _parseInt(json['present_days']),
       lateDays: _parseInt(json['late_days']),
@@ -86,6 +82,28 @@ class PayslipData {
       overtimeHours: _parseInt(json['overtime_hours']),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'payroll_period': period,
+    'net_salary': netPay,
+    'gross_salary': grossPay,
+    'basic_salary': basicSalary,
+    'overtime_pay': overtimePay,
+    'allowances': allowances,
+    'tax_deduction': taxDeduction,
+    'insurance_deduction': insuranceDeduction,
+    'late_deduction': lateDeduction,
+    'early_leave_deduction': earlyLeaveDeduction,
+    'total_deductions': totalDeductions,
+    'pay_date': payDate,
+    'status': status,
+    'working_days': workingDays,
+    'present_days': presentDays,
+    'late_days': lateDays,
+    'early_leave_days': earlyLeaveDays,
+    'overtime_hours': overtimeHours,
+  };
 }
 
 class PayslipRepository {
@@ -110,20 +128,15 @@ class PayslipRepository {
 
   Future<void> downloadPayslip(String periodOrId) async {
     try {
-      final tempDir = await getTemporaryDirectory();
-      // Clean identifier for filename
-      final safeId = periodOrId.replaceAll(RegExp(r'[^\w\-]'), '_');
-      final savePath = '${tempDir.path}/payslip_$safeId.pdf';
+      final token = await SecureStorageService.instance.accessToken;
+      final urlString =
+          'https://attendkh.com/api/my-payslip-view/$periodOrId?token=${token ?? ''}';
+      final uri = Uri.parse(urlString);
 
-      await _api.download(
-        '/company/my-payslips/$periodOrId/download',
-        savePath,
-        method: 'GET',
-      );
-
-      final result = await OpenFilex.open(savePath, type: "application/pdf");
-      if (result.type != ResultType.done) {
-        throw 'Could not open PDF: ${result.message}';
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch payslip URL';
       }
     } catch (e) {
       throw 'Download failed: $e';
