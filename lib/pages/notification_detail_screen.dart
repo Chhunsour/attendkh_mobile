@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
+import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
 
@@ -113,6 +115,37 @@ class NotificationDetailScreen extends StatelessWidget {
 
   Future<void> _handleDownload(BuildContext context, NotificationItem n) async {
     try {
+      final type = n.type.toLowerCase();
+      final data = n.data ?? {};
+
+      // If this is a payslip notification, launch the interactive payslip with 100% Khmer font support
+      if (type.contains('payslip') ||
+          data['payslip_id'] != null ||
+          type.contains('payroll') ||
+          type.contains('salary')) {
+        final payslipId = data['payslip_id'] ?? data['id'] ?? n.id;
+        final token = await SecureStorageService.instance.accessToken;
+        final urlString =
+            'https://attendkh.com/api/my-payslip-view/$payslipId?token=${token ?? ''}';
+        final uri = Uri.parse(urlString);
+
+        bool launched = false;
+        try {
+          launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } catch (_) {}
+
+        if (!launched) {
+          try {
+            launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+          } catch (_) {}
+        }
+
+        if (!launched) {
+          await launchUrl(uri, mode: LaunchMode.platformDefault);
+        }
+        return;
+      }
+
       final attachment = _getAttachmentInfo(n);
       final filename = attachment?['name'] ?? 'attachment_${n.id}.pdf';
 
