@@ -130,7 +130,13 @@ class NotificationDetailScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text('Downloading $filename...'),
+                Expanded(
+                  child: Text(
+                    'Downloading $filename...',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
             duration: const Duration(seconds: 2),
