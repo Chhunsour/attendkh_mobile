@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -12,6 +13,7 @@ class JobMetricsOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final totalJobs = jobs.length;
     final openJobs = jobs.where((j) => j.status == 'open').length;
     final totalCandidates = jobs.fold<int>(0, (sum, j) => sum + j.candidatesCount);
@@ -24,7 +26,7 @@ class JobMetricsOverview extends StatelessWidget {
           Expanded(
             child: _buildKpiCard(
               context,
-              title: 'Total Jobs',
+              title: l10n.totalJobs,
               value: totalJobs.toString(),
               icon: Icons.business_center_rounded,
               color: AppColors.primary,
@@ -35,7 +37,7 @@ class JobMetricsOverview extends StatelessWidget {
           Expanded(
             child: _buildKpiCard(
               context,
-              title: 'Open Roles',
+              title: l10n.openRoles,
               value: openJobs.toString(),
               icon: Icons.check_circle_outline_rounded,
               color: const Color(0xFF059669),
@@ -46,7 +48,7 @@ class JobMetricsOverview extends StatelessWidget {
           Expanded(
             child: _buildKpiCard(
               context,
-              title: 'Applicants',
+              title: l10n.applicants,
               value: totalCandidates.toString(),
               icon: Icons.people_alt_rounded,
               color: const Color(0xFF7C3AED),
@@ -57,7 +59,7 @@ class JobMetricsOverview extends StatelessWidget {
           Expanded(
             child: _buildKpiCard(
               context,
-              title: 'Filled',
+              title: l10n.filled,
               value: filledJobs.toString(),
               icon: Icons.how_to_reg_rounded,
               color: const Color(0xFFD97706),

@@ -236,11 +236,11 @@ class CompanyAdminShell extends ConsumerWidget {
               color: const Color(0xFFEF4444),
               routePath: AppRoutes.notifications,
             ),
-            const MoreItem(
-              title: 'Help & Support Desk',
-              subtitle: 'Submit support tickets directly to Super Admin',
+            MoreItem(
+              title: l10n.helpSupportDesk,
+              subtitle: l10n.helpSupportSubtitle,
               icon: Icons.support_agent_rounded,
-              color: Color(0xFF10B981),
+              color: const Color(0xFF10B981),
               routePath: AppRoutes.userSupportTickets,
             ),
           ],

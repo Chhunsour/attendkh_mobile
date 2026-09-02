@@ -204,7 +204,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: _KpiMiniCard(
-                        title: 'Latest Net',
+                        title: l10n.latestNet,
                         value: '\$${(latestRun?.totalNet ?? 0).toStringAsFixed(2)}',
                         icon: Icons.attach_money_rounded,
                         iconColor: AppColors.primary,
@@ -501,7 +501,7 @@ class _PayrollRunsTab extends ConsumerWidget {
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                     padding: const EdgeInsets.all(8),
                                   ),
-                                  tooltip: 'Delete Payroll Run',
+                                  tooltip: l10n.deletePayrollRun,
                                 ),
                               ],
                             ),
@@ -1210,8 +1210,8 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
               const SizedBox(height: 8),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Enable Tax on Salary (TOAS)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                subtitle: const Text('Deduct income tax percentage from gross salary', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                title: Text(l10n.enableTaxOnSalary, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                subtitle: Text(l10n.deductIncomeTaxDesc, style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
                 value: _taxEnabled,
                 onChanged: (v) => setState(() => _taxEnabled = v),
               ),
@@ -1222,8 +1222,8 @@ class _PayrollSettingsTabState extends ConsumerState<_PayrollSettingsTab> {
               const SizedBox(height: 12),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Enable NSSF / Insurance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                subtitle: const Text('Deduct social security percentage from base salary', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                title: Text(l10n.enableNssfInsurance, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                subtitle: Text(l10n.deductSocialSecurityDesc, style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
                 value: _insuranceEnabled,
                 onChanged: (v) => setState(() => _insuranceEnabled = v),
               ),

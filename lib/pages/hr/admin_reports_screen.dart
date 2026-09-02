@@ -478,17 +478,17 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 tooltip: l10n.exportReportTooltip,
                 onSelected: (fmt) => _export(fmt),
                 itemBuilder: (_) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'csv',
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.table_chart,
                           size: 18,
                           color: AppColors.success,
                         ),
-                        SizedBox(width: 8),
-                        Text('CSV / Excel'),
+                        const SizedBox(width: 8),
+                        Text(l10n.csvExcel),
                       ],
                     ),
                   ),
@@ -640,9 +640,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Date presets
-                  const Text(
-                    'Quick Date Range',
-                    style: TextStyle(
+                  Text(
+                    l10n.quickDateRange,
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: AppColors.grey400,
@@ -791,9 +791,9 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                       if (_activeFilterCount > 0)
                         TextButton(
                           onPressed: _clearFilters,
-                          child: const Text(
-                            'Clear All Filters',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.clearAllFilters,
+                            style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: AppColors.grey500,
@@ -1095,10 +1095,10 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Select filters above and tap Generate Report to view detailed analytics.',
+          Text(
+            l10n.selectFiltersToGenerateReport,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: AppColors.grey400),
+            style: const TextStyle(fontSize: 13, color: AppColors.grey400),
           ),
         ],
       ),
@@ -1196,7 +1196,7 @@ class _AdminReportsScreenState extends ConsumerState<AdminReportsScreen> {
                 child: TextField(
                   onChanged: (v) => setState(() => _searchQuery = v),
                   decoration: InputDecoration(
-                    hintText: 'Search results...',
+                    hintText: l10n.searchReportsHint,
                     hintStyle: const TextStyle(
                       fontSize: 12,
                       color: AppColors.grey400,

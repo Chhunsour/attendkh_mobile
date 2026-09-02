@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/services/user_support_tickets_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 
@@ -43,6 +44,36 @@ class _UserSupportTicketsScreenState
     'urgent': Color(0xFFEF4444),
   };
 
+  String _getStatusLabel(String status, AppLocalizations l10n) {
+    switch (status.toLowerCase()) {
+      case 'open':
+        return l10n.ticketStatusOpen;
+      case 'in_progress':
+        return l10n.ticketStatusInProgress;
+      case 'resolved':
+        return l10n.ticketStatusResolved;
+      case 'closed':
+        return l10n.ticketStatusClosed;
+      default:
+        return status.replaceAll('_', ' ').toUpperCase();
+    }
+  }
+
+  String _getPriorityLabel(String priority, AppLocalizations l10n) {
+    switch (priority.toLowerCase()) {
+      case 'low':
+        return l10n.ticketPriorityLow;
+      case 'medium':
+        return l10n.ticketPriorityMedium;
+      case 'high':
+        return l10n.ticketPriorityHigh;
+      case 'urgent':
+        return l10n.ticketPriorityUrgent;
+      default:
+        return priority.toUpperCase();
+    }
+  }
+
   void _openCreateBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -58,6 +89,7 @@ class _UserSupportTicketsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final ticketsAsync = ref.watch(userSupportTicketsProvider);
 
     return Scaffold(
@@ -67,7 +99,7 @@ class _UserSupportTicketsScreenState
         elevation: 0,
         centerTitle: false,
         title: Text(
-          'Help & Support Desk',
+          l10n.helpSupportDesk,
           style: TextStyle(
             color: AppColors.textPrimary(context),
             fontSize: 18,
@@ -77,7 +109,7 @@ class _UserSupportTicketsScreenState
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
-            tooltip: 'Refresh',
+            tooltip: l10n.retry,
             onPressed: () => ref.invalidate(userSupportTicketsProvider),
           ),
         ],
@@ -87,7 +119,7 @@ class _UserSupportTicketsScreenState
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Submit Ticket', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: Text(l10n.submitTicket, style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: RefreshIndicator(
         color: AppColors.primary,
@@ -104,25 +136,25 @@ class _UserSupportTicketsScreenState
                 children: [
                   const Icon(Icons.error_outline_rounded, color: AppColors.danger, size: 48),
                   const SizedBox(height: 16),
-                  Text('Failed to load tickets: $err',
+                  Text('${l10n.failedToLoadTickets}: $err',
                       textAlign: TextAlign.center,
                       style: const TextStyle(color: AppColors.danger)),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => ref.invalidate(userSupportTicketsProvider),
-                    child: const Text('Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
             ),
           ),
-          data: (tickets) => _buildBody(tickets),
+          data: (tickets) => _buildBody(tickets, l10n),
         ),
       ),
     );
   }
 
-  Widget _buildBody(List<UserSupportTicket> tickets) {
+  Widget _buildBody(List<UserSupportTicket> tickets, AppLocalizations l10n) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
       children: [
@@ -150,7 +182,7 @@ class _UserSupportTicketsScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Direct Support Channel',
+                      l10n.directSupportChannel,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -159,7 +191,7 @@ class _UserSupportTicketsScreenState
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Submit technical issues, billing requests, or questions directly to Super Admin.',
+                      l10n.directSupportChannelDesc,
                       style: TextStyle(fontSize: 11, color: AppColors.textSecondary(context)),
                     ),
                   ],
@@ -181,7 +213,7 @@ class _UserSupportTicketsScreenState
                   const Icon(Icons.mark_email_read_outlined, size: 56, color: AppColors.grey400),
                   const SizedBox(height: 12),
                   Text(
-                    'No support tickets yet',
+                    l10n.noSupportTicketsYet,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -190,7 +222,7 @@ class _UserSupportTicketsScreenState
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Tap "+ Submit Ticket" below to send a request to the platform administrators.',
+                    l10n.noSupportTicketsDesc,
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12, color: AppColors.textSecondary(context)),
                   ),
@@ -200,7 +232,7 @@ class _UserSupportTicketsScreenState
           )
         else ...[
           Text(
-            'My Support Requests (${tickets.length})',
+            '${l10n.mySupportRequests} (${tickets.length})',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
@@ -208,13 +240,13 @@ class _UserSupportTicketsScreenState
             ),
           ),
           const SizedBox(height: 8),
-          ...tickets.map((t) => _buildTicketCard(t)),
+          ...tickets.map((t) => _buildTicketCard(t, l10n)),
         ],
       ],
     );
   }
 
-  Widget _buildTicketCard(UserSupportTicket ticket) {
+  Widget _buildTicketCard(UserSupportTicket ticket, AppLocalizations l10n) {
     final isExpanded = _expandedId == ticket.id;
     final status = ticket.status.toLowerCase();
     final priority = ticket.priority.toLowerCase();
@@ -260,7 +292,7 @@ class _UserSupportTicketsScreenState
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        priority.toUpperCase(),
+                        _getPriorityLabel(priority, l10n),
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
@@ -276,7 +308,7 @@ class _UserSupportTicketsScreenState
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        status.replaceAll('_', ' ').toUpperCase(),
+                        _getStatusLabel(status, l10n),
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -305,7 +337,7 @@ class _UserSupportTicketsScreenState
                 if (isExpanded) ...[
                   const Divider(height: 20),
                   Text(
-                    'Description:',
+                    '${l10n.trainingDescription}:',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -360,14 +392,14 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
     super.dispose();
   }
 
-  Future<void> _handleSubmit() async {
+  Future<void> _handleSubmit(AppLocalizations l10n) async {
     final subject = _subjectCtrl.text.trim();
     final message = _messageCtrl.text.trim();
 
     if (subject.isEmpty || message.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a subject and message.'),
+        SnackBar(
+          content: Text(l10n.enterSubjectAndMessage),
           backgroundColor: AppColors.danger,
         ),
       );
@@ -383,8 +415,8 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Your support ticket has been submitted to Super Admin.'),
+        SnackBar(
+          content: Text(l10n.ticketSubmittedSuccess),
           backgroundColor: AppColors.success,
         ),
       );
@@ -393,7 +425,7 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to submit ticket: $e'),
+          content: Text('${l10n.failedToLoadTickets}: $e'),
           backgroundColor: AppColors.danger,
         ),
       );
@@ -404,6 +436,7 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
@@ -422,7 +455,7 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
                 const Icon(Icons.support_agent_rounded, color: AppColors.primary),
                 const SizedBox(width: 8),
                 Text(
-                  'Submit Support Ticket',
+                  l10n.submitSupportTicketTitle,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -440,7 +473,7 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
 
             // Subject
             Text(
-              'Subject / Summary *',
+              l10n.subjectSummaryLabel,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -451,7 +484,7 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
             TextField(
               controller: _subjectCtrl,
               decoration: InputDecoration(
-                hintText: 'e.g. Cannot generate payroll for Branch 2',
+                hintText: l10n.subjectHint,
                 hintStyle: TextStyle(fontSize: 12, color: AppColors.textSecondary(context)),
                 filled: true,
                 fillColor: AppColors.bg(context),
@@ -464,7 +497,7 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
 
             // Priority
             Text(
-              'Priority Level',
+              l10n.priority,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -482,11 +515,11 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
                 child: DropdownButton<String>(
                   value: _priority,
                   isExpanded: true,
-                  items: const [
-                    DropdownMenuItem(value: 'low', child: Text('Low - General inquiry / feedback')),
-                    DropdownMenuItem(value: 'medium', child: Text('Medium - Normal assistance needed')),
-                    DropdownMenuItem(value: 'high', child: Text('High - Impairing daily workflow')),
-                    DropdownMenuItem(value: 'urgent', child: Text('Urgent - Critical business blocker')),
+                  items: [
+                    DropdownMenuItem(value: 'low', child: Text(l10n.lowPriorityDesc)),
+                    DropdownMenuItem(value: 'medium', child: Text(l10n.mediumPriorityDesc)),
+                    DropdownMenuItem(value: 'high', child: Text(l10n.highPriorityDesc)),
+                    DropdownMenuItem(value: 'urgent', child: Text(l10n.urgentPriorityDesc)),
                   ],
                   onChanged: (v) {
                     if (v != null) setState(() => _priority = v);
@@ -499,7 +532,7 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
 
             // Message
             Text(
-              'Detailed Description *',
+              l10n.detailedDescriptionLabel,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -511,7 +544,7 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
               controller: _messageCtrl,
               maxLines: 4,
               decoration: InputDecoration(
-                hintText: 'Please describe the problem or question with steps to reproduce...',
+                hintText: l10n.detailedDescriptionHint,
                 hintStyle: TextStyle(fontSize: 12, color: AppColors.textSecondary(context)),
                 filled: true,
                 fillColor: AppColors.bg(context),
@@ -525,7 +558,7 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: _submitting ? null : _handleSubmit,
+                onPressed: _submitting ? null : () => _handleSubmit(l10n),
                 icon: _submitting
                     ? const SizedBox(
                         width: 16,
@@ -533,7 +566,7 @@ class _CreateTicketBottomSheetState extends State<_CreateTicketBottomSheet> {
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
                     : const Icon(Icons.send_rounded, size: 18),
-                label: Text(_submitting ? 'Submitting...' : 'Send Ticket to Super Admin'),
+                label: Text(_submitting ? l10n.submittingTicket : l10n.sendTicketToSuperAdmin),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,

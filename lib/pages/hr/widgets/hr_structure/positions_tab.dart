@@ -260,7 +260,7 @@ class _PositionsTabState extends ConsumerState<PositionsTab> {
                                     visualDensity: VisualDensity.compact,
                                     foregroundColor: AppColors.danger,
                                   ),
-                                  child: const Text('Reset All', style: TextStyle(fontSize: 11.5)),
+                                  child: Text(l10n.resetAll, style: const TextStyle(fontSize: 11.5)),
                                 ),
                             ],
                           ),
@@ -331,7 +331,7 @@ class _PositionsTabState extends ConsumerState<PositionsTab> {
                           const SizedBox(height: 10),
 
                           // Sort By
-                          const Text('Sort By', style: TextStyle(fontSize: 11.5, color: AppColors.grey500, fontWeight: FontWeight.w600)),
+                          Text(l10n.sortBy, style: const TextStyle(fontSize: 11.5, color: AppColors.grey500, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 6),
                           Row(
                             children: [
@@ -428,7 +428,7 @@ class _PositionsTabState extends ConsumerState<PositionsTab> {
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                           ),
-                                          child: const Text('Clear Filters', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                          child: Text(l10n.clearFilters, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                                         ),
                                       ],
                                     ],
@@ -491,7 +491,7 @@ class _PositionsTabState extends ConsumerState<PositionsTab> {
                       const Icon(Icons.add_rounded, color: Colors.white, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        l10n.addRoleBtn,
+                        l10n.add,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
@@ -808,11 +808,11 @@ class _PositionsTabState extends ConsumerState<PositionsTab> {
     int id,
     String name,
   ) async {
-    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) {
+          final l10n = AppLocalizations.of(context)!;
         return Dialog(
           backgroundColor: AppColors.surfaceLight,
           surfaceTintColor: Colors.white,

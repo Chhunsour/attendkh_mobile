@@ -572,7 +572,9 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
               controller: widget.scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: StatefulBuilder(
-                builder: (ctx, setSt) => Column(
+                builder: (ctx, setSt) {
+                  final l10n = AppLocalizations.of(ctx)!;
+                  return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Single / Bulk mode toggle
@@ -599,7 +601,7 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Single Employee',
+                                  l10n.singleEmployee,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
@@ -626,7 +628,7 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Multiple / All Employees',
+                                  l10n.multipleOrAllEmployees,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
@@ -679,7 +681,7 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                           onChanged: (v) => setSt(() => selectedEmpId = v),
                         ),
                         loading: () => const LinearProgressIndicator(),
-                        error: (_, _) => const Text('Failed to load employees'),
+                        error: (_, _) => Text(l10n.failedToLoadEmployees),
                       ),
                     ] else ...[
                       Row(
@@ -763,7 +765,7 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                           ),
                         ),
                         loading: () => const LinearProgressIndicator(),
-                        error: (_, _) => const Text('Failed to load employees'),
+                        error: (_, _) => Text(l10n.failedToLoadEmployees),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -813,7 +815,7 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                         onChanged: (v) => setSt(() => selectedTypeId = v),
                       ),
                       loading: () => const LinearProgressIndicator(),
-                      error: (_, _) => const Text('Failed to load leave types'),
+                      error: (_, _) => Text(l10n.failedToLoadLeaveTypes),
                     ),
                     const SizedBox(height: 14),
 
@@ -995,14 +997,15 @@ class _AddBalanceSheetState extends ConsumerState<_AddBalanceSheet> {
                     ),
                     const SizedBox(height: 20),
                   ],
-                ),
-              ),
+                );
+              },
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   InputDecoration _dropDec([BuildContext? context]) => InputDecoration(
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

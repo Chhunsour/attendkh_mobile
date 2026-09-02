@@ -91,7 +91,7 @@ class _DepartmentsTabState extends ConsumerState<DepartmentsTab> {
                               color: AppColors.textPrimary(context),
                             ),
                             decoration: InputDecoration(
-                              hintText: 'Search depts...',
+                              hintText: l10n.searchDeptsHint,
                               hintStyle: const TextStyle(
                                 fontSize: 13,
                                 color: AppColors.grey400,
@@ -220,7 +220,7 @@ class _DepartmentsTabState extends ConsumerState<DepartmentsTab> {
                                     visualDensity: VisualDensity.compact,
                                     foregroundColor: AppColors.danger,
                                   ),
-                                  child: const Text('Reset All', style: TextStyle(fontSize: 11.5)),
+                                  child: Text(l10n.resetAll, style: const TextStyle(fontSize: 11.5)),
                                 ),
                             ],
                           ),
@@ -278,7 +278,7 @@ class _DepartmentsTabState extends ConsumerState<DepartmentsTab> {
                           const SizedBox(height: 10),
 
                           // Sort By
-                          const Text('Sort By', style: TextStyle(fontSize: 11.5, color: AppColors.grey500, fontWeight: FontWeight.w600)),
+                          Text(l10n.sortBy, style: const TextStyle(fontSize: 11.5, color: AppColors.grey500, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 6),
                           Row(
                             children: [
@@ -374,7 +374,7 @@ class _DepartmentsTabState extends ConsumerState<DepartmentsTab> {
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                           ),
-                                          child: const Text('Clear Filters', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                          child: Text(l10n.clearFilters, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                                         ),
                                       ],
                                     ],
@@ -437,7 +437,7 @@ class _DepartmentsTabState extends ConsumerState<DepartmentsTab> {
                       const Icon(Icons.add_rounded, color: Colors.white, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        l10n.addDeptBtn,
+                        l10n.add,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
@@ -717,11 +717,11 @@ class _DepartmentsTabState extends ConsumerState<DepartmentsTab> {
     int id,
     String name,
   ) async {
-    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) {
+          final l10n = AppLocalizations.of(context)!;
         return Dialog(
           backgroundColor: AppColors.surfaceLight,
           surfaceTintColor: Colors.white,
@@ -960,6 +960,7 @@ class _DepartmentFormDialogState extends ConsumerState<DepartmentFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final branchesAsync = ref.watch(branchesProvider);
     final deptsAsync = ref.watch(departmentsProvider);
     final employeesAsync = ref.watch(allEmployeesProvider);
@@ -1027,9 +1028,9 @@ class _DepartmentFormDialogState extends ConsumerState<DepartmentFormDialog> {
                           color: AppColors.textPrimary(context),
                         ),
                       ),
-                      const Text(
-                        'Set organizational unit boundaries',
-                        style: TextStyle(
+                      Text(
+                        l10n.setOrgUnitBoundaries,
+                        style: const TextStyle(
                           color: AppColors.grey500,
                           fontSize: 11,
                         ),
@@ -1083,9 +1084,9 @@ class _DepartmentFormDialogState extends ConsumerState<DepartmentFormDialog> {
                       branchesAsync.when(
                         data: (branches) => DropdownButtonFormField<int>(
                           initialValue: _branchId,
-                          decoration: const InputDecoration(
-                            labelText: 'Office Branch',
-                            prefixIcon: Icon(
+                          decoration: InputDecoration(
+                            labelText: l10n.officeBranch,
+                            prefixIcon: const Icon(
                               Icons.place_outlined,
                               color: AppColors.grey400,
                               size: 20,

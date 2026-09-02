@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -24,6 +25,7 @@ class JobFilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final totalCount = allJobs.length;
     final openCount = allJobs.where((j) => j.status == 'open').length;
     final draftCount = allJobs.where((j) => j.status == 'draft').length;
@@ -31,7 +33,7 @@ class JobFilterBar extends StatelessWidget {
     final filledCount = allJobs.where((j) => j.status == 'filled').length;
 
     final filterPills = [
-      {'key': '', 'label': 'All', 'count': totalCount},
+      {'key': '', 'label': l10n.all, 'count': totalCount},
       {'key': 'open', 'label': 'Open', 'count': openCount},
       {'key': 'draft', 'label': 'Draft', 'count': draftCount},
       {'key': 'closed', 'label': 'Closed', 'count': closedCount},
@@ -59,7 +61,7 @@ class JobFilterBar extends StatelessWidget {
                     onChanged: (_) => onSearchChanged(),
                     style: const TextStyle(fontSize: 13),
                     decoration: InputDecoration(
-                      hintText: 'Search jobs, department, location...',
+                      hintText: l10n.searchJobsHint,
                       hintStyle: const TextStyle(fontSize: 12.5, color: AppColors.grey400),
                       prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppColors.grey400),
                       suffixIcon: searchController.text.isNotEmpty
@@ -82,12 +84,12 @@ class JobFilterBar extends StatelessWidget {
                 tooltip: 'Filter by Employment Type',
                 initialValue: typeFilter,
                 onSelected: onTypeFilterChanged,
-                itemBuilder: (ctx) => const [
-                  PopupMenuItem(value: '', child: Text('All Types')),
-                  PopupMenuItem(value: 'full_time', child: Text('Full Time')),
-                  PopupMenuItem(value: 'part_time', child: Text('Part Time')),
-                  PopupMenuItem(value: 'contract', child: Text('Contract')),
-                  PopupMenuItem(value: 'internship', child: Text('Internship')),
+                itemBuilder: (ctx) => [
+                  const PopupMenuItem(value: '', child: Text('All Types')),
+                  PopupMenuItem(value: 'full_time', child: Text(l10n.fullTime)),
+                  PopupMenuItem(value: 'part_time', child: Text(l10n.partTime)),
+                  PopupMenuItem(value: 'contract', child: Text(l10n.contract)),
+                  PopupMenuItem(value: 'internship', child: Text(l10n.internship)),
                 ],
                 child: Container(
                   height: 44,

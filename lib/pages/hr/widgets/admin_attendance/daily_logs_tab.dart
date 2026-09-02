@@ -110,10 +110,10 @@ class _DailyLogsTabState extends ConsumerState<DailyLogsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final logsAsync = ref.watch(allAttendanceLogsProvider(_filters));
     final departmentsAsync = ref.watch(departmentsProvider);
     final employeesAsync = ref.watch(allEmployeesProvider);
-    final l10n = AppLocalizations.of(context)!;
 
     return logsAsync.when(
       data: (items) {
@@ -349,7 +349,7 @@ class _DailyLogsTabState extends ConsumerState<DailyLogsTab> {
                                         visualDensity: VisualDensity.compact,
                                         foregroundColor: AppColors.danger,
                                       ),
-                                      child: const Text('Reset All', style: TextStyle(fontSize: 12)),
+                                      child: Text(l10n.resetAll, style: const TextStyle(fontSize: 12)),
                                     ),
                                 ],
                               ),
@@ -585,7 +585,7 @@ class _DailyLogsTabState extends ConsumerState<DailyLogsTab> {
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               ),
-                              child: const Text('Clear Filters', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                              child: Text(l10n.clearFilters, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ],

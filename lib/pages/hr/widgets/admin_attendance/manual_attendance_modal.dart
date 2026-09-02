@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -142,7 +143,7 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Select Employee',
+                          AppLocalizations.of(context)?.selectEmployee ?? 'Select Employee',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -163,7 +164,7 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
                       onChanged: (val) =>
                           setPickerState(() => query = val.trim()),
                       decoration: InputDecoration(
-                        hintText: 'Search by name, ID or department...',
+                        hintText: AppLocalizations.of(context)?.searchEmployeeHint ?? 'Search by name, ID or department...',
                         hintStyle: TextStyle(
                           fontSize: 13,
                           color: isDark ? AppColors.grey500 : AppColors.grey400,
@@ -193,10 +194,10 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
                   const Divider(height: 1),
                   Expanded(
                     child: filtered.isEmpty
-                        ? const Center(
+                        ? Center(
                             child: Text(
-                              'No employees found',
-                              style: TextStyle(
+                              AppLocalizations.of(context)?.noMatchingEmployeesFound ?? 'No employees found',
+                              style: const TextStyle(
                                 color: AppColors.grey500,
                                 fontSize: 13,
                               ),
@@ -313,6 +314,7 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final employeesAsync = ref.watch(allEmployeesProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -350,7 +352,7 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Manual Attendance Entry',
+                    l10n.manualAttendanceEntry,
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
@@ -424,7 +426,7 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
                                   ],
                                 )
                               : Text(
-                                  'Select Employee *',
+                                  l10n.selectEmployeeRequired,
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: isDark
@@ -465,9 +467,9 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
                     ],
                   ),
                 ),
-                error: (e, _) => const Text(
-                  'Failed to load employees',
-                  style: TextStyle(color: AppColors.danger, fontSize: 12),
+                error: (e, _) => Text(
+                  l10n.failedToLoadEmployees,
+                  style: const TextStyle(color: AppColors.danger, fontSize: 12),
                 ),
               ),
               const SizedBox(height: 12),
@@ -475,7 +477,7 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
               TextFormField(
                 controller: _dateController,
                 decoration: _inputDecoration(
-                  'Date (YYYY-MM-DD)',
+                  l10n.date,
                   Icons.calendar_today_outlined,
                 ),
                 validator: (val) =>
@@ -488,7 +490,7 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
                     child: TextFormField(
                       controller: _clockInController,
                       decoration: _inputDecoration(
-                        'Clock In (HH:MM)',
+                        l10n.clockInTime,
                         Icons.login_rounded,
                       ),
                     ),
@@ -498,7 +500,7 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
                     child: TextFormField(
                       controller: _clockOutController,
                       decoration: _inputDecoration(
-                        'Clock Out (HH:MM)',
+                        l10n.clockOutTime,
                         Icons.logout_rounded,
                       ),
                     ),
@@ -509,14 +511,14 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
               DropdownButtonFormField<String>(
                 initialValue: _status,
                 decoration: _inputDecoration(
-                  'Status',
+                  l10n.status,
                   Icons.check_circle_outline_rounded,
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'present', child: Text('Present')),
-                  DropdownMenuItem(value: 'late', child: Text('Late')),
-                  DropdownMenuItem(value: 'absent', child: Text('Absent')),
-                  DropdownMenuItem(value: 'on_leave', child: Text('On Leave')),
+                items: [
+                  DropdownMenuItem(value: 'present', child: Text(l10n.present)),
+                  DropdownMenuItem(value: 'late', child: Text(l10n.late)),
+                  DropdownMenuItem(value: 'absent', child: Text(l10n.absent)),
+                  DropdownMenuItem(value: 'on_leave', child: Text(l10n.onLeave)),
                 ],
                 onChanged: (val) {
                   if (val != null) setState(() => _status = val);
@@ -526,7 +528,7 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
               TextFormField(
                 controller: _notesController,
                 decoration: _inputDecoration(
-                  'Notes / Reason',
+                  l10n.reason,
                   Icons.edit_note_rounded,
                 ),
               ),
@@ -553,9 +555,9 @@ class _ManualAttendanceModalState extends ConsumerState<ManualAttendanceModal> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          'Save Attendance Record',
-                          style: TextStyle(
+                      : Text(
+                          l10n.save,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),

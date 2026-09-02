@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
@@ -89,6 +90,7 @@ class _JobCandidatesSheetState extends ConsumerState<JobCandidatesSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final candidatesAsync = ref.watch(jobCandidatesProvider(widget.job.id));
 
     return Container(
@@ -123,7 +125,7 @@ class _JobCandidatesSheetState extends ConsumerState<JobCandidatesSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Candidates Pipeline',
+                        l10n.candidatesPipeline,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -147,9 +149,9 @@ class _JobCandidatesSheetState extends ConsumerState<JobCandidatesSheet> {
                 ElevatedButton.icon(
                   onPressed: () => _showAddCandidateForm(context),
                   icon: const Icon(Icons.person_add_alt_1_rounded, size: 16),
-                  label: const Text(
-                    'Add',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  label: Text(
+                    AppLocalizations.of(context)?.addCandidate ?? 'Add',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -182,13 +184,13 @@ class _JobCandidatesSheetState extends ConsumerState<JobCandidatesSheet> {
               };
 
               final stageTabs = [
-                {'key': '', 'label': 'All', 'count': stageCounts['']},
+                {'key': '', 'label': l10n.all, 'count': stageCounts['']},
                 {'key': 'applied', 'label': 'Applied', 'count': stageCounts['applied']},
-                {'key': 'screening', 'label': 'Screening', 'count': stageCounts['screening']},
-                {'key': 'interview', 'label': 'Interview', 'count': stageCounts['interview']},
+                {'key': 'screening', 'label': l10n.screening, 'count': stageCounts['screening']},
+                {'key': 'interview', 'label': l10n.interview, 'count': stageCounts['interview']},
                 {'key': 'offer', 'label': 'Offer', 'count': stageCounts['offer']},
-                {'key': 'hired', 'label': 'Hired', 'count': stageCounts['hired']},
-                {'key': 'rejected', 'label': 'Rejected', 'count': stageCounts['rejected']},
+                {'key': 'hired', 'label': l10n.hired, 'count': stageCounts['hired']},
+                {'key': 'rejected', 'label': l10n.rejected, 'count': stageCounts['rejected']},
               ];
 
               return Column(
@@ -208,7 +210,7 @@ class _JobCandidatesSheetState extends ConsumerState<JobCandidatesSheet> {
                         onChanged: (_) => setState(() {}),
                         style: const TextStyle(fontSize: 12.5),
                         decoration: InputDecoration(
-                          hintText: 'Search candidates by name, email, role...',
+                          hintText: l10n.searchCandidatesHint,
                           hintStyle: const TextStyle(fontSize: 11.5, color: AppColors.grey400),
                           prefixIcon: const Icon(Icons.search_rounded, size: 16, color: AppColors.grey400),
                           suffixIcon: _candidateSearchCtrl.text.isNotEmpty
@@ -334,7 +336,7 @@ class _JobCandidatesSheetState extends ConsumerState<JobCandidatesSheet> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'No candidates found',
+                          l10n.noCandidatesFound,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -342,9 +344,9 @@ class _JobCandidatesSheetState extends ConsumerState<JobCandidatesSheet> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Add candidates or switch filter tabs',
-                          style: TextStyle(fontSize: 11.5, color: AppColors.grey500),
+                        Text(
+                          AppLocalizations.of(context)?.addCandidatesOrSwitchTabs ?? 'Add candidates or switch filter tabs',
+                          style: const TextStyle(fontSize: 11.5, color: AppColors.grey500),
                         ),
                       ],
                     ),

@@ -10732,6 +10732,900 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refresh'**
   String get refresh;
+
+  /// No description provided for @overtimeWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime Window'**
+  String get overtimeWindow;
+
+  /// No description provided for @payable.
+  ///
+  /// In en, this message translates to:
+  /// **'Payable'**
+  String get payable;
+
+  /// No description provided for @overtimeHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime History'**
+  String get overtimeHistory;
+
+  /// No description provided for @noOvertimeRequestsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No overtime requests found'**
+  String get noOvertimeRequestsFound;
+
+  /// No description provided for @requestDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Details'**
+  String get requestDetails;
+
+  /// No description provided for @noReasonProvided.
+  ///
+  /// In en, this message translates to:
+  /// **'No reason provided'**
+  String get noReasonProvided;
+
+  /// No description provided for @overtimeHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime Hours'**
+  String get overtimeHours;
+
+  /// No description provided for @overtimeAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime Amount'**
+  String get overtimeAmount;
+
+  /// No description provided for @approvingOvertime.
+  ///
+  /// In en, this message translates to:
+  /// **'Approving overtime...'**
+  String get approvingOvertime;
+
+  /// No description provided for @rejectingOvertime.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejecting overtime...'**
+  String get rejectingOvertime;
+
+  /// No description provided for @overtimeApprovedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime request approved successfully.'**
+  String get overtimeApprovedSuccess;
+
+  /// No description provided for @overtimeRejectedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime request rejected successfully.'**
+  String get overtimeRejectedSuccess;
+
+  /// No description provided for @employeeLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee Leaderboard'**
+  String get employeeLeaderboard;
+
+  /// No description provided for @otherRankings.
+  ///
+  /// In en, this message translates to:
+  /// **'OTHER RANKINGS'**
+  String get otherRankings;
+
+  /// No description provided for @loadingLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading Leaderboard...'**
+  String get loadingLeaderboard;
+
+  /// No description provided for @noActivityRecordedForMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity records recorded for this month.'**
+  String get noActivityRecordedForMonth;
+
+  /// No description provided for @checkEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Early'**
+  String get checkEarly;
+
+  /// No description provided for @checkLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Late'**
+  String get checkLate;
+
+  /// No description provided for @checkoutEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout Early'**
+  String get checkoutEarly;
+
+  /// No description provided for @mostPunctual.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Punctual'**
+  String get mostPunctual;
+
+  /// No description provided for @earlyCheckouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Early Checkouts'**
+  String get earlyCheckouts;
+
+  /// No description provided for @rank.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank'**
+  String get rank;
+
+  /// No description provided for @times.
+  ///
+  /// In en, this message translates to:
+  /// **'times'**
+  String get times;
+
+  /// No description provided for @manualAttendanceEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual Attendance Entry'**
+  String get manualAttendanceEntry;
+
+  /// No description provided for @selectEmployeeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Employee *'**
+  String get selectEmployeeRequired;
+
+  /// No description provided for @noMatchingEmployeesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching employees found'**
+  String get noMatchingEmployeesFound;
+
+  /// No description provided for @addManualAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Manual Attendance'**
+  String get addManualAttendance;
+
+  /// No description provided for @clockInTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock In Time'**
+  String get clockInTime;
+
+  /// No description provided for @clockOutTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock Out Time'**
+  String get clockOutTime;
+
+  /// No description provided for @recordingAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording attendance...'**
+  String get recordingAttendance;
+
+  /// No description provided for @attendanceRecordedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance recorded successfully.'**
+  String get attendanceRecordedSuccess;
+
+  /// No description provided for @resetAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset All'**
+  String get resetAll;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort By'**
+  String get sortBy;
+
+  /// No description provided for @candidatesPipeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Candidates Pipeline'**
+  String get candidatesPipeline;
+
+  /// No description provided for @addCandidate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Candidate'**
+  String get addCandidate;
+
+  /// No description provided for @noCandidatesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No candidates found'**
+  String get noCandidatesFound;
+
+  /// No description provided for @addCandidatesOrSwitchTabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Add candidates or switch filter tabs'**
+  String get addCandidatesOrSwitchTabs;
+
+  /// No description provided for @searchCandidatesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search candidates by name, email, role...'**
+  String get searchCandidatesHint;
+
+  /// No description provided for @screening.
+  ///
+  /// In en, this message translates to:
+  /// **'Screening'**
+  String get screening;
+
+  /// No description provided for @interview.
+  ///
+  /// In en, this message translates to:
+  /// **'Interview'**
+  String get interview;
+
+  /// No description provided for @hired.
+  ///
+  /// In en, this message translates to:
+  /// **'Hired'**
+  String get hired;
+
+  /// No description provided for @convert.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert'**
+  String get convert;
+
+  /// No description provided for @scheduleInterview.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Interview'**
+  String get scheduleInterview;
+
+  /// No description provided for @confirmSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Schedule'**
+  String get confirmSchedule;
+
+  /// No description provided for @technicalAssessment.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical Assessment'**
+  String get technicalAssessment;
+
+  /// No description provided for @phoneInterview.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Interview'**
+  String get phoneInterview;
+
+  /// No description provided for @inPersonInterview.
+  ///
+  /// In en, this message translates to:
+  /// **'In-Person Interview'**
+  String get inPersonInterview;
+
+  /// No description provided for @dateTimeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Date and time are required'**
+  String get dateTimeRequired;
+
+  /// No description provided for @fullNameAndKhmerNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name and Khmer name are required'**
+  String get fullNameAndKhmerNameRequired;
+
+  /// No description provided for @openRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Roles'**
+  String get openRoles;
+
+  /// No description provided for @totalJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Jobs'**
+  String get totalJobs;
+
+  /// No description provided for @applicants.
+  ///
+  /// In en, this message translates to:
+  /// **'Applicants'**
+  String get applicants;
+
+  /// No description provided for @filled.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled'**
+  String get filled;
+
+  /// No description provided for @editJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Job'**
+  String get editJob;
+
+  /// No description provided for @deleteJobPosting.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Job Posting'**
+  String get deleteJobPosting;
+
+  /// No description provided for @deleteJobConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this job posting?'**
+  String get deleteJobConfirmation;
+
+  /// No description provided for @internship.
+  ///
+  /// In en, this message translates to:
+  /// **'Internship'**
+  String get internship;
+
+  /// No description provided for @searchJobsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search jobs, department, location...'**
+  String get searchJobsHint;
+
+  /// No description provided for @draft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get draft;
+
+  /// No description provided for @published.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get published;
+
+  /// No description provided for @closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get closed;
+
+  /// No description provided for @nextStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Step →'**
+  String get nextStep;
+
+  /// No description provided for @chooseAssetRecipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who will receive this asset'**
+  String get chooseAssetRecipient;
+
+  /// No description provided for @searchEmployeeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, ID, position...'**
+  String get searchEmployeeHint;
+
+  /// No description provided for @conditionAtAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition at assignment'**
+  String get conditionAtAssignment;
+
+  /// No description provided for @conditionAtReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition at return'**
+  String get conditionAtReturn;
+
+  /// No description provided for @loadingAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading assets...'**
+  String get loadingAssets;
+
+  /// No description provided for @tapToSearchEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to search & choose employee'**
+  String get tapToSearchEmployee;
+
+  /// No description provided for @publishAnnouncement.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Announcement'**
+  String get publishAnnouncement;
+
+  /// No description provided for @pinnedAnnouncement.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned Announcement'**
+  String get pinnedAnnouncement;
+
+  /// No description provided for @urgentBroadcast.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent Broadcast'**
+  String get urgentBroadcast;
+
+  /// No description provided for @targetDepartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Department'**
+  String get targetDepartment;
+
+  /// No description provided for @enableNssfInsurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable NSSF / Insurance'**
+  String get enableNssfInsurance;
+
+  /// No description provided for @enableTaxOnSalary.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Tax on Salary (TOAS)'**
+  String get enableTaxOnSalary;
+
+  /// No description provided for @deductSocialSecurityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Deduct social security percentage from base salary'**
+  String get deductSocialSecurityDesc;
+
+  /// No description provided for @deductIncomeTaxDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Deduct income tax percentage from gross salary'**
+  String get deductIncomeTaxDesc;
+
+  /// No description provided for @latestNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest Net'**
+  String get latestNet;
+
+  /// No description provided for @deletePayrollRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Payroll Run'**
+  String get deletePayrollRun;
+
+  /// No description provided for @accruedCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Accrued Cost'**
+  String get accruedCost;
+
+  /// No description provided for @approvedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved Amount'**
+  String get approvedAmount;
+
+  /// No description provided for @setOrgUnitBoundaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Set organizational unit boundaries'**
+  String get setOrgUnitBoundaries;
+
+  /// No description provided for @officeBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Office Branch'**
+  String get officeBranch;
+
+  /// No description provided for @allowAssigningEmployees.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow assigning employees to this team'**
+  String get allowAssigningEmployees;
+
+  /// No description provided for @officialDaysOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Official Days Off & Celebrations'**
+  String get officialDaysOff;
+
+  /// No description provided for @yearListView.
+  ///
+  /// In en, this message translates to:
+  /// **'Year List View'**
+  String get yearListView;
+
+  /// No description provided for @totalOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Off'**
+  String get totalOff;
+
+  /// No description provided for @quickDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Date Range'**
+  String get quickDateRange;
+
+  /// No description provided for @selectFiltersToGenerateReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Select filters above and tap Generate Report to view detailed analytics.'**
+  String get selectFiltersToGenerateReport;
+
+  /// No description provided for @csvExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV / Excel'**
+  String get csvExcel;
+
+  /// No description provided for @searchReportsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search results...'**
+  String get searchReportsHint;
+
+  /// No description provided for @assignMeasurableTargets.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign measurable targets to employees from the web or mobile dashboard.'**
+  String get assignMeasurableTargets;
+
+  /// No description provided for @createFirstTrainingCourse.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first training course to enroll staff'**
+  String get createFirstTrainingCourse;
+
+  /// No description provided for @enrollments.
+  ///
+  /// In en, this message translates to:
+  /// **'Enrollments'**
+  String get enrollments;
+
+  /// No description provided for @newTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'New Training'**
+  String get newTraining;
+
+  /// No description provided for @multipleOrAllEmployees.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple / All Employees'**
+  String get multipleOrAllEmployees;
+
+  /// No description provided for @overtimeApprovals.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime Approvals'**
+  String get overtimeApprovals;
+
+  /// No description provided for @topEmployees.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Employees'**
+  String get topEmployees;
+
+  /// No description provided for @recognitionRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognition & Performance Ranking'**
+  String get recognitionRanking;
+
+  /// No description provided for @byFrequency.
+  ///
+  /// In en, this message translates to:
+  /// **'By Frequency (Count)'**
+  String get byFrequency;
+
+  /// No description provided for @byDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'By Duration (Hours)'**
+  String get byDuration;
+
+  /// No description provided for @noActivityRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity records recorded for this month.'**
+  String get noActivityRecorded;
+
+  /// No description provided for @chooseEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Employee'**
+  String get chooseEmployee;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @priority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority Level'**
+  String get priority;
+
+  /// No description provided for @low.
+  ///
+  /// In en, this message translates to:
+  /// **'Low Priority'**
+  String get low;
+
+  /// No description provided for @normal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal Priority'**
+  String get normal;
+
+  /// No description provided for @high.
+  ///
+  /// In en, this message translates to:
+  /// **'High Priority'**
+  String get high;
+
+  /// No description provided for @publish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get publish;
+
+  /// No description provided for @unpublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpublish'**
+  String get unpublish;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @totalCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Courses'**
+  String get totalCourses;
+
+  /// No description provided for @activePrograms.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Programs'**
+  String get activePrograms;
+
+  /// No description provided for @completedPrograms.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completedPrograms;
+
+  /// No description provided for @selectDatePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date...'**
+  String get selectDatePrompt;
+
+  /// No description provided for @capacityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cap:'**
+  String get capacityLabel;
+
+  /// No description provided for @helpSupportDesk.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support Desk'**
+  String get helpSupportDesk;
+
+  /// No description provided for @helpSupportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit support tickets directly to Super Admin'**
+  String get helpSupportSubtitle;
+
+  /// No description provided for @submitTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Ticket'**
+  String get submitTicket;
+
+  /// No description provided for @directSupportChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct Support Channel'**
+  String get directSupportChannel;
+
+  /// No description provided for @directSupportChannelDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit technical issues, billing requests, or questions directly to Super Admin.'**
+  String get directSupportChannelDesc;
+
+  /// No description provided for @noSupportTicketsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No support tickets yet'**
+  String get noSupportTicketsYet;
+
+  /// No description provided for @noSupportTicketsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"+ Submit Ticket\" below to send a request to the platform administrators.'**
+  String get noSupportTicketsDesc;
+
+  /// No description provided for @mySupportRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'My Support Requests'**
+  String get mySupportRequests;
+
+  /// No description provided for @submitSupportTicketTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Support Ticket'**
+  String get submitSupportTicketTitle;
+
+  /// No description provided for @subjectSummaryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject / Summary *'**
+  String get subjectSummaryLabel;
+
+  /// No description provided for @subjectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Cannot generate payroll for Branch 2'**
+  String get subjectHint;
+
+  /// No description provided for @lowPriorityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Low - General inquiry / feedback'**
+  String get lowPriorityDesc;
+
+  /// No description provided for @mediumPriorityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium - Normal assistance needed'**
+  String get mediumPriorityDesc;
+
+  /// No description provided for @highPriorityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'High - Impairing daily workflow'**
+  String get highPriorityDesc;
+
+  /// No description provided for @urgentPriorityDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent - Critical business blocker'**
+  String get urgentPriorityDesc;
+
+  /// No description provided for @detailedDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed Description *'**
+  String get detailedDescriptionLabel;
+
+  /// No description provided for @detailedDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please describe the problem or question with steps to reproduce...'**
+  String get detailedDescriptionHint;
+
+  /// No description provided for @sendTicketToSuperAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Ticket to Super Admin'**
+  String get sendTicketToSuperAdmin;
+
+  /// No description provided for @submittingTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting...'**
+  String get submittingTicket;
+
+  /// No description provided for @enterSubjectAndMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a subject and message.'**
+  String get enterSubjectAndMessage;
+
+  /// No description provided for @ticketSubmittedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Your support ticket has been submitted to Super Admin.'**
+  String get ticketSubmittedSuccess;
+
+  /// No description provided for @ticketStatusOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'OPEN'**
+  String get ticketStatusOpen;
+
+  /// No description provided for @ticketStatusInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'IN PROGRESS'**
+  String get ticketStatusInProgress;
+
+  /// No description provided for @ticketStatusResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'RESOLVED'**
+  String get ticketStatusResolved;
+
+  /// No description provided for @ticketStatusClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'CLOSED'**
+  String get ticketStatusClosed;
+
+  /// No description provided for @ticketPriorityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'LOW'**
+  String get ticketPriorityLow;
+
+  /// No description provided for @ticketPriorityMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'MEDIUM'**
+  String get ticketPriorityMedium;
+
+  /// No description provided for @ticketPriorityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'HIGH'**
+  String get ticketPriorityHigh;
+
+  /// No description provided for @ticketPriorityUrgent.
+  ///
+  /// In en, this message translates to:
+  /// **'URGENT'**
+  String get ticketPriorityUrgent;
+
+  /// No description provided for @totalTickets.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Tickets'**
+  String get totalTickets;
+
+  /// No description provided for @searchTicketsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search subject, requester, company...'**
+  String get searchTicketsHint;
+
+  /// No description provided for @ticketUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket updated successfully'**
+  String get ticketUpdatedSuccess;
+
+  /// No description provided for @updateTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Ticket'**
+  String get updateTicket;
+
+  /// No description provided for @ticketStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket Status'**
+  String get ticketStatus;
 }
 
 class _AppLocalizationsDelegate

@@ -871,7 +871,7 @@ class _AdminHolidaysScreenState extends State<AdminHolidaysScreen> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      'Official Days Off & Celebrations',
+                                      l10n.officialDaysOff,
                                       style: TextStyle(
                                         color: Colors.white.withValues(alpha: 0.85),
                                         fontSize: 11.5,
@@ -926,7 +926,7 @@ class _AdminHolidaysScreenState extends State<AdminHolidaysScreen> {
                         Row(
                           children: [
                             _buildStatPill(
-                              label: 'Total Off',
+                              label: l10n.totalOff,
                               value: '${holidaysInSelectedYear.length} Days',
                               icon: Icons.calendar_today_rounded,
                             ),
@@ -1063,7 +1063,7 @@ class _AdminHolidaysScreenState extends State<AdminHolidaysScreen> {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    'Year List View',
+                                    l10n.yearListView,
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,

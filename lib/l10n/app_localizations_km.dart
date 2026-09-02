@@ -1511,7 +1511,7 @@ class AppLocalizationsKm extends AppLocalizations {
   String get supportTicketsTitle => 'សំបុត្រជំនួយ';
 
   @override
-  String get failedToLoadTickets => 'បរាជ័យក្នុងការផ្ទុកសំបុត្រជំនួយ';
+  String get failedToLoadTickets => 'មិនអាចទាញយកសំបុត្រជំនួយបានទេ';
 
   @override
   String get noSupportTickets => 'គ្មានសំបុត្រជំនួយទេ';
@@ -5645,4 +5645,464 @@ class AppLocalizationsKm extends AppLocalizations {
 
   @override
   String get refresh => 'ផ្ទុកឡើងវិញ (Refresh)';
+
+  @override
+  String get overtimeWindow => 'ចន្លោះម៉ោងបន្ថែម';
+
+  @override
+  String get payable => 'ត្រូវទូទាត់';
+
+  @override
+  String get overtimeHistory => 'ប្រវត្តិម៉ោងបន្ថែម';
+
+  @override
+  String get noOvertimeRequestsFound => 'រកមិនឃើញសំណើថែមម៉ោងទេ';
+
+  @override
+  String get requestDetails => 'ព័ត៌មានលម្អិតនៃសំណើ';
+
+  @override
+  String get noReasonProvided => 'មិនមានមូលហេតុបញ្ជាក់';
+
+  @override
+  String get overtimeHours => 'ចំនួនម៉ោងថែម';
+
+  @override
+  String get overtimeAmount => 'ទឹកប្រាក់ថែមម៉ោង';
+
+  @override
+  String get approvingOvertime => 'កំពុងអនុម័តម៉ោងបន្ថែម...';
+
+  @override
+  String get rejectingOvertime => 'កំពុងបដិសេធម៉ោងបន្ថែម...';
+
+  @override
+  String get overtimeApprovedSuccess => 'បានអនុម័តសំណើថែមម៉ោងដោយជោគជ័យ។';
+
+  @override
+  String get overtimeRejectedSuccess => 'បានបដិសេធសំណើថែមម៉ោងដោយជោគជ័យ។';
+
+  @override
+  String get employeeLeaderboard => 'តារាងបុគ្គលិកឆ្នើម';
+
+  @override
+  String get otherRankings => 'ចំណាត់ថ្នាក់ផ្សេងទៀត';
+
+  @override
+  String get loadingLeaderboard => 'កំពុងផ្ទុកតារាងបុគ្គលិកឆ្នើម...';
+
+  @override
+  String get noActivityRecordedForMonth =>
+      'មិនមានកំណត់ត្រាសកម្មភាពសម្រាប់ខែនេះទេ។';
+
+  @override
+  String get checkEarly => 'ស្កេនចូលមុនម៉ោង';
+
+  @override
+  String get checkLate => 'ស្កេនចូលយឺត';
+
+  @override
+  String get checkoutEarly => 'ស្កេនចេញមុនម៉ោង';
+
+  @override
+  String get mostPunctual => 'ទៀងទាត់ពេលវេលាជាងគេ';
+
+  @override
+  String get earlyCheckouts => 'ការស្កេនចេញមុនម៉ោង';
+
+  @override
+  String get rank => 'ចំណាត់ថ្នាក់';
+
+  @override
+  String get times => 'ដង';
+
+  @override
+  String get manualAttendanceEntry => 'បញ្ចូលវត្តមានដោយផ្ទាល់';
+
+  @override
+  String get selectEmployeeRequired => 'ជ្រើសរើសបុគ្គលិក *';
+
+  @override
+  String get noMatchingEmployeesFound => 'រកមិនឃើញបុគ្គលិកដែលត្រូវគ្នាទេ';
+
+  @override
+  String get addManualAttendance => 'បន្ថែមវត្តមានផ្ទាល់';
+
+  @override
+  String get clockInTime => 'ម៉ោងស្កេនចូល';
+
+  @override
+  String get clockOutTime => 'ម៉ោងស្កេនចេញ';
+
+  @override
+  String get recordingAttendance => 'កំពុងកត់ត្រាវត្តមាន...';
+
+  @override
+  String get attendanceRecordedSuccess => 'បានកត់ត្រាវត្តមានដោយជោគជ័យ។';
+
+  @override
+  String get resetAll => 'កំណត់ឡើងវិញទាំងអស់';
+
+  @override
+  String get sortBy => 'តម្រៀបតាម';
+
+  @override
+  String get candidatesPipeline => 'បំពង់ជ្រើសរើសបេក្ខជន';
+
+  @override
+  String get addCandidate => 'បន្ថែមបេក្ខជន';
+
+  @override
+  String get noCandidatesFound => 'រកមិនឃើញបេក្ខជនទេ';
+
+  @override
+  String get addCandidatesOrSwitchTabs => 'បន្ថែមបេក្ខជន ឬប្តូរផ្ទាំងតម្រង';
+
+  @override
+  String get searchCandidatesHint => 'ស្វែងរកបេក្ខជនតាមឈ្មោះ អ៊ីមែល តួនាទី...';
+
+  @override
+  String get screening => 'ការពិនិត្យដំបូង';
+
+  @override
+  String get interview => 'ការសម្ភាសន៍';
+
+  @override
+  String get hired => 'បានជ្រើសរើស';
+
+  @override
+  String get convert => 'បម្លែងជាបុគ្គលិក';
+
+  @override
+  String get scheduleInterview => 'កំណត់កាលវិភាគសម្ភាសន៍';
+
+  @override
+  String get confirmSchedule => 'បញ្ជាក់កាលវិភាគ';
+
+  @override
+  String get technicalAssessment => 'ការវាយតម្លៃបច្ចេកទេស';
+
+  @override
+  String get phoneInterview => 'ការសម្ភាសន៍តាមទូរស័ព្ទ';
+
+  @override
+  String get inPersonInterview => 'ការសម្ភាសន៍ផ្ទាល់';
+
+  @override
+  String get dateTimeRequired => 'កាលបរិច្ឆេទ និងពេលវេលាត្រូវបានទាមទារ';
+
+  @override
+  String get fullNameAndKhmerNameRequired =>
+      'ឈ្មោះពេញ និងឈ្មោះជាភាសាខ្មែរត្រូវបានទាមទារ';
+
+  @override
+  String get openRoles => 'តួនាទីបើកចំហ';
+
+  @override
+  String get totalJobs => 'ការងារសរុប';
+
+  @override
+  String get applicants => 'បេក្ខជនដាក់ពាក្យ';
+
+  @override
+  String get filled => 'បានបំពេញរួច';
+
+  @override
+  String get editJob => 'កែសម្រួលការងារ';
+
+  @override
+  String get deleteJobPosting => 'លុបការប្រកាសការងារ';
+
+  @override
+  String get deleteJobConfirmation =>
+      'តើអ្នកប្រាកដជាចង់លុបការប្រកាសការងារនេះមែនទេ?';
+
+  @override
+  String get internship => 'កម្មសិក្សា';
+
+  @override
+  String get searchJobsHint => 'ស្វែងរកការងារ នាយកដ្ឋាន ទីតាំង...';
+
+  @override
+  String get draft => 'ព្រាង';
+
+  @override
+  String get published => 'បានផ្សព្វផ្សាយ';
+
+  @override
+  String get closed => 'បានបិទ';
+
+  @override
+  String get nextStep => 'ជំហានបន្ទាប់ →';
+
+  @override
+  String get chooseAssetRecipient =>
+      'ជ្រើសរើសអ្នកដែលត្រូវទទួលទ្រព្យសម្បត្តិនេះ';
+
+  @override
+  String get searchEmployeeHint => 'ស្វែងរកតាមឈ្មោះ លេខសម្គាល់ តួនាទី...';
+
+  @override
+  String get conditionAtAssignment => 'ស្ថានភាពពេលប្រគល់';
+
+  @override
+  String get conditionAtReturn => 'ស្ថានភាពពេលប្រគល់ត្រឡប់មកវិញ';
+
+  @override
+  String get loadingAssets => 'កំពុងផ្ទុកទ្រព្យសម្បត្តិ...';
+
+  @override
+  String get tapToSearchEmployee => 'ចុចដើម្បីស្វែងរក និងជ្រើសរើសបុគ្គលិក';
+
+  @override
+  String get publishAnnouncement => 'ផ្សព្វផ្សាយសេចក្តីជូនដំណឹង';
+
+  @override
+  String get pinnedAnnouncement => 'ខ្ទាស់សេចក្តីជូនដំណឹង';
+
+  @override
+  String get urgentBroadcast => 'ផ្សាយបន្ទាន់';
+
+  @override
+  String get targetDepartment => 'នាយកដ្ឋានគោលដៅ';
+
+  @override
+  String get enableNssfInsurance => 'បើកដំណើរការ ប.ស.ស / ធានារ៉ាប់រង';
+
+  @override
+  String get enableTaxOnSalary => 'បើកដំណើរការពន្ធលើប្រាក់បៀវត្ស (TOAS)';
+
+  @override
+  String get deductSocialSecurityDesc => 'កាត់ភាគរយសន្តិសុខសង្គមពីប្រាក់ខែគោល';
+
+  @override
+  String get deductIncomeTaxDesc => 'កាត់ភាគរយពន្ធលើប្រាក់ចំណូលពីប្រាក់ខែសរុប';
+
+  @override
+  String get latestNet => 'ប្រាក់សុទ្ធចុងក្រោយ';
+
+  @override
+  String get deletePayrollRun => 'លុបដំណើរការបើកប្រាក់បៀវត្សរ៍';
+
+  @override
+  String get accruedCost => 'ថ្លៃដើមបង្គរ';
+
+  @override
+  String get approvedAmount => 'ចំនួនទឹកប្រាក់ដែលបានអនុម័ត';
+
+  @override
+  String get setOrgUnitBoundaries => 'កំណត់ព្រំដែនរចនាសម្ព័ន្ធអង្គភាព';
+
+  @override
+  String get officeBranch => 'សាខាការិយាល័យ';
+
+  @override
+  String get allowAssigningEmployees => 'អនុញ្ញាតឱ្យចាត់តាំងបុគ្គលិកទៅក្រុមនេះ';
+
+  @override
+  String get officialDaysOff => 'ថ្ងៃឈប់សម្រាកផ្លូវការ និងការប្រារព្ធពិធី';
+
+  @override
+  String get yearListView => 'ទិដ្ឋភាពបញ្ជីប្រចាំឆ្នាំ';
+
+  @override
+  String get totalOff => 'ឈប់សម្រាកសរុប';
+
+  @override
+  String get quickDateRange => 'ចន្លោះកាលបរិច្ឆេទរហ័ស';
+
+  @override
+  String get selectFiltersToGenerateReport =>
+      'ជ្រើសរើសតម្រងខាងលើ រួចចុច \'បង្កើតរបាយការណ៍\' ដើម្បីមើលការវិភាគលម្អិត។';
+
+  @override
+  String get csvExcel => 'CSV / Excel';
+
+  @override
+  String get searchReportsHint => 'ស្វែងរកលទ្ធផល...';
+
+  @override
+  String get assignMeasurableTargets =>
+      'ចាត់តាំងគោលដៅដែលអាចវាស់វែងបានដល់បុគ្គលិកពីផ្ទាំងគ្រប់គ្រងគេហទំព័រ ឬទូរស័ព្ទ។';
+
+  @override
+  String get createFirstTrainingCourse =>
+      'បង្កើតវគ្គបណ្តុះបណ្តាលដំបូងរបស់អ្នកដើម្បីចុះឈ្មោះបុគ្គលិក';
+
+  @override
+  String get enrollments => 'ការចុះឈ្មោះចូលរៀន';
+
+  @override
+  String get newTraining => 'វគ្គបណ្តុះបណ្តាលថ្មី';
+
+  @override
+  String get multipleOrAllEmployees => 'បុគ្គលិកច្រើននាក់ / ទាំងអស់';
+
+  @override
+  String get overtimeApprovals => 'ការអនុម័តម៉ោងបន្ថែម';
+
+  @override
+  String get topEmployees => 'បុគ្គលិកឆ្នើម';
+
+  @override
+  String get recognitionRanking => 'ការទទួលស្គាល់ និងចំណាត់ថ្នាក់ការងារ';
+
+  @override
+  String get byFrequency => 'តាមចំនួនដង';
+
+  @override
+  String get byDuration => 'តាមរយៈពេល (ម៉ោង)';
+
+  @override
+  String get noActivityRecorded => 'មិនមានកំណត់ត្រាសកម្មភាពសម្រាប់ខែនេះទេ។';
+
+  @override
+  String get chooseEmployee => 'ជ្រើសរើសបុគ្គលិក';
+
+  @override
+  String get add => 'បន្ថែម';
+
+  @override
+  String get priority => 'កម្រិតអាទិភាព';
+
+  @override
+  String get low => 'អាទិភាពទាប';
+
+  @override
+  String get normal => 'អាទិភាពធម្មតា';
+
+  @override
+  String get high => 'អាទិភាពខ្ពស់';
+
+  @override
+  String get publish => 'ផ្សព្វផ្សាយ';
+
+  @override
+  String get unpublish => 'ឈប់ផ្សព្វផ្សាយ';
+
+  @override
+  String get date => 'កាលបរិច្ឆេទ';
+
+  @override
+  String get totalCourses => 'វគ្គសិក្សាសរុប';
+
+  @override
+  String get activePrograms => 'កម្មវិធីសកម្ម';
+
+  @override
+  String get completedPrograms => 'បានបញ្ចប់';
+
+  @override
+  String get selectDatePrompt => 'ជ្រើសរើសកាលបរិច្ឆេទ...';
+
+  @override
+  String get capacityLabel => 'ចំណុះ:';
+
+  @override
+  String get helpSupportDesk => 'ផ្នែកជំនួយ និងគាំទ្រ';
+
+  @override
+  String get helpSupportSubtitle =>
+      'ផ្ញើសំបុត្រស្នើសុំជំនួយដោយផ្ទាល់ទៅកាន់ Super Admin';
+
+  @override
+  String get submitTicket => 'ផ្ញើសំបុត្រជំនួយ';
+
+  @override
+  String get directSupportChannel => 'បណ្តាញគាំទ្រផ្ទាល់';
+
+  @override
+  String get directSupportChannelDesc =>
+      'ផ្ញើបញ្ហាបច្ចេកទេស សំណើទូទាត់ប្រាក់ ឬសំណួរដោយផ្ទាល់ទៅកាន់ Super Admin។';
+
+  @override
+  String get noSupportTicketsYet => 'មិនទាន់មានសំបុត្រជំនួយនៅឡើយទេ';
+
+  @override
+  String get noSupportTicketsDesc =>
+      'ចុច \"+ ផ្ញើសំបុត្រជំនួយ\" ខាងក្រោមដើម្បីផ្ញើសំណើទៅកាន់អ្នកគ្រប់គ្រងប្រព័ន្ធ។';
+
+  @override
+  String get mySupportRequests => 'សំណើជំនួយរបស់ខ្ញុំ';
+
+  @override
+  String get submitSupportTicketTitle => 'ផ្ញើសំបុត្រស្នើសុំជំនួយ';
+
+  @override
+  String get subjectSummaryLabel => 'ប្រធានបទ / សង្ខេប *';
+
+  @override
+  String get subjectHint =>
+      'ឧ. មិនអាចបង្កើតបញ្ជីបើកប្រាក់បៀវត្សរ៍សម្រាប់សាខាទី 2 បានទេ';
+
+  @override
+  String get lowPriorityDesc => 'ទាប - ការសាកសួរទូទៅ / មតិកែលម្អ';
+
+  @override
+  String get mediumPriorityDesc => 'មធ្យម - ត្រូវការជំនួយធម្មតា';
+
+  @override
+  String get highPriorityDesc => 'ខ្ពស់ - រំខានដល់ដំណើរការការងារប្រចាំថ្ងៃ';
+
+  @override
+  String get urgentPriorityDesc => 'បន្ទាន់ - បញ្ហាធ្ងន់ធ្ងររាំងស្ទះអាជីវកម្ម';
+
+  @override
+  String get detailedDescriptionLabel => 'សេចក្តីពិពណ៌នាលម្អិត *';
+
+  @override
+  String get detailedDescriptionHint =>
+      'សូមរៀបរាប់ពីបញ្ហា ឬសំណួរជាមួយជំហាននៃការកើតឡើង...';
+
+  @override
+  String get sendTicketToSuperAdmin => 'ផ្ញើសំបុត្រទៅកាន់ Super Admin';
+
+  @override
+  String get submittingTicket => 'កំពុងផ្ញើ...';
+
+  @override
+  String get enterSubjectAndMessage => 'សូមបញ្ចូលប្រធានបទ និងសារ។';
+
+  @override
+  String get ticketSubmittedSuccess =>
+      'សំបុត្រជំនួយរបស់អ្នកត្រូវបានផ្ញើទៅកាន់ Super Admin រួចរាល់ហើយ។';
+
+  @override
+  String get ticketStatusOpen => 'បើកចំហ';
+
+  @override
+  String get ticketStatusInProgress => 'កំពុងដំណើរការ';
+
+  @override
+  String get ticketStatusResolved => 'បានដោះស្រាយ';
+
+  @override
+  String get ticketStatusClosed => 'បានបិទ';
+
+  @override
+  String get ticketPriorityLow => 'ទាប';
+
+  @override
+  String get ticketPriorityMedium => 'មធ្យម';
+
+  @override
+  String get ticketPriorityHigh => 'ខ្ពស់';
+
+  @override
+  String get ticketPriorityUrgent => 'បន្ទាន់';
+
+  @override
+  String get totalTickets => 'សំបុត្រសរុប';
+
+  @override
+  String get searchTicketsHint => 'ស្វែងរកប្រធានបទ អ្នកស្នើសុំ ក្រុមហ៊ុន...';
+
+  @override
+  String get ticketUpdatedSuccess => 'បានធ្វើបច្ចុប្បន្នភាពសំបុត្រដោយជោគជ័យ';
+
+  @override
+  String get updateTicket => 'ធ្វើបច្ចុប្បន្នភាពសំបុត្រ';
+
+  @override
+  String get ticketStatus => 'ស្ថានភាពសំបុត្រ';
 }

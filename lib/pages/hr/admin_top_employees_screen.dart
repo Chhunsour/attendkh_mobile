@@ -11,6 +11,7 @@ import 'package:mpg_hr_mobile_app/models/top_employee.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
 import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class TopEmployeesScreen extends ConsumerStatefulWidget {
   const TopEmployeesScreen({super.key});
@@ -27,41 +28,54 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
   static const _categories = [
     {
       'key': 'attendance',
-      'label': 'Attendance',
       'icon': Icons.check_circle_outline_rounded,
       'color': Color(0xFF059669),
     },
     {
       'key': 'leave',
-      'label': 'Leave',
       'icon': Icons.calendar_today_rounded,
       'color': Color(0xFFD97706),
     },
     {
       'key': 'check_early',
-      'label': 'Check Early',
       'icon': Icons.access_time_filled_rounded,
       'color': Color(0xFF2563EB),
     },
     {
       'key': 'check_late',
-      'label': 'Check Late',
       'icon': Icons.warning_amber_rounded,
       'color': Color(0xFFDC2626),
     },
     {
       'key': 'checkout_early',
-      'label': 'Early Leave',
       'icon': Icons.logout_rounded,
       'color': Color(0xFFEA580C),
     },
     {
       'key': 'checkout_overtime',
-      'label': 'Overtime',
       'icon': Icons.trending_up_rounded,
       'color': Color(0xFF7C3AED),
     },
   ];
+
+  String _getCategoryLabel(String key, AppLocalizations l10n) {
+    switch (key) {
+      case 'attendance':
+        return l10n.attendanceMenu;
+      case 'leave':
+        return l10n.leave;
+      case 'check_early':
+        return l10n.checkEarly;
+      case 'check_late':
+        return l10n.checkLate;
+      case 'checkout_early':
+        return l10n.earlyCheckouts;
+      case 'checkout_overtime':
+        return l10n.overtime;
+      default:
+        return key;
+    }
+  }
 
   String _formatDuration(double hoursDecimal) {
     if (hoursDecimal <= 0) return '0m';
@@ -72,9 +86,9 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
     return '${m}m';
   }
 
-  String _getScoreDisplay(TopEmployee emp) {
+  String _getScoreDisplay(TopEmployee emp, AppLocalizations l10n) {
     if (_activeSort == 'by_amount') {
-      final unit = _activeCategory == 'leave' ? 'Days' : 'Times';
+      final unit = _activeCategory == 'leave' ? l10n.days : l10n.times;
       return '${emp.amount} $unit';
     }
     return _formatDuration(emp.hours);
@@ -97,6 +111,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final monthStr = DateFormat('yyyy-MM').format(_selectedMonth);
     final topEmployeesAsync = ref.watch(topEmployeesProvider(monthStr));
     final branchSwitch = ref.watch(branchSwitchProvider);
@@ -109,7 +124,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
         elevation: 0,
         centerTitle: false,
         title: Text(
-          'Top Employees',
+          l10n.topEmployees,
           style: TextStyle(
             color: AppColors.textPrimary(context),
             fontSize: 17,
@@ -205,9 +220,9 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Employee Leaderboard',
-                                  style: TextStyle(
+                                Text(
+                                  l10n.employeeLeaderboard,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 17,
                                     fontWeight: FontWeight.w800,
@@ -216,7 +231,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Recognition & Performance Ranking',
+                                  l10n.recognitionRanking,
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.85),
                                     fontSize: 11.5,
@@ -306,6 +321,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                         children: _categories.map((cat) {
                           final isSelected = _activeCategory == cat['key'];
                           final catColor = cat['color'] as Color;
+                          final catLabel = _getCategoryLabel(cat['key'] as String, l10n);
                           return Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: GestureDetector(
@@ -330,7 +346,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                                     ),
                                     const SizedBox(width: 5),
                                     Text(
-                                      cat['label'] as String,
+                                      catLabel,
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -370,7 +386,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    _activeCategory == 'leave' ? 'By Days' : 'By Count (Occurrences)',
+                                    _activeCategory == 'leave' ? l10n.days : l10n.byFrequency,
                                     style: TextStyle(
                                       fontSize: 11.5,
                                       fontWeight: _activeSort == 'by_amount' ? FontWeight.bold : FontWeight.w500,
@@ -394,7 +410,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    'By Total Hours',
+                                    l10n.byDuration,
                                     style: TextStyle(
                                       fontSize: 11.5,
                                       fontWeight: _activeSort == 'by_hours' ? FontWeight.bold : FontWeight.w500,
@@ -416,9 +432,9 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
 
             // ── 3. Main Data Content ────────────────────────────────────
             topEmployeesAsync.when(
-              loading: () => const SliverFillRemaining(
+              loading: () => SliverFillRemaining(
                 child: Center(
-                  child: LoadingIndicator(message: 'Loading Leaderboard...'),
+                  child: LoadingIndicator(message: l10n.loadingLeaderboard),
                 ),
               ),
               error: (err, _) => SliverFillRemaining(
@@ -454,17 +470,13 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'No rankings available',
+                            l10n.noActivityRecorded,
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: AppColors.textPrimary(context),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'No activity records recorded for this month.',
-                            style: TextStyle(fontSize: 12, color: AppColors.grey400),
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
@@ -482,7 +494,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
                       // Podium for Top 3
-                      _buildPodium(top1: top1, top2: top2, top3: top3),
+                      _buildPodium(top1: top1, top2: top2, top3: top3, l10n: l10n),
                       const SizedBox(height: 18),
 
                       // Leaderboard list for rank 4+
@@ -490,7 +502,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 10, left: 4),
                           child: Text(
-                            'OTHER RANKINGS',
+                            l10n.otherRankings,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
@@ -502,7 +514,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                         ...rest.asMap().entries.map((entry) {
                           final rank = entry.key + 4;
                           final emp = entry.value;
-                          return _buildRankCard(rank: rank, emp: emp);
+                          return _buildRankCard(rank: rank, emp: emp, l10n: l10n);
                         }),
                       ],
                     ]),
@@ -521,6 +533,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
     TopEmployee? top1,
     TopEmployee? top2,
     TopEmployee? top3,
+    required AppLocalizations l10n,
   }) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
@@ -549,6 +562,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                     badgeColor: const Color(0xFF94A3B8),
                     badgeBg: const Color(0xFFF1F5F9),
                     crownIcon: Icons.military_tech_rounded,
+                    l10n: l10n,
                   )
                 : const SizedBox.shrink(),
           ),
@@ -565,6 +579,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                     badgeBg: const Color(0xFFFEF3C7),
                     crownIcon: Icons.workspace_premium_rounded,
                     isFirst: true,
+                    l10n: l10n,
                   )
                 : const SizedBox.shrink(),
           ),
@@ -580,6 +595,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
                     badgeColor: const Color(0xFFD97706),
                     badgeBg: const Color(0xFFFFFBEB),
                     crownIcon: Icons.military_tech_outlined,
+                    l10n: l10n,
                   )
                 : const SizedBox.shrink(),
           ),
@@ -651,6 +667,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
     required Color badgeBg,
     required IconData crownIcon,
     bool isFirst = false,
+    required AppLocalizations l10n,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -691,7 +708,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
             border: Border.all(color: badgeColor.withValues(alpha: 0.3)),
           ),
           child: Text(
-            _getScoreDisplay(emp),
+            _getScoreDisplay(emp, l10n),
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w800,
@@ -733,7 +750,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
   }
 
   // ── Rank Card for 4+ ───────────────────────────────────────────────────────
-  Widget _buildRankCard({required int rank, required TopEmployee emp}) {
+  Widget _buildRankCard({required int rank, required TopEmployee emp, required AppLocalizations l10n}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
@@ -797,7 +814,7 @@ class _TopEmployeesScreenState extends ConsumerState<TopEmployeesScreen> {
               border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
             ),
             child: Text(
-              _getScoreDisplay(emp),
+              _getScoreDisplay(emp, l10n),
               style: const TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.bold,

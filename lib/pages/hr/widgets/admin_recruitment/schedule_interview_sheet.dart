@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
@@ -65,6 +66,7 @@ class _ScheduleInterviewSheetState extends ConsumerState<ScheduleInterviewSheet>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.only(
         left: 20,
@@ -85,7 +87,7 @@ class _ScheduleInterviewSheetState extends ConsumerState<ScheduleInterviewSheet>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Schedule Interview',
+                  l10n.scheduleInterview,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -103,11 +105,11 @@ class _ScheduleInterviewSheetState extends ConsumerState<ScheduleInterviewSheet>
               isExpanded: true,
               initialValue: selType,
               decoration: _inputDecor('Interview Type'),
-              items: const [
-                DropdownMenuItem(value: 'phone', child: Text('Phone Interview')),
-                DropdownMenuItem(value: 'video', child: Text('Video Conference')),
-                DropdownMenuItem(value: 'in_person', child: Text('In Person')),
-                DropdownMenuItem(value: 'technical', child: Text('Technical Assessment')),
+              items: [
+                DropdownMenuItem(value: 'phone', child: Text(l10n.phoneInterview)),
+                const DropdownMenuItem(value: 'video', child: Text('Video Conference')),
+                const DropdownMenuItem(value: 'in_person', child: Text('In Person')),
+                DropdownMenuItem(value: 'technical', child: Text(l10n.technicalAssessment)),
               ],
               onChanged: (val) => setState(() => selType = val ?? 'phone'),
             ),
@@ -179,7 +181,7 @@ class _ScheduleInterviewSheetState extends ConsumerState<ScheduleInterviewSheet>
                   : () async {
                       if (dateCtrl.text.isEmpty || timeCtrl.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Date and time are required')),
+                          SnackBar(content: Text(l10n.dateTimeRequired)),
                         );
                         return;
                       }
@@ -210,9 +212,9 @@ class _ScheduleInterviewSheetState extends ConsumerState<ScheduleInterviewSheet>
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : const Text(
-                      'Confirm Schedule',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                  : Text(
+                      l10n.confirmSchedule,
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                     ),
             ),
           ],

@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
@@ -210,7 +211,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
 
                         // Priority Level
                         Text(
-                          'Priority Level',
+                          AppLocalizations.of(context)?.priority ?? 'Priority Level',
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                         ),
                         const SizedBox(height: 6),
@@ -224,11 +225,11 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                             ),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           ),
-                          items: const [
-                            DropdownMenuItem(value: 'low', child: Text('Low Priority')),
-                            DropdownMenuItem(value: 'normal', child: Text('Normal Priority')),
-                            DropdownMenuItem(value: 'high', child: Text('High Priority')),
-                            DropdownMenuItem(value: 'urgent', child: Text('Urgent Broadcast')),
+                          items: [
+                            DropdownMenuItem(value: 'low', child: Text(AppLocalizations.of(context)?.low ?? 'Low Priority')),
+                            DropdownMenuItem(value: 'normal', child: Text(AppLocalizations.of(context)?.normal ?? 'Normal Priority')),
+                            DropdownMenuItem(value: 'high', child: Text(AppLocalizations.of(context)?.high ?? 'High Priority')),
+                            DropdownMenuItem(value: 'urgent', child: Text(AppLocalizations.of(context)?.urgentBroadcast ?? 'Urgent Broadcast')),
                           ],
                           onChanged: (val) {
                             if (val != null) setSheetState(() => priority = val);
@@ -238,7 +239,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
 
                         // Audience
                         Text(
-                          'Target Audience',
+                          AppLocalizations.of(context)?.targetDepartment ?? 'Target Audience',
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context)),
                         ),
                         const SizedBox(height: 6),
@@ -252,10 +253,10 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                             ),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           ),
-                          items: const [
-                            DropdownMenuItem(value: 'all', child: Text('Everyone (Company-Wide)')),
-                            DropdownMenuItem(value: 'managers', child: Text('Managers Only')),
-                            DropdownMenuItem(value: 'hr', child: Text('HR Department Only')),
+                          items: [
+                            DropdownMenuItem(value: 'all', child: Text(AppLocalizations.of(context)?.companyWide ?? 'Everyone (Company-Wide)')),
+                            const DropdownMenuItem(value: 'managers', child: Text('Managers Only')),
+                            const DropdownMenuItem(value: 'hr', child: Text('HR Department Only')),
                           ],
                           onChanged: (val) {
                             if (val != null) setSheetState(() => audience = val);
@@ -543,7 +544,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                               },
                               icon: Icon(a.isPublished ? Icons.visibility_off_rounded : Icons.send_rounded, color: Colors.white, size: 16),
                               label: Text(
-                                a.isPublished ? 'Unpublish' : 'Publish',
+                                a.isPublished ? AppLocalizations.of(context)?.unpublish ?? 'Unpublish' : AppLocalizations.of(context)?.publish ?? 'Publish',
                                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                               ),
                             ),
@@ -563,9 +564,9 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                                 _showForm(a);
                               },
                               icon: const Icon(Icons.edit_rounded, size: 16, color: Color(0xFF7C3AED)),
-                              label: const Text(
-                                'Edit',
-                                style: TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold, fontSize: 13),
+                              label: Text(
+                                AppLocalizations.of(context)?.edit ?? 'Edit',
+                                style: const TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold, fontSize: 13),
                               ),
                             ),
                           ),
@@ -748,7 +749,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                 }
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text(AppLocalizations.of(context)?.delete ?? 'Delete', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -1291,7 +1292,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              a.isPublished ? 'Unpublish' : 'Publish',
+                              a.isPublished ? AppLocalizations.of(context)?.unpublish ?? 'Unpublish' : AppLocalizations.of(context)?.publish ?? 'Publish',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -1309,7 +1310,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                       icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.grey500),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                      tooltip: 'Edit',
+                      tooltip: AppLocalizations.of(context)?.edit ?? 'Edit',
                       onPressed: () => _showForm(a),
                     ),
                     const SizedBox(width: 14),
@@ -1319,7 +1320,7 @@ class _State extends State<AdminCompanyAnnouncementsScreen> {
                       icon: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.danger),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                      tooltip: 'Delete',
+                      tooltip: AppLocalizations.of(context)?.delete ?? 'Delete',
                       onPressed: () => _confirmDelete(a),
                     ),
                   ],

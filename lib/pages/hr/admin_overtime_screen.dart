@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mpg_hr_mobile_app/providers/overtime_providers.dart';
 import 'package:mpg_hr_mobile_app/services/overtime_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 
 class AdminOvertimeScreen extends ConsumerStatefulWidget {
   const AdminOvertimeScreen({super.key});
@@ -30,6 +31,7 @@ class _AdminOvertimeScreenState extends ConsumerState<AdminOvertimeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final asyncRequests = ref.watch(managerOvertimeRequestsProvider);
     final pendingCount = asyncRequests.maybeWhen(
       data: (items) => items.where((r) => r.status == 'pending').length,
@@ -43,7 +45,7 @@ class _AdminOvertimeScreenState extends ConsumerState<AdminOvertimeScreen>
         elevation: 0,
         centerTitle: false,
         title: Text(
-          'Overtime Approvals',
+          l10n.overtimeApprovals,
           style: TextStyle(
             color: AppColors.textPrimary(context),
             fontSize: 18,
@@ -53,7 +55,7 @@ class _AdminOvertimeScreenState extends ConsumerState<AdminOvertimeScreen>
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: AppColors.grey700),
-            tooltip: 'Refresh',
+            tooltip: l10n.refresh,
             onPressed: () => ref.invalidate(managerOvertimeRequestsProvider),
           ),
         ],
@@ -80,7 +82,7 @@ class _AdminOvertimeScreenState extends ConsumerState<AdminOvertimeScreen>
                     children: [
                       const Icon(Icons.hourglass_top_rounded, size: 16),
                       const SizedBox(width: 6),
-                      const Text('Pending'),
+                      Text(l10n.pending),
                       if (pendingCount > 0) ...[
                         const SizedBox(width: 6),
                         Container(
@@ -98,23 +100,23 @@ class _AdminOvertimeScreenState extends ConsumerState<AdminOvertimeScreen>
                     ],
                   ),
                 ),
-                const Tab(
+                Tab(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.check_circle_outline_rounded, size: 16),
-                      SizedBox(width: 6),
-                      Text('Approved'),
+                      const Icon(Icons.check_circle_outline_rounded, size: 16),
+                      const SizedBox(width: 6),
+                      Text(l10n.approved),
                     ],
                   ),
                 ),
-                const Tab(
+                Tab(
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.cancel_outlined, size: 16),
-                      SizedBox(width: 6),
-                      Text('Rejected'),
+                      const Icon(Icons.cancel_outlined, size: 16),
+                      const SizedBox(width: 6),
+                      Text(l10n.rejected),
                     ],
                   ),
                 ),
@@ -140,13 +142,14 @@ class _OvertimeListTab extends ConsumerWidget {
   const _OvertimeListTab({required this.status});
 
   Future<void> _updateStatus(BuildContext context, WidgetRef ref, int id, String newStatus) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       await ref.read(overtimeRepositoryProvider).updateOvertimeStatus(id, newStatus);
       ref.invalidate(managerOvertimeRequestsProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(newStatus == 'approved' ? '✅ Overtime request approved' : '❌ Overtime request rejected'),
+            content: Text(newStatus == 'approved' ? '✅ ${l10n.overtimeApprovedSuccess}' : '❌ ${l10n.overtimeRejectedSuccess}'),
             backgroundColor: newStatus == 'approved' ? AppColors.success : AppColors.danger,
             behavior: SnackBarBehavior.floating,
           ),
@@ -156,7 +159,7 @@ class _OvertimeListTab extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update request: $e'),
+            content: Text('Failed: $e'),
             backgroundColor: AppColors.danger,
             behavior: SnackBarBehavior.floating,
           ),
@@ -167,6 +170,7 @@ class _OvertimeListTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final asyncRequests = ref.watch(managerOvertimeRequestsProvider);
 
     return asyncRequests.when(
@@ -184,7 +188,7 @@ class _OvertimeListTab extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => ref.invalidate(managerOvertimeRequestsProvider),
               icon: const Icon(Icons.refresh, size: 16),
-              label: const Text('Retry'),
+              label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF59E0B), foregroundColor: Colors.white),
             ),
           ],
@@ -210,7 +214,7 @@ class _OvertimeListTab extends ConsumerWidget {
                   Expanded(
                     child: _buildMetricCard(
                       context: context,
-                      title: 'Pending',
+                      title: l10n.pending,
                       value: '$pendingTotal',
                       icon: Icons.hourglass_top_rounded,
                       color: const Color(0xFFF59E0B),
@@ -220,7 +224,7 @@ class _OvertimeListTab extends ConsumerWidget {
                   Expanded(
                     child: _buildMetricCard(
                       context: context,
-                      title: 'Approved',
+                      title: l10n.approved,
                       value: '$approvedTotal',
                       icon: Icons.check_circle_rounded,
                       color: const Color(0xFF10B981),
@@ -230,7 +234,7 @@ class _OvertimeListTab extends ConsumerWidget {
                   Expanded(
                     child: _buildMetricCard(
                       context: context,
-                      title: 'Rejected',
+                      title: l10n.rejected,
                       value: '$rejectedTotal',
                       icon: Icons.cancel_rounded,
                       color: const Color(0xFFEF4444),
@@ -256,7 +260,7 @@ class _OvertimeListTab extends ConsumerWidget {
                       const Icon(Icons.more_time_rounded, size: 48, color: AppColors.grey300),
                       const SizedBox(height: 12),
                       Text(
-                        'No $status overtime requests found',
+                        l10n.noOvertimeRequestsFound,
                         style: const TextStyle(color: AppColors.grey600, fontSize: 14, fontWeight: FontWeight.w500),
                         textAlign: TextAlign.center,
                       ),
@@ -265,10 +269,10 @@ class _OvertimeListTab extends ConsumerWidget {
                 )
               else
                 ...requests.map((request) {
-                  final (statusColor, statusBg) = switch (request.status) {
-                    'approved' => (const Color(0xFF10B981), const Color(0xFFECFDF5)),
-                    'rejected' => (const Color(0xFFEF4444), const Color(0xFFFEF2F2)),
-                    _ => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB)),
+                  final (statusColor, statusBg, statusLabel) = switch (request.status) {
+                    'approved' => (const Color(0xFF10B981), const Color(0xFFECFDF5), l10n.approved),
+                    'rejected' => (const Color(0xFFEF4444), const Color(0xFFFEF2F2), l10n.rejected),
+                    _ => (const Color(0xFFF59E0B), const Color(0xFFFFFBEB), l10n.pending),
                   };
 
                   return Container(
@@ -326,7 +330,7 @@ class _OvertimeListTab extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    request.employeeName ?? 'Unknown Employee',
+                                    request.employeeName ?? '—',
                                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.textPrimary(context)),
                                   ),
                                   const SizedBox(height: 2),
@@ -347,7 +351,7 @@ class _OvertimeListTab extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                request.status.toUpperCase(),
+                                statusLabel.toUpperCase(),
                                 style: TextStyle(color: statusColor, fontSize: 10.5, fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -372,7 +376,7 @@ class _OvertimeListTab extends ConsumerWidget {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Overtime Window', style: TextStyle(color: AppColors.grey500, fontSize: 10.5, fontWeight: FontWeight.w600)),
+                                      Text(l10n.overtimeWindow, style: const TextStyle(color: AppColors.grey500, fontSize: 10.5, fontWeight: FontWeight.w600)),
                                       const SizedBox(height: 2),
                                       Text(
                                         '${request.startTime} - ${request.endTime}',
@@ -392,7 +396,7 @@ class _OvertimeListTab extends ConsumerWidget {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-                                      const Text('Payable', style: TextStyle(color: Color(0xFF047857), fontSize: 9.5, fontWeight: FontWeight.bold)),
+                                      Text(l10n.payable, style: const TextStyle(color: Color(0xFF047857), fontSize: 9.5, fontWeight: FontWeight.bold)),
                                       Text(
                                         '\$${request.amount!.toStringAsFixed(2)}',
                                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: Color(0xFF047857)),
@@ -443,7 +447,7 @@ class _OvertimeListTab extends ConsumerWidget {
                                       side: BorderSide(color: AppColors.danger.withValues(alpha: 0.5)),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                     ),
-                                    child: const Text('Reject', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    child: Text(l10n.reject, style: const TextStyle(fontWeight: FontWeight.bold)),
                                   ),
                                 ),
                               ),
@@ -459,7 +463,7 @@ class _OvertimeListTab extends ConsumerWidget {
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                       elevation: 0,
                                     ),
-                                    child: const Text('Approve', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    child: Text(l10n.approve, style: const TextStyle(fontWeight: FontWeight.bold)),
                                   ),
                                 ),
                               ),

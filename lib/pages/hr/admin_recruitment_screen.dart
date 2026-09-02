@@ -82,10 +82,11 @@ class _AdminRecruitmentScreenState
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref, JobPostingData job) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Job Posting'),
+        title: Text(l10n?.deleteJobPosting ?? 'Delete Job Posting'),
         content: Text(
           'Are you sure you want to delete "${job.title}"? This action cannot be undone.',
         ),

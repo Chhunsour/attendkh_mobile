@@ -131,15 +131,15 @@ class _TrainingTabState extends State<TrainingTab> {
   }
 
   // ── KPI Metrics ────────────────────────────────────────────────────────────
-  Widget _buildMetricsOverview() {
+  Widget _buildMetricsOverview(AppLocalizations l10n) {
     final active = _trainings.where((t) => t.status == 'ongoing' || t.status == 'published').length;
     final completed = _trainings.where((t) => t.status == 'completed').length;
     final companyWide = _trainings.where((t) => t.departmentId == null).length;
     final metrics = [
-      (Icons.menu_book_rounded, 'Total Courses', '$_total', const Color(0xFFEFF6FF), const Color(0xFF3B82F6), null as Color?),
-      (Icons.auto_awesome_rounded, 'Active Programs', '$active', const Color(0xFFECFDF5), AppColors.success, AppColors.success as Color?),
-      (Icons.check_circle_outline_rounded, 'Completed', '$completed', const Color(0xFFF5F3FF), const Color(0xFF8B5CF6), null as Color?),
-      (Icons.business_rounded, 'Company-Wide', '$companyWide', const Color(0xFFFFF7ED), AppColors.warning, null as Color?),
+      (Icons.menu_book_rounded, l10n.totalCourses, '$_total', const Color(0xFFEFF6FF), const Color(0xFF3B82F6), null as Color?),
+      (Icons.auto_awesome_rounded, l10n.activePrograms, '$active', const Color(0xFFECFDF5), AppColors.success, AppColors.success as Color?),
+      (Icons.check_circle_outline_rounded, l10n.completedPrograms, '$completed', const Color(0xFFF5F3FF), const Color(0xFF8B5CF6), null as Color?),
+      (Icons.business_rounded, l10n.companyWide, '$companyWide', const Color(0xFFFFF7ED), AppColors.warning, null as Color?),
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -238,7 +238,7 @@ class _TrainingTabState extends State<TrainingTab> {
   }
 
   // ── Training Card ──────────────────────────────────────────────────────────
-  Widget _buildTrainingCard(TrainingCourseData t) {
+  Widget _buildTrainingCard(TrainingCourseData t, AppLocalizations l10n) {
     final s = _statusStyle(t.status);
     final lv = _levelStyle(t.level);
     final storageUrl = t.coverImage != null && t.coverImage!.isNotEmpty
@@ -304,7 +304,7 @@ class _TrainingTabState extends State<TrainingTab> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                   decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(6)),
-                  child: Text(t.department?.name ?? 'Company-Wide', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                  child: Text(t.department?.name ?? l10n.companyWide, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary)),
                 ),
                 const SizedBox(height: 8),
                 Text(t.title, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: AppColors.textPrimary(context), height: 1.25), maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -319,7 +319,7 @@ class _TrainingTabState extends State<TrainingTab> {
                     if (t.instructor != null && t.instructor!.isNotEmpty) _buildInfoChip(Icons.person_outline_rounded, t.instructor!, AppColors.primary),
                     if (t.durationHours != null) _buildInfoChip(Icons.access_time_rounded, '${t.durationHours}h', AppColors.warning),
                     if (t.location != null && t.location!.isNotEmpty) _buildInfoChip(Icons.location_on_outlined, t.location!, const Color(0xFF3B82F6)),
-                    if (t.maxParticipants != null) _buildInfoChip(Icons.group_outlined, 'Cap: ${t.maxParticipants}', const Color(0xFF8B5CF6)),
+                    if (t.maxParticipants != null) _buildInfoChip(Icons.group_outlined, '${l10n.capacityLabel} ${t.maxParticipants}', const Color(0xFF8B5CF6)),
                     if (t.startDate != null && t.endDate != null) _buildInfoChip(Icons.date_range_rounded, '${_formatDate(t.startDate!)} – ${_formatDate(t.endDate!)}', AppColors.grey500),
                   ],
                 ),
@@ -341,12 +341,12 @@ class _TrainingTabState extends State<TrainingTab> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(10)),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.people_outline_rounded, size: 15, color: AppColors.primary),
-                          SizedBox(width: 5),
-                          Text('Enrollments', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                          const Icon(Icons.people_outline_rounded, size: 15, color: AppColors.primary),
+                          const SizedBox(width: 5),
+                          Text(AppLocalizations.of(context)?.enrollments ?? 'Enrollments', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
                         ],
                       ),
                     ),
@@ -539,9 +539,9 @@ class _TrainingTabState extends State<TrainingTab> {
                   ]),
                   const SizedBox(height: 16),
                   Row(children: [
-                    Expanded(child: _buildDatePicker(ctx: ctx, label: l10n.startDateLabel, ctrl: startDateCtrl, setSheetState: setSheetState)),
+                    Expanded(child: _buildDatePicker(ctx: ctx, label: l10n.startDateLabel, ctrl: startDateCtrl, setSheetState: setSheetState, l10n: l10n)),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildDatePicker(ctx: ctx, label: l10n.endDateLabel, ctrl: endDateCtrl, setSheetState: setSheetState)),
+                    Expanded(child: _buildDatePicker(ctx: ctx, label: l10n.endDateLabel, ctrl: endDateCtrl, setSheetState: setSheetState, l10n: l10n)),
                   ]),
                   const SizedBox(height: 16),
                   TextField(controller: descCtrl, maxLines: 2, decoration: InputDecoration(labelText: l10n.trainingDescription, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
@@ -594,7 +594,7 @@ class _TrainingTabState extends State<TrainingTab> {
     );
   }
 
-  Widget _buildDatePicker({required BuildContext ctx, required String label, required TextEditingController ctrl, required StateSetter setSheetState}) {
+  Widget _buildDatePicker({required BuildContext ctx, required String label, required TextEditingController ctrl, required StateSetter setSheetState, required AppLocalizations l10n}) {
     return InkWell(
       onTap: () async {
         final init = ctrl.text.isNotEmpty ? (DateTime.tryParse(ctrl.text) ?? DateTime.now()) : DateTime.now();
@@ -614,7 +614,7 @@ class _TrainingTabState extends State<TrainingTab> {
                 Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.grey600)),
                 const SizedBox(height: 4),
                 Text(
-                  ctrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(ctrl.text)) : 'Select date...',
+                  ctrl.text.isNotEmpty ? DateFormat('dd MMM yyyy').format(DateTime.parse(ctrl.text)) : l10n.selectDatePrompt,
                   style: TextStyle(fontSize: 13, fontWeight: ctrl.text.isNotEmpty ? FontWeight.w700 : FontWeight.w400, color: ctrl.text.isNotEmpty ? AppColors.grey900 : AppColors.grey400),
                 ),
               ],
@@ -628,7 +628,6 @@ class _TrainingTabState extends State<TrainingTab> {
 
   // ── Enrollment Sheet ───────────────────────────────────────────────────────
   void _showEnrollmentSheet(TrainingCourseData t) {
-    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -640,6 +639,7 @@ class _TrainingTabState extends State<TrainingTab> {
 
         return StatefulBuilder(
           builder: (ctx, setSheetState) {
+          final l10n = AppLocalizations.of(context)!;
             void fetchEnrollments() async {
               try {
                 final list = await _repo.getTrainingEnrollments(t.id);
@@ -757,14 +757,14 @@ class _TrainingTabState extends State<TrainingTab> {
         foregroundColor: Colors.white,
         elevation: 3,
         icon: const Icon(Icons.add_rounded, size: 20),
-        label: const Text('New Training', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+        label: Text(l10n.newTraining, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
       ),
       body: RefreshIndicator(
         onRefresh: () async { _currentPage = 1; await _fetchData(); },
         child: ListView(
           padding: const EdgeInsets.only(bottom: 100),
           children: [
-            _buildMetricsOverview(),
+            _buildMetricsOverview(l10n),
             _buildFilterBar(l10n),
             const SizedBox(height: 12),
             if (_loading)
@@ -779,7 +779,7 @@ class _TrainingTabState extends State<TrainingTab> {
                       const SizedBox(height: 14),
                       Text(l10n.noTrainings, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary(context))),
                       const SizedBox(height: 4),
-                      const Text('Create your first training course to enroll staff', style: TextStyle(fontSize: 12, color: AppColors.grey500), textAlign: TextAlign.center),
+                      Text(l10n.createFirstTrainingCourse, style: const TextStyle(fontSize: 12, color: AppColors.grey500), textAlign: TextAlign.center),
                     ],
                   ),
                 ),
@@ -794,7 +794,7 @@ class _TrainingTabState extends State<TrainingTab> {
                   separatorBuilder: (_, i) => i == _trainings.length - 1 ? const SizedBox.shrink() : const SizedBox(height: 14),
                   itemBuilder: (context, i) {
                     if (i == _trainings.length) return _buildPagination();
-                    return _buildTrainingCard(_trainings[i]);
+                    return _buildTrainingCard(_trainings[i], l10n);
                   },
                 ),
               ),

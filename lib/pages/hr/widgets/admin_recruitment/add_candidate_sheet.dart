@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
@@ -72,6 +73,7 @@ class _AddCandidateSheetState extends ConsumerState<AddCandidateSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.only(
         left: 20,
@@ -92,7 +94,7 @@ class _AddCandidateSheetState extends ConsumerState<AddCandidateSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Add Candidate',
+                  l10n.addCandidate,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -171,8 +173,8 @@ class _AddCandidateSheetState extends ConsumerState<AddCandidateSheet> {
                   : () async {
                       if (fullNameCtrl.text.trim().isEmpty || nameKhCtrl.text.trim().isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Full name and Khmer name are required'),
+                          SnackBar(
+                            content: Text(l10n.fullNameAndKhmerNameRequired),
                           ),
                         );
                         return;
@@ -214,9 +216,9 @@ class _AddCandidateSheetState extends ConsumerState<AddCandidateSheet> {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : const Text(
-                      'Add Candidate',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                  : Text(
+                      l10n.addCandidate,
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                     ),
             ),
           ],

@@ -5626,4 +5626,470 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refresh => 'Refresh';
+
+  @override
+  String get overtimeWindow => 'Overtime Window';
+
+  @override
+  String get payable => 'Payable';
+
+  @override
+  String get overtimeHistory => 'Overtime History';
+
+  @override
+  String get noOvertimeRequestsFound => 'No overtime requests found';
+
+  @override
+  String get requestDetails => 'Request Details';
+
+  @override
+  String get noReasonProvided => 'No reason provided';
+
+  @override
+  String get overtimeHours => 'Overtime Hours';
+
+  @override
+  String get overtimeAmount => 'Overtime Amount';
+
+  @override
+  String get approvingOvertime => 'Approving overtime...';
+
+  @override
+  String get rejectingOvertime => 'Rejecting overtime...';
+
+  @override
+  String get overtimeApprovedSuccess =>
+      'Overtime request approved successfully.';
+
+  @override
+  String get overtimeRejectedSuccess =>
+      'Overtime request rejected successfully.';
+
+  @override
+  String get employeeLeaderboard => 'Employee Leaderboard';
+
+  @override
+  String get otherRankings => 'OTHER RANKINGS';
+
+  @override
+  String get loadingLeaderboard => 'Loading Leaderboard...';
+
+  @override
+  String get noActivityRecordedForMonth =>
+      'No activity records recorded for this month.';
+
+  @override
+  String get checkEarly => 'Check Early';
+
+  @override
+  String get checkLate => 'Check Late';
+
+  @override
+  String get checkoutEarly => 'Checkout Early';
+
+  @override
+  String get mostPunctual => 'Most Punctual';
+
+  @override
+  String get earlyCheckouts => 'Early Checkouts';
+
+  @override
+  String get rank => 'Rank';
+
+  @override
+  String get times => 'times';
+
+  @override
+  String get manualAttendanceEntry => 'Manual Attendance Entry';
+
+  @override
+  String get selectEmployeeRequired => 'Select Employee *';
+
+  @override
+  String get noMatchingEmployeesFound => 'No matching employees found';
+
+  @override
+  String get addManualAttendance => 'Add Manual Attendance';
+
+  @override
+  String get clockInTime => 'Clock In Time';
+
+  @override
+  String get clockOutTime => 'Clock Out Time';
+
+  @override
+  String get recordingAttendance => 'Recording attendance...';
+
+  @override
+  String get attendanceRecordedSuccess => 'Attendance recorded successfully.';
+
+  @override
+  String get resetAll => 'Reset All';
+
+  @override
+  String get sortBy => 'Sort By';
+
+  @override
+  String get candidatesPipeline => 'Candidates Pipeline';
+
+  @override
+  String get addCandidate => 'Add Candidate';
+
+  @override
+  String get noCandidatesFound => 'No candidates found';
+
+  @override
+  String get addCandidatesOrSwitchTabs =>
+      'Add candidates or switch filter tabs';
+
+  @override
+  String get searchCandidatesHint =>
+      'Search candidates by name, email, role...';
+
+  @override
+  String get screening => 'Screening';
+
+  @override
+  String get interview => 'Interview';
+
+  @override
+  String get hired => 'Hired';
+
+  @override
+  String get convert => 'Convert';
+
+  @override
+  String get scheduleInterview => 'Schedule Interview';
+
+  @override
+  String get confirmSchedule => 'Confirm Schedule';
+
+  @override
+  String get technicalAssessment => 'Technical Assessment';
+
+  @override
+  String get phoneInterview => 'Phone Interview';
+
+  @override
+  String get inPersonInterview => 'In-Person Interview';
+
+  @override
+  String get dateTimeRequired => 'Date and time are required';
+
+  @override
+  String get fullNameAndKhmerNameRequired =>
+      'Full name and Khmer name are required';
+
+  @override
+  String get openRoles => 'Open Roles';
+
+  @override
+  String get totalJobs => 'Total Jobs';
+
+  @override
+  String get applicants => 'Applicants';
+
+  @override
+  String get filled => 'Filled';
+
+  @override
+  String get editJob => 'Edit Job';
+
+  @override
+  String get deleteJobPosting => 'Delete Job Posting';
+
+  @override
+  String get deleteJobConfirmation =>
+      'Are you sure you want to delete this job posting?';
+
+  @override
+  String get internship => 'Internship';
+
+  @override
+  String get searchJobsHint => 'Search jobs, department, location...';
+
+  @override
+  String get draft => 'Draft';
+
+  @override
+  String get published => 'Published';
+
+  @override
+  String get closed => 'Closed';
+
+  @override
+  String get nextStep => 'Next Step →';
+
+  @override
+  String get chooseAssetRecipient => 'Choose who will receive this asset';
+
+  @override
+  String get searchEmployeeHint => 'Search by name, ID, position...';
+
+  @override
+  String get conditionAtAssignment => 'Condition at assignment';
+
+  @override
+  String get conditionAtReturn => 'Condition at return';
+
+  @override
+  String get loadingAssets => 'Loading assets...';
+
+  @override
+  String get tapToSearchEmployee => 'Tap to search & choose employee';
+
+  @override
+  String get publishAnnouncement => 'Publish Announcement';
+
+  @override
+  String get pinnedAnnouncement => 'Pinned Announcement';
+
+  @override
+  String get urgentBroadcast => 'Urgent Broadcast';
+
+  @override
+  String get targetDepartment => 'Target Department';
+
+  @override
+  String get enableNssfInsurance => 'Enable NSSF / Insurance';
+
+  @override
+  String get enableTaxOnSalary => 'Enable Tax on Salary (TOAS)';
+
+  @override
+  String get deductSocialSecurityDesc =>
+      'Deduct social security percentage from base salary';
+
+  @override
+  String get deductIncomeTaxDesc =>
+      'Deduct income tax percentage from gross salary';
+
+  @override
+  String get latestNet => 'Latest Net';
+
+  @override
+  String get deletePayrollRun => 'Delete Payroll Run';
+
+  @override
+  String get accruedCost => 'Accrued Cost';
+
+  @override
+  String get approvedAmount => 'Approved Amount';
+
+  @override
+  String get setOrgUnitBoundaries => 'Set organizational unit boundaries';
+
+  @override
+  String get officeBranch => 'Office Branch';
+
+  @override
+  String get allowAssigningEmployees =>
+      'Allow assigning employees to this team';
+
+  @override
+  String get officialDaysOff => 'Official Days Off & Celebrations';
+
+  @override
+  String get yearListView => 'Year List View';
+
+  @override
+  String get totalOff => 'Total Off';
+
+  @override
+  String get quickDateRange => 'Quick Date Range';
+
+  @override
+  String get selectFiltersToGenerateReport =>
+      'Select filters above and tap Generate Report to view detailed analytics.';
+
+  @override
+  String get csvExcel => 'CSV / Excel';
+
+  @override
+  String get searchReportsHint => 'Search results...';
+
+  @override
+  String get assignMeasurableTargets =>
+      'Assign measurable targets to employees from the web or mobile dashboard.';
+
+  @override
+  String get createFirstTrainingCourse =>
+      'Create your first training course to enroll staff';
+
+  @override
+  String get enrollments => 'Enrollments';
+
+  @override
+  String get newTraining => 'New Training';
+
+  @override
+  String get multipleOrAllEmployees => 'Multiple / All Employees';
+
+  @override
+  String get overtimeApprovals => 'Overtime Approvals';
+
+  @override
+  String get topEmployees => 'Top Employees';
+
+  @override
+  String get recognitionRanking => 'Recognition & Performance Ranking';
+
+  @override
+  String get byFrequency => 'By Frequency (Count)';
+
+  @override
+  String get byDuration => 'By Duration (Hours)';
+
+  @override
+  String get noActivityRecorded =>
+      'No activity records recorded for this month.';
+
+  @override
+  String get chooseEmployee => 'Choose Employee';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get priority => 'Priority Level';
+
+  @override
+  String get low => 'Low Priority';
+
+  @override
+  String get normal => 'Normal Priority';
+
+  @override
+  String get high => 'High Priority';
+
+  @override
+  String get publish => 'Publish';
+
+  @override
+  String get unpublish => 'Unpublish';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get totalCourses => 'Total Courses';
+
+  @override
+  String get activePrograms => 'Active Programs';
+
+  @override
+  String get completedPrograms => 'Completed';
+
+  @override
+  String get selectDatePrompt => 'Select date...';
+
+  @override
+  String get capacityLabel => 'Cap:';
+
+  @override
+  String get helpSupportDesk => 'Help & Support Desk';
+
+  @override
+  String get helpSupportSubtitle =>
+      'Submit support tickets directly to Super Admin';
+
+  @override
+  String get submitTicket => 'Submit Ticket';
+
+  @override
+  String get directSupportChannel => 'Direct Support Channel';
+
+  @override
+  String get directSupportChannelDesc =>
+      'Submit technical issues, billing requests, or questions directly to Super Admin.';
+
+  @override
+  String get noSupportTicketsYet => 'No support tickets yet';
+
+  @override
+  String get noSupportTicketsDesc =>
+      'Tap \"+ Submit Ticket\" below to send a request to the platform administrators.';
+
+  @override
+  String get mySupportRequests => 'My Support Requests';
+
+  @override
+  String get submitSupportTicketTitle => 'Submit Support Ticket';
+
+  @override
+  String get subjectSummaryLabel => 'Subject / Summary *';
+
+  @override
+  String get subjectHint => 'e.g. Cannot generate payroll for Branch 2';
+
+  @override
+  String get lowPriorityDesc => 'Low - General inquiry / feedback';
+
+  @override
+  String get mediumPriorityDesc => 'Medium - Normal assistance needed';
+
+  @override
+  String get highPriorityDesc => 'High - Impairing daily workflow';
+
+  @override
+  String get urgentPriorityDesc => 'Urgent - Critical business blocker';
+
+  @override
+  String get detailedDescriptionLabel => 'Detailed Description *';
+
+  @override
+  String get detailedDescriptionHint =>
+      'Please describe the problem or question with steps to reproduce...';
+
+  @override
+  String get sendTicketToSuperAdmin => 'Send Ticket to Super Admin';
+
+  @override
+  String get submittingTicket => 'Submitting...';
+
+  @override
+  String get enterSubjectAndMessage => 'Please enter a subject and message.';
+
+  @override
+  String get ticketSubmittedSuccess =>
+      'Your support ticket has been submitted to Super Admin.';
+
+  @override
+  String get ticketStatusOpen => 'OPEN';
+
+  @override
+  String get ticketStatusInProgress => 'IN PROGRESS';
+
+  @override
+  String get ticketStatusResolved => 'RESOLVED';
+
+  @override
+  String get ticketStatusClosed => 'CLOSED';
+
+  @override
+  String get ticketPriorityLow => 'LOW';
+
+  @override
+  String get ticketPriorityMedium => 'MEDIUM';
+
+  @override
+  String get ticketPriorityHigh => 'HIGH';
+
+  @override
+  String get ticketPriorityUrgent => 'URGENT';
+
+  @override
+  String get totalTickets => 'Total Tickets';
+
+  @override
+  String get searchTicketsHint => 'Search subject, requester, company...';
+
+  @override
+  String get ticketUpdatedSuccess => 'Ticket updated successfully';
+
+  @override
+  String get updateTicket => 'Update Ticket';
+
+  @override
+  String get ticketStatus => 'Ticket Status';
 }

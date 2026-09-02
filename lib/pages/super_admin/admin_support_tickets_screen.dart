@@ -178,7 +178,7 @@ class _AdminSupportTicketsScreenState
           children: [
             Expanded(
               child: _buildMetricCard(
-                title: 'Total Tickets',
+                title: l10n.totalTickets,
                 value: '${tickets.length}',
                 icon: Icons.confirmation_number_rounded,
                 color: const Color(0xFF6366F1),
@@ -187,7 +187,7 @@ class _AdminSupportTicketsScreenState
             const SizedBox(width: 8),
             Expanded(
               child: _buildMetricCard(
-                title: 'Open',
+                title: l10n.ticketStatusOpen,
                 value: '$openCount',
                 icon: Icons.hourglass_empty_rounded,
                 color: const Color(0xFFF59E0B),
@@ -196,7 +196,7 @@ class _AdminSupportTicketsScreenState
             const SizedBox(width: 8),
             Expanded(
               child: _buildMetricCard(
-                title: 'Progress',
+                title: l10n.ticketStatusInProgress,
                 value: '$inProgressCount',
                 icon: Icons.sync_rounded,
                 color: const Color(0xFF0EA5E9),
@@ -205,7 +205,7 @@ class _AdminSupportTicketsScreenState
             const SizedBox(width: 8),
             Expanded(
               child: _buildMetricCard(
-                title: 'Resolved',
+                title: l10n.ticketStatusResolved,
                 value: '$resolvedCount',
                 icon: Icons.check_circle_rounded,
                 color: const Color(0xFF10B981),
@@ -235,7 +235,7 @@ class _AdminSupportTicketsScreenState
             onChanged: (val) => setState(() => _searchTerm = val.trim().toLowerCase()),
             style: TextStyle(fontSize: 13.5, color: AppColors.textPrimary(context)),
             decoration: InputDecoration(
-              hintText: 'Search subject, requester, company...',
+              hintText: l10n.searchTicketsHint,
               hintStyle: const TextStyle(color: AppColors.grey400, fontSize: 13),
               prefixIcon: const Icon(Icons.search_rounded, color: AppColors.grey400, size: 18),
               suffixIcon: _searchTerm.isNotEmpty
@@ -260,15 +260,15 @@ class _AdminSupportTicketsScreenState
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              _buildFilterChip('All (${tickets.length})', 'all'),
+              _buildFilterChip('${l10n.all} (${tickets.length})', 'all'),
               const SizedBox(width: 8),
-              _buildFilterChip('Open ($openCount)', 'open'),
+              _buildFilterChip('${l10n.ticketStatusOpen} ($openCount)', 'open'),
               const SizedBox(width: 8),
-              _buildFilterChip('In Progress ($inProgressCount)', 'in_progress'),
+              _buildFilterChip('${l10n.ticketStatusInProgress} ($inProgressCount)', 'in_progress'),
               const SizedBox(width: 8),
-              _buildFilterChip('Resolved ($resolvedCount)', 'resolved'),
+              _buildFilterChip('${l10n.ticketStatusResolved} ($resolvedCount)', 'resolved'),
               const SizedBox(width: 8),
-              _buildFilterChip('Closed', 'closed'),
+              _buildFilterChip(l10n.ticketStatusClosed, 'closed'),
             ],
           ),
         ),
@@ -673,7 +673,7 @@ class _AdminSupportTicketsScreenState
 
                   // Status dropdown
                   Text(
-                    'Ticket Status',
+                    l10n.ticketStatus,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -692,11 +692,11 @@ class _AdminSupportTicketsScreenState
                       ),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     ),
-                    items: const [
-                      DropdownMenuItem(value: 'open', child: Text('Open')),
-                      DropdownMenuItem(value: 'in_progress', child: Text('In Progress')),
-                      DropdownMenuItem(value: 'resolved', child: Text('Resolved')),
-                      DropdownMenuItem(value: 'closed', child: Text('Closed')),
+                    items: [
+                      DropdownMenuItem(value: 'open', child: Text(l10n.ticketStatusOpen)),
+                      DropdownMenuItem(value: 'in_progress', child: Text(l10n.ticketStatusInProgress)),
+                      DropdownMenuItem(value: 'resolved', child: Text(l10n.ticketStatusResolved)),
+                      DropdownMenuItem(value: 'closed', child: Text(l10n.ticketStatusClosed)),
                     ],
                     onChanged: (v) {
                       if (v != null) setState(() => selectedStatus = v);
@@ -706,7 +706,7 @@ class _AdminSupportTicketsScreenState
 
                   // Priority dropdown
                   Text(
-                    'Priority Level',
+                    l10n.priority,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -725,11 +725,11 @@ class _AdminSupportTicketsScreenState
                       ),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     ),
-                    items: const [
-                      DropdownMenuItem(value: 'low', child: Text('Low')),
-                      DropdownMenuItem(value: 'medium', child: Text('Medium')),
-                      DropdownMenuItem(value: 'high', child: Text('High')),
-                      DropdownMenuItem(value: 'urgent', child: Text('Urgent')),
+                    items: [
+                      DropdownMenuItem(value: 'low', child: Text(l10n.ticketPriorityLow)),
+                      DropdownMenuItem(value: 'medium', child: Text(l10n.ticketPriorityMedium)),
+                      DropdownMenuItem(value: 'high', child: Text(l10n.ticketPriorityHigh)),
+                      DropdownMenuItem(value: 'urgent', child: Text(l10n.ticketPriorityUrgent)),
                     ],
                     onChanged: (v) {
                       if (v != null) setState(() => selectedPriority = v);
@@ -748,7 +748,7 @@ class _AdminSupportTicketsScreenState
                             style: OutlinedButton.styleFrom(
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.bold)),
+                            child: Text(l10n.cancel, style: const TextStyle(fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ),
@@ -771,8 +771,8 @@ class _AdminSupportTicketsScreenState
                                       if (ctx.mounted) Navigator.pop(ctx);
                                       if (context.mounted) {
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('Ticket updated successfully'),
+                                          SnackBar(
+                                            content: Text(l10n.ticketUpdatedSuccess),
                                             backgroundColor: AppColors.success,
                                           ),
                                         );
@@ -800,7 +800,7 @@ class _AdminSupportTicketsScreenState
                                     height: 20,
                                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                                   )
-                                : const Text('Update Ticket', style: TextStyle(fontWeight: FontWeight.bold)),
+                                : Text(l10n.updateTicket, style: const TextStyle(fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ),

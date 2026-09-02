@@ -1,10 +1,10 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import '../../services/admin_operations_repository.dart';
 import '../../providers/admin_providers.dart';
 import '../../components/loading_indicator.dart';
-import '../../l10n/app_localizations.dart';
 import 'formulas_screen.dart';
 
 class BranchPayrollSettingsScreen extends ConsumerStatefulWidget {
@@ -329,8 +329,8 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                         type: MaterialType.transparency,
                         child: SwitchListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: const Text('Enable Tax on Salary (TOAS)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                          subtitle: const Text('Deduct income tax percentage from gross salary', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                          title: Text(l10n.enableTaxOnSalary, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          subtitle: Text(l10n.deductIncomeTaxDesc, style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
                           value: _taxEnabled,
                           onChanged: (v) => setState(() => _taxEnabled = v),
                         ),
@@ -344,8 +344,8 @@ class _BranchPayrollSettingsScreenState extends ConsumerState<BranchPayrollSetti
                         type: MaterialType.transparency,
                         child: SwitchListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: const Text('Enable NSSF / Insurance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                          subtitle: const Text('Deduct social security percentage from base salary', style: TextStyle(fontSize: 12, color: AppColors.grey500)),
+                          title: Text(l10n.enableNssfInsurance, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                          subtitle: Text(l10n.deductSocialSecurityDesc, style: const TextStyle(fontSize: 12, color: AppColors.grey500)),
                           value: _insuranceEnabled,
                           onChanged: (v) => setState(() => _insuranceEnabled = v),
                         ),

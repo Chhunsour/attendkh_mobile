@@ -322,6 +322,7 @@ class _JobFormSheetState extends State<JobFormSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isEdit = widget.job != null;
     return Container(
       decoration: BoxDecoration(
@@ -439,22 +440,22 @@ class _JobFormSheetState extends State<JobFormSheet> {
                         'Employment Type',
                         Icons.access_time,
                       ),
-                      items: const [
+                      items: [
                         DropdownMenuItem(
                           value: 'full_time',
-                          child: Text('Full Time'),
+                          child: Text(l10n.fullTime),
                         ),
                         DropdownMenuItem(
                           value: 'part_time',
-                          child: Text('Part Time'),
+                          child: Text(l10n.partTime),
                         ),
                         DropdownMenuItem(
                           value: 'contract',
-                          child: Text('Contract'),
+                          child: Text(l10n.contract),
                         ),
                         DropdownMenuItem(
                           value: 'internship',
-                          child: Text('Internship'),
+                          child: Text(l10n.internship),
                         ),
                       ],
                       onChanged: (val) =>
@@ -508,17 +509,17 @@ class _JobFormSheetState extends State<JobFormSheet> {
                           'Status',
                           Icons.check_circle_outline,
                         ),
-                        items: const [
+                        items: [
                           DropdownMenuItem(
                             value: 'draft',
-                            child: Text('Draft'),
+                            child: Text(l10n.draft),
                           ),
-                          DropdownMenuItem(value: 'open', child: Text('Open')),
-                          DropdownMenuItem(
+                          const DropdownMenuItem(value: 'open', child: Text('Open')),
+                          const DropdownMenuItem(
                             value: 'closed',
                             child: Text('Closed'),
                           ),
-                          DropdownMenuItem(
+                          const DropdownMenuItem(
                             value: 'filled',
                             child: Text('Filled'),
                           ),
@@ -801,9 +802,9 @@ class _JobFormSheetState extends State<JobFormSheet> {
                                     ),
                                   ),
                                   onPressed: () => setState(() => _activeTab++),
-                                  child: const Text(
-                                    'Next Step →',
-                                    style: TextStyle(
+                                  child: Text(
+                                    l10n.nextStep,
+                                    style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                     ),

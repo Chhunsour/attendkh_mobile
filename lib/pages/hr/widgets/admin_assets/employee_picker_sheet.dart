@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/widgets/admin_assets/asset_shared_widgets.dart';
@@ -41,6 +42,7 @@ class _EmployeePickerSheetState extends State<EmployeePickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final query = _searchQuery.trim().toLowerCase();
     final filtered = widget.employees.where((e) {
       final fullName = (e['full_name'] as String? ??
@@ -92,7 +94,7 @@ class _EmployeePickerSheetState extends State<EmployeePickerSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Select Employee',
+                          l10n.selectEmployee,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -100,9 +102,9 @@ class _EmployeePickerSheetState extends State<EmployeePickerSheet> {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        const Text(
-                          'Choose who will receive this asset',
-                          style: TextStyle(
+                        Text(
+                          l10n.chooseAssetRecipient,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.grey500,
                           ),
@@ -130,19 +132,19 @@ class _EmployeePickerSheetState extends State<EmployeePickerSheet> {
                 ),
                 child: TextField(
                   onChanged: (v) => setState(() => _searchQuery = v),
-                  decoration: const InputDecoration(
-                    hintText: 'Search by name, ID, position...',
-                    hintStyle: TextStyle(
+                  decoration: InputDecoration(
+                    hintText: l10n.searchEmployeeHint,
+                    hintStyle: const TextStyle(
                       fontSize: 13,
                       color: AppColors.grey400,
                     ),
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.search_rounded,
                       color: AppColors.grey400,
                       size: 20,
                     ),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 12,
                     ),
@@ -153,19 +155,19 @@ class _EmployeePickerSheetState extends State<EmployeePickerSheet> {
             const SizedBox(height: 10),
             Expanded(
               child: filtered.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.person_search_rounded,
                             size: 44,
                             color: AppColors.grey300,
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
-                            'No matching employees found',
-                            style: TextStyle(
+                            l10n.noMatchingEmployeesFound,
+                            style: const TextStyle(
                               color: AppColors.grey600,
                               fontWeight: FontWeight.w600,
                             ),

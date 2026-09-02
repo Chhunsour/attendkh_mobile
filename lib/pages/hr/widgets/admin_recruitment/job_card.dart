@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -49,6 +50,7 @@ class JobCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final statusStyles = _getStatusStyles(job.status);
     final hasSalary = job.salaryMin != null || job.salaryMax != null;
     final salaryText = hasSalary
@@ -241,7 +243,7 @@ class JobCard extends StatelessWidget {
                       minimumSize: const Size(28, 28),
                       backgroundColor: AppColors.grey100,
                     ),
-                    tooltip: 'Edit Job',
+                    tooltip: l10n.editJob,
                     onPressed: onEdit,
                   ),
                   const SizedBox(width: 4),
@@ -252,7 +254,7 @@ class JobCard extends StatelessWidget {
                       minimumSize: const Size(28, 28),
                       backgroundColor: AppColors.danger.withAlpha(15),
                     ),
-                    tooltip: 'Delete',
+                    tooltip: l10n.delete,
                     onPressed: onDelete,
                   ),
                 ],

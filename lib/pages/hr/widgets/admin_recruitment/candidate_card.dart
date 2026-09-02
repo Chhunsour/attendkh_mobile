@@ -1,3 +1,4 @@
+import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
@@ -59,6 +60,7 @@ class CandidateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final statusStyles = _getCandidateStatusStyles(candidate.stage);
     final displayName = candidate.fullName ?? candidate.name;
     final initials = displayName.trim().isNotEmpty
@@ -164,13 +166,13 @@ class CandidateCard extends StatelessWidget {
                 PopupMenuButton<String>(
                   tooltip: 'Update Candidate Stage',
                   onSelected: onStageChanged,
-                  itemBuilder: (ctx) => const [
-                    PopupMenuItem(value: 'applied', child: Text('Applied')),
-                    PopupMenuItem(value: 'screening', child: Text('Screening')),
-                    PopupMenuItem(value: 'interview', child: Text('Interview')),
-                    PopupMenuItem(value: 'offer', child: Text('Offer')),
-                    PopupMenuItem(value: 'hired', child: Text('Hired')),
-                    PopupMenuItem(value: 'rejected', child: Text('Rejected')),
+                  itemBuilder: (ctx) => [
+                    const PopupMenuItem(value: 'applied', child: Text('Applied')),
+                    PopupMenuItem(value: 'screening', child: Text(l10n.screening)),
+                    PopupMenuItem(value: 'interview', child: Text(l10n.interview)),
+                    const PopupMenuItem(value: 'offer', child: Text('Offer')),
+                    PopupMenuItem(value: 'hired', child: Text(l10n.hired)),
+                    PopupMenuItem(value: 'rejected', child: Text(l10n.rejected)),
                   ],
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -267,14 +269,14 @@ class CandidateCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: const Color(0xFFA7F3D0)),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.event_available_rounded, size: 13, color: Color(0xFF059669)),
-                        SizedBox(width: 4),
+                        const Icon(Icons.event_available_rounded, size: 13, color: Color(0xFF059669)),
+                        const SizedBox(width: 4),
                         Text(
-                          'Interview',
-                          style: TextStyle(
+                          l10n.interview,
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF059669),
@@ -298,14 +300,14 @@ class CandidateCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: const Color(0xFFDDD6FE)),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.how_to_reg_rounded, size: 13, color: Color(0xFF7C3AED)),
-                          SizedBox(width: 4),
+                          const Icon(Icons.how_to_reg_rounded, size: 13, color: Color(0xFF7C3AED)),
+                          const SizedBox(width: 4),
                           Text(
-                            'Convert',
-                            style: TextStyle(
+                            l10n.convert,
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF7C3AED),
