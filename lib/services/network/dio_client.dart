@@ -4,7 +4,7 @@ import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
 
 /// Server Host for the backend (e.g. 'attendkh.com' for production, or '10.0.2.2:8000' for local emulator).
-const String _devServerIp = 'attendkh.com';
+const String _devServerIp = 'dashboard.attendkh.com';
 const String _r2StorageUrl =
     'https://pub-ccd9b4a59b6e4eddb12ef2a2c45e75c7.r2.dev';
 
