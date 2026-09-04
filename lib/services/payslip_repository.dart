@@ -131,10 +131,9 @@ class PayslipRepository {
       // URL, browser history or the server's access logs.
       final response =
           await _api.get('/company/my-payslips/$periodOrId/view-link');
+      // ApiResponse.data is already the unwrapped envelope payload.
       final body = response.data;
-      final urlString = (body is Map && body['data'] is Map)
-          ? body['data']['url'] as String?
-          : null;
+      final urlString = (body is Map) ? body['url'] as String? : null;
       if (urlString == null || urlString.isEmpty) {
         throw 'Could not create a payslip link.';
       }
