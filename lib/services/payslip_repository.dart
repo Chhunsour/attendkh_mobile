@@ -1,6 +1,4 @@
 import 'package:url_launcher/url_launcher.dart';
-import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 
 class PayslipData {
@@ -129,9 +127,17 @@ class PayslipRepository {
 
   Future<void> downloadPayslip(String periodOrId) async {
     try {
-      final token = await SecureStorageService.instance.accessToken;
-      final urlString =
-          '${DioClient.apiBaseUrl}/my-payslip-view/$periodOrId?token=${token ?? ''}';
+      // Short-lived signed link. The long-lived bearer token must never reach a
+      // URL, browser history or the server's access logs.
+      final response =
+          await _api.get('/company/my-payslips/$periodOrId/view-link');
+      final body = response.data;
+      final urlString = (body is Map && body['data'] is Map)
+          ? body['data']['url'] as String?
+          : null;
+      if (urlString == null || urlString.isEmpty) {
+        throw 'Could not create a payslip link.';
+      }
       final uri = Uri.parse(urlString);
 
       bool launched = false;
