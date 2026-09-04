@@ -1,5 +1,6 @@
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
 
 class PayslipData {
@@ -130,17 +131,17 @@ class PayslipRepository {
     try {
       final token = await SecureStorageService.instance.accessToken;
       final urlString =
-          'https://attendkh.com/api/my-payslip-view/$periodOrId?token=${token ?? ''}';
+          '${DioClient.apiBaseUrl}/my-payslip-view/$periodOrId?token=${token ?? ''}';
       final uri = Uri.parse(urlString);
 
       bool launched = false;
       try {
-        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
       } catch (_) {}
 
       if (!launched) {
         try {
-          launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+          launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
         } catch (_) {}
       }
 

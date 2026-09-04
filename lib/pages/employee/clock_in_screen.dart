@@ -27,6 +27,11 @@ class ClockInArgs {
   final double latitude;
   final double longitude;
   final double distance;
+
+  /// False when the branch has no coordinates configured, i.e. there is no
+  /// geofence to validate against. It is never false merely because GPS was
+  /// unavailable — the dashboard refuses to start a clock action in that case.
+  final bool hasGeofence;
   final int? radius;
   final bool isLateNow;
   final bool isEarlyLeaveNow;
@@ -39,6 +44,7 @@ class ClockInArgs {
     required this.latitude,
     required this.longitude,
     required this.distance,
+    this.hasGeofence = true,
     this.radius,
     this.isLateNow = false,
     this.isEarlyLeaveNow = false,
@@ -229,7 +235,8 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen>
     
     final l10n = AppLocalizations.of(context)!;
     final radius = widget.args.radius ?? 500; // default 500m
-    final bool isGeoValid = widget.args.distance <= radius;
+    final bool isGeoValid =
+        !widget.args.hasGeofence || widget.args.distance <= radius;
 
     if (!isGeoValid) {
       final proceed = await showDialog<bool>(
@@ -346,7 +353,7 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen>
         : (args.isOvertime ? l10n.overtimeCheckOut : l10n.checkOutTitle);
 
     final radius = args.radius ?? 500;
-    final inRange = args.distance <= radius;
+    final inRange = !args.hasGeofence || args.distance <= radius;
     final needsReason = args.isClockIn && !args.isOvertime && args.isLateNow;
     final hasReason = _lateReasonController.text.trim().isNotEmpty;
     final hasPhoto = _photoPath != null;
@@ -1095,7 +1102,9 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen>
     bool inRange,
   ) {
     final distance = widget.args.distance;
-    final ratio = radius > 0 ? (distance / radius).clamp(0.0, 1.0) : 1.0;
+    final ratio = !widget.args.hasGeofence
+        ? 0.0
+        : (radius > 0 ? (distance / radius).clamp(0.0, 1.0) : 1.0);
     final color = inRange ? AppColors.success : AppColors.warning;
 
     return Container(
@@ -1142,7 +1151,11 @@ class _ClockInScreenState extends ConsumerState<ClockInScreen>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      isKhmer
+                      !widget.args.hasGeofence
+                          ? (isKhmer
+                                ? 'មិនបានកំណត់តំបន់ការងារ'
+                                : 'No work-site radius configured')
+                          : isKhmer
                           ? 'ចម្ងាយ ${distance.toStringAsFixed(0)} ម៉ែត្រ · កំណត់ $radius ម៉ែត្រ'
                           : '${distance.toStringAsFixed(0)} m away · limit $radius m',
                       style: TextStyle(

@@ -10,6 +10,7 @@ import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
+import 'package:mpg_hr_mobile_app/components/dialogs/delete_account_dialog.dart';
 
 /// One calm rounded shape keeps the menu cards visually quiet and easy to scan.
 const moreCardShape = BorderRadius.all(Radius.circular(22));
@@ -133,6 +134,20 @@ class MoreScreen extends ConsumerWidget {
                         isDestructive: true,
                         isDark: isDark,
                         onTap: () => showLogoutConfirmation(context, ref),
+                      ),
+                      // Account deletion must be reachable by every role that
+                      // can sign in — Apple Guideline 5.1.1(v).
+                      _buildSettingRow(
+                        context: context,
+                        icon: Icons.delete_forever_rounded,
+                        iconColor: isDark
+                            ? const Color(0xFFF87171)
+                            : AppColors.danger,
+                        title: l10n.deleteAccount,
+                        subtitle: l10n.deleteAccountSubtitle,
+                        isDestructive: true,
+                        isDark: isDark,
+                        onTap: () => showDeleteAccountConfirmation(context, ref),
                       ),
                     ],
                   ),

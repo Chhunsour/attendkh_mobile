@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:open_filex/open_filex.dart';
@@ -126,17 +127,17 @@ class NotificationDetailScreen extends StatelessWidget {
         final payslipId = data['payslip_id'] ?? data['id'] ?? n.id;
         final token = await SecureStorageService.instance.accessToken;
         final urlString =
-            'https://attendkh.com/api/my-payslip-view/$payslipId?token=${token ?? ''}';
+            '${DioClient.apiBaseUrl}/my-payslip-view/$payslipId?token=${token ?? ''}';
         final uri = Uri.parse(urlString);
 
         bool launched = false;
         try {
-          launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+          launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
         } catch (_) {}
 
         if (!launched) {
           try {
-            launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+            launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
           } catch (_) {}
         }
 

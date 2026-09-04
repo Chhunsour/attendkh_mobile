@@ -940,7 +940,7 @@ class _CourseCard extends StatelessWidget {
               children: [
                 if (training.coverImage != null && training.coverImage!.isNotEmpty)
                   CachedNetworkImage(
-                    imageUrl: 'https://attendkh.com${training.coverImage}',
+                    imageUrl: training.coverImage!,
                     fit: BoxFit.cover,
                     memCacheWidth: 600,
                     placeholder: (context, url) => const Center(
@@ -1223,7 +1223,7 @@ class _MyEnrollmentCard extends StatelessWidget {
             ),
             child: training.coverImage != null && training.coverImage!.isNotEmpty
                 ? CachedNetworkImage(
-                    imageUrl: 'https://attendkh.com${training.coverImage}',
+                    imageUrl: training.coverImage!,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => const Center(
                       child: SizedBox(

@@ -23,6 +23,10 @@ class DioClient {
 
   static String get storageUrl => _r2StorageUrl;
 
+  /// Full API origin, e.g. https://dashboard.attendkh.com/api — for links opened
+  /// outside Dio (payslip HTML view).
+  static String get apiBaseUrl => _baseUrl;
+
   static void init() {
     _dio = Dio(
       BaseOptions(

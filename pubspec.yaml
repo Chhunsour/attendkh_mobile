@@ -35,7 +35,6 @@ dependencies:
   shared_preferences: ^2.3.5
 
   # Device
-  local_auth: ^2.3.0
   device_info_plus: ^11.5.0
   image_picker: ^1.2.3
   file_picker: ^11.0.2
@@ -61,7 +60,6 @@ dependencies:
   open_filex: ^4.7.0
   flutter_image_compress: ^2.4.0
   table_calendar: ^3.2.0
-  mobile_scanner: ^7.2.1
   device_marketing_names: ^2.0.2
 
 dev_dependencies:

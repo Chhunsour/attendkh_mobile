@@ -23,7 +23,6 @@ class SecureStorageService {
   static const _employeeIdKey = 'employee_id';
   static const _themeModeKey = 'theme_mode';
   static const _localeKey = 'locale';
-  static const _biometricEnabledKey = 'biometric_enabled';
 
   Future<void> init() async {
     _storage = const FlutterSecureStorage(
@@ -126,14 +125,6 @@ class SecureStorageService {
 
   Future<String?> get locale => _readSafe(_localeKey);
   Future<void> setLocale(String locale) => _writeSafe(_localeKey, locale);
-
-  Future<bool> get isBiometricEnabled async {
-    final value = await _readSafe(_biometricEnabledKey);
-    return value == 'true';
-  }
-
-  Future<void> setBiometricEnabled(bool enabled) =>
-      _writeSafe(_biometricEnabledKey, enabled.toString());
 
   // Clear all stored data (on logout)
   Future<void> clearAll() async {

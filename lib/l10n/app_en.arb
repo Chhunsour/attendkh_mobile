@@ -2101,6 +2101,7 @@
   "locationPermissionPermDenied": "Location permissions are permanently denied.",
   "locationUpdated": "Location updated",
   "couldNotFetchLocation": "Could not fetch location",
+  "locationUnavailableRetry": "Could not get your current location. Move to an open area, make sure Location is on, and try again.",
   "createJobTitle": "Create Job Posting",
   "editJobTitle": "Edit Job Posting",
   "basicInformationTitle": "Basic Information",

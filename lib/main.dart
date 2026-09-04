@@ -6,6 +6,8 @@ import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
 import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
 import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -94,7 +96,9 @@ void main() async {
                   const SizedBox(height: 20),
                   ElevatedButton.icon(
                     onPressed: () {
-                      // Trigger retry
+                      // Re-enter at the splash route so the failed subtree is
+                      // rebuilt from scratch instead of leaving a dead button.
+                      rootNavigatorKey.currentContext?.go(AppRoutes.splash);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,

@@ -8,7 +8,7 @@ import 'package:mpg_hr_mobile_app/pages/hr/admin_leave_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/admin_more_screen.dart';
 import 'package:mpg_hr_mobile_app/pages/hr/company_admin_dashboard_screen.dart';
 import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
+import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
 import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
 import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
 import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
@@ -52,14 +52,10 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   }
 
   Future<void> _fetchUnreadCount() async {
-    try {
-      final api = ApiRepository();
-      final response = await api.get('/company/notifications/latest');
-      final data = response.data;
-      if (data is Map && data['unread_count'] != null) {
-        ref.read(_unreadCountProvider.notifier).state = data['unread_count'] as int;
-      }
-    } catch (_) {}
+    // /company/notifications/latest does not exist on the backend; the badge
+    // silently stayed at 0. The repository already talks to the real endpoint.
+    final count = await ref.read(notificationsRepositoryProvider).getUnreadCount();
+    if (mounted) ref.read(_unreadCountProvider.notifier).state = count;
   }
 
   @override

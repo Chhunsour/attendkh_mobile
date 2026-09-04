@@ -45,7 +45,7 @@ Future<void> showDeleteAccountConfirmation(
         ),
       ),
       content: Text(
-        'This will permanently delete your personal account, session tokens, and biometric data. If you are an employee, required statutory company logs will be anonymized. This action cannot be undone.',
+        'This will permanently delete your personal account and sign you out on every device. If you are an employee, statutory attendance and payroll records are kept but anonymized. This action cannot be undone.',
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 13.5,

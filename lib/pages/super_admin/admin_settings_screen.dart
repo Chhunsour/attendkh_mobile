@@ -12,7 +12,7 @@ final adminSettingsProvider =
 /// Defaults used when the server doesn't provide a value.
 const _defaults = <String, String>{
   'app_name': 'MPG HR',
-  'support_email': 'support@example.com',
+  'support_email': 'support@mpghr.com',
   'default_timezone': 'Asia/Phnom_Penh',
   'default_currency': 'USD',
 };

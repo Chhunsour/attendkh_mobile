@@ -8225,6 +8225,12 @@ abstract class AppLocalizations {
   /// **'Could not fetch location'**
   String get couldNotFetchLocation;
 
+  /// No description provided for @locationUnavailableRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get your current location. Move to an open area, make sure Location is on, and try again.'**
+  String get locationUnavailableRetry;
+
   /// No description provided for @createJobTitle.
   ///
   /// In en, this message translates to:

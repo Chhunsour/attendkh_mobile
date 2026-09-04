@@ -145,17 +145,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
         }
       } catch (_) {}
 
-      // Background dashboard location update
-      final pos =
-          await Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              accuracy: LocationAccuracy.medium,
-              timeLimit: Duration(seconds: 5),
-            ),
-          ).catchError((_) async {
-            return (await Geolocator.getLastKnownPosition())!;
-          });
-      if (mounted) setState(() => _currentPosition = pos);
+      // Background dashboard location update. A GPS timeout on a fresh install
+      // must not fall through to the outer catch — that would wrongly render the
+      // "location access denied" banner even though permission was granted.
+      try {
+        final pos = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 5),
+          ),
+        );
+        if (mounted) setState(() => _currentPosition = pos);
+      } catch (_) {
+        // Keep whatever last-known position we seeded above; permission is fine.
+      }
 
       _positionStreamSubscription?.cancel();
       _positionStreamSubscription =
@@ -170,6 +173,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
     } catch (e) {
       if (mounted) setState(() => _locationPermissionGranted = false);
       AppLogger.e('Location tracking error', e);
+    }
+  }
+
+  /// A clock action must carry a real GPS reading. Returns null when one
+  /// cannot be obtained — callers must abort rather than substitute the branch
+  /// coordinates or distance 0, which would let the geofence pass from
+  /// anywhere.
+  Future<Position?> _acquireFixForClocking() async {
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 12),
+        ),
+      );
+      if (mounted) setState(() => _currentPosition = pos);
+      return pos;
+    } catch (_) {
+      // A fix from the last couple of minutes is still a real reading; the
+      // stale seed from initState is not, so it is not accepted here.
+      try {
+        final last = await Geolocator.getLastKnownPosition();
+        if (last != null &&
+            DateTime.now().difference(last.timestamp).inMinutes.abs() < 2) {
+          if (mounted) setState(() => _currentPosition = last);
+          return last;
+        }
+      } catch (_) {}
+      return null;
     }
   }
 
@@ -204,6 +236,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
 
   Future<void> _handleSimpleClockOut({
     required AppLocalizations l10n,
+    required Position position,
     bool isOvertime = false,
   }) async {
     final isKhmerLocale = Localizations.localeOf(context).languageCode == 'km';
@@ -516,14 +549,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       final repo = ref.read(attendanceRepositoryProvider);
       if (isOvertime) {
         await repo.overtimeOut(
-          lat: _currentPosition?.latitude ?? 0.0,
-          lng: _currentPosition?.longitude ?? 0.0,
+          lat: position.latitude,
+          lng: position.longitude,
           deviceId: 'app',
         );
       } else {
         await repo.clockOut(
-          lat: _currentPosition?.latitude ?? 0.0,
-          lng: _currentPosition?.longitude ?? 0.0,
+          lat: position.latitude,
+          lng: position.longitude,
           earlyLeaveReason: isEarly ? earlyReason : null,
         );
       }
@@ -602,42 +635,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen>
       onSwipe: () async {
         if (_isClocking) return;
 
-        // If clocking out, skip geofence and photo
-        if (isClockingOut) {
-          _handleSimpleClockOut(l10n: l10n, isOvertime: isOvertimeAction);
+        // Both directions are stamped with a location, so a real fix is a
+        // precondition for either. No fix means no clock action.
+        setState(() => _isClocking = true);
+        final pos = await _acquireFixForClocking();
+        if (!mounted) return;
+        setState(() => _isClocking = false);
+        if (pos == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.locationUnavailableRetry),
+              backgroundColor: AppColors.danger,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
           return;
         }
 
-        // If clocking in, ensure location is fetched or attempted
-        if (_currentPosition == null) {
-          setState(() => _isClocking = true);
-          try {
-            _currentPosition =
-                await Geolocator.getLastKnownPosition() ??
-                await Geolocator.getCurrentPosition(
-                  locationSettings: const LocationSettings(
-                    accuracy: LocationAccuracy.medium,
-                    timeLimit: Duration(seconds: 4),
-                  ),
-                );
-          } catch (_) {}
-          if (mounted) setState(() => _isClocking = false);
+        // Clocking out skips the geofence gate and the photo.
+        if (isClockingOut) {
+          _handleSimpleClockOut(
+            l10n: l10n,
+            position: pos,
+            isOvertime: isOvertimeAction,
+          );
+          return;
         }
 
-        final pos = _currentPosition;
-        final lat = pos?.latitude ?? profile?.branchLat ?? 0.0;
-        final lng = pos?.longitude ?? profile?.branchLng ?? 0.0;
-        final distance = profile != null
-            ? (_calculateDistance(profile) ?? 0.0)
-            : 0.0;
+        // Distance is only unknown when the branch itself has no coordinates
+        // configured, i.e. when there is no geofence to be inside of.
+        final distance = profile == null ? null : _calculateDistance(profile);
 
         final args = ClockInArgs(
           isClockIn: true,
           isOvertime: isOvertimeAction,
           branchName: profile?.branchName ?? l10n.unknownLocation,
-          latitude: lat,
-          longitude: lng,
-          distance: distance,
+          latitude: pos.latitude,
+          longitude: pos.longitude,
+          distance: distance ?? 0.0,
+          hasGeofence: distance != null,
           radius: profile?.branchRadius,
           isLateNow: isLateNow,
         );

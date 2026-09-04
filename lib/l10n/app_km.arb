@@ -2007,6 +2007,7 @@
   "candidatesTitle": "បេក្ខជន",
   "locationServicesDisabled": "សេវាកម្មទីតាំងត្រូវបានបិទ។",
   "locationPermissionDenied": "ការអនុញ្ញាតទីតាំងត្រូវបានបដិសេធ។",
+  "locationUnavailableRetry": "មិនអាចទាញយកទីតាំងបច្ចុប្បន្នបានទេ។ សូមចេញទៅកន្លែងវាលទំនេរ បើកមុខងារទីតាំង រួចព្យាយាមម្តងទៀត។",
   "locationPermissionPermDenied": "ការអនុញ្ញាតទីតាំងត្រូវបានបដិសេធជាអចិន្ត្រៃយ៍។",
   "locationUpdated": "ទីតាំងត្រូវបានធ្វើបច្ចុប្បន្នភាព",
   "couldNotFetchLocation": "មិនអាចទាញយកទីតាំងបានទេ",

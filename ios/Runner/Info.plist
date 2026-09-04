@@ -36,8 +36,6 @@
 	<string>This app requires access to your camera to take a selfie for check-in and check-out verification, and to capture expense receipts.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app requires access to your photo library to attach expense receipts.</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>This app requires Face ID to securely authenticate and protect your employee account.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -69,26 +67,9 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>fetch</string>
 		<string>remote-notification</string>
-	</array>
-	<key>UIAppFonts</key>
-	<array>
-		<string>GoogleSans-Regular.ttf</string>
-		<string>GoogleSans-Medium.ttf</string>
-		<string>GoogleSans-Bold.ttf</string>
-		<string>GoogleSans-Italic.ttf</string>
-		<string>GoogleSans-MediumItalic.ttf</string>
-		<string>GoogleSans-BoldItalic.ttf</string>
 	</array>
 </dict>
 </plist>

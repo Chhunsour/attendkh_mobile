@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -167,7 +168,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: AppRoutes.splash,
-    debugLogDiagnostics: true,
+    debugLogDiagnostics: kDebugMode, // don't log full route paths in release
     refreshListenable: notifier,
     redirect: (context, state) {
       // Read current auth state (don't watch — that would rebuild the provider)
@@ -315,18 +316,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.clockIn,
-        builder: (context, state) {
-          final args = (state.extra is ClockInArgs)
-              ? (state.extra as ClockInArgs)
-              : ClockInArgs(
-                  isClockIn: true,
-                  branchName: 'Main Office',
-                  latitude: 0.0,
-                  longitude: 0.0,
-                  distance: 0.0,
-                );
-          return ClockInScreen(args: args);
-        },
+        // Clocking in needs a live GPS fix, which only the dashboard swipe can
+        // supply. Reaching this route without one used to fabricate 0,0 and a
+        // distance of 0, which passed the geofence from anywhere.
+        redirect: (context, state) =>
+            state.extra is ClockInArgs ? null : AppRoutes.main,
+        builder: (context, state) =>
+            ClockInScreen(args: state.extra as ClockInArgs),
       ),
       GoRoute(
         path: AppRoutes.attendance,

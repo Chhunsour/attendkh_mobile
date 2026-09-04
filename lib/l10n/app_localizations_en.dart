@@ -4329,6 +4329,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get couldNotFetchLocation => 'Could not fetch location';
 
   @override
+  String get locationUnavailableRetry =>
+      'Could not get your current location. Move to an open area, make sure Location is on, and try again.';
+
+  @override
   String get createJobTitle => 'Create Job Posting';
 
   @override

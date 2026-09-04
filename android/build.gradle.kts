@@ -19,7 +19,7 @@ subprojects {
     project.evaluationDependsOn(":app")
     
     // Inject KGP for plugins that skip it on AGP 9+ when bypassing Built-in Kotlin
-    if (name == "file_picker" || name == "mobile_scanner") {
+    if (name == "file_picker") {
         if (!plugins.hasPlugin("org.jetbrains.kotlin.android")) {
             plugins.apply("org.jetbrains.kotlin.android")
             tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {

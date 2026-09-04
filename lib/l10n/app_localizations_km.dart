@@ -4343,6 +4343,10 @@ class AppLocalizationsKm extends AppLocalizations {
   String get couldNotFetchLocation => 'មិនអាចទាញយកទីតាំងបានទេ';
 
   @override
+  String get locationUnavailableRetry =>
+      'មិនអាចទាញយកទីតាំងបច្ចុប្បន្នបានទេ។ សូមចេញទៅកន្លែងវាលទំនេរ បើកមុខងារទីតាំង រួចព្យាយាមម្តងទៀត។';
+
+  @override
   String get createJobTitle => 'បង្កើតការប្រកាសការងារ';
 
   @override
