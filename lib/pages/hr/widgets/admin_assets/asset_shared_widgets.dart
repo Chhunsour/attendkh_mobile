@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/services/network/dio_client.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 class AssetSharedWidgets {
   static Color conditionColor(String condition) {

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
-import 'package:mpg_hr_mobile_app/services/dashboard_repository.dart';
+import 'package:attendkh/utils/logger/app_logger.dart';
+import 'package:attendkh/services/dashboard_repository.dart';
 
 final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
   return DashboardRepository();

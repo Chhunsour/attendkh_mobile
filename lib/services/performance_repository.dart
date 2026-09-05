@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
-import 'package:mpg_hr_mobile_app/services/documents_repository.dart'
+import 'package:attendkh/services/network/api_repository.dart';
+import 'package:attendkh/services/documents_repository.dart'
     show DepartmentData;
-import 'package:mpg_hr_mobile_app/services/directory_repository.dart'
+import 'package:attendkh/services/directory_repository.dart'
     show EmployeeData;
 
 class PerformanceReviewData {

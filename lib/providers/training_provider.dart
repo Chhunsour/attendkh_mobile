@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/services/performance_repository.dart';
+import 'package:attendkh/services/performance_repository.dart';
 
 final performanceRepoProvider = Provider((ref) => PerformanceRepository());
 

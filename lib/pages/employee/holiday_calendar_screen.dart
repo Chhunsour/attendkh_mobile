@@ -5,11 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'package:mpg_hr_mobile_app/providers/holiday_provider.dart';
-import 'package:mpg_hr_mobile_app/services/holidays_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/providers/holiday_provider.dart';
+import 'package:attendkh/services/holidays_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 class HolidayCalendarScreen extends ConsumerStatefulWidget {
   const HolidayCalendarScreen({super.key});

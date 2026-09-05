@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/app.dart';
-import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
-import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
-import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/app.dart';
+import 'package:attendkh/utils/storage/secure_storage.dart';
+import 'package:attendkh/services/network/dio_client.dart';
+import 'package:attendkh/services/network/exceptions.dart';
+import 'package:attendkh/utils/logger/app_logger.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:attendkh/utils/router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -125,7 +125,7 @@ void main() async {
 
   runApp(
     const ProviderScope(
-      child: MPGHRApp(),
+      child: AttendKHApp(),
     ),
   );
 }

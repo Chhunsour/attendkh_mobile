@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDABa5r9DJMPa-k2v61q_1ZX-3k9lKrI_k',
-    appId: '1:689904991427:android:978617b1f7675946fc7676',
+    appId: '1:689904991427:android:1ef383aeb0e72e91fc7676',
     messagingSenderId: '689904991427',
     projectId: 'mpg-hr',
     storageBucket: 'mpg-hr.firebasestorage.app',
@@ -59,10 +59,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCWjouNGuoQL3EGV21XHcz4z21pN0itWZ8',
-    appId: '1:689904991427:ios:463c2a269bae2b62fc7676',
+    appId: '1:689904991427:ios:830cfcb1c4b9d381fc7676',
     messagingSenderId: '689904991427',
     projectId: 'mpg-hr',
     storageBucket: 'mpg-hr.firebasestorage.app',
-    iosBundleId: 'com.example.mpgHrMobileApp',
+    iosBundleId: 'com.attendkh.app',
   );
 }

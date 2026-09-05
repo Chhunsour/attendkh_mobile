@@ -3,17 +3,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/utils/logger/app_logger.dart';
+import 'package:attendkh/services/network/api_repository.dart';
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
-import 'package:mpg_hr_mobile_app/firebase_options.dart';
+import 'package:attendkh/utils/router/app_router.dart';
+import 'package:attendkh/firebase_options.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {

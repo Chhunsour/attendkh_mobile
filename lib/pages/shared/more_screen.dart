@@ -3,14 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
-import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
-import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/delete_account_dialog.dart';
+import 'package:attendkh/providers/branch_switch_provider.dart';
+import 'package:attendkh/providers/locale_provider.dart';
+import 'package:attendkh/providers/theme_provider.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/utils/router/app_router.dart';
+import 'package:attendkh/components/dialogs/logout_dialog.dart';
+import 'package:attendkh/components/dialogs/delete_account_dialog.dart';
 
 /// One calm rounded shape keeps the menu cards visually quiet and easy to scan.
 const moreCardShape = BorderRadius.all(Radius.circular(22));

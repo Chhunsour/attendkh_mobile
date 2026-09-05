@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/models/kpi_model.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/models/kpi_model.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 import 'kpi_shared_components.dart';
 
 class KpiSuperAdminView extends StatelessWidget {

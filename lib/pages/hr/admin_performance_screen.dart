@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/reviews/reviews_tab.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/kpis/admin_kpis_tab.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/training/training_tab.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/providers/branch_switch_provider.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/pages/hr/widgets/performance/reviews/reviews_tab.dart';
+import 'package:attendkh/pages/hr/widgets/performance/kpis/admin_kpis_tab.dart';
+import 'package:attendkh/pages/hr/widgets/performance/training/training_tab.dart';
 
 class AdminPerformanceScreen extends ConsumerStatefulWidget {
   const AdminPerformanceScreen({super.key});

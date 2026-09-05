@@ -1,5 +1,5 @@
-import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart'; // For RoleData
+import 'package:attendkh/services/hr_repository.dart';
+import 'package:attendkh/services/network/api_repository.dart'; // For RoleData
 
 class SuperAdminRolesPayload {
   final List<RoleData> roles;

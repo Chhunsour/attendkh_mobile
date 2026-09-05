@@ -1,11 +1,11 @@
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/providers/admin_providers.dart';
+import 'package:attendkh/services/recruitment_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 class ScheduleInterviewSheet extends ConsumerStatefulWidget {
   final int jobId;

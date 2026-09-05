@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/payslip_repository.dart';
-import 'package:mpg_hr_mobile_app/providers/payslip_provider.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/payslip_repository.dart';
+import 'package:attendkh/providers/payslip_provider.dart';
+import 'package:attendkh/providers/auth_provider.dart';
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 /// Shoulder-surfing guard: the phone gets passed around the garage, so the
 /// salary figures can be blurred out with one tap. Remembered across launches.

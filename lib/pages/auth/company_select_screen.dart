@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/utils/router/app_router.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 class CompanySelectScreen extends StatelessWidget {
   const CompanySelectScreen({super.key});

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/admin_leave/leave_shared_widgets.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/providers/admin_providers.dart';
+import 'package:attendkh/services/admin_operations_repository.dart';
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/pages/hr/widgets/admin_leave/leave_shared_widgets.dart';
 
 class LeaveTypesTab extends ConsumerWidget {
   const LeaveTypesTab({super.key});

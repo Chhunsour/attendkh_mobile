@@ -4,11 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
-import 'package:mpg_hr_mobile_app/services/payslip_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/services/notifications_repository.dart';
+import 'package:attendkh/services/payslip_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/utils/utils/date_format_utils.dart';
 
 class NotificationDetailScreen extends StatelessWidget {
   final NotificationItem notification;

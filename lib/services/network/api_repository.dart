@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
-import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
+import 'package:attendkh/utils/logger/app_logger.dart';
+import 'package:attendkh/services/network/dio_client.dart';
+import 'package:attendkh/services/network/exceptions.dart';
 
 /// Standard API response envelope matching Laravel HttpResponse trait
 class ApiResponse<T> {

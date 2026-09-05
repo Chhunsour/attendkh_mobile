@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/performance_repository.dart';
-import 'package:mpg_hr_mobile_app/services/directory_repository.dart' show EmployeeData;
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/shared/chip_style.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/shared/star_rating_picker.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/providers/branch_switch_provider.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/performance_repository.dart';
+import 'package:attendkh/services/directory_repository.dart' show EmployeeData;
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/components/custom_date_picker.dart';
+import 'package:attendkh/pages/hr/widgets/performance/shared/chip_style.dart';
+import 'package:attendkh/pages/hr/widgets/performance/shared/star_rating_picker.dart';
 
 class ReviewsTab extends ConsumerStatefulWidget {
   const ReviewsTab({super.key});

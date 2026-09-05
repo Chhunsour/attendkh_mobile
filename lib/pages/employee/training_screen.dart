@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/performance_repository.dart';
-import 'package:mpg_hr_mobile_app/providers/training_provider.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/performance_repository.dart';
+import 'package:attendkh/providers/training_provider.dart';
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 class TrainingScreen extends ConsumerStatefulWidget {
   const TrainingScreen({super.key});

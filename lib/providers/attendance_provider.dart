@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/models/monthly_attendance_model.dart';
-import 'package:mpg_hr_mobile_app/services/attendance_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
+import 'package:attendkh/models/monthly_attendance_model.dart';
+import 'package:attendkh/services/attendance_repository.dart';
+import 'package:attendkh/utils/logger/app_logger.dart';
 
 final attendanceRepositoryProvider = Provider<AttendanceRepository>((ref) {
   return AttendanceRepository();

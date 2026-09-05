@@ -1,5 +1,5 @@
-import 'package:mpg_hr_mobile_app/models/kpi_model.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
+import 'package:attendkh/models/kpi_model.dart';
+import 'package:attendkh/services/network/dio_client.dart';
 
 class KpiRepository {
   static Future<KpiData> getSystemKpis() async {

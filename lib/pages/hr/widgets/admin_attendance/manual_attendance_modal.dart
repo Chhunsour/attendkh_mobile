@@ -1,11 +1,11 @@
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/providers/admin_providers.dart';
+import 'package:attendkh/services/hr_repository.dart';
+import 'package:attendkh/services/network/dio_client.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 class ManualAttendanceModal extends ConsumerStatefulWidget {
   final VoidCallback onSaved;

@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import 'package:mpg_hr_mobile_app/services/policies_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/services/policies_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 final employeePoliciesProvider =
     FutureProvider.autoDispose<List<Policy>>((ref) async {

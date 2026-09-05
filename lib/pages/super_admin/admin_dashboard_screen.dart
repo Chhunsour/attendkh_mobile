@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/admin_dashboard_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
-import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
-import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
+import 'package:attendkh/providers/auth_provider.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/admin_dashboard_repository.dart';
+import 'package:attendkh/utils/router/app_router.dart';
+import 'package:attendkh/providers/notifications_provider.dart';
+import 'package:attendkh/services/fcm_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/providers/profile_provider.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 // ── Riverpod provider ──────────────────────────────────────────────────────
 final adminDashboardProvider = FutureProvider.autoDispose<AdminDashboardData>((ref) {

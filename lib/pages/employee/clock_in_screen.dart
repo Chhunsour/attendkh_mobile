@@ -13,12 +13,12 @@ import 'package:device_marketing_names/device_marketing_names.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/providers/attendance_provider.dart';
-import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
-import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
-import 'package:mpg_hr_mobile_app/providers/notifications_provider.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/providers/attendance_provider.dart';
+import 'package:attendkh/services/network/exceptions.dart';
+import 'package:attendkh/utils/image_compressor.dart';
+import 'package:attendkh/providers/notifications_provider.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 class ClockInArgs {
   final bool isClockIn;

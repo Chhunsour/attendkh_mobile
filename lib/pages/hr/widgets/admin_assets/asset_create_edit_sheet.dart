@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/services/assets_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/services/assets_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 class AssetCreateEditSheet extends StatefulWidget {
   final AssetData? asset;

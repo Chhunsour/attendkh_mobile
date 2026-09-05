@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 /// Responsive navigation shell shared by employee and admin experiences.
 ///

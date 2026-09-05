@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/services/company_rules_repository.dart';
+import 'package:attendkh/services/company_rules_repository.dart';
 
 final companyRulesRepositoryProvider = Provider<CompanyRulesRepository>((ref) {
   return CompanyRulesRepository();

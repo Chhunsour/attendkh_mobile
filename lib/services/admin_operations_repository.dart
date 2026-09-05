@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
+import 'package:attendkh/services/network/api_repository.dart';
+import 'package:attendkh/services/network/dio_client.dart';
 import 'package:path_provider/path_provider.dart';
 
 // ── Common Models ────────────────────────────────────────────────────────────

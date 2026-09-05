@@ -6,12 +6,12 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mpg_hr_mobile_app/app.dart';
+import 'package:attendkh/app.dart';
 
 
 void main() {
   testWidgets('App renders successfully', (WidgetTester tester) async {
     // Verify app widget can be instantiated
-    expect(const MPGHRApp(), isNotNull);
+    expect(const AttendKHApp(), isNotNull);
   });
 }

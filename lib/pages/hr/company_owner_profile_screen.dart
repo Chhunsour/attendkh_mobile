@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
-import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/providers/auth_provider.dart';
+import 'package:attendkh/providers/profile_provider.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/profile_repository.dart';
+import 'package:attendkh/utils/image_compressor.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 /// One cut corner on every card — the motif the admin surfaces share.
 const _cardShape = BorderRadius.only(

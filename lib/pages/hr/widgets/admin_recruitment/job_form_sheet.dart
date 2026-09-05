@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
-import 'package:mpg_hr_mobile_app/services/hr_repository.dart' show PositionData;
-import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/services/documents_repository.dart' show DepartmentData;
+import 'package:attendkh/services/hr_repository.dart' show PositionData;
+import 'package:attendkh/services/recruitment_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 class JobFormSheet extends StatefulWidget {
   final JobPostingData? job;

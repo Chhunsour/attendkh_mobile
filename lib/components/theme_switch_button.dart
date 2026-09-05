@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/providers/theme_provider.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 /// Modern Theme Switcher Button / Pill (☀️ Light / 🌙 Dark / 💻 System)
 ///

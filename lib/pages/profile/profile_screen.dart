@@ -4,13 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/profile_repository.dart';
-import 'package:mpg_hr_mobile_app/providers/profile_provider.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/utils/router/app_router.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/profile_repository.dart';
+import 'package:attendkh/providers/profile_provider.dart';
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/utils/utils/date_format_utils.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 class ProfileScreen extends ConsumerWidget {
   final bool showBackButton;

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
-import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
-import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/providers/auth_provider.dart';
+import 'package:attendkh/providers/admin_providers.dart';
+import 'package:attendkh/providers/branch_switch_provider.dart';
+import 'package:attendkh/services/hr_repository.dart';
+import 'package:attendkh/utils/router/app_router.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/components/dialogs/logout_dialog.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 class AdminMoreScreen extends ConsumerWidget {
   const AdminMoreScreen({super.key});

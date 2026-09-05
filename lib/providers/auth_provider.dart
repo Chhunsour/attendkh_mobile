@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
-import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
-import 'package:mpg_hr_mobile_app/utils/storage/secure_storage.dart';
-import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
-import 'package:mpg_hr_mobile_app/services/auth_repository.dart';
+import 'package:attendkh/utils/logger/app_logger.dart';
+import 'package:attendkh/services/network/exceptions.dart';
+import 'package:attendkh/utils/storage/secure_storage.dart';
+import 'package:attendkh/services/fcm_service.dart';
+import 'package:attendkh/services/auth_repository.dart';
 
 /// Auth state
 class AuthState {

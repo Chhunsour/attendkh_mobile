@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/layouts/bottom_nav_shell.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
-import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/company_admin_dashboard_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/finance_ops_summary.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/hr_ops_summary.dart';
-import 'package:mpg_hr_mobile_app/pages/shared/more_screen.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/layouts/bottom_nav_shell.dart';
+import 'package:attendkh/providers/auth_provider.dart';
+import 'package:attendkh/providers/admin_providers.dart';
+import 'package:attendkh/pages/hr/company_admin_dashboard_screen.dart';
+import 'package:attendkh/pages/hr/finance_ops_summary.dart';
+import 'package:attendkh/pages/hr/hr_ops_summary.dart';
+import 'package:attendkh/pages/shared/more_screen.dart';
+import 'package:attendkh/utils/router/app_router.dart';
 
 /// Bottom navigation shell for Company Admin / Branch Manager.
 ///

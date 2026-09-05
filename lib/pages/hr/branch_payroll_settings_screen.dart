@@ -1,7 +1,7 @@
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 import '../../services/admin_operations_repository.dart';
 import '../../providers/admin_providers.dart';
 import '../../components/loading_indicator.dart';

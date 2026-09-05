@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/providers/leave_provider.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
-import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/providers/leave_provider.dart';
+import 'package:attendkh/providers/auth_provider.dart';
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/components/custom_date_picker.dart';
+import 'package:attendkh/services/network/exceptions.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 class LeaveRequestScreen extends ConsumerStatefulWidget {
   const LeaveRequestScreen({super.key});

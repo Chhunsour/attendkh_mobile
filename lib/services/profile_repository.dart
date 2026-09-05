@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
+import 'package:attendkh/utils/logger/app_logger.dart';
+import 'package:attendkh/services/network/api_repository.dart';
 
 class ProfileData {
   final int id;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mpg_hr_mobile_app/layouts/bottom_nav_shell.dart';
+import 'package:attendkh/layouts/bottom_nav_shell.dart';
 
 void main() {
   const items = [
