@@ -1,7 +1,7 @@
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
-import 'package:mpg_hr_mobile_app/services/documents_repository.dart'
+import 'package:attendkh/services/network/api_repository.dart';
+import 'package:attendkh/services/documents_repository.dart'
     show DepartmentData;
-import 'package:mpg_hr_mobile_app/services/hr_repository.dart'
+import 'package:attendkh/services/hr_repository.dart'
     show PositionData;
 
 class JobPostingData {

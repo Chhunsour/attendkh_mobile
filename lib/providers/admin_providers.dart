@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/models/leave_summary_model.dart';
-import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
-import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
-import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
-import 'package:mpg_hr_mobile_app/services/assets_repository.dart';
-import 'package:mpg_hr_mobile_app/services/summary_repository.dart';
-import 'package:mpg_hr_mobile_app/providers/branch_switch_provider.dart';
+import 'package:attendkh/models/leave_summary_model.dart';
+import 'package:attendkh/services/hr_repository.dart';
+import 'package:attendkh/services/admin_operations_repository.dart';
+import 'package:attendkh/services/recruitment_repository.dart';
+import 'package:attendkh/services/assets_repository.dart';
+import 'package:attendkh/services/summary_repository.dart';
+import 'package:attendkh/providers/branch_switch_provider.dart';
 
 // ── Repository Providers ────────────────────────────────────────────────────
 final hrRepositoryProvider = Provider<HrRepository>((ref) => HrRepository());

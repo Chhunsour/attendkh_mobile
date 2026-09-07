@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/utils/router/app_router.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
-import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/providers/locale_provider.dart';
+import 'package:attendkh/providers/theme_provider.dart';
 
-class MPGHRApp extends ConsumerWidget {
-  const MPGHRApp({super.key});
+class AttendKHApp extends ConsumerWidget {
+  const AttendKHApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

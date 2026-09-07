@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/services/payslip_repository.dart';
+import 'package:attendkh/services/payslip_repository.dart';
 
 final payslipRepositoryProvider = Provider<PayslipRepository>((ref) => PayslipRepository());
 final payslipsProvider = FutureProvider.autoDispose<List<PayslipData>>((ref) async {

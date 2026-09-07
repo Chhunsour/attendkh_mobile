@@ -2,19 +2,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
-import 'package:mpg_hr_mobile_app/services/hr_repository.dart' show PositionData;
-import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
-import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/documents_repository.dart' show DepartmentData;
+import 'package:attendkh/services/hr_repository.dart' show PositionData;
+import 'package:attendkh/services/recruitment_repository.dart';
+import 'package:attendkh/providers/admin_providers.dart';
+import 'package:attendkh/components/loading_indicator.dart';
 
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/admin_recruitment/job_metrics_overview.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/admin_recruitment/job_filter_bar.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/admin_recruitment/job_card.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/admin_recruitment/job_form_sheet.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/admin_recruitment/job_candidates_sheet.dart';
+import 'package:attendkh/pages/hr/widgets/admin_recruitment/job_metrics_overview.dart';
+import 'package:attendkh/pages/hr/widgets/admin_recruitment/job_filter_bar.dart';
+import 'package:attendkh/pages/hr/widgets/admin_recruitment/job_card.dart';
+import 'package:attendkh/pages/hr/widgets/admin_recruitment/job_form_sheet.dart';
+import 'package:attendkh/pages/hr/widgets/admin_recruitment/job_candidates_sheet.dart';
 
 class AdminRecruitmentScreen extends ConsumerStatefulWidget {
   const AdminRecruitmentScreen({super.key});

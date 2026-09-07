@@ -5,11 +5,11 @@ import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mpg_hr_mobile_app/services/documents_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/utils/logger/app_logger.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/services/documents_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/utils/logger/app_logger.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 final employeeDocumentsProvider =
     FutureProvider.autoDispose<List<DocumentData>>((ref) async {

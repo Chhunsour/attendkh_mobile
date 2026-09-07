@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/summary_repository.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/summary_repository.dart';
+import 'package:attendkh/services/network/dio_client.dart';
 
 class AdminSummaryScreen extends StatefulWidget {
   const AdminSummaryScreen({super.key});

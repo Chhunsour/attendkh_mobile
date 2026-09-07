@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/layouts/bottom_nav_shell.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/pages/employee/dashboard_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/employee/leave_list_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/employee/payslip_screen.dart';
-import 'package:mpg_hr_mobile_app/pages/shared/more_screen.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/layouts/bottom_nav_shell.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/pages/employee/dashboard_screen.dart';
+import 'package:attendkh/pages/employee/leave_list_screen.dart';
+import 'package:attendkh/pages/employee/payslip_screen.dart';
+import 'package:attendkh/pages/shared/more_screen.dart';
+import 'package:attendkh/utils/router/app_router.dart';
 
 /// Bottom navigation shell for Employees.
 ///

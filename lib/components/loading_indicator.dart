@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 class LoadingIndicator extends StatelessWidget {
   final String? message;

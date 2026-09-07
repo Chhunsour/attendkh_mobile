@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/providers/auth_provider.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/utils/router/app_router.dart';
 
 /// Branded 403 Access Restricted screen for unauthorized route attempts.
 class AccessRestrictedScreen extends ConsumerWidget {

@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
+import 'package:attendkh/services/network/api_repository.dart';
 
 class AdminCompany {
   final int id;

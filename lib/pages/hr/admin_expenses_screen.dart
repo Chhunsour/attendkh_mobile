@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/providers/expense_provider.dart';
-import 'package:mpg_hr_mobile_app/services/expense_repository.dart';
-import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/providers/expense_provider.dart';
+import 'package:attendkh/services/expense_repository.dart';
+import 'package:attendkh/services/admin_operations_repository.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mpg_hr_mobile_app/services/network/exceptions.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
+import 'package:attendkh/services/network/exceptions.dart';
+import 'package:attendkh/services/network/dio_client.dart';
+import 'package:attendkh/components/loading_indicator.dart';
 
 class AdminExpensesScreen extends ConsumerStatefulWidget {
   const AdminExpensesScreen({super.key});

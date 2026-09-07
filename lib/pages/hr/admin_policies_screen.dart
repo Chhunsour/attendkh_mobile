@@ -2,12 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/policies_repository.dart';
-import 'package:mpg_hr_mobile_app/services/documents_repository.dart'
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/policies_repository.dart';
+import 'package:attendkh/services/documents_repository.dart'
     show DepartmentData;
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/components/custom_date_picker.dart';
 
 class AdminPoliciesScreen extends StatefulWidget {
   const AdminPoliciesScreen({super.key});

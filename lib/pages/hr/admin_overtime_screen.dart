@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mpg_hr_mobile_app/providers/overtime_providers.dart';
-import 'package:mpg_hr_mobile_app/services/overtime_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/providers/overtime_providers.dart';
+import 'package:attendkh/services/overtime_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 class AdminOvertimeScreen extends ConsumerStatefulWidget {
   const AdminOvertimeScreen({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
+import 'package:attendkh/services/admin_operations_repository.dart';
 
 void main() {
   test('action drops the name the message repeats', () {

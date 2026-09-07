@@ -1,4 +1,4 @@
-package com.mpghr.app
+package com.attendkh.app
 
 import io.flutter.embedding.android.FlutterActivity
 

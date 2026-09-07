@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/providers/admin_providers.dart';
+import 'package:attendkh/services/admin_operations_repository.dart';
+import 'package:attendkh/services/network/dio_client.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/utils/utils/date_format_utils.dart';
 
 class DailyLogsTab extends ConsumerStatefulWidget {
   const DailyLogsTab({super.key});

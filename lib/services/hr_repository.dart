@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
-import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
+import 'package:attendkh/services/network/api_repository.dart';
+import 'package:attendkh/services/admin_operations_repository.dart';
 
 int? _safeInt(dynamic val) {
   if (val == null) return null;

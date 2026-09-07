@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/hr_repository.dart';
-import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
-import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/hr_repository.dart';
+import 'package:attendkh/providers/admin_providers.dart';
+import 'package:attendkh/services/network/dio_client.dart';
+import 'package:attendkh/utils/image_compressor.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:mpg_hr_mobile_app/services/recruitment_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/services/recruitment_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 class JobMetricsOverview extends StatelessWidget {
   final List<JobPostingData> jobs;

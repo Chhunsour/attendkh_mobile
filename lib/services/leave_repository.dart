@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
+import 'package:attendkh/services/network/api_repository.dart';
 
 class LeaveBalance {
   final int id;

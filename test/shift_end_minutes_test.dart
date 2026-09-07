@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:attendkh/utils/utils/date_format_utils.dart';
 
 void main() {
   test('formatShiftTime compacts the window', () {

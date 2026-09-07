@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/providers/admin_providers.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 import 'widgets/admin_attendance/corrections_tab.dart';
 import 'widgets/admin_attendance/daily_logs_tab.dart';
 import 'widgets/admin_attendance/manual_attendance_modal.dart';

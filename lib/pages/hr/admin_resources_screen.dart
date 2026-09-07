@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/providers/admin_providers.dart';
-import 'package:mpg_hr_mobile_app/services/admin_operations_repository.dart';
-import 'package:mpg_hr_mobile_app/services/announcements_repository.dart';
-import 'package:mpg_hr_mobile_app/services/policies_repository.dart';
-import 'package:mpg_hr_mobile_app/services/documents_repository.dart';
-import 'package:mpg_hr_mobile_app/components/loading_indicator.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/providers/admin_providers.dart';
+import 'package:attendkh/services/admin_operations_repository.dart';
+import 'package:attendkh/services/announcements_repository.dart';
+import 'package:attendkh/services/policies_repository.dart';
+import 'package:attendkh/services/documents_repository.dart';
+import 'package:attendkh/components/loading_indicator.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 /// Admin screen for managing Shifts, Holidays, Announcements, Policies, Documents
 class AdminResourcesScreen extends ConsumerStatefulWidget {

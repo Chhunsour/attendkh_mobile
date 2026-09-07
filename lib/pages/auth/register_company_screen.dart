@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mpg_hr_mobile_app/services/auth_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/components/app_logo.dart';
-import 'package:mpg_hr_mobile_app/components/custom_text_field.dart';
-import 'package:mpg_hr_mobile_app/components/primary_button.dart';
-import 'package:mpg_hr_mobile_app/components/language_switch_button.dart';
-import 'package:mpg_hr_mobile_app/components/theme_switch_button.dart';
+import 'package:attendkh/services/auth_repository.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/components/app_logo.dart';
+import 'package:attendkh/components/custom_text_field.dart';
+import 'package:attendkh/components/primary_button.dart';
+import 'package:attendkh/components/language_switch_button.dart';
+import 'package:attendkh/components/theme_switch_button.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 class RegisterCompanyScreen extends ConsumerStatefulWidget {
   const RegisterCompanyScreen({super.key});

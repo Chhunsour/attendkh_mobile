@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/services/network/api_repository.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/services/network/api_repository.dart';
+import 'package:attendkh/providers/auth_provider.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/components/dialogs/logout_dialog.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
   const VerifyEmailScreen({super.key});

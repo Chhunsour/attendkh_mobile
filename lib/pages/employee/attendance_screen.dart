@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mpg_hr_mobile_app/utils/router/app_router.dart';
+import 'package:attendkh/utils/router/app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/providers/attendance_provider.dart';
-import 'package:mpg_hr_mobile_app/services/attendance_repository.dart';
-import 'package:mpg_hr_mobile_app/utils/utils/date_format_utils.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/providers/attendance_provider.dart';
+import 'package:attendkh/services/attendance_repository.dart';
+import 'package:attendkh/utils/utils/date_format_utils.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 class AttendanceScreen extends ConsumerStatefulWidget {
   const AttendanceScreen({super.key});

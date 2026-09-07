@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/pages/shared/more_screen.dart';
-import 'package:mpg_hr_mobile_app/providers/auth_provider.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/pages/shared/more_screen.dart';
+import 'package:attendkh/providers/auth_provider.dart';
+import 'package:attendkh/services/network/dio_client.dart';
 
 void main() {
   setUpAll(DioClient.init);

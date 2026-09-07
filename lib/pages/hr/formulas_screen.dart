@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 import 'dart:math' as math;
 import '../../services/admin_operations_repository.dart';
 

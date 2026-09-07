@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mpg_hr_mobile_app/components/dialogs/logout_dialog.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
+import 'package:attendkh/components/dialogs/logout_dialog.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
 
 void main() {
   Future<void> pumpDialog(WidgetTester tester, TargetPlatform platform) async {

@@ -2,16 +2,16 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mpg_hr_mobile_app/l10n/app_localizations.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/services/performance_repository.dart';
-import 'package:mpg_hr_mobile_app/services/documents_repository.dart' show DepartmentData;
-import 'package:mpg_hr_mobile_app/services/directory_repository.dart' show DirectoryRepository, EmployeeData;
-import 'package:mpg_hr_mobile_app/utils/image_compressor.dart';
-import 'package:mpg_hr_mobile_app/components/custom_date_picker.dart';
+import 'package:attendkh/l10n/app_localizations.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/services/performance_repository.dart';
+import 'package:attendkh/services/documents_repository.dart' show DepartmentData;
+import 'package:attendkh/services/directory_repository.dart' show DirectoryRepository, EmployeeData;
+import 'package:attendkh/utils/image_compressor.dart';
+import 'package:attendkh/components/custom_date_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mpg_hr_mobile_app/services/network/dio_client.dart';
-import 'package:mpg_hr_mobile_app/pages/hr/widgets/performance/shared/chip_style.dart';
+import 'package:attendkh/services/network/dio_client.dart';
+import 'package:attendkh/pages/hr/widgets/performance/shared/chip_style.dart';
 
 class TrainingTab extends StatefulWidget {
   const TrainingTab({super.key});

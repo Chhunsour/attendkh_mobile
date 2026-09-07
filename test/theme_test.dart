@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mpg_hr_mobile_app/providers/theme_provider.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
-import 'package:mpg_hr_mobile_app/components/theme_switch_button.dart';
+import 'package:attendkh/providers/theme_provider.dart';
+import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/components/theme_switch_button.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

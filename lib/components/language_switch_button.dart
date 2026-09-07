@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mpg_hr_mobile_app/providers/locale_provider.dart';
-import 'package:mpg_hr_mobile_app/utils/theme/theme.dart';
+import 'package:attendkh/providers/locale_provider.dart';
+import 'package:attendkh/utils/theme/theme.dart';
 
 /// Language switcher with a flag thumbnail + ISO code chip.
 ///

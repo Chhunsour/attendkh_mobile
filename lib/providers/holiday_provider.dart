@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/services/holidays_repository.dart';
+import 'package:attendkh/services/holidays_repository.dart';
 
 final holidaysRepositoryProvider = Provider<HolidaysRepository>((ref) {
   return HolidaysRepository();

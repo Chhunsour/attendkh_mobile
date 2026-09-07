@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mpg_hr_mobile_app/services/notifications_repository.dart';
-import 'package:mpg_hr_mobile_app/services/fcm_service.dart';
+import 'package:attendkh/services/notifications_repository.dart';
+import 'package:attendkh/services/fcm_service.dart';
 
 final notificationsRepositoryProvider = Provider<NotificationsRepository>(
   (ref) => NotificationsRepository(),
