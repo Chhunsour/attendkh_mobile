@@ -77,8 +77,10 @@ CFBundleVersion 3 and CFBundleIdentifier com.attendkh.app.
 succeeded (delivery eeb5a068-6987-4fdc-8b29-ee8aa342a67d) and build 3 reached
 processingState VALID.
 
-Build 3 is uploaded and processed. It is NOT attached to version 1.0 and
-NOTHING has been submitted.
+Build 3 is uploaded, processed VALID, and ATTACHED to version 1.0 (replacing
+build 2) via PATCH /v1/appStoreVersions/{id}/relationships/build. Export
+compliance carries over: usesNonExemptEncryption = false. Version 1.0 is still
+PREPARE_FOR_SUBMISSION - NOTHING has been submitted.
 
 ## Unlisted App Distribution request
 
@@ -107,8 +109,8 @@ page without a pricing nav would remove the last bit of exposure.
 
 ## What is left to click
 
-1. App Store Connect -> version 1.0 -> Build: select 1.0.0 (3) in place of
-   build (2). Only build selection is scripted-safe; it was left for you.
-2. Unlisted request tab: correct the three numbers, tick the acknowledgement
+1. Unlisted request tab: correct the three numbers, tick the acknowledgement
    checkbox, click Submit.
-3. App Store Connect version 1.0 page: Add for Review / Submit for Review.
+2. App Store Connect version 1.0 page: Add for Review / Submit for Review.
+
+Build selection is DONE - no longer a manual step.
