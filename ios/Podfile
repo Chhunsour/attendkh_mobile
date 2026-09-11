@@ -42,12 +42,19 @@ post_install do |installer|
       # permission_handler_apple compiles every strategy OUT by default (=0).
       # Enable only what lib/ actually calls: Permission.camera (clock-in selfie)
       # and Permission.notification (FCM prompt). Location goes through geolocator,
-      # so PERMISSION_LOCATION stays off — it would otherwise link the
-      # requestAlwaysAuthorization path with no NSLocationAlwaysAndWhenInUse string.
-      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
-        '$(inherited)',
+      # so PERMISSION_LOCATION stays off.
+      #
+      # BYPASS_PERMISSION_LOCATION_ALWAYS strips geolocator_apple's
+      # requestAlwaysAuthorization path. AttendKH never asks for Always/background
+      # location -- that branch is already unreachable at runtime because
+      # NSLocationWhenInUseUsageDescription is present -- but the dead code still
+      # linked the API, which is what tripped Apple's ITMS-90683 static analysis.
+      defs = config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] || ['$(inherited)']
+      defs = [defs] unless defs.is_a?(Array)
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = defs + [
         'PERMISSION_CAMERA=1',
         'PERMISSION_NOTIFICATIONS=1',
+        'BYPASS_PERMISSION_LOCATION_ALWAYS=1',
       ]
     end
   end

@@ -24,16 +24,16 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>UIRequiresFullScreen</key>
+	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app requires access to your location to verify your check-in and check-out at the work site.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires access to your camera to take a selfie for check-in and check-out verification, and to capture expense receipts.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>AttendKH uses your location only while the app is open, at the moment you tap Clock In or Clock Out, to confirm you are inside your employer&apos;s approved workplace area and to record that verified attendance. Your location is not collected in the background and is never used for advertising or tracking.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>AttendKH does not track your location in the background. Location is used only while the app is open, when you clock in or out, to confirm you are inside your employer&apos;s approved workplace area for attendance. It is never used for advertising or tracking.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app requires access to your photo library to attach expense receipts.</string>
 	<key>UIApplicationSceneManifest</key>
@@ -59,17 +59,19 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-	</array>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
 	</array>
 </dict>
 </plist>
