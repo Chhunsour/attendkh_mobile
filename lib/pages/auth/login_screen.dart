@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:attendkh/components/app_logo.dart';
 import 'package:attendkh/components/custom_text_field.dart';
 import 'package:attendkh/components/language_switch_button.dart';
@@ -11,7 +10,6 @@ import 'package:attendkh/components/primary_button.dart';
 import 'package:attendkh/components/theme_switch_button.dart';
 import 'package:attendkh/l10n/app_localizations.dart';
 import 'package:attendkh/providers/auth_provider.dart';
-import 'package:attendkh/utils/router/app_router.dart';
 import 'package:attendkh/utils/theme/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -531,68 +529,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 isLoading: authState.isLoading,
                 onPressed: _isLocked ? null : _handleLogin,
               ),
-              const SizedBox(height: 18),
 
-              // Divider with clean text
-              Row(
-                children: [
-                  Expanded(
-                    child: Divider(
-                      color: isDark ? AppColors.borderDark : AppColors.grey200,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(
-                      'OR',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.grey500 : AppColors.grey400,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      color: isDark ? AppColors.borderDark : AppColors.grey200,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // Register Company Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton.icon(
-                  onPressed: authState.isLoading
-                      ? null
-                      : () => context.go(AppRoutes.register),
-                  icon: const Icon(Icons.business_rounded, size: 18),
-                  label: Text(
-                    l10n.createAccount,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: isDark ? Colors.white : AppColors.primary,
-                    side: BorderSide(
-                      color: isDark
-                          ? AppColors.borderDark
-                          : AppColors.primary.withValues(alpha: 0.35),
-                      width: 1.2,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
