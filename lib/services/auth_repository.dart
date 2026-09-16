@@ -133,26 +133,28 @@ class AuthRepository {
 
   /// POST /api/v1/register
   Future<RegisterResult> registerCompany({
+    required String companyName,
     required String userName,
-    required String userPhone,
     required String email,
+    required String phone,
     required String password,
     required String passwordConfirmation,
-    required String companyName,
-    String? companySize,
+    String? userPhone,
     String? companyPhone,
+    String? companySize,
   }) async {
     final response = await _api.post(
       '/register',
       data: {
+        'company_name': companyName,
         'user_name': userName,
-        'user_phone': userPhone,
         'email': email,
+        'phone': phone,
+        'user_phone': userPhone ?? phone,
+        'company_phone': companyPhone ?? phone,
         'password': password,
         'password_confirmation': passwordConfirmation,
-        'company_name': companyName,
-        'company_size': companySize,
-        'company_phone': companyPhone,
+        'company_size': ?companySize,
       },
     );
 

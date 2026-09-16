@@ -11,6 +11,8 @@ import 'package:attendkh/components/theme_switch_button.dart';
 import 'package:attendkh/l10n/app_localizations.dart';
 import 'package:attendkh/providers/auth_provider.dart';
 import 'package:attendkh/utils/theme/theme.dart';
+import 'package:attendkh/utils/router/app_router.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const _privacyPolicyUrl = 'https://attendkh.com/privacy-policy';
@@ -528,6 +530,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     : l10n.signIn,
                 isLoading: authState.isLoading,
                 onPressed: _isLocked ? null : _handleLogin,
+              ),
+              const SizedBox(height: 18),
+              Center(
+                child: TextButton(
+                  onPressed: () => context.go(AppRoutes.register),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      text: 'Want to register a new organization? ',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? AppColors.grey400 : AppColors.grey600,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'Register Company',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? const Color(0xFF60A5FA) : AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
 
             ],

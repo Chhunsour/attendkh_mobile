@@ -242,6 +242,66 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Register company workspace and admin account — calls POST /register, stores token and user data
+  Future<RegisterResult> registerCompany({
+    required String companyName,
+    required String userName,
+    required String email,
+    required String phone,
+    required String password,
+    required String passwordConfirmation,
+    String? userPhone,
+    String? companyPhone,
+    String? companySize,
+  }) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+
+    try {
+      final result = await _authRepo.registerCompany(
+        companyName: companyName,
+        userName: userName,
+        email: email,
+        phone: phone,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+        userPhone: userPhone,
+        companyPhone: companyPhone,
+        companySize: companySize,
+      );
+
+      // Persist tokens and user data to secure storage
+      await _persistRegisterResult(result);
+
+      state = state.copyWith(
+        isAuthenticated: true,
+        isLoading: false,
+        token: result.accessToken,
+        userId: result.userId.toString(),
+        userName: result.userName,
+        userEmail: result.userEmail,
+        companyId: result.companyId > 0 ? result.companyId.toString() : null,
+        companyName: result.companyName,
+        roles: result.roles,
+      );
+
+      // Sync FCM token
+      FcmService.instance.syncTokenWithBackend();
+
+      AppLogger.i('Company workspace registered successfully: ${result.companyName}');
+      return result;
+    } on AppException catch (e) {
+      state = state.copyWith(isLoading: false, error: e.message);
+      rethrow;
+    } catch (e) {
+      AppLogger.e('Registration failed', e);
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Registration failed. Please try again.',
+      );
+      rethrow;
+    }
+  }
+
   /// Logout — revokes the token server-side, then clears everything locally.
   ///
   /// The revoke is time-boxed so a dead network can never leave the user stuck
@@ -292,6 +352,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
       storage.setRoles(result.roles),
       if (result.employeeId != null)
         storage.setEmployeeId(result.employeeId!.toString()),
+    ]);
+  }
+
+  /// Persist register result to secure storage
+  Future<void> _persistRegisterResult(RegisterResult result) async {
+    final storage = SecureStorageService.instance;
+    await Future.wait([
+      storage.setAccessToken(result.accessToken),
+      storage.setUserId(result.userId.toString()),
+      storage.setUserName(result.userName),
+      storage.setUserEmail(result.userEmail),
+      storage.setCompanyId(result.companyId.toString()),
+      storage.setCompanyName(result.companyName),
+      storage.setRoles(result.roles),
     ]);
   }
 

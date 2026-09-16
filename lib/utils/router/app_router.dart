@@ -8,6 +8,7 @@ import 'package:attendkh/layouts/company_admin_shell.dart';
 import 'package:attendkh/layouts/super_admin_shell.dart';
 import 'package:attendkh/pages/auth/splash_screen.dart';
 import 'package:attendkh/pages/auth/login_screen.dart';
+import 'package:attendkh/pages/auth/register_company_screen.dart';
 import 'package:attendkh/pages/auth/company_select_screen.dart';
 import 'package:attendkh/pages/auth/verify_email_screen.dart';
 import 'package:attendkh/pages/employee/attendance_screen.dart';
@@ -297,7 +298,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.register,
-        redirect: (context, state) => AppRoutes.login,
+        builder: (context, state) => const RegisterCompanyScreen(),
       ),
       GoRoute(
         path: AppRoutes.companySelect,
