@@ -1,5 +1,17 @@
 # 📱 AttendKH Mobile Application — Smart Attendance & Enterprise HR Suite
 
+<p align="center">
+  <sub>Developed by <strong>Seng Chhunsour</strong></sub>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Chhunsour"><img src="https://img.shields.io/badge/Author-Seng%20Chhunsour-FF5A1F?style=flat-square&logo=github&logoColor=white" alt="Author: Seng Chhunsour" /></a>
+  <img src="https://img.shields.io/badge/Framework-Flutter%203.x-02569B?style=flat-square&logo=flutter&logoColor=white" alt="Flutter" />
+  <img src="https://img.shields.io/badge/Language-Dart%203.12%2B-0175C2?style=flat-square&logo=dart&logoColor=white" alt="Dart" />
+  <img src="https://img.shields.io/badge/Platforms-iOS%20%7C%20Android-blue?style=flat-square" alt="iOS & Android" />
+  <img src="https://img.shields.io/badge/Localization-Khmer%20%26%20English-red?style=flat-square" alt="Khmer & English" />
+</p>
+
 > **Official Cross-Platform Mobile Client for iOS & Android**  
 > **Production Repository**: `https://github.com/NetVanna/mpg-hr-mobile-app`  
 > **Framework**: Flutter 3.x / Dart 3.12+ (Null-Safe)  
@@ -328,3 +340,17 @@ chmod +x archive_appstore.sh
 ## 11. Master Audit Reference
 
 For the comprehensive technical audit, refer to the full document in [`docs/APP_AUDIT.md`](docs/APP_AUDIT.md).
+
+---
+
+## 👤 Author & Developer
+
+**Developed by Seng Chhunsour**
+- **GitHub:** [@Chhunsour](https://github.com/Chhunsour)
+- **Repository:** [https://github.com/Chhunsour/attendkh_mobile](https://github.com/Chhunsour/attendkh_mobile)
+
+---
+
+## 📄 License
+
+Personal and open-source project. Developed by Seng Chhunsour. All rights reserved.
